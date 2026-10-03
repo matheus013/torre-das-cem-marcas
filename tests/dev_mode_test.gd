@@ -13,6 +13,15 @@ func _init() -> void:
 
 	DevModeScript.set_enabled(false)
 	var public_ok := not DevModeScript.enabled() and DevModeScript.home_scene() == DevModeScript.PUBLIC_HOME
+	for args in [PackedStringArray(["--server", "--public"]), PackedStringArray(["--client=127.0.0.1", "--public"])]:
+		if DevModeScript.boot_scene(args) != DevModeScript.PUBLIC_HOME:
+			_restore(had_preferences, previous)
+			_fail("Explicit public mode must override development network arguments")
+			return
+	if DevModeScript.boot_scene(PackedStringArray(["--server"])) != DevModeScript.DEV_HOME:
+		_restore(had_preferences, previous)
+		_fail("Debug network smoke launch must remain available")
+		return
 	DevModeScript.set_enabled(true)
 	var dev_ok := DevModeScript.enabled() and DevModeScript.home_scene() == DevModeScript.DEV_HOME
 	_restore(had_preferences, previous)

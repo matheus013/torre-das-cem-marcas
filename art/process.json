@@ -1207,6 +1207,27 @@
    "source": "raw/village_andaime_vila_s88690.png",
    "output": "res://assets/sprites/props/andaime_vila.png",
    "block": 8
+  },
+  {
+   "key": "dungeon_portal_retorno",
+   "group": "dungeon_props",
+   "source": "raw/dungeon_portal_retorno_s61001.png",
+   "output": "res://assets/sprites/props/portal_retorno.png",
+   "block": 8
+  },
+  {
+   "key": "dungeon_escada_aberta",
+   "group": "dungeon_props",
+   "source": "raw/dungeon_escada_aberta_s61011.png",
+   "output": "res://assets/sprites/props/escada_aberta.png",
+   "block": 8
+  },
+  {
+   "key": "dungeon_escada_selada",
+   "group": "dungeon_props",
+   "source": "raw/dungeon_escada_selada_s61021.png",
+   "output": "res://assets/sprites/props/escada_selada.png",
+   "block": 8
   }
  ]
 }

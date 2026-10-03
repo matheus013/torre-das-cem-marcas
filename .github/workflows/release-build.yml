@@ -1,0 +1,50 @@
+name: Builds de distribuicao
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'data/**'
+      - 'assets/**'
+      - 'project.godot'
+      - 'export_presets.cfg'
+      - 'tools/release/**'
+      - '.github/workflows/release-build.yml'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GODOT_VERSION: 4.6.3
+    steps:
+      - uses: actions/checkout@v4
+      - name: Instalar engine e templates oficiais
+        run: |
+          curl -fL --retry 3 -o godot.zip "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          unzip -q godot.zip
+          mkdir -p "$HOME/.local/bin"
+          mv "Godot_v${GODOT_VERSION}-stable_linux.x86_64" "$HOME/.local/bin/godot"
+          chmod +x "$HOME/.local/bin/godot"
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+          curl -fL --retry 3 -o templates.tpz "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_export_templates.tpz"
+          unzip -q templates.tpz 'templates/linux_release.x86_64' 'templates/windows_release_x86_64.exe' -d /tmp/aresta-templates
+          mkdir -p "$HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable"
+          mv /tmp/aresta-templates/templates/* "$HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/"
+          rm godot.zip templates.tpz
+      - name: Testar e exportar
+        run: |
+          godot --headless --path . --import
+          sh tests/run_all.sh
+          sh tools/release/build.sh all
+      - name: Validar pacote com runtime release
+        run: |
+          sh tools/release/check.sh "$GITHUB_WORKSPACE/builds/linux/aresta.x86_64"
+          cd /tmp
+          "$GITHUB_WORKSPACE/builds/linux/aresta.x86_64" --headless --quit-after 120 -- --dev --server
+      - uses: actions/upload-artifact@v4
+        with:
+          name: aresta-release-${{ github.sha }}
+          path: builds/
+          retention-days: 14

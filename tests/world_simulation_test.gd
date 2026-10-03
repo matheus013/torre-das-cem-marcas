@@ -228,6 +228,56 @@ func _init() -> void:
 		_fail("Health must scale back when the party shrinks")
 		return
 
+	# Queda e estabilização (documento 58): cai com aliado de pé, aliado estabiliza em 3 s,
+	# volta com 25% e Ferimento; quarta queda ou grupo inteiro caído encerram a expedição.
+	var fall: RefCounted = SimulationScript.new()
+	fall.call("setup", 12)
+	fall.call("add_player", 1)
+	fall.call("add_player", 2)
+	fall.call("enter_tower", 1)
+	fall.call("enter_tower", 2)
+	var fallen := fall.call("player", 1) as Dictionary
+	var helper := fall.call("player", 2) as Dictionary
+	var full_health := float(fall.call("max_health", 1))
+	fallen["invulnerable"] = 0.0
+	fall.call("take_damage", 1, 100000.0)
+	if not bool(fallen["downed"]) or fallen["zone"] != &"tower":
+		_fail("A player with a standing ally must fall instead of leaving")
+		return
+	helper["position"] = (fallen["position"] as Vector2) + Vector2(30.0, 0.0)
+	helper["target"] = helper["position"]
+	for _frame in range(40):
+		helper["health"] = 1000.0
+		fall.call("step", 0.08)
+	if bool(fallen["downed"]) or not is_equal_approx(float(fallen["health"]), float(fall.call("max_health", 1)) * 0.25) or int(fallen["wounds"]) != 1:
+		_fail("Ally must stabilize the fallen player with 25 percent health and a wound")
+		return
+	if float(fall.call("max_health", 1)) >= full_health:
+		_fail("Expedition wounds must reduce maximum health")
+		return
+	for attempt in range(3):
+		fallen["invulnerable"] = 0.0
+		fallen["downed"] = false
+		fall.call("take_damage", 1, 100000.0)
+		if attempt < 2 and not bool(fallen["downed"]):
+			_fail("Second and third falls must still allow stabilization")
+			return
+		if attempt < 2:
+			fallen["downed"] = false
+			fallen["health"] = 10.0
+	if fallen["zone"] != &"village":
+		_fail("The fourth fall must end the expedition")
+		return
+	var solo_fall: RefCounted = SimulationScript.new()
+	solo_fall.call("setup", 13)
+	solo_fall.call("add_player", 1)
+	solo_fall.call("enter_tower", 1)
+	(solo_fall.call("player", 1) as Dictionary)["invulnerable"] = 0.0
+	solo_fall.call("take_damage", 1, 100000.0)
+	if (solo_fall.call("player", 1) as Dictionary)["zone"] != &"village":
+		_fail("Solo falls must end the expedition right away")
+		return
+
 	# Reserva de reconexão: personagem fica parada, protegida e volta ao mesmo perfil.
 	var reserve: RefCounted = SimulationScript.new()
 	reserve.call("setup", 9)

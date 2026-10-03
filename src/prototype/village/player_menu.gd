@@ -1,6 +1,8 @@
 class_name PrototypePlayerMenu
 extends Control
 
+const BindingsScript := preload("res://src/core/app/input_bindings.gd")
+
 signal stat_requested(stat: StringName)
 signal milestone_requested(choice_id: StringName)
 signal equip_requested(instance_id: StringName)
@@ -38,6 +40,7 @@ func open(tab: String) -> void:
 	_active_tab = tab
 	show()
 	_rebuild()
+	(_tab_buttons[_active_tab] as Button).grab_focus()
 
 
 func close() -> void:
@@ -285,7 +288,10 @@ func _branch_label(branch: String) -> String:
 
 func _build_skills() -> void:
 	var safe := bool(_model.get("in_safe_area", true))
-	_section("GEMAS ATIVAS", "Q / W / E / R" if safe else "trocas e evolucoes so em Aresta")
+	var keys: Array[String] = []
+	for slot in range(4):
+		keys.append(BindingsScript.label("skill_%d" % (slot + 1)))
+	_section("GEMAS ATIVAS", " / ".join(keys) if safe else "trocas e evolucoes so em Aresta")
 	var gem_options: Array = _model.get("gem_options", []) as Array
 	for skill: Dictionary in _model.get("skills", []) as Array:
 		_build_skill_card(skill, gem_options, safe)
@@ -319,7 +325,7 @@ func _build_skill_card(skill: Dictionary, gem_options: Array, safe: bool) -> voi
 	icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	header.add_child(icon)
 	var key_label := Label.new()
-	key_label.text = String(skill.get("key", ""))
+	key_label.text = BindingsScript.label("skill_%d" % (slot + 1))
 	key_label.add_theme_font_size_override("font_size", 22)
 	key_label.add_theme_color_override("font_color", GOLD)
 	header.add_child(key_label)

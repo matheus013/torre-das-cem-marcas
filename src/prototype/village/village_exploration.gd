@@ -8,6 +8,9 @@ const PlayerMenuScript := preload("res://src/prototype/village/player_menu.gd")
 const SpriteLibraryScript := preload("res://src/presentation/art/sprite_library.gd")
 const VfxLayerScript := preload("res://src/presentation/vfx/vfx_layer.gd")
 const DevModeScript := preload("res://src/core/app/dev_mode.gd")
+const SettingsDialogScript := preload("res://src/game/settings_dialog.gd")
+const BindingsScript := preload("res://src/core/app/input_bindings.gd")
+const SettingsScript := preload("res://src/core/app/game_settings.gd")
 const SimulationScript := preload("res://src/gameplay/world/world_simulation.gd")
 const LayoutScript := preload("res://src/gameplay/world/world_layout.gd")
 const SessionLaunchScript := preload("res://src/core/net/session_launch.gd")
@@ -73,6 +76,9 @@ var _npc_settings: Dictionary = {}
 var _village_lights: Node2D
 var _talk_hint: Label
 var _village_log_label: Label
+var _interface_layer: CanvasLayer
+var _top_bar: ColorRect
+var _settings_dialog: ConfirmationDialog
 
 var _camera: Camera2D
 var _ambient: CanvasModulate
@@ -87,9 +93,15 @@ var _combat_hud: Control
 var _player_menu: Control
 var _character_panel: Control
 var _character_cards: Dictionary = {}
+var _character_hint: Label
+var _pad_aim := Vector2.RIGHT
+var _trigger_held: Dictionary = {}
+var _pad_was_moving := false
 
 
 func _ready() -> void:
+	BindingsScript.ensure()
+	Input.joy_connection_changed.connect(_on_pad_connection_changed)
 	texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED
 	_ambient = CanvasModulate.new()
 	_ambient.name = "Ambient"
@@ -111,6 +123,8 @@ func _ready() -> void:
 	add_child(_camera)
 	_parse_test_arguments()
 	_build_interface()
+	get_viewport().size_changed.connect(_layout_interface)
+	_layout_interface.call_deferred()
 	_start_session(SessionLaunchScript.consume())
 	queue_redraw()
 
@@ -484,14 +498,32 @@ func _physics_process(delta: float) -> void:
 func _gather_keyboard() -> void:
 	if _input_blocked():
 		return
-	var direction := Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
+	if DisplayServer.get_name() != "headless" and not get_window().has_focus():
+		return
+	var aim := Input.get_vector("aresta_aim_left", "aresta_aim_right", "aresta_aim_up", "aresta_aim_down", 0.25)
+	if aim != Vector2.ZERO:
+		_pad_aim = aim.normalized()
+	var direction := Input.get_vector("aresta_move_left", "aresta_move_right", "aresta_move_up", "aresta_move_down")
 	var local := _local()
 	if direction != Vector2.ZERO and not local.is_empty():
 		_send_move((local["position"] as Vector2) + direction * 48.0)
+		_pad_was_moving = BindingsScript.pad_device >= 0
+	elif _pad_was_moving and not local.is_empty():
+		_send_move(local["position"] as Vector2)
+		_pad_was_moving = false
+
+
+func _on_pad_connection_changed(device: int, connected: bool) -> void:
+	if not connected and BindingsScript.pad_device == device:
+		BindingsScript.pad_device = -1
+		_pad_was_moving = false
+		_trigger_held.erase(device)
+		if not _local().is_empty():
+			_send_move(_local()["position"] as Vector2)
 
 
 func _input_blocked() -> bool:
-	return (_player_menu != null and _player_menu.visible) or (_character_panel != null and _character_panel.visible)
+	return (_player_menu != null and _player_menu.visible) or (_character_panel != null and _character_panel.visible) or (_settings_dialog != null and _settings_dialog.visible)
 
 
 func _update_display(delta: float) -> void:
@@ -539,9 +571,67 @@ func _sync_floor() -> void:
 
 # ---------------------------------------------------------------- entrada
 
+func _input(event: InputEvent) -> void:
+	BindingsScript.track(event)
+	if BindingsScript.pad_device >= 0 and event is InputEventJoypadMotion and event.axis in [JOY_AXIS_RIGHT_X, JOY_AXIS_RIGHT_Y]:
+		var aim := Input.get_vector("aresta_aim_left", "aresta_aim_right", "aresta_aim_up", "aresta_aim_down", 0.25)
+		if aim != Vector2.ZERO:
+			_pad_aim = aim.normalized()
+
+
+func _command_event(event: InputEvent) -> bool:
+	if event is InputEventKey:
+		return event.pressed and not event.echo
+	if event is InputEventJoypadButton:
+		return event.pressed
+	if event is InputEventJoypadMotion and event.axis == JOY_AXIS_TRIGGER_RIGHT:
+		var held: bool = event.axis_value > 0.5
+		var was_held := bool(_trigger_held.get(event.device, false))
+		_trigger_held[event.device] = held
+		return held and not was_held
+	return false
+
+
+func _skill_target() -> Vector2:
+	if SettingsScript.auto_aim:
+		var target := _nearest_enemy()
+		if not target.is_empty():
+			return target["position"] as Vector2
+	if BindingsScript.pad_device >= 0:
+		return _display_position(_local_peer) + _pad_aim * 300.0
+	return _screen_to_world(get_viewport().get_mouse_position())
+
+
+func _nearest_enemy() -> Dictionary:
+	var nearest := {}
+	var distance := INF
+	var position := _display_position(_local_peer)
+	for enemy: Dictionary in _view.get("enemies", []) as Array:
+		if float(enemy.get("health", 0.0)) <= 0.0 or StringName(String(enemy.get("zone", "tower"))) != _local_zone():
+			continue
+		var squared := position.distance_squared_to(enemy["position"] as Vector2)
+		if squared < distance:
+			distance = squared
+			nearest = enemy
+	return nearest
+
+
+func _toggle_auto_aim(path: String = SettingsScript.PATH) -> void:
+	var error := SettingsScript.toggle_auto_aim(path)
+	_status = "Mira automática ligada." if SettingsScript.auto_aim else "Mira automática desligada."
+	if error != OK:
+		_status += " Não foi possível guardar a preferência."
+
 func _unhandled_input(event: InputEvent) -> void:
-	if event is InputEventKey and event.pressed and not event.echo and _player_menu != null and _player_menu.visible:
-		if event.keycode in [KEY_ESCAPE, KEY_I, KEY_C, KEY_G, KEY_T]:
+	if DisplayServer.get_name() != "headless" and not get_window().has_focus():
+		return
+	var command := _command_event(event)
+	if command and BindingsScript.pressed(event, "auto_aim"):
+		_toggle_auto_aim()
+		get_viewport().set_input_as_handled()
+		return
+	if command and _player_menu != null and _player_menu.visible:
+		if event.is_action_pressed("ui_cancel") or BindingsScript.pressed(event, "pause") or BindingsScript.pressed(event, "inventory") or BindingsScript.pressed(event, "character") or BindingsScript.pressed(event, "skills") or BindingsScript.pressed(event, "tower"):
 			_player_menu.call("close")
 		get_viewport().set_input_as_handled()
 		return
@@ -552,42 +642,55 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 	elif event is InputEventMouseMotion and Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT):
 		_send_move(_screen_to_world(event.position))
-	elif event is InputEventKey and event.pressed and not event.echo:
-		var slot := _skill_slot_for_key(event.keycode)
+	elif command:
+		var slot := _skill_slot_for_event(event)
 		if slot >= 0 and _in_arena(_local_zone()):
-			_send_intent("skill", [slot, _screen_to_world(get_viewport().get_mouse_position())])
+			_send_intent("skill", [slot, _skill_target()])
 			get_viewport().set_input_as_handled()
-		elif event.keycode == KEY_F5:
+		elif BindingsScript.pressed(event, "save"):
 			_save_world()
 			get_viewport().set_input_as_handled()
-		elif event.keycode == KEY_F9:
+		elif BindingsScript.pressed(event, "load"):
 			_load_world()
 			get_viewport().set_input_as_handled()
-		elif event.keycode == KEY_F7 and _sim != null and DevModeScript.enabled():
+		elif event is InputEventKey and event.keycode == KEY_F7 and _sim != null and DevModeScript.enabled():
 			var build := _sim.call("character_build", _local_peer) as CharacterBuild
 			if build != null:
 				_sim.call("add_experience", _local_peer, int(_sim.call("experience_required", build.level)))
 			get_viewport().set_input_as_handled()
-		elif event.keycode == KEY_I:
+		elif BindingsScript.pressed(event, "inventory"):
 			_open_player_menu("inventory")
-		elif event.keycode == KEY_C:
+		elif BindingsScript.pressed(event, "character"):
 			_open_player_menu("character")
-		elif event.keycode == KEY_G:
+		elif BindingsScript.pressed(event, "skills"):
 			_open_player_menu("skills")
-		elif event.keycode == KEY_T:
+		elif BindingsScript.pressed(event, "tower"):
 			_open_player_menu("tower")
-		elif event.keycode == KEY_E and _local_zone() == &"village":
+		elif BindingsScript.pressed(event, "interact") and _local_zone() == &"village":
 			var npc := _nearest_npc(110.0)
 			if not npc.is_empty():
 				_send_intent("talk", [String(npc["id"])])
-		elif event.keycode == KEY_F6:
+		elif BindingsScript.pressed(event, "npc_mode"):
 			_toggle_npc_mode()
-		elif event.keycode == KEY_V and not _in_arena(_local_zone()):
+		elif BindingsScript.pressed(event, "switch_character") and not _in_arena(_local_zone()):
 			_show_character_panel(true)
-		elif event.keycode == KEY_1 and _in_arena(_local_zone()):
+		elif BindingsScript.pressed(event, "quick_item") and _in_arena(_local_zone()):
 			_send_intent("quick", [])
-		elif event.keycode == KEY_ESCAPE:
-			_leave_session()
+		elif BindingsScript.pressed(event, "pause"):
+			_open_settings()
+
+
+func _open_settings() -> void:
+	_settings_dialog.call("set_authority", _sim != null)
+	_settings_dialog.title = "Pausa - Opções" if _mode == &"solo" else "Opções - Sessão online"
+	_settings_dialog.call("open", _mode == &"solo")
+
+
+func _session_action(action: String) -> void:
+	match action:
+		"save": _save_world()
+		"load": _load_world()
+		"npc_mode": _toggle_npc_mode()
 
 
 func _nearest_npc(radius: float) -> Dictionary:
@@ -602,16 +705,10 @@ func _nearest_npc(radius: float) -> Dictionary:
 	return best
 
 
-func _skill_slot_for_key(keycode: Key) -> int:
-	match keycode:
-		KEY_Q:
-			return 0
-		KEY_W:
-			return 1
-		KEY_E:
-			return 2
-		KEY_R:
-			return 3
+func _skill_slot_for_event(event: InputEvent) -> int:
+	for slot in range(4):
+		if BindingsScript.pressed(event, "skill_%d" % (slot + 1)):
+			return slot
 	return -1
 
 
@@ -768,6 +865,11 @@ func _drive_autopilot(delta: float) -> void:
 			elif String(telegraph.get("shape", "")) == "rect":
 				away = Vector2.DOWN.rotated(float(telegraph["angle"]))
 			_send_move(position + (away if away != Vector2.ZERO else Vector2.LEFT) * 160.0)
+			return
+	for peer_id: Variant in _view.get("players", {}) as Dictionary:
+		var other := (_view["players"] as Dictionary)[peer_id] as Dictionary
+		if int(peer_id) != _local_peer and bool(other.get("downed", false)) and String(other.get("zone", "")) == "tower":
+			_send_move(other["position"] as Vector2)
 			return
 	var boss_floor := String(floor_view.get("kind", "")) == "boss"
 	var retreating := not boss_floor and (int(local.get("carried_stone", 0)) >= AGENT_DELIVERY * 2 or (health_ratio < 0.25 and int(local.get("quick_items", 0)) == 0))
@@ -973,6 +1075,11 @@ func _draw() -> void:
 			_draw_player(drawable["player"] as Dictionary, drawable["peer"])
 	if zone == &"village":
 		_draw_village_life_overlay(visible_rect)
+	if (BindingsScript.pad_device >= 0 or SettingsScript.auto_aim) and in_arena and not _input_blocked():
+		var aim_position := _skill_target()
+		draw_arc(aim_position, 8.0, 0.0, TAU, 24, Color("7fd6e0"), 2.0)
+		draw_line(aim_position - Vector2(12.0, 0.0), aim_position + Vector2(12.0, 0.0), Color("7fd6e0"), 1.0)
+		draw_line(aim_position - Vector2(0.0, 12.0), aim_position + Vector2(0.0, 12.0), Color("7fd6e0"), 1.0)
 	if in_arena:
 		for projectile: Dictionary in _view.get("projectiles", []) as Array:
 			var position := projectile["position"] as Vector2
@@ -1046,20 +1153,53 @@ func _draw_floor_ground() -> void:
 			draw_rect(Rect2(Vector2.ONE * inset, size - Vector2.ONE * inset * 2.0), Color(0.07, 0.06, 0.09, 0.25), false, 22.0)
 	var portal := _floor_layout["return_portal"] as Rect2
 	var sealed := float(floor_view.get("boss_ratio", -1.0)) > 0.0
-	draw_rect(portal, Color("4a2226") if sealed else Color("1b1a1f"))
-	draw_rect(portal.grow(6.0), Color(0.69, 0.29, 0.23, 0.7) if sealed else Color(0.91, 0.72, 0.29, 0.3 + 0.12 * sin(_anim_time * 3.0)), false, 5.0)
-	draw_string(ThemeDB.fallback_font, portal.position + Vector2(-40.0, -10.0), "SELADO" if sealed else "VOLTAR A ARESTA", HORIZONTAL_ALIGNMENT_CENTER, portal.size.x + 80.0, 13, Color("e8b84a"))
+	_draw_portal(portal, sealed)
 	var stairs := _floor_layout["stairs"] as Rect2
 	var open := bool(floor_view.get("stairs_open", false))
 	if open or not _floor_layout.has("arena_center"):
+		_draw_stairs(stairs, open, floor_view)
+
+
+## Portal de retorno: arco de pedra (PixelForge) com redemoinho animado; vermelho quando selado.
+func _draw_portal(portal: Rect2, sealed: bool) -> void:
+	var base := Vector2(portal.get_center().x, portal.end.y + 6.0)
+	var glow := Color(0.85, 0.25, 0.22) if sealed else Color(0.5, 0.84, 0.88)
+	var pulse := 0.5 + 0.5 * sin(_anim_time * 3.0)
+	draw_circle(base + Vector2(0.0, -10.0), 46.0, Color(glow, 0.12 + 0.08 * pulse))
+	if not _draw_sprite("props/portal_retorno", base, false, Color(1.0, 0.7, 0.7) if sealed else Color.WHITE):
+		draw_rect(portal, Color("1b1a1f"))
+	var heart := base + Vector2(0.0, -52.0)
+	for ring in range(4):
+		var radius := 8.0 + float(ring) * 6.0 + pulse * 3.0
+		draw_arc(heart, radius, _anim_time * (2.0 + float(ring)), _anim_time * (2.0 + float(ring)) + PI * 1.3, 18, Color(glow, 0.75 - 0.15 * float(ring)), 2.0)
+	if sealed:
+		for bar in range(3):
+			var x := heart.x - 20.0 + float(bar) * 20.0
+			draw_line(Vector2(x, heart.y - 30.0), Vector2(x, heart.y + 40.0), Color(0.9, 0.2, 0.18, 0.6 + 0.3 * pulse), 3.0)
+	draw_string(ThemeDB.fallback_font, base + Vector2(-80.0, -118.0), "SELADO" if sealed else "VOLTAR A ARESTA", HORIZONTAL_ALIGNMENT_CENTER, 160.0, 12, Color("e8b84a") if not sealed else Color("e87a6a"))
+
+
+## Escada para o próximo andar: escadaria (PixelForge); fechada, recebe uma barreira de runas vermelhas.
+func _draw_stairs(stairs: Rect2, open: bool, floor_view: Dictionary) -> void:
+	var base := Vector2(stairs.get_center().x, stairs.end.y + 20.0)
+	var pulse := 0.5 + 0.5 * sin(_anim_time * 4.0)
+	var glow := Color(0.5, 0.84, 0.88) if open else Color(0.85, 0.25, 0.22)
+	draw_circle(stairs.get_center(), 60.0, Color(glow, 0.1 + 0.08 * pulse))
+	if not _draw_sprite("props/escada_aberta", base, false, Color.WHITE if open else Color(0.75, 0.6, 0.6)):
 		draw_rect(stairs, Color("1b1a1f"))
-		for step in range(4):
-			var shade := 0.18 + 0.12 * float(step)
-			draw_rect(Rect2(stairs.position + Vector2(8.0, 8.0 + float(step) * 18.0), Vector2(stairs.size.x - 16.0, 12.0)), Color(shade, shade * 0.9, shade * 0.8))
-		var glow := Color(0.5, 0.84, 0.88, 0.45 + 0.25 * sin(_anim_time * 4.0)) if open else Color(0.4, 0.38, 0.42, 0.6)
-		draw_rect(stairs.grow(6.0), glow, false, 5.0)
-		var caption := "DESCER AO ANDAR %d" % mini(_floor_number + 1, TowerContentScript.MAX_FLOOR) if open else "ESCADA SELADA %d/%d" % [int(floor_view.get("kills", 0)), int(floor_view.get("quota", 0))]
-		draw_string(ThemeDB.fallback_font, stairs.position + Vector2(-60.0, -12.0), caption, HORIZONTAL_ALIGNMENT_CENTER, stairs.size.x + 120.0, 13, Color("c8f2f0") if open else Color("aaa59a"))
+	var frame := Rect2(base + Vector2(-58.0, -118.0), Vector2(116.0, 108.0))
+	if open:
+		for spark in range(6):
+			var phase := fmod(_anim_time * 0.6 + float(spark) / 6.0, 1.0)
+			draw_circle(frame.get_center() + Vector2(sin(float(spark) * 2.1) * 40.0, 30.0 - phase * 70.0), 2.0, Color(glow, 1.0 - phase))
+	else:
+		draw_rect(frame.grow(-8.0), Color(0.85, 0.2, 0.18, 0.18 + 0.12 * pulse))
+		for rune in range(5):
+			var spot := frame.position + Vector2(18.0 + float(rune) * 20.0, frame.size.y * 0.5 + sin(_anim_time * 2.0 + float(rune)) * 6.0)
+			draw_colored_polygon(PackedVector2Array([spot + Vector2(0.0, -6.0), spot + Vector2(5.0, 0.0), spot + Vector2(0.0, 6.0), spot + Vector2(-5.0, 0.0)]), Color(0.95, 0.35, 0.3, 0.7 + 0.3 * pulse))
+		draw_rect(frame.grow(-8.0), Color(0.95, 0.3, 0.25, 0.7), false, 2.0)
+	var caption := "DESCER AO ANDAR %d" % mini(_floor_number + 1, TowerContentScript.MAX_FLOOR) if open else "ESCADA SELADA  %d/%d" % [int(floor_view.get("kills", 0)), int(floor_view.get("quota", 0))]
+	draw_string(ThemeDB.fallback_font, frame.position + Vector2(-40.0, -10.0), caption, HORIZONTAL_ALIGNMENT_CENTER, frame.size.x + 80.0, 12, Color("c8f2f0") if open else Color("e87a6a"))
 
 
 ## Aviso de área: contorno forte e preenchimento que cresce até o golpe.
@@ -1259,6 +1399,9 @@ func _draw_player(state: Dictionary, peer_id: Variant) -> void:
 	if players_online:
 		draw_arc(feet, 15.0, 0.0, TAU, 24, Color(color, 0.85), 2.0)
 	_draw_shadow(feet, Vector2(13.0, 5.0))
+	if bool(state.get("downed", false)):
+		_draw_downed(state, position, feet)
+		return
 	var lift := absf(sin(_anim_time * 14.0)) * 3.0 if bool(state.get("moving", false)) else (sin(_anim_time * 2.5) + 1.0) * 0.5
 	var tint := Color.WHITE
 	var connected := bool(state.get("connected", true))
@@ -1290,6 +1433,25 @@ func _draw_player(state: Dictionary, peer_id: Variant) -> void:
 					draw_texture(plate, (orbit - plate.get_size() * 0.5).round())
 				else:
 					draw_rect(Rect2(orbit - Vector2(5.0, 5.0), Vector2(10.0, 10.0)), Color("aaa59a"))
+
+
+## Personagem caída: deitada e acinzentada, anel com o tempo restante e barra de estabilização.
+func _draw_downed(state: Dictionary, position: Vector2, feet: Vector2) -> void:
+	var texture := SpriteLibraryScript.texture("characters/" + String(state.get("character_id", "eloa")))
+	draw_circle(feet, 26.0, Color(0.69, 0.29, 0.23, 0.25 + 0.1 * sin(_anim_time * 6.0)))
+	if texture != null:
+		draw_set_transform(feet.round(), -PI * 0.5, Vector2.ONE)
+		draw_texture(texture, Vector2(-texture.get_size().x * 0.5, -texture.get_size().y * 0.5), Color(0.65, 0.6, 0.65))
+		draw_set_transform(Vector2.ZERO)
+	var window := maxf(1.0, float(state.get("downed_timer", 0.0)))
+	var ring := clampf(float(state.get("downed_timer", 0.0)) / 20.0, 0.0, 1.0)
+	draw_arc(feet + Vector2(0.0, -36.0), 14.0, -PI * 0.5, -PI * 0.5 + TAU * ring, 32, Color("e87a6a"), 3.0)
+	draw_string(ThemeDB.fallback_font, feet + Vector2(-20.0, -31.0), "%d" % int(ceil(window)), HORIZONTAL_ALIGNMENT_CENTER, 40.0, 11, Color("f2e6c9"))
+	var progress := clampf(float(state.get("stabilize_progress", 0.0)), 0.0, 1.0)
+	var bar := Rect2(feet + Vector2(-26.0, 14.0), Vector2(52.0, 6.0))
+	draw_rect(bar, Color("1b1a1f"))
+	draw_rect(Rect2(bar.position, Vector2(bar.size.x * progress, bar.size.y)), Color("93c25a"))
+	draw_string(ThemeDB.fallback_font, feet + Vector2(-70.0, 34.0), "FIQUE AO LADO PARA ESTABILIZAR", HORIZONTAL_ALIGNMENT_CENTER, 140.0, 9, Color("e8b84a"))
 
 
 func _draw_passive_markers(markers: Array) -> void:
@@ -1507,29 +1669,47 @@ func _update_camera_limits() -> void:
 
 func _build_interface() -> void:
 	var layer := CanvasLayer.new()
+	_interface_layer = layer
 	layer.name = "Interface"
 	layer.layer = 2
 	add_child(layer)
 	var bar := ColorRect.new()
 	bar.name = "TopBar"
 	bar.position = Vector2(18.0, 18.0)
-	bar.size = Vector2(520.0, 74.0)
+	bar.size = Vector2(420.0, 58.0)
+	_top_bar = bar
 	bar.color = Color("1b1a1fe0")
 	var accent := ColorRect.new()
-	accent.size = Vector2(4.0, 74.0)
+	accent.size = Vector2(4.0, 58.0)
 	accent.color = Color("e8b84a")
 	bar.add_child(accent)
 	layer.add_child(bar)
+	var settings_button := Button.new()
+	settings_button.name = "Settings"
+	settings_button.focus_mode = Control.FOCUS_NONE
+	settings_button.text = "Opções"
+	settings_button.position = Vector2(448.0, 18.0)
+	settings_button.size = Vector2(96.0, 40.0)
+	settings_button.pressed.connect(_open_settings)
+	layer.add_child(settings_button)
+	_settings_dialog = SettingsDialogScript.new()
+	add_child(_settings_dialog)
+	_settings_dialog.call("enable_session_exit")
+	_settings_dialog.connect("leave_requested", _leave_session)
+	_settings_dialog.connect("session_action_requested", _session_action)
 	_location_label = Label.new()
 	_location_label.name = "Location"
-	_location_label.position = Vector2(16.0, 10.0)
-	_location_label.add_theme_font_size_override("font_size", 20)
+	_location_label.position = Vector2(16.0, 6.0)
+	_location_label.add_theme_font_size_override("font_size", 17)
 	_location_label.add_theme_color_override("font_color", Color("f2e6c9"))
 	bar.add_child(_location_label)
 	_status_label = Label.new()
 	_status_label.name = "Status"
 	_status_label.position = Vector2(16.0, 40.0)
-	_status_label.size = Vector2(485.0, 24.0)
+	_status_label.size = Vector2(396.0, 22.0)
+	_status_label.position = Vector2(16.0, 31.0)
+	_status_label.add_theme_font_size_override("font_size", 13)
+	_status_label.clip_text = true
 	_status_label.modulate = Color("d9c2a0")
 	bar.add_child(_status_label)
 	_session_label = Label.new()
@@ -1680,7 +1860,8 @@ func _build_character_panel(layer: CanvasLayer) -> void:
 			label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			content.add_child(label)
 	var hint := Label.new()
-	hint.text = "Troque de personagem com V fora da Torre. Personagens ja em jogo ficam indisponiveis."
+	_character_hint = hint
+	hint.text = "Troque de personagem com %s fora da Torre. Personagens ja em jogo ficam indisponiveis." % BindingsScript.label("switch_character")
 	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	hint.add_theme_color_override("font_color", Color("8f7a6a"))
 	column.add_child(hint)
@@ -1689,12 +1870,17 @@ func _build_character_panel(layer: CanvasLayer) -> void:
 
 func _show_character_panel(visible_now: bool) -> void:
 	if visible_now:
+		_character_hint.text = "Troque de personagem com %s fora da Torre. Personagens ja em jogo ficam indisponiveis." % BindingsScript.label("switch_character")
 		var taken := {}
 		for peer_id: Variant in (_view.get("players", {}) as Dictionary):
 			if int(peer_id) != _local_peer:
 				taken[String(((_view["players"] as Dictionary)[peer_id] as Dictionary).get("character_id", ""))] = true
 		for character_id: String in _character_cards:
 			(_character_cards[character_id] as Button).disabled = taken.has(character_id)
+		for card: Button in _character_cards.values():
+			if not card.disabled:
+				card.grab_focus.call_deferred()
+				break
 	_character_panel.visible = visible_now
 
 
@@ -1716,8 +1902,8 @@ func _update_village_panel(zone: StringName, period: String) -> void:
 	var npc := _nearest_npc(110.0)
 	if not npc.is_empty() and not _input_blocked():
 		_talk_hint.visible = true
-		_talk_hint.text = "E: conversar com %s" % String(npc["name"])
-	var lines: Array[String] = ["%s  ·  MORADORES: %s%s" % [PERIOD_NAMES.get(period, period.to_upper()), "COM IA" if String(_view.get("npc_mode", "padrao")) == "ia" else "PADRAO", "  (F6 alterna)" if _sim != null else ""]]
+		_talk_hint.text = "%s: conversar com %s" % [BindingsScript.label("interact"), String(npc["name"])]
+	var lines: Array[String] = ["%s  ·  MORADORES: %s%s" % [PERIOD_NAMES.get(period, period.to_upper()), "COM IA" if String(_view.get("npc_mode", "padrao")) == "ia" else "PADRAO", "  (%s alterna)" % BindingsScript.label("npc_mode") if _sim != null else ""]]
 	var log := _view.get("village_log", []) as Array
 	for index in range(maxi(0, log.size() - 4), log.size()):
 		var entry := log[index] as Dictionary
@@ -1745,12 +1931,41 @@ func _update_floor_panel(zone: StringName, floor_view: Dictionary) -> void:
 	_combat_hud.set("minimap_title", "ANDAR %d" % int(floor_view.get("number", 0)))
 	_combat_hud.set("minimap_hint", "ESCADA ABERTA" if bool(floor_view.get("stairs_open", false)) else ("DERROTE O GUARDIAO" if String(floor_view.get("kind", "")) == "boss" else "ABATES %d/%d" % [int(floor_view.get("kills", 0)), int(floor_view.get("quota", 0))]))
 	if _boss_bar.visible:
-		(_boss_bar.get_node("Fill") as ColorRect).size.x = 596.0 * clampf(float(floor_view["boss_ratio"]), 0.0, 1.0)
+		(_boss_bar.get_node("Fill") as ColorRect).size.x = float(_boss_bar.get_meta("fill_width", 596.0)) * clampf(float(floor_view["boss_ratio"]), 0.0, 1.0)
 		(_boss_bar.get_node("Name") as Label).text = String(floor_view.get("boss_name", "")).to_upper()
 
 
 func _format_time(seconds: float) -> String:
 	return "%d:%05.2f" % [int(seconds) / 60, fmod(seconds, 60.0)]
+
+
+## Interface proporcional à tela: a camada escala pela menor razão em relação a 1280×720 e cada
+## bloco se prende à sua borda no espaço resultante (decisão 564).
+func _layout_interface() -> void:
+	var viewport := get_viewport().get_visible_rect().size
+	var ui_scale := clampf(minf(viewport.x / 1280.0, viewport.y / 720.0), 0.75, 2.0)
+	_interface_layer.scale = Vector2.ONE * ui_scale
+	var size := viewport / ui_scale
+	_top_bar.position = Vector2(16.0, 16.0)
+	_session_label.position = Vector2(20.0, 78.0)
+	_floor_label.position = Vector2(20.0, 96.0)
+	var boss_width := minf(480.0, size.x - 900.0) if size.x > 1380.0 else 440.0
+	_boss_bar.position = Vector2((size.x - boss_width) * 0.5, 118.0 if size.x < 1380.0 else 18.0)
+	_boss_bar.size = Vector2(boss_width, 40.0)
+	(_boss_bar.get_child(0) as Control).size.x = boss_width
+	(_boss_bar.get_node("Name") as Control).size.x = boss_width
+	_boss_bar.set_meta("fill_width", boss_width - 4.0)
+	_combat_label.position = Vector2(16.0, size.y - 32.0)
+	_combat_label.size = Vector2(size.x - 32.0, 24.0)
+	_village_log_label.size = Vector2(minf(620.0, size.x * 0.5), 96.0)
+	_village_log_label.position = Vector2(16.0, size.y - 136.0)
+	_talk_hint.position = Vector2((size.x - 280.0) * 0.5, size.y - 170.0)
+	_combat_hud.position = Vector2.ZERO
+	_combat_hud.size = size
+	for full in [_player_menu, _character_panel]:
+		(full as Control).set_anchors_preset(Control.PRESET_TOP_LEFT)
+		(full as Control).position = Vector2.ZERO
+		(full as Control).size = size
 
 
 func _update_interface() -> void:
@@ -1786,7 +2001,7 @@ func _update_interface() -> void:
 	if not arena or local.is_empty():
 		_combat_hud.visible = false
 		_combat_label.visible = true
-		_combat_label.text = "Pedra armazenada: %d   Progresso da vila: %d   ·   Proxima entrada na Torre: andar %d (T: mapa e recordes)" % [int(_view.get("banked_stone", 0)), int(_view.get("village_progress", 0)), int(_view.get("tower_start_floor", 1))]
+		_combat_label.text = "Pedra armazenada: %d   Progresso da vila: %d   ·   Proxima entrada na Torre: andar %d (%s: mapa e recordes)" % [int(_view.get("banked_stone", 0)), int(_view.get("village_progress", 0)), int(_view.get("tower_start_floor", 1)), BindingsScript.label("tower")]
 		return
 	_combat_label.visible = false
 	_combat_hud.visible = true

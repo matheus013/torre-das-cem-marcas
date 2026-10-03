@@ -71,8 +71,20 @@ const RESPAWN_ACCELERATION := 120.0
 const RESPAWN_MIN_DISTANCE := 480.0
 ## Chefe derrotado só volta depois da recarga (decisão 526); enquanto isso o andar é passagem.
 const BOSS_COOLDOWN := 1200.0
+## Alcance do golpe corpo a corpo dos chefes; o resto do dano vem das mecânicas anunciadas.
+const BOSS_MELEE_RANGE := 75.0
 const RECORD_MODES: Array[String] = ["solo", "duo", "trio", "squad"]
 const RECORDS_PER_MODE := 5
+## Queda e estabilização (documento 58, decisão 565): janelas por queda, tempo de estabilização,
+## Vida ao voltar e Ferimento de Expedição (perda de Vida máxima até sair da Torre).
+const DOWNED_WINDOWS: Array[float] = [20.0, 14.0, 8.0]
+const STABILIZE_SECONDS := 3.0
+const STABILIZE_RADIUS := 60.0
+const STABILIZED_HEALTH := 0.25
+const WOUND_PENALTY := 0.1
+## Recuperação fora de combate (decisão 566): depois de 4 s sem dano, 1,5% da Vida máxima por segundo.
+const OUT_OF_COMBAT_DELAY := 4.0
+const OUT_OF_COMBAT_REGEN := 0.015
 ## Vida máxima ganha a cada nível de personagem.
 const HEALTH_PER_LEVEL := 5.0
 const AURA_RADIUS := 180.0
@@ -181,6 +193,11 @@ func add_player(peer_id: int, character_id: StringName = &"", profile_id: String
 		"facing_left": false,
 		"moving": false,
 		"hurt_flash": 0.0,
+		"downed": false,
+		"downed_timer": 0.0,
+		"stabilize_progress": 0.0,
+		"falls": 0,
+		"wounds": 0,
 	}
 	var wanted := character_id if not character_id.is_empty() else first_free_character()
 	if not wanted.is_empty():
@@ -541,13 +558,13 @@ func refresh_charges(peer_id: int) -> void:
 
 func set_move_target(peer_id: int, target: Vector2) -> void:
 	var state := player(peer_id)
-	if not state.is_empty():
+	if not state.is_empty() and not bool(state.get("downed", false)):
 		state["target"] = target
 
 
 func use_skill(peer_id: int, slot: int, target: Vector2) -> bool:
 	var state := player(peer_id)
-	if state.is_empty() or state["zone"] not in ARENA_ZONES:
+	if state.is_empty() or state["zone"] not in ARENA_ZONES or bool(state.get("downed", false)):
 		return false
 	var cooldowns := state["cooldowns"] as Array[float]
 	var charges := state["charges"] as Array[int]
@@ -625,7 +642,7 @@ func _after_skill(peer_id: int, effect: Dictionary, target: Vector2, echo: float
 
 func use_quick_item(peer_id: int) -> void:
 	var state := player(peer_id)
-	if state.is_empty():
+	if state.is_empty() or bool(state.get("downed", false)):
 		return
 	if int(state["quick_items"]) <= 0:
 		_status(peer_id, "Nenhum consumivel rapido restante.")
@@ -734,6 +751,9 @@ func _step_barrier(peer_id: int, delta: float) -> void:
 
 func _step_player(peer_id: int, delta: float) -> void:
 	var state := players[peer_id] as Dictionary
+	if bool(state.get("downed", false)):
+		_step_downed(peer_id, delta)
+		return
 	if not bool(state.get("connected", true)):
 		state["reconnect_timer"] = float(state["reconnect_timer"]) - delta
 		if float(state["reconnect_timer"]) <= 0.0:
@@ -743,6 +763,9 @@ func _step_player(peer_id: int, delta: float) -> void:
 	state["damage_cooldown"] = maxf(0.0, float(state["damage_cooldown"]) - delta)
 	state["invulnerable"] = maxf(0.0, float(state["invulnerable"]) - delta)
 	state["hurt_flash"] = maxf(0.0, float(state["hurt_flash"]) - delta)
+	state["since_damage"] = float(state.get("since_damage", 0.0)) + delta
+	if float(state["since_damage"]) >= OUT_OF_COMBAT_DELAY and state["zone"] in ARENA_ZONES:
+		state["health"] = minf(max_health(peer_id), float(state["health"]) + max_health(peer_id) * OUT_OF_COMBAT_REGEN * delta)
 	var regen := 18.0 * delta * _mod(peer_id, "breath_regen_mult")
 	var overflow := float(state["breath"]) + regen - max_breath(peer_id)
 	state["breath"] = minf(max_breath(peer_id), float(state["breath"]) + regen)
@@ -908,6 +931,9 @@ func enter_tower(peer_id: int) -> void:
 
 func leave_tower(peer_id: int) -> void:
 	var state := player(peer_id)
+	state["falls"] = 0
+	state["wounds"] = 0
+	state["downed"] = false
 	_place(peer_id, &"village", LayoutScript.TOWER_RETURN)
 	var delivered := int(state["carried_stone"])
 	banked_stone += delivered
@@ -985,7 +1011,7 @@ func start_floor(number: int) -> void:
 	var definition := floor_def()
 	floor_run = {
 		"floor": current_floor, "time": 0.0, "kills": 0, "party_peak": 1,
-		"quota": int(definition.get("kill_quota", 0)), "stairs_open": false, "recorded": false,
+		"quota": int(definition.get("kill_quota", 0)), "quota_base": int(definition.get("kill_quota", 0)), "stairs_open": false, "recorded": false,
 		"boss_fight": false,
 	}
 	if is_explore_floor():
@@ -1413,6 +1439,9 @@ func _apply_party_scaling() -> void:
 	var scaling := party_scaling()
 	respawn.set("maximum_alive", maxi(BASE_RESPAWN_CAPACITY, int(ceil(float(floor_run.get("population", BASE_RESPAWN_CAPACITY)) * float(scaling["budget"])))))
 	threat.set("normal_kills_per_boss", int(round(BASE_KILLS_PER_BOSS * float(scaling["budget"]))))
+	# Cota cresce com o grupo para que o andar continue pedindo exploração (decisão 566).
+	if floor_run.has("quota_base") and not bool(floor_run.get("stairs_open", false)):
+		floor_run["quota"] = maxi(int(floor_run.get("quota", 0)), int(round(float(floor_run["quota_base"]) * pow(float(scaling["budget"]), 0.6))))
 	for enemy in enemies:
 		var encounter_class := String(enemy.get("encounter_class", "common"))
 		var factor := 1.0
@@ -1465,7 +1494,7 @@ func _nearest_player(position: Vector2) -> int:
 	var result := -1
 	var best := INF
 	for peer_id in _players_in_arena():
-		if not is_connected_player(peer_id):
+		if not is_connected_player(peer_id) or is_downed(peer_id):
 			continue
 		var distance := position.distance_to(player(peer_id)["position"] as Vector2)
 		if distance < best:
@@ -1645,7 +1674,7 @@ func _step_boss(boss: Dictionary, delta: float) -> void:
 	if float(boss["cast_lock"]) > 0.0 or float(boss.get("speed", 0.0)) <= 0.0:
 		return
 	var offset := target_position - position
-	if offset.length() > 130.0:
+	if offset.length() > BOSS_MELEE_RANGE:
 		var speed := float(boss["speed"]) * (1.0 + 0.12 * float(phase)) * (1.25 if enraged else 1.0)
 		_move_enemy(boss, offset.normalized() * speed * delta)
 	elif float(player(target_peer)["damage_cooldown"]) <= 0.0:
@@ -1928,7 +1957,7 @@ func damage_enemy(peer_id: int, index: int, damage: float, hit: Dictionary = {})
 
 func take_damage(peer_id: int, amount: float) -> void:
 	var state := player(peer_id)
-	if state.is_empty() or state["zone"] not in ARENA_ZONES or float(state["invulnerable"]) > 0.0 or not bool(state.get("connected", true)):
+	if state.is_empty() or state["zone"] not in ARENA_ZONES or float(state["invulnerable"]) > 0.0 or not bool(state.get("connected", true)) or bool(state.get("downed", false)):
 		return
 	var zone := state["zone"] as StringName
 	var position := state["position"] as Vector2
@@ -1949,12 +1978,83 @@ func take_damage(peer_id: int, amount: float) -> void:
 	_vfx(zone, "number", [position, amount, false, "player"])
 	state["health"] = maxf(0.0, float(state["health"]) - amount)
 	state["hurt_flash"] = 0.15
+	state["since_damage"] = 0.0
 	_status(peer_id, "Dano recebido. Vida restante: %d" % int(state["health"]))
 	if float(state["health"]) <= 0.0:
-		_handle_defeat(peer_id)
+		_fall(peer_id)
 	else:
 		_apply_passive_requests(peer_id, reaction["requests"] as Array)
 		_check_low_health(peer_id)
+
+
+## Vida a zero: com aliado de pé, a personagem cai e espera estabilização; na quarta queda, sem
+## aliados de pé ou em solo, a expedição dela termina.
+func _fall(peer_id: int) -> void:
+	var state := player(peer_id)
+	var falls := int(state.get("falls", 0))
+	if falls >= DOWNED_WINDOWS.size() or _standing_allies(peer_id).is_empty():
+		_handle_defeat(peer_id)
+		_check_party_collapse()
+		return
+	state["downed"] = true
+	state["falls"] = falls + 1
+	state["downed_timer"] = DOWNED_WINDOWS[falls]
+	state["stabilize_progress"] = 0.0
+	state["barrier"] = 0.0
+	state["target"] = state["position"]
+	state["moving"] = false
+	_vfx(state["zone"], "label", [state["position"], "CAIU", Color("e87a6a")])
+	_status(0, "%s caiu! Fique ao lado por %d s para estabilizar (%d s restantes)." % [String(state["character_name"]), int(STABILIZE_SECONDS), int(DOWNED_WINDOWS[falls])])
+	_check_party_collapse()
+
+
+func _standing_allies(peer_id: int) -> Array[int]:
+	var result: Array[int] = []
+	for other in _players_in_arena():
+		if other != peer_id and is_connected_player(other) and not bool(player(other).get("downed", false)):
+			result.append(other)
+	return result
+
+
+## Se ninguém do andar continua de pé, todos os caídos perdem a expedição.
+func _check_party_collapse() -> void:
+	var standing := 0
+	var downed: Array[int] = []
+	for peer_id in _players_in_arena():
+		if bool(player(peer_id).get("downed", false)):
+			downed.append(peer_id)
+		elif is_connected_player(peer_id):
+			standing += 1
+	if standing == 0:
+		for peer_id in downed:
+			player(peer_id)["downed"] = false
+			_handle_defeat(peer_id)
+
+
+func is_downed(peer_id: int) -> bool:
+	return bool(player(peer_id).get("downed", false))
+
+
+func _step_downed(peer_id: int, delta: float) -> void:
+	var state := player(peer_id)
+	state["downed_timer"] = float(state["downed_timer"]) - delta
+	var helping := false
+	for ally in _standing_allies(peer_id):
+		if (player(ally)["position"] as Vector2).distance_to(state["position"] as Vector2) <= STABILIZE_RADIUS:
+			helping = true
+	state["stabilize_progress"] = maxf(0.0, float(state["stabilize_progress"]) + (delta if helping else -delta * 0.5))
+	if float(state["stabilize_progress"]) >= STABILIZE_SECONDS:
+		state["downed"] = false
+		state["wounds"] = int(state.get("wounds", 0)) + 1
+		state["health"] = max_health(peer_id) * STABILIZED_HEALTH
+		state["invulnerable"] = 1.5
+		state["stabilize_progress"] = 0.0
+		_vfx(state["zone"], "label", [state["position"], "ESTABILIZADO", Color("93c25a")])
+		_status(0, "%s foi estabilizado com um Ferimento de Expedicao." % String(state["character_name"]))
+	elif float(state["downed_timer"]) <= 0.0:
+		state["downed"] = false
+		_handle_defeat(peer_id)
+		_check_party_collapse()
 
 
 ## Maior redução de dano entre santuários estáveis que contêm a posição (Raiz Estável).
@@ -1970,6 +2070,9 @@ func stability_at(zone: StringName, position: Vector2) -> float:
 
 func _handle_defeat(peer_id: int) -> void:
 	var state := player(peer_id)
+	state["downed"] = false
+	state["falls"] = 0
+	state["wounds"] = 0
 	var lost_stone := int(state["carried_stone"])
 	_drop_carried(peer_id, state["zone"] as StringName, state["position"] as Vector2)
 	state["health"] = max_health(peer_id)
@@ -2647,7 +2750,8 @@ func derived_stats(peer_id: int) -> Dictionary:
 
 
 func max_health(peer_id: int) -> float:
-	return maxf(1.0, float(derived_stats(peer_id).get("max_health", PLAYER_MAX_HEALTH)))
+	var wounds := int(player(peer_id).get("wounds", 0))
+	return maxf(1.0, float(derived_stats(peer_id).get("max_health", PLAYER_MAX_HEALTH)) * maxf(0.5, 1.0 - WOUND_PENALTY * float(wounds)))
 
 
 func max_breath(peer_id: int) -> float:
@@ -2770,6 +2874,10 @@ func view_snapshot() -> Dictionary:
 			"max_breath": max_breath(peer_id),
 			"barrier": state["barrier"],
 			"invulnerable": float(state["invulnerable"]) > 0.0,
+			"downed": bool(state.get("downed", false)),
+			"downed_timer": float(state.get("downed_timer", 0.0)),
+			"stabilize_progress": float(state.get("stabilize_progress", 0.0)) / STABILIZE_SECONDS,
+			"wounds": int(state.get("wounds", 0)),
 			"hurt_flash": state["hurt_flash"],
 			"cooldowns": _ready_cooldowns(state),
 			"charges": (state["charges"] as Array[int]).duplicate(),

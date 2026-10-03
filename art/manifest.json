@@ -2401,6 +2401,51 @@
    ],
    "size": 1024,
    "negative_prompt": "blurry, photo, 3d render, realistic, text, watermark, signature, anti-aliasing, smooth gradients, multiple characters, sprite sheet, character sheet, grid, cropped, cut off feet, portrait, close-up, busy background, noise, furniture, extra objects, scenery, landscape, ground plate, multiple characters, many characters, sprite sheet, grid, collage, several objects, icons, set, collection, tileset"
+  },
+  {
+   "key": "dungeon_portal_retorno",
+   "asset_type": "prop",
+   "name": "portal_retorno",
+   "metadata": {
+    "dungeon": true
+   },
+   "prompt": "pixel art, 3/4 top-down rpg prop sprite, one single object alone, clean dark outline, muted earthy colors, plain white background, ancient stone archway portal with swirling glowing cyan magic light inside, runes carved on the arch",
+   "negative_prompt": "blurry, photo, 3d render, realistic, text, watermark, signature, anti-aliasing, smooth gradients, multiple characters, sprite sheet, character sheet, grid, cropped, cut off feet, portrait, close-up, busy background, noise, furniture, extra objects, scenery, landscape, ground plate, multiple objects, sprite sheet, grid, collage, set",
+   "seeds": [
+    61001,
+    61002
+   ],
+   "size": 1024
+  },
+  {
+   "key": "dungeon_escada_aberta",
+   "asset_type": "prop",
+   "name": "escada_aberta",
+   "metadata": {
+    "dungeon": true
+   },
+   "prompt": "pixel art, 3/4 top-down rpg prop sprite, one single object alone, clean dark outline, muted earthy colors, plain white background, stone staircase going down into a dark square hole in the floor, glowing cyan runes around the edge",
+   "negative_prompt": "blurry, photo, 3d render, realistic, text, watermark, signature, anti-aliasing, smooth gradients, multiple characters, sprite sheet, character sheet, grid, cropped, cut off feet, portrait, close-up, busy background, noise, furniture, extra objects, scenery, landscape, ground plate, multiple objects, sprite sheet, grid, collage, set",
+   "seeds": [
+    61011,
+    61012
+   ],
+   "size": 1024
+  },
+  {
+   "key": "dungeon_escada_selada",
+   "asset_type": "prop",
+   "name": "escada_selada",
+   "metadata": {
+    "dungeon": true
+   },
+   "prompt": "pixel art, 3/4 top-down rpg prop sprite, one single object alone, clean dark outline, muted earthy colors, plain white background, stone staircase going down into a dark square hole in the floor, sealed by a glowing red rune barrier",
+   "negative_prompt": "blurry, photo, 3d render, realistic, text, watermark, signature, anti-aliasing, smooth gradients, multiple characters, sprite sheet, character sheet, grid, cropped, cut off feet, portrait, close-up, busy background, noise, furniture, extra objects, scenery, landscape, ground plate, multiple objects, sprite sheet, grid, collage, set",
+   "seeds": [
+    61021,
+    61022
+   ],
+   "size": 1024
   }
  ]
 }

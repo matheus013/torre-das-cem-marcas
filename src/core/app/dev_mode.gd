@@ -37,3 +37,11 @@ static func set_enabled(value: bool) -> void:
 
 static func home_scene() -> String:
 	return DEV_HOME if enabled() else PUBLIC_HOME
+
+
+static func boot_scene(args: PackedStringArray) -> String:
+	if OS.is_debug_build() and not "--public" in args:
+		for arg in args:
+			if arg == "--server" or arg.begins_with("--client="):
+				return DEV_HOME
+	return home_scene()

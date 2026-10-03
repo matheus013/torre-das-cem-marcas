@@ -314,6 +314,24 @@ BOSSES = [
 ]
 
 # Novas combinacoes por tamanho de grupo (documento 58): habilidades extras de dois, tres e quatro jogadores.
+# Calibragem de Vida dos chefes pela sonda tools/bench/balance_probe.gd (decisao 566): alvo de
+# cerca de 75 s em solo no nivel do andar.
+BOSS_HEALTH_CALIBRATION = {
+    "guardiao_de_enxerto": 2.5,
+    "refeitor": 2.5,
+    "pastor_das_correntes": 2.5,
+    "guardia_do_no_mae": 2.0,
+    "guardiao_da_comporta": 1.8,
+    "coroa_dos_condutores": 1.6,
+    "guardiao_do_marco_cego": 1.5,
+    "palpebra_do_horizonte": 1.4,
+    "guardiao_do_eixo_zero": 1.3,
+    "guardiao_da_ultima_escolha": 1.2,
+    "regente_centesimo": 1.0
+}
+# O Regente recebe golpes menores: a sonda mostrou o andar 100 intransponivel.
+REGENTE_DAMAGE_SCALE = 0.6
+
 PARTY_ABILITIES = {
     "2": [A("slam", targets=2, radius=80, delay=1.2, damage_ratio=0.8, cooldown=8.0)],
     "3": [A("line", count=2, spread=0.8, length=560, width=70, delay=1.3, damage_ratio=0.9, cooldown=9.0)],
@@ -395,7 +413,7 @@ def build():
                 "floor": floor, "biome": biome["id"], "name": biome["floor_names"].get(floor, biome["name"]),
                 "kind": "boss" if boss else "explore",
                 "health_multiplier": round(1.0 + 0.085 * depth, 3),
-                "damage_multiplier": round(1.0 + 0.045 * depth, 3),
+                "damage_multiplier": round(1.0 + 0.03 * depth, 3),
                 "hazard_multiplier": round(1.0 + 0.04 * depth, 3),
                 "seed": seed_for("andar_%d" % floor),
             }
@@ -403,11 +421,15 @@ def build():
                 entry.update({"boss_id": boss["id"], "size": [1400, 1100], "arena_radius": 430})
             else:
                 size = explore_size(floor)
-                entry.update({"size": size, "packs": int(size[0] * size[1] / 360000), "kill_quota": 18 + floor // 2})
+                entry.update({"size": size, "packs": int(size[0] * size[1] / 360000), "kill_quota": int(30 + floor * 0.6)})
             floors.append(entry)
     for boss in BOSSES:
         biome = next(b for b in BIOMES if b["id"] == boss["biome"])
         record = {key: boss[key] for key in ("floor", "biome", "id", "name", "health", "damage", "speed", "abilities", "phases", "enrage")}
+        record["health"] = int(round(boss["health"] * BOSS_HEALTH_CALIBRATION.get(boss["id"], 1.0)))
+        if boss["id"] == "regente_centesimo":
+            record["damage"] = int(round(boss["damage"] * REGENTE_DAMAGE_SCALE))
+            record["abilities"] = [dict(a, damage=int(round(a["damage"] * REGENTE_DAMAGE_SCALE))) if "damage" in a else a for a in boss["abilities"]]
         record["loot_table_id"] = "saque_%s" % boss["id"]
         bosses.append(record)
         if boss.get("existing"):
@@ -421,7 +443,7 @@ def build():
         enemies.append({
             "id": boss["id"], "name": boss["name"], "race_id": biome["race"]["id"] if biome["race"] else "enxertado",
             "rank_id": "apice", "encounter_class": "boss", "mechanic": "boss_kit", "kind": "boss",
-            "health": boss["health"], "damage": boss["damage"], "speed": boss["speed"], "attack_interval": 1.1,
+            "health": record["health"], "damage": record["damage"], "speed": boss["speed"], "attack_interval": 1.1,
             "loot_table_id": record["loot_table_id"], "allow_affixes": False, "biome": boss["biome"],
             "lore": "Guardiao do Limiar de %s." % biome["name"],
         })
@@ -435,7 +457,62 @@ def build():
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT.write_text(json.dumps(content, ensure_ascii=False, indent=1), encoding="utf-8")
     _merge_art(manifest_assets, art_sprites)
+    write_doc(content)
     print("andares %d, biomas %d, chefes %d, inimigos %d, arte %d" % (len(floors), len(biomes), len(bosses), len(enemies), len(manifest_assets)))
+
+DOC = ROOT / "docs" / "game-design" / "75-torre-andares-biomas-e-chefes.md"
+ABILITY_LABELS = {"slam": "golpes em circulo sob os jogadores", "nova": "explosao ao redor do chefe",
+                  "donut": "anel (seguro so colado ao chefe)", "line": "linhas a partir do chefe",
+                  "gust": "rajada em linha que empurra", "cross": "cruz de quatro linhas", "charge": "investida em linha",
+                  "meteor": "chuva de areas pela arena", "zone": "poca persistente (dano e lentidao)",
+                  "pull": "puxao para o centro e explosao", "barrage": "rajada radial de projeteis",
+                  "summon": "invoca criaturas do bioma"}
+
+
+def write_doc(content):
+    """Documento 75 gerado a partir dos mesmos dados do jogo."""
+    enemy_names = {e["id"]: e["name"] for e in content["enemies"]}
+    beta = json.loads((ROOT / "data" / "beta" / "beta_content.json").read_text(encoding="utf-8"))
+    for enemy in beta["enemies"]:
+        enemy_names.setdefault(enemy["id"], enemy["name"])
+    out = ["# Torre: Andares, Biomas e Chefes", "", "## Estado", "",
+           "**Implementado no jogo (decisoes 553 a 559 e 566).** Gerado a partir de `data/tower/tower_content.json` por "
+           "`tools/content/build_tower.py`; edite o gerador e rode-o de novo. Valores calibrados pela sonda "
+           "`tools/bench/balance_probe.gd` e ainda provisorios.", "",
+           "## Estrutura", "",
+           "- Cem andares em dez biomas, seguindo a divisao do documento 05 e os documentos 28 a 37.",
+           "- **Andares comuns** sao mapas grandes (3200x2400 no andar 1 ate 4800x3600 a partir do andar 61) com matilhas "
+           "que patrulham, cristas de obstaculos, portal de retorno na entrada e escada no extremo oposto. A escada abre ao "
+           "cumprir a cota de abates (`30 + 0,6 x andar`).",
+           "- **Andares de chefe** sao arenas circulares pequenas (raio 430). A saida fica selada enquanto o chefe vive; a "
+           "vitoria abre a escada. O chefe derrotado volta depois de 20 minutos; ate la o andar e passagem.",
+           "- O grupo atravessa os andares junto. Com a Torre vazia, a proxima entrada comeca no andar de partida escolhido "
+           "no mapa da Torre (ate o mais fundo ja alcancado).",
+           "- Profundidade: comuns e elites ganham `1 + 0,085 x (andar - 1)` de Vida e `1 + 0,03 x (andar - 1)` de dano; "
+           "perigos, `1 + 0,04 x (andar - 1)`. Chefes usam numeros proprios, calibrados para cerca de 75 s em solo no nivel do andar.",
+           "- Monstros patrulham o territorio e so perseguem quem chega a 520 unidades.",
+           "- Respawn: intervalo de `14 / (1 + tempo / 120)` segundos, no minimo 2,5, sempre a mais de 480 unidades do grupo.",
+           "- Recordes por andar em SOLO, DUO, TRIO e SQUAD.", "",
+           "## Biomas", "", "| Andares | Bioma | Mecanica ambiental | Perigo no jogo | Monstros | Materiais |", "|---|---|---|---|---|---|"]
+    for biome in content["biomes"]:
+        hazard = biome["hazard"]
+        kind = "mistura de todos" if hazard["type"] == "mixed" else ABILITY_LABELS.get(hazard["type"], hazard["type"])
+        names = ", ".join(enemy_names.get(x, x) for x in biome["enemies"])
+        materials = ", ".join(i["name"] for i in content["items"] if i.get("biome") == biome["id"]) or "Pedra Regenerativa e materiais do recorte"
+        out.append("| %d-%d | %s | %s | %s (%s) | %s | %s |" % (biome["floors"][0], biome["floors"][1], biome["name"], biome["mechanic"], hazard.get("label", ""), kind, names, materials))
+    out += ["", "## Chefes", "",
+            "Todo chefe muda de fase pela Vida, entra em furia apos o tempo indicado (dano x1,5 e recargas x0,6) e ganha "
+            "combinacoes extras com dois, tres e quatro jogadores. Toda habilidade de area e anunciada no chao antes do golpe.", "",
+            "| Andar | Chefe | Vida | Dano | Fases (Vida) | Furia | Habilidades |", "|---|---|---|---|---|---|---|"]
+    for boss in content["bosses"]:
+        abilities = "; ".join(ABILITY_LABELS.get(a["type"], a["type"]) + (" (fase %d)" % a["phase"] if a.get("phase") else "") for a in boss["abilities"])
+        out.append("| %d | %s | %d | %d | %s | %d s | %s |" % (boss["floor"], boss["name"], boss["health"], boss["damage"], ", ".join("%d%%" % int(p * 100) for p in boss["phases"]), boss["enrage"], abilities))
+    biome_names = {b["id"]: b["name"] for b in content["biomes"]}
+    out += ["", "## Andares", "", "| Andar | Nome | Bioma | Tipo | Cota | Tamanho |", "|---|---|---|---|---|---|"]
+    for floor in content["floors"]:
+        out.append("| %d | %s | %s | %s | %s | %dx%d |" % (floor["floor"], floor["name"], biome_names[floor["biome"]], "chefe" if floor["kind"] == "boss" else "comum", floor.get("kill_quota", "-"), floor["size"][0], floor["size"][1]))
+    DOC.write_text("\n".join(out) + "\n", encoding="utf-8")
+
 
 
 def _merge_art(manifest_assets, art_sprites):

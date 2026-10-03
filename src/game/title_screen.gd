@@ -4,18 +4,21 @@ extends Control
 
 const SpriteLibraryScript := preload("res://src/presentation/art/sprite_library.gd")
 const DevModeScript := preload("res://src/core/app/dev_mode.gd")
+const SettingsDialogScript := preload("res://src/game/settings_dialog.gd")
 const VILLAGE_SCENE := "res://src/prototype/village/village_exploration.tscn"
 const GOLD := Color("e8b84a")
 const TEXT := Color("f2e6c9")
-const GAME_VERSION := "Beta jogável 0.1"
 
 var _time := 0.0
 var _embers: Array[Vector3] = []
 var _join_row: HBoxContainer
 var _address_input: LineEdit
+var _settings_dialog: ConfirmationDialog
+var _game_version := "Beta jogável " + str(ProjectSettings.get_setting("application/config/version", "0.1.0"))
 
 
 func _ready() -> void:
+	SettingsDialogScript.BindingsScript.ensure()
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED
@@ -25,12 +28,12 @@ func _ready() -> void:
 		_embers.append(Vector3(random.randf(), random.randf(), random.randf_range(0.3, 1.0)))
 	var menu := VBoxContainer.new()
 	menu.name = "Menu"
-	menu.add_theme_constant_override("separation", 10)
-	menu.position = Vector2(110.0, 330.0)
+	menu.add_theme_constant_override("separation", 8)
+	menu.position = Vector2(110.0, 304.0)
 	menu.custom_minimum_size = Vector2(260.0, 0.0)
 	add_child(menu)
-	for spec: Array in [["Play", "JOGAR", _play], ["CoopHost", "HOSPEDAR CO-OP", _host], ["CoopJoin", "ENTRAR EM CO-OP", _toggle_join], ["Villagers", "MORADORES (IA)", _toggle_npc_panel], ["Quit", "SAIR", _quit]]:
-		var button := _make_button(String(spec[0]), String(spec[1]), Vector2(260.0, 52.0), 20)
+	for spec: Array in [["Play", "JOGAR", _play], ["CoopHost", "HOSPEDAR CO-OP", _host], ["CoopJoin", "ENTRAR EM CO-OP", _toggle_join], ["Villagers", "MORADORES (IA)", _toggle_npc_panel], ["Settings", "OPÇÕES", _open_settings], ["Quit", "SAIR", _quit]]:
+		var button := _make_button(String(spec[0]), String(spec[1]), Vector2(260.0, 48.0), 20)
 		button.pressed.connect(spec[2])
 		menu.add_child(button)
 		if spec[0] == "CoopJoin":
@@ -50,6 +53,12 @@ func _ready() -> void:
 			connect_button.pressed.connect(_join)
 			_join_row.add_child(connect_button)
 	(menu.get_child(0) as Button).grab_focus()
+	_settings_dialog = SettingsDialogScript.new()
+	add_child(_settings_dialog)
+
+
+func _open_settings() -> void:
+	_settings_dialog.call("open")
 
 
 func _make_button(button_name: String, text: String, minimum: Vector2, font_size: int) -> Button:
@@ -76,6 +85,10 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_F12 and DevModeScript.can_toggle():
 		DevModeScript.set_enabled(true)
 		get_tree().change_scene_to_file(DevModeScript.DEV_HOME)
+
+
+func _input(event: InputEvent) -> void:
+	SettingsDialogScript.BindingsScript.track(event)
 
 
 func _draw() -> void:
@@ -110,7 +123,7 @@ func _draw() -> void:
 	draw_string(font, Vector2(110.0, 210.0), "ARESTA", HORIZONTAL_ALIGNMENT_LEFT, -1, 92, GOLD)
 	draw_string(font, Vector2(114.0, 256.0), "A TORRE DAS CEM MARCAS", HORIZONTAL_ALIGNMENT_LEFT, -1, 22, TEXT)
 	draw_line(Vector2(114.0, 272.0), Vector2(420.0, 272.0), Color(GOLD, 0.6), 2.0)
-	draw_string(font, Vector2(20.0, screen.y - 18.0), GAME_VERSION, HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color("8f7a6a"))
+	draw_string(font, Vector2(20.0, screen.y - 18.0), _game_version, HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color("8f7a6a"))
 
 
 func _draw_scaled(key: String, base: Vector2, scale: float, tint: Color) -> void:
