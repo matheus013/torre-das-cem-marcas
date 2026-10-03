@@ -1,0 +1,608 @@
+{
+ "version": 1,
+ "npcs": [
+  {
+   "id": "alda_serrin",
+   "name": "Alda Serrin",
+   "title": "Regente de Aresta",
+   "house": "Regencia",
+   "work": "conselho",
+   "named": true,
+   "sprite": "npcs/alda_serrin",
+   "traits": {
+    "caution": 0.75,
+    "ambition": 0.6,
+    "empathy": 0.5,
+    "courage": 0.5
+   },
+   "values": {
+    "vila": 0.9,
+    "dever": 0.8,
+    "poder": 0.6
+   },
+   "personality": "Velaria serena e calculista; fala pouco e mede cada palavra; pensa sempre na autonomia da vila.",
+   "opinions": "Quer expedicoes bem registradas e sem alarde; teme que crises tirem a autonomia de Aresta."
+  },
+  {
+   "id": "nara_quiral",
+   "name": "Nara Quiral",
+   "title": "Diretora da Casa das Expedicoes",
+   "house": "Casa das Expedicoes",
+   "work": "expedicoes",
+   "named": true,
+   "sprite": "npcs/nara_quiral",
+   "traits": {
+    "courage": 0.8,
+    "empathy": 0.6,
+    "ambition": 0.5,
+    "caution": 0.45
+   },
+   "values": {
+    "conhecimento": 0.8,
+    "vila": 0.7,
+    "dever": 0.7
+   },
+   "personality": "Nacaria, antiga aventureira; direta, animada com cada descida e exigente com relatorios.",
+   "opinions": "Reuniu o quadro especial para reavaliar o andar 78; cobra relatorio de cada expedicao."
+  },
+  {
+   "id": "dalia_ferral",
+   "name": "Dalia Ferral",
+   "title": "Mestra da Forja",
+   "house": "Casa Ferral",
+   "work": "forja",
+   "named": true,
+   "sprite": "npcs/dalia_ferral",
+   "traits": {
+    "caution": 0.8,
+    "courage": 0.6,
+    "empathy": 0.35,
+    "ambition": 0.45
+   },
+   "values": {
+    "dever": 0.85,
+    "conhecimento": 0.7,
+    "familia": 0.7
+   },
+   "personality": "Nacaria severa e paciente; respeita trabalho bem feito e desconfia de materiais desconhecidos.",
+   "opinions": "Quer entender todo material da Torre antes de usa-lo; discute precos com os Rotavela."
+  },
+  {
+   "id": "cassio_rotavela",
+   "name": "Cassio Rotavela",
+   "title": "Primeiro Signatario",
+   "house": "Casa Rotavela",
+   "work": "armazem",
+   "named": true,
+   "sprite": "npcs/cassio_rotavela",
+   "traits": {
+    "ambition": 0.85,
+    "empathy": 0.4,
+    "caution": 0.55,
+    "courage": 0.4
+   },
+   "values": {
+    "poder": 0.7,
+    "vila": 0.6,
+    "familia": 0.7
+   },
+   "personality": "Humano cordial e preciso; sorri enquanto calcula; gosta de comercio e de novos aventureiros.",
+   "opinions": "Defende comercio exterior e expansao; ve cada pedra regenerativa como oportunidade."
+  },
+  {
+   "id": "tamar_vardal",
+   "name": "Tamar Vardal",
+   "title": "Custodio da Vigilia",
+   "house": "Casa Vardal",
+   "work": "vigilia",
+   "named": true,
+   "sprite": "npcs/tamar_vardal",
+   "traits": {
+    "caution": 0.7,
+    "courage": 0.65,
+    "empathy": 0.5,
+    "ambition": 0.4
+   },
+   "values": {
+    "justica": 0.85,
+    "dever": 0.8,
+    "vila": 0.7
+   },
+   "personality": "Diade: uma corrente le a lei ao pe da letra, a outra pesa as consequencias; costuma falar em duas vozes.",
+   "opinions": "Defende fiscalizacao, mas rejeita poderes de emergencia sem prazo."
+  },
+  {
+   "id": "ivo_cerne",
+   "name": "Ivo Cerne",
+   "title": "Comandante da Guarda",
+   "house": "Guarda de Aresta",
+   "work": "posto_guarda",
+   "named": true,
+   "sprite": "npcs/ivo_cerne",
+   "traits": {
+    "courage": 0.85,
+    "caution": 0.5,
+    "empathy": 0.45,
+    "impulsivity": 0.4
+   },
+   "values": {
+    "dever": 0.9,
+    "vila": 0.8,
+    "sobrevivencia": 0.6
+   },
+   "personality": "Humano pragmatico e seco; encontrou uma criatura profunda perto da entrada e ainda pensa nisso.",
+   "opinions": "Quer a entrada da Torre vigiada; pede que os grupos voltem antes de exaurir."
+  },
+  {
+   "id": "maura_salvedra",
+   "name": "Maura Salvedra",
+   "title": "Voz da Enfermaria",
+   "house": "Casa Salvedra",
+   "work": "enfermaria",
+   "named": true,
+   "sprite": "npcs/maura_salvedra",
+   "traits": {
+    "empathy": 0.8,
+    "caution": 0.6,
+    "courage": 0.5,
+    "ambition": 0.35
+   },
+   "values": {
+    "vila": 0.8,
+    "conhecimento": 0.7,
+    "familia": 0.6
+   },
+   "personality": "Humana medica, gentil com pacientes e dura com quem arrisca a vida a toa.",
+   "opinions": "Defende saude publica e recuperacao de aventureiros; pede cuidado com substancias da Torre."
+  },
+  {
+   "id": "lior_campelo",
+   "name": "Lior Campelo",
+   "title": "Guardiao da Colheita",
+   "house": "Casa Campelo",
+   "work": "campos",
+   "named": true,
+   "sprite": "npcs/lior_campelo",
+   "traits": {
+    "caution": 0.55,
+    "empathy": 0.6,
+    "courage": 0.45,
+    "ambition": 0.35
+   },
+   "values": {
+    "vila": 0.75,
+    "familia": 0.7,
+    "sobrevivencia": 0.75
+   },
+   "personality": "Velario agricultor, voz mansa, preocupado com o solo e com as reservas de comida.",
+   "opinions": "Prefere independencia da masmorra; acha que a Torre nao pode ser a unica fonte de Aresta."
+  },
+  {
+   "id": "brina_pedralva",
+   "name": "Brina Pedralva",
+   "title": "Mestra de Obra",
+   "house": "Casa Pedralva",
+   "work": "obra",
+   "named": true,
+   "sprite": "npcs/brina_pedralva",
+   "traits": {
+    "ambition": 0.7,
+    "courage": 0.6,
+    "caution": 0.45,
+    "empathy": 0.5
+   },
+   "values": {
+    "vila": 0.7,
+    "poder": 0.55,
+    "conhecimento": 0.6
+   },
+   "personality": "Diade energica, pensa em vigas e fundacoes; quer uma grande obra publica para ganhar assento.",
+   "opinions": "Precisa de pedra regenerativa para os reforcos da vila e valoriza quem entrega material."
+  },
+  {
+   "id": "oren_lumeiro",
+   "name": "Oren Lumeiro",
+   "title": "Curador-Mor",
+   "house": "Casa Lumeiro",
+   "work": "arquivo",
+   "named": true,
+   "sprite": "npcs/oren_lumeiro",
+   "traits": {
+    "caution": 0.85,
+    "ambition": 0.45,
+    "empathy": 0.4,
+    "courage": 0.3
+   },
+   "values": {
+    "conhecimento": 0.9,
+    "dever": 0.6,
+    "poder": 0.4
+   },
+   "personality": "Nacario erudito e reservado; fala por enigmas quando o assunto e perigoso.",
+   "opinions": "Defende contexto antes de divulgar verdades; adora registros e mapas trazidos da Torre."
+  },
+  {
+   "id": "elen",
+   "name": "Elen",
+   "title": "Moradora da casa de teto vermelho",
+   "house": "Aresta",
+   "work": "casa_elen",
+   "named": true,
+   "sprite": "npcs/elen",
+   "traits": {
+    "empathy": 0.75,
+    "courage": 0.4,
+    "caution": 0.5,
+    "impulsivity": 0.45
+   },
+   "values": {
+    "familia": 0.8,
+    "vila": 0.7,
+    "pertencimento": 0.7
+   },
+   "personality": "Vizinha acolhedora que abre a casa para o quadro de expedicao; curiosa sobre tudo que acontece.",
+   "opinions": "Gosta de ouvir historias da Torre e se preocupa quando alguem volta ferido."
+  },
+  {
+   "id": "guarda_1",
+   "name": "Guarda 1",
+   "title": "Guarda",
+   "house": "Aresta",
+   "work": "posto_guarda",
+   "named": false,
+   "sprite": "npcs/comum_guarda",
+   "traits": {
+    "courage": 0.5,
+    "caution": 0.5,
+    "empathy": 0.5
+   },
+   "values": {
+    "vila": 0.6
+   },
+   "personality": "Morador comum de Aresta.",
+   "opinions": ""
+  },
+  {
+   "id": "guarda_2",
+   "name": "Guarda 2",
+   "title": "Guarda",
+   "house": "Aresta",
+   "work": "posto_guarda",
+   "named": false,
+   "sprite": "npcs/comum_guarda",
+   "traits": {
+    "courage": 0.5,
+    "caution": 0.5,
+    "empathy": 0.5
+   },
+   "values": {
+    "vila": 0.6
+   },
+   "personality": "Morador comum de Aresta.",
+   "opinions": ""
+  },
+  {
+   "id": "guarda_3",
+   "name": "Guarda 3",
+   "title": "Guarda",
+   "house": "Aresta",
+   "work": "posto_guarda",
+   "named": false,
+   "sprite": "npcs/comum_guarda",
+   "traits": {
+    "courage": 0.5,
+    "caution": 0.5,
+    "empathy": 0.5
+   },
+   "values": {
+    "vila": 0.6
+   },
+   "personality": "Morador comum de Aresta.",
+   "opinions": ""
+  },
+  {
+   "id": "guarda_4",
+   "name": "Guarda 4",
+   "title": "Guarda",
+   "house": "Aresta",
+   "work": "posto_guarda",
+   "named": false,
+   "sprite": "npcs/comum_guarda",
+   "traits": {
+    "courage": 0.5,
+    "caution": 0.5,
+    "empathy": 0.5
+   },
+   "values": {
+    "vila": 0.6
+   },
+   "personality": "Morador comum de Aresta.",
+   "opinions": ""
+  },
+  {
+   "id": "feirante_1",
+   "name": "Feirante 1",
+   "title": "Feirante",
+   "house": "Aresta",
+   "work": "feira",
+   "named": false,
+   "sprite": "npcs/comum_feirante",
+   "traits": {
+    "courage": 0.5,
+    "caution": 0.5,
+    "empathy": 0.5
+   },
+   "values": {
+    "vila": 0.6
+   },
+   "personality": "Morador comum de Aresta.",
+   "opinions": ""
+  },
+  {
+   "id": "feirante_2",
+   "name": "Feirante 2",
+   "title": "Feirante",
+   "house": "Aresta",
+   "work": "feira",
+   "named": false,
+   "sprite": "npcs/comum_feirante",
+   "traits": {
+    "courage": 0.5,
+    "caution": 0.5,
+    "empathy": 0.5
+   },
+   "values": {
+    "vila": 0.6
+   },
+   "personality": "Morador comum de Aresta.",
+   "opinions": ""
+  },
+  {
+   "id": "feirante_3",
+   "name": "Feirante 3",
+   "title": "Feirante",
+   "house": "Aresta",
+   "work": "feira",
+   "named": false,
+   "sprite": "npcs/comum_feirante",
+   "traits": {
+    "courage": 0.5,
+    "caution": 0.5,
+    "empathy": 0.5
+   },
+   "values": {
+    "vila": 0.6
+   },
+   "personality": "Morador comum de Aresta.",
+   "opinions": ""
+  },
+  {
+   "id": "trabalhador_1",
+   "name": "Trabalhador 1",
+   "title": "Trabalhador",
+   "house": "Aresta",
+   "work": "obra",
+   "named": false,
+   "sprite": "npcs/comum_trabalhador",
+   "traits": {
+    "courage": 0.5,
+    "caution": 0.5,
+    "empathy": 0.5
+   },
+   "values": {
+    "vila": 0.6
+   },
+   "personality": "Morador comum de Aresta.",
+   "opinions": ""
+  },
+  {
+   "id": "trabalhador_2",
+   "name": "Trabalhador 2",
+   "title": "Trabalhador",
+   "house": "Aresta",
+   "work": "obra",
+   "named": false,
+   "sprite": "npcs/comum_trabalhador",
+   "traits": {
+    "courage": 0.5,
+    "caution": 0.5,
+    "empathy": 0.5
+   },
+   "values": {
+    "vila": 0.6
+   },
+   "personality": "Morador comum de Aresta.",
+   "opinions": ""
+  },
+  {
+   "id": "trabalhador_3",
+   "name": "Trabalhador 3",
+   "title": "Trabalhador",
+   "house": "Aresta",
+   "work": "obra",
+   "named": false,
+   "sprite": "npcs/comum_trabalhador",
+   "traits": {
+    "courage": 0.5,
+    "caution": 0.5,
+    "empathy": 0.5
+   },
+   "values": {
+    "vila": 0.6
+   },
+   "personality": "Morador comum de Aresta.",
+   "opinions": ""
+  },
+  {
+   "id": "lavrador_1",
+   "name": "Lavrador 1",
+   "title": "Lavrador",
+   "house": "Aresta",
+   "work": "campos",
+   "named": false,
+   "sprite": "npcs/comum_lavrador",
+   "traits": {
+    "courage": 0.5,
+    "caution": 0.5,
+    "empathy": 0.5
+   },
+   "values": {
+    "vila": 0.6
+   },
+   "personality": "Morador comum de Aresta.",
+   "opinions": ""
+  },
+  {
+   "id": "lavrador_2",
+   "name": "Lavrador 2",
+   "title": "Lavrador",
+   "house": "Aresta",
+   "work": "campos",
+   "named": false,
+   "sprite": "npcs/comum_lavrador",
+   "traits": {
+    "courage": 0.5,
+    "caution": 0.5,
+    "empathy": 0.5
+   },
+   "values": {
+    "vila": 0.6
+   },
+   "personality": "Morador comum de Aresta.",
+   "opinions": ""
+  },
+  {
+   "id": "lavrador_3",
+   "name": "Lavrador 3",
+   "title": "Lavrador",
+   "house": "Aresta",
+   "work": "campos",
+   "named": false,
+   "sprite": "npcs/comum_lavrador",
+   "traits": {
+    "courage": 0.5,
+    "caution": 0.5,
+    "empathy": 0.5
+   },
+   "values": {
+    "vila": 0.6
+   },
+   "personality": "Morador comum de Aresta.",
+   "opinions": ""
+  },
+  {
+   "id": "aventureiro_1",
+   "name": "Aventureiro 1",
+   "title": "Aventureiro",
+   "house": "Aresta",
+   "work": "expedicoes",
+   "named": false,
+   "sprite": "npcs/comum_aventureiro",
+   "traits": {
+    "courage": 0.5,
+    "caution": 0.5,
+    "empathy": 0.5
+   },
+   "values": {
+    "vila": 0.6
+   },
+   "personality": "Morador comum de Aresta.",
+   "opinions": ""
+  },
+  {
+   "id": "aventureiro_2",
+   "name": "Aventureiro 2",
+   "title": "Aventureiro",
+   "house": "Aresta",
+   "work": "expedicoes",
+   "named": false,
+   "sprite": "npcs/comum_aventureiro",
+   "traits": {
+    "courage": 0.5,
+    "caution": 0.5,
+    "empathy": 0.5
+   },
+   "values": {
+    "vila": 0.6
+   },
+   "personality": "Morador comum de Aresta.",
+   "opinions": ""
+  },
+  {
+   "id": "aventureiro_3",
+   "name": "Aventureiro 3",
+   "title": "Aventureiro",
+   "house": "Aresta",
+   "work": "expedicoes",
+   "named": false,
+   "sprite": "npcs/comum_aventureiro",
+   "traits": {
+    "courage": 0.5,
+    "caution": 0.5,
+    "empathy": 0.5
+   },
+   "values": {
+    "vila": 0.6
+   },
+   "personality": "Morador comum de Aresta.",
+   "opinions": ""
+  },
+  {
+   "id": "crianca_1",
+   "name": "Crianca 1",
+   "title": "Crianca",
+   "house": "Aresta",
+   "work": "praca",
+   "named": false,
+   "sprite": "npcs/comum_crianca",
+   "traits": {
+    "courage": 0.5,
+    "caution": 0.5,
+    "empathy": 0.5
+   },
+   "values": {
+    "vila": 0.6
+   },
+   "personality": "Morador comum de Aresta.",
+   "opinions": ""
+  },
+  {
+   "id": "crianca_2",
+   "name": "Crianca 2",
+   "title": "Crianca",
+   "house": "Aresta",
+   "work": "praca",
+   "named": false,
+   "sprite": "npcs/comum_crianca",
+   "traits": {
+    "courage": 0.5,
+    "caution": 0.5,
+    "empathy": 0.5
+   },
+   "values": {
+    "vila": 0.6
+   },
+   "personality": "Morador comum de Aresta.",
+   "opinions": ""
+  },
+  {
+   "id": "crianca_3",
+   "name": "Crianca 3",
+   "title": "Crianca",
+   "house": "Aresta",
+   "work": "praca",
+   "named": false,
+   "sprite": "npcs/comum_crianca",
+   "traits": {
+    "courage": 0.5,
+    "caution": 0.5,
+    "empathy": 0.5
+   },
+   "values": {
+    "vila": 0.6
+   },
+   "personality": "Morador comum de Aresta.",
+   "opinions": ""
+  }
+ ]
+}

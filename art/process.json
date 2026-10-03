@@ -1,0 +1,1212 @@
+{
+ "outline_color": "1b1a1f",
+ "palette": [
+  "1b1a1f",
+  "2f2a35",
+  "4a3f4f",
+  "6b5a5e",
+  "8f7a6a",
+  "b89a7a",
+  "d9c2a0",
+  "f2e6c9",
+  "3d5a3a",
+  "5f7f45",
+  "93a75a",
+  "3a4a5c",
+  "5b6f82",
+  "8ea0ab",
+  "7a2e2e",
+  "b04a3a",
+  "d9824a",
+  "e8b84a",
+  "7fd6e0",
+  "c8f2f0",
+  "5a3d6b",
+  "8a5f9e",
+  "2b3b2a",
+  "c9d4d6",
+  "3a3a40",
+  "5c5a5e",
+  "858179",
+  "aaa59a"
+ ],
+ "sprites": [
+  {
+   "key": "eloa",
+   "group": "characters",
+   "source": "raw/eloa_s15.png",
+   "output": "res://assets/sprites/characters/eloa.png",
+   "block": 12
+  },
+  {
+   "key": "sena",
+   "group": "characters",
+   "source": "raw/sena_s51.png",
+   "output": "res://assets/sprites/characters/sena.png",
+   "block": 12
+  },
+  {
+   "key": "cira",
+   "group": "characters",
+   "source": "raw/cira_s62.png",
+   "output": "res://assets/sprites/characters/cira.png",
+   "block": 12
+  },
+  {
+   "key": "rui",
+   "group": "characters",
+   "source": "raw/rui_s72.png",
+   "output": "res://assets/sprites/characters/rui.png",
+   "block": 12
+  },
+  {
+   "key": "larva_de_junta",
+   "group": "enemies",
+   "source": "raw/larva_s81.png",
+   "output": "res://assets/sprites/enemies/larva_de_junta.png",
+   "block": 12
+  },
+  {
+   "key": "raspador_de_junta",
+   "group": "enemies",
+   "source": "raw/raspador_s21.png",
+   "output": "res://assets/sprites/enemies/raspador_de_junta.png",
+   "block": 12
+  },
+  {
+   "key": "sentinela_de_cal",
+   "group": "enemies",
+   "source": "raw/sentinela_s84.png",
+   "output": "res://assets/sprites/enemies/sentinela_de_cal.png",
+   "block": 12
+  },
+  {
+   "key": "emboscado_de_reboco",
+   "group": "enemies",
+   "source": "raw/emboscado_s85.png",
+   "output": "res://assets/sprites/enemies/emboscado_de_reboco.png",
+   "block": 12
+  },
+  {
+   "key": "molde_de_ferramenta",
+   "group": "enemies",
+   "source": "raw/molde_s87.png",
+   "output": "res://assets/sprites/enemies/molde_de_ferramenta.png",
+   "block": 12
+  },
+  {
+   "key": "escora_hostil",
+   "group": "enemies",
+   "source": "raw/escora_s89.png",
+   "output": "res://assets/sprites/enemies/escora_hostil.png",
+   "block": 12
+  },
+  {
+   "key": "vigia_moldado",
+   "group": "enemies",
+   "source": "raw/vigia_s91.png",
+   "output": "res://assets/sprites/enemies/vigia_moldado.png",
+   "block": 12
+  },
+  {
+   "key": "molde_vigilante",
+   "group": "enemies",
+   "source": "raw/molde_vigilante_s96.png",
+   "output": "res://assets/sprites/enemies/molde_vigilante.png",
+   "block": 12
+  },
+  {
+   "key": "guardiao_de_enxerto",
+   "group": "enemies",
+   "source": "raw/guardiao_s94.png",
+   "output": "res://assets/sprites/enemies/guardiao_de_enxerto.png",
+   "block": 8
+  },
+  {
+   "key": "grass",
+   "group": "tiles",
+   "source": "raw/tile_grass_s2031.png",
+   "output": "res://assets/sprites/tiles/grass.png",
+   "mode": "tile",
+   "block": 8,
+   "palette": false,
+   "contrast": 0.5,
+   "tint": "5f7f4599",
+   "grade_saturation": 0.55,
+   "grade_value": 0.85,
+   "grade_hue": 0.02
+  },
+  {
+   "key": "road",
+   "group": "tiles",
+   "source": "raw/tile_road_s2033.png",
+   "output": "res://assets/sprites/tiles/road.png",
+   "mode": "tile",
+   "block": 8,
+   "palette": false,
+   "contrast": 0.45,
+   "tint": "8f7a6a66",
+   "grade_saturation": 0.7,
+   "grade_value": 0.9
+  },
+  {
+   "key": "floor_wood",
+   "group": "tiles",
+   "source": "raw/tile_floor_wood_s2035.png",
+   "output": "res://assets/sprites/tiles/floor_wood.png",
+   "mode": "tile",
+   "block": 8,
+   "palette": false,
+   "contrast": 0.4,
+   "tint": "6b5a5e55",
+   "grade_saturation": 0.75,
+   "grade_value": 0.85
+  },
+  {
+   "key": "floor_tower",
+   "group": "tiles",
+   "source": "raw/tile_floor_tower_s2038.png",
+   "output": "res://assets/sprites/tiles/floor_tower.png",
+   "mode": "tile",
+   "block": 8,
+   "palette": false,
+   "contrast": 0.45,
+   "tint": "5b6f8255"
+  },
+  {
+   "key": "house",
+   "group": "buildings",
+   "source": "raw/house_s43.png",
+   "output": "res://assets/sprites/buildings/house.png",
+   "block": 8
+  },
+  {
+   "key": "armazem",
+   "group": "buildings",
+   "source": "raw/armazem_s44.png",
+   "output": "res://assets/sprites/buildings/armazem.png",
+   "block": 8
+  },
+  {
+   "key": "expedicoes",
+   "group": "buildings",
+   "source": "raw/expedicoes_s47.png",
+   "output": "res://assets/sprites/buildings/expedicoes.png",
+   "block": 8
+  },
+  {
+   "key": "torre",
+   "group": "buildings",
+   "source": "raw/torre_s48.png",
+   "output": "res://assets/sprites/buildings/torre.png",
+   "block": 8
+  },
+  {
+   "key": "tree",
+   "group": "props",
+   "source": "raw/tree_s1101.png",
+   "output": "res://assets/sprites/props/tree.png",
+   "block": 8
+  },
+  {
+   "key": "tree_fruit",
+   "group": "props",
+   "source": "raw/tree_s1102.png",
+   "output": "res://assets/sprites/props/tree_fruit.png",
+   "block": 8
+  },
+  {
+   "key": "pines",
+   "group": "props",
+   "source": "raw/pine_s1103.png",
+   "output": "res://assets/sprites/props/pines.png",
+   "block": 8
+  },
+  {
+   "key": "pillar",
+   "group": "props",
+   "source": "raw/pillar_s1109.png",
+   "output": "res://assets/sprites/props/pillar.png",
+   "block": 8
+  },
+  {
+   "key": "lamp",
+   "group": "props",
+   "source": "raw/lamp_s104.png",
+   "output": "res://assets/sprites/props/lamp.png",
+   "block": 10
+  },
+  {
+   "key": "crates",
+   "group": "props",
+   "source": "raw/crates_s106.png",
+   "output": "res://assets/sprites/props/crates.png",
+   "block": 12
+  },
+  {
+   "key": "well",
+   "group": "props",
+   "source": "raw/well_s107.png",
+   "output": "res://assets/sprites/props/well.png",
+   "block": 10
+  },
+  {
+   "key": "bed",
+   "group": "props",
+   "source": "raw/bed_s110.png",
+   "output": "res://assets/sprites/props/bed.png",
+   "block": 10
+  },
+  {
+   "key": "table",
+   "group": "props",
+   "source": "raw/table_s111.png",
+   "output": "res://assets/sprites/props/table.png",
+   "block": 10
+  },
+  {
+   "key": "shelf",
+   "group": "props",
+   "source": "raw/shelf_s112.png",
+   "output": "res://assets/sprites/props/shelf.png",
+   "block": 10
+  },
+  {
+   "key": "workbench",
+   "group": "props",
+   "source": "raw/forge_s113.png",
+   "output": "res://assets/sprites/props/workbench.png",
+   "block": 10
+  },
+  {
+   "key": "deco_bush",
+   "group": "deco",
+   "source": "raw/bush_s121.png",
+   "output": "res://assets/sprites/deco/bush.png",
+   "mode": "split",
+   "block": 8,
+   "max_pieces": 6,
+   "min_pixels": 30
+  },
+  {
+   "key": "deco_bush_b",
+   "group": "deco",
+   "source": "raw/bush_s122.png",
+   "output": "res://assets/sprites/deco/bush_b.png",
+   "mode": "split",
+   "block": 8,
+   "max_pieces": 4,
+   "min_pixels": 30
+  },
+  {
+   "key": "deco_rocks",
+   "group": "deco",
+   "source": "raw/rocks_s124.png",
+   "output": "res://assets/sprites/deco/rock.png",
+   "mode": "split",
+   "block": 8,
+   "max_pieces": 8,
+   "min_pixels": 12
+  },
+  {
+   "key": "deco_flowers",
+   "group": "deco",
+   "source": "raw/flowers_s125.png",
+   "output": "res://assets/sprites/deco/flower.png",
+   "mode": "split",
+   "block": 8,
+   "max_pieces": 8,
+   "min_pixels": 10
+  },
+  {
+   "key": "deco_barrels",
+   "group": "deco",
+   "source": "raw/barrels_s132.png",
+   "output": "res://assets/sprites/deco/barrel.png",
+   "mode": "split",
+   "block": 8,
+   "max_pieces": 4,
+   "min_pixels": 30
+  },
+  {
+   "key": "fence",
+   "group": "props",
+   "source": "raw/fence_s127.png",
+   "output": "res://assets/sprites/props/fence.png",
+   "block": 8
+  },
+  {
+   "key": "sign",
+   "group": "props",
+   "source": "raw/sign_s130.png",
+   "output": "res://assets/sprites/props/sign.png",
+   "block": 10
+  },
+  {
+   "key": "cart",
+   "group": "props",
+   "source": "raw/cart_s129.png",
+   "output": "res://assets/sprites/props/cart.png",
+   "block": 8
+  },
+  {
+   "key": "house_blue",
+   "group": "buildings",
+   "source": "raw/house2_s141.png",
+   "output": "res://assets/sprites/buildings/house_blue.png",
+   "block": 8
+  },
+  {
+   "key": "house_stone",
+   "group": "buildings",
+   "source": "raw/house2_s142.png",
+   "output": "res://assets/sprites/buildings/house_stone.png",
+   "block": 8
+  },
+  {
+   "key": "cabin",
+   "group": "buildings",
+   "source": "raw/house3_s144.png",
+   "output": "res://assets/sprites/buildings/cabin.png",
+   "block": 8
+  },
+  {
+   "key": "semeador_de_juncos",
+   "group": "tower_enemies",
+   "source": "raw/tower_semeador_de_juncos_s77871.png",
+   "output": "res://assets/sprites/enemies/semeador_de_juncos.png",
+   "block": 12
+  },
+  {
+   "key": "planador_de_rajada",
+   "group": "tower_enemies",
+   "source": "raw/tower_planador_de_rajada_s34600.png",
+   "output": "res://assets/sprites/enemies/planador_de_rajada.png",
+   "block": 12
+  },
+  {
+   "key": "casca_de_pressao",
+   "group": "tower_enemies",
+   "source": "raw/tower_casca_de_pressao_s52747.png",
+   "output": "res://assets/sprites/enemies/casca_de_pressao.png",
+   "block": 12
+  },
+  {
+   "key": "predador_da_calmaria",
+   "group": "tower_enemies",
+   "source": "raw/tower_predador_da_calmaria_s75944.png",
+   "output": "res://assets/sprites/enemies/predador_da_calmaria.png",
+   "block": 12
+  },
+  {
+   "key": "floor_bosque",
+   "group": "tower_tiles",
+   "source": "raw/tile_floor_bosque_s42023.png",
+   "output": "res://assets/sprites/tiles/floor_bosque.png",
+   "mode": "tile",
+   "block": 8,
+   "palette": false,
+   "contrast": 0.45,
+   "tint": "6a8a7a44",
+   "grade_saturation": 0.8,
+   "grade_value": 0.9
+  },
+  {
+   "key": "bosque_arvore_oca",
+   "group": "tower_props",
+   "source": "raw/prop_bosque_arvore_oca_s32328.png",
+   "output": "res://assets/sprites/props/bosque_arvore_oca.png",
+   "block": 8
+  },
+  {
+   "key": "bosque_juncos",
+   "group": "tower_props",
+   "source": "raw/prop_bosque_juncos_s10765.png",
+   "output": "res://assets/sprites/props/bosque_juncos.png",
+   "block": 8
+  },
+  {
+   "key": "bosque_arco_de_pedra",
+   "group": "tower_props",
+   "source": "raw/prop_bosque_arco_de_pedra_s52410.png",
+   "output": "res://assets/sprites/props/bosque_arco_de_pedra.png",
+   "block": 8
+  },
+  {
+   "key": "esporinho",
+   "group": "tower_enemies",
+   "source": "raw/tower_esporinho_s17392.png",
+   "output": "res://assets/sprites/enemies/esporinho.png",
+   "block": 12
+  },
+  {
+   "key": "tecelao_micelial",
+   "group": "tower_enemies",
+   "source": "raw/tower_tecelao_micelial_s52523.png",
+   "output": "res://assets/sprites/enemies/tecelao_micelial.png",
+   "block": 12
+  },
+  {
+   "key": "sentinela_de_chapeu",
+   "group": "tower_enemies",
+   "source": "raw/tower_sentinela_de_chapeu_s87379.png",
+   "output": "res://assets/sprites/enemies/sentinela_de_chapeu.png",
+   "block": 12
+  },
+  {
+   "key": "devorador_branco",
+   "group": "tower_enemies",
+   "source": "raw/tower_devorador_branco_s58845.png",
+   "output": "res://assets/sprites/enemies/devorador_branco.png",
+   "block": 12
+  },
+  {
+   "key": "floor_manto",
+   "group": "tower_tiles",
+   "source": "raw/tile_floor_manto_s7751.png",
+   "output": "res://assets/sprites/tiles/floor_manto.png",
+   "mode": "tile",
+   "block": 8,
+   "palette": false,
+   "contrast": 0.45,
+   "tint": "7a6a8a44",
+   "grade_saturation": 0.8,
+   "grade_value": 0.9
+  },
+  {
+   "key": "manto_cogumelo_gigante",
+   "group": "tower_props",
+   "source": "raw/prop_manto_cogumelo_gigante_s19124.png",
+   "output": "res://assets/sprites/props/manto_cogumelo_gigante.png",
+   "block": 8
+  },
+  {
+   "key": "manto_tronco_oco",
+   "group": "tower_props",
+   "source": "raw/prop_manto_tronco_oco_s4714.png",
+   "output": "res://assets/sprites/props/manto_tronco_oco.png",
+   "block": 8
+  },
+  {
+   "key": "manto_poca_ambar",
+   "group": "tower_props",
+   "source": "raw/prop_manto_poca_ambar_s11829.png",
+   "output": "res://assets/sprites/props/manto_poca_ambar.png",
+   "block": 8
+  },
+  {
+   "key": "filtrador",
+   "group": "tower_enemies",
+   "source": "raw/tower_filtrador_s31971.png",
+   "output": "res://assets/sprites/enemies/filtrador.png",
+   "block": 12
+  },
+  {
+   "key": "anfibio_de_canal",
+   "group": "tower_enemies",
+   "source": "raw/tower_anfibio_de_canal_s81889.png",
+   "output": "res://assets/sprites/enemies/anfibio_de_canal.png",
+   "block": 12
+  },
+  {
+   "key": "predador_de_lama",
+   "group": "tower_enemies",
+   "source": "raw/tower_predador_de_lama_s26145.png",
+   "output": "res://assets/sprites/enemies/predador_de_lama.png",
+   "block": 12
+  },
+  {
+   "key": "colosso_de_conchas",
+   "group": "tower_enemies",
+   "source": "raw/tower_colosso_de_conchas_s75303.png",
+   "output": "res://assets/sprites/enemies/colosso_de_conchas.png",
+   "block": 12
+  },
+  {
+   "key": "floor_bacias",
+   "group": "tower_tiles",
+   "source": "raw/tile_floor_bacias_s63669.png",
+   "output": "res://assets/sprites/tiles/floor_bacias.png",
+   "mode": "tile",
+   "block": 8,
+   "palette": false,
+   "contrast": 0.45,
+   "tint": "5a7a9244",
+   "grade_saturation": 0.8,
+   "grade_value": 0.9
+  },
+  {
+   "key": "bacias_comporta",
+   "group": "tower_props",
+   "source": "raw/prop_bacias_comporta_s7031.png",
+   "output": "res://assets/sprites/props/bacias_comporta.png",
+   "block": 8
+  },
+  {
+   "key": "bacias_colonia_de_conchas",
+   "group": "tower_props",
+   "source": "raw/prop_bacias_colonia_de_conchas_s72872.png",
+   "output": "res://assets/sprites/props/bacias_colonia_de_conchas.png",
+   "block": 8
+  },
+  {
+   "key": "bacias_barco_naufragado",
+   "group": "tower_props",
+   "source": "raw/prop_bacias_barco_naufragado_s16715.png",
+   "output": "res://assets/sprites/props/bacias_barco_naufragado.png",
+   "block": 8
+  },
+  {
+   "key": "escavador_vitreo",
+   "group": "tower_enemies",
+   "source": "raw/tower_escavador_vitreo_s69406.png",
+   "output": "res://assets/sprites/enemies/escavador_vitreo.png",
+   "block": 12
+  },
+  {
+   "key": "carapaca_carregada",
+   "group": "tower_enemies",
+   "source": "raw/tower_carapaca_carregada_s80465.png",
+   "output": "res://assets/sprites/enemies/carapaca_carregada.png",
+   "block": 12
+  },
+  {
+   "key": "cacador_de_metal",
+   "group": "tower_enemies",
+   "source": "raw/tower_cacador_de_metal_s78228.png",
+   "output": "res://assets/sprites/enemies/cacador_de_metal.png",
+   "block": 12
+  },
+  {
+   "key": "ninho_de_descarga",
+   "group": "tower_enemies",
+   "source": "raw/tower_ninho_de_descarga_s87493.png",
+   "output": "res://assets/sprites/enemies/ninho_de_descarga.png",
+   "block": 12
+  },
+  {
+   "key": "floor_ermo",
+   "group": "tower_tiles",
+   "source": "raw/tile_floor_ermo_s85414.png",
+   "output": "res://assets/sprites/tiles/floor_ermo.png",
+   "mode": "tile",
+   "block": 8,
+   "palette": false,
+   "contrast": 0.45,
+   "tint": "6a5a8a44",
+   "grade_saturation": 0.8,
+   "grade_value": 0.9
+  },
+  {
+   "key": "ermo_cristal_carregado",
+   "group": "tower_props",
+   "source": "raw/prop_ermo_cristal_carregado_s75373.png",
+   "output": "res://assets/sprites/props/ermo_cristal_carregado.png",
+   "block": 8
+  },
+  {
+   "key": "ermo_torre_de_cobre",
+   "group": "tower_props",
+   "source": "raw/prop_ermo_torre_de_cobre_s21231.png",
+   "output": "res://assets/sprites/props/ermo_torre_de_cobre.png",
+   "block": 8
+  },
+  {
+   "key": "ermo_posto_vitrificado",
+   "group": "tower_props",
+   "source": "raw/prop_ermo_posto_vitrificado_s66742.png",
+   "output": "res://assets/sprites/props/ermo_posto_vitrificado.png",
+   "block": 8
+  },
+  {
+   "key": "tracador",
+   "group": "tower_enemies",
+   "source": "raw/tower_tracador_s25225.png",
+   "output": "res://assets/sprites/enemies/tracador.png",
+   "block": 12
+  },
+  {
+   "key": "devorador_de_tinta",
+   "group": "tower_enemies",
+   "source": "raw/tower_devorador_de_tinta_s45435.png",
+   "output": "res://assets/sprites/enemies/devorador_de_tinta.png",
+   "block": 12
+  },
+  {
+   "key": "sinaleiro_falso",
+   "group": "tower_enemies",
+   "source": "raw/tower_sinaleiro_falso_s49278.png",
+   "output": "res://assets/sprites/enemies/sinaleiro_falso.png",
+   "block": 12
+  },
+  {
+   "key": "cartografo_oco",
+   "group": "tower_enemies",
+   "source": "raw/tower_cartografo_oco_s41183.png",
+   "output": "res://assets/sprites/enemies/cartografo_oco.png",
+   "block": 12
+  },
+  {
+   "key": "floor_arquivo",
+   "group": "tower_tiles",
+   "source": "raw/tile_floor_arquivo_s40424.png",
+   "output": "res://assets/sprites/tiles/floor_arquivo.png",
+   "mode": "tile",
+   "block": 8,
+   "palette": false,
+   "contrast": 0.45,
+   "tint": "8a7a6244",
+   "grade_saturation": 0.8,
+   "grade_value": 0.9
+  },
+  {
+   "key": "arquivo_marco_movel",
+   "group": "tower_props",
+   "source": "raw/prop_arquivo_marco_movel_s8640.png",
+   "output": "res://assets/sprites/props/arquivo_marco_movel.png",
+   "block": 8
+  },
+  {
+   "key": "arquivo_instrumento_de_medida",
+   "group": "tower_props",
+   "source": "raw/prop_arquivo_instrumento_de_medida_s26766.png",
+   "output": "res://assets/sprites/props/arquivo_instrumento_de_medida.png",
+   "block": 8
+  },
+  {
+   "key": "arquivo_estante_de_mapas",
+   "group": "tower_props",
+   "source": "raw/prop_arquivo_estante_de_mapas_s83790.png",
+   "output": "res://assets/sprites/props/arquivo_estante_de_mapas.png",
+   "block": 8
+  },
+  {
+   "key": "limpador",
+   "group": "tower_enemies",
+   "source": "raw/tower_limpador_s38794.png",
+   "output": "res://assets/sprites/enemies/limpador.png",
+   "block": 12
+  },
+  {
+   "key": "predador_de_dobra",
+   "group": "tower_enemies",
+   "source": "raw/tower_predador_de_dobra_s39627.png",
+   "output": "res://assets/sprites/enemies/predador_de_dobra.png",
+   "block": 12
+  },
+  {
+   "key": "migrante",
+   "group": "tower_enemies",
+   "source": "raw/tower_migrante_s31449.png",
+   "output": "res://assets/sprites/enemies/migrante.png",
+   "block": 12
+  },
+  {
+   "key": "colosso_menor",
+   "group": "tower_enemies",
+   "source": "raw/tower_colosso_menor_s13587.png",
+   "output": "res://assets/sprites/enemies/colosso_menor.png",
+   "block": 12
+  },
+  {
+   "key": "floor_planicie",
+   "group": "tower_tiles",
+   "source": "raw/tile_floor_planicie_s68379.png",
+   "output": "res://assets/sprites/tiles/floor_planicie.png",
+   "mode": "tile",
+   "block": 8,
+   "palette": false,
+   "contrast": 0.45,
+   "tint": "8a6a6244",
+   "grade_saturation": 0.8,
+   "grade_value": 0.9
+  },
+  {
+   "key": "planicie_arvore_parasita",
+   "group": "tower_props",
+   "source": "raw/prop_planicie_arvore_parasita_s26306.png",
+   "output": "res://assets/sprites/props/planicie_arvore_parasita.png",
+   "block": 8
+  },
+  {
+   "key": "planicie_crista_ossea",
+   "group": "tower_props",
+   "source": "raw/prop_planicie_crista_ossea_s52101.png",
+   "output": "res://assets/sprites/props/planicie_crista_ossea.png",
+   "block": 8
+  },
+  {
+   "key": "planicie_respiradouro",
+   "group": "tower_props",
+   "source": "raw/prop_planicie_respiradouro_s59355.png",
+   "output": "res://assets/sprites/props/planicie_respiradouro.png",
+   "block": 8
+  },
+  {
+   "key": "aderente_menor",
+   "group": "tower_enemies",
+   "source": "raw/tower_aderente_menor_s74869.png",
+   "output": "res://assets/sprites/enemies/aderente_menor.png",
+   "block": 12
+  },
+  {
+   "key": "planador_de_eixo",
+   "group": "tower_enemies",
+   "source": "raw/tower_planador_de_eixo_s64103.png",
+   "output": "res://assets/sprites/enemies/planador_de_eixo.png",
+   "block": 12
+  },
+  {
+   "key": "ilha_pesada",
+   "group": "tower_enemies",
+   "source": "raw/tower_ilha_pesada_s68900.png",
+   "output": "res://assets/sprites/enemies/ilha_pesada.png",
+   "block": 12
+  },
+  {
+   "key": "cortador_de_ancoras",
+   "group": "tower_enemies",
+   "source": "raw/tower_cortador_de_ancoras_s83869.png",
+   "output": "res://assets/sprites/enemies/cortador_de_ancoras.png",
+   "block": 12
+  },
+  {
+   "key": "floor_eixos",
+   "group": "tower_tiles",
+   "source": "raw/tile_floor_eixos_s80846.png",
+   "output": "res://assets/sprites/tiles/floor_eixos.png",
+   "mode": "tile",
+   "block": 8,
+   "palette": false,
+   "contrast": 0.45,
+   "tint": "5a6a8a44",
+   "grade_saturation": 0.8,
+   "grade_value": 0.9
+  },
+  {
+   "key": "eixos_ancora_gravitacional",
+   "group": "tower_props",
+   "source": "raw/prop_eixos_ancora_gravitacional_s22345.png",
+   "output": "res://assets/sprites/props/eixos_ancora_gravitacional.png",
+   "block": 8
+  },
+  {
+   "key": "eixos_eixo_partido",
+   "group": "tower_props",
+   "source": "raw/prop_eixos_eixo_partido_s77056.png",
+   "output": "res://assets/sprites/props/eixos_eixo_partido.png",
+   "block": 8
+  },
+  {
+   "key": "eixos_carretel_de_cabo",
+   "group": "tower_props",
+   "source": "raw/prop_eixos_carretel_de_cabo_s60366.png",
+   "output": "res://assets/sprites/props/eixos_carretel_de_cabo.png",
+   "block": 8
+  },
+  {
+   "key": "eco_de_presa",
+   "group": "tower_enemies",
+   "source": "raw/tower_eco_de_presa_s56981.png",
+   "output": "res://assets/sprites/enemies/eco_de_presa.png",
+   "block": 12
+  },
+  {
+   "key": "flor_de_escolha",
+   "group": "tower_enemies",
+   "source": "raw/tower_flor_de_escolha_s49635.png",
+   "output": "res://assets/sprites/enemies/flor_de_escolha.png",
+   "block": 12
+  },
+  {
+   "key": "cacador_de_versoes",
+   "group": "tower_enemies",
+   "source": "raw/tower_cacador_de_versoes_s84579.png",
+   "output": "res://assets/sprites/enemies/cacador_de_versoes.png",
+   "block": 12
+  },
+  {
+   "key": "fixador_vivo",
+   "group": "tower_enemies",
+   "source": "raw/tower_fixador_vivo_s46802.png",
+   "output": "res://assets/sprites/enemies/fixador_vivo.png",
+   "block": 12
+  },
+  {
+   "key": "floor_campos",
+   "group": "tower_tiles",
+   "source": "raw/tile_floor_campos_s24370.png",
+   "output": "res://assets/sprites/tiles/floor_campos.png",
+   "mode": "tile",
+   "block": 8,
+   "palette": false,
+   "contrast": 0.45,
+   "tint": "7a8a6a44",
+   "grade_saturation": 0.8,
+   "grade_value": 0.9
+  },
+  {
+   "key": "campos_ruina_impossivel",
+   "group": "tower_props",
+   "source": "raw/prop_campos_ruina_impossivel_s68779.png",
+   "output": "res://assets/sprites/props/campos_ruina_impossivel.png",
+   "block": 8
+  },
+  {
+   "key": "campos_jardim_possivel",
+   "group": "tower_props",
+   "source": "raw/prop_campos_jardim_possivel_s56450.png",
+   "output": "res://assets/sprites/props/campos_jardim_possivel.png",
+   "block": 8
+  },
+  {
+   "key": "campos_fixador",
+   "group": "tower_props",
+   "source": "raw/prop_campos_fixador_s4741.png",
+   "output": "res://assets/sprites/props/campos_fixador.png",
+   "block": 8
+  },
+  {
+   "key": "operario_sem_autor",
+   "group": "tower_enemies",
+   "source": "raw/tower_operario_sem_autor_s53663.png",
+   "output": "res://assets/sprites/enemies/operario_sem_autor.png",
+   "block": 12
+  },
+  {
+   "key": "molde_vivo",
+   "group": "tower_enemies",
+   "source": "raw/tower_molde_vivo_s59004.png",
+   "output": "res://assets/sprites/enemies/molde_vivo.png",
+   "block": 12
+  },
+  {
+   "key": "marca_numerada",
+   "group": "tower_enemies",
+   "source": "raw/tower_marca_numerada_s39212.png",
+   "output": "res://assets/sprites/enemies/marca_numerada.png",
+   "block": 12
+  },
+  {
+   "key": "eco_regional",
+   "group": "tower_enemies",
+   "source": "raw/tower_eco_regional_s11911.png",
+   "output": "res://assets/sprites/enemies/eco_regional.png",
+   "block": 12
+  },
+  {
+   "key": "floor_obra",
+   "group": "tower_tiles",
+   "source": "raw/tile_floor_obra_s6363.png",
+   "output": "res://assets/sprites/tiles/floor_obra.png",
+   "mode": "tile",
+   "block": 8,
+   "palette": false,
+   "contrast": 0.45,
+   "tint": "7a6a5a44",
+   "grade_saturation": 0.8,
+   "grade_value": 0.9
+  },
+  {
+   "key": "obra_andaime",
+   "group": "tower_props",
+   "source": "raw/prop_obra_andaime_s9069.png",
+   "output": "res://assets/sprites/props/obra_andaime.png",
+   "block": 8
+  },
+  {
+   "key": "obra_molde_de_lugar",
+   "group": "tower_props",
+   "source": "raw/prop_obra_molde_de_lugar_s70898.png",
+   "output": "res://assets/sprites/props/obra_molde_de_lugar.png",
+   "block": 8
+  },
+  {
+   "key": "obra_monumento_numerado",
+   "group": "tower_props",
+   "source": "raw/prop_obra_monumento_numerado_s9896.png",
+   "output": "res://assets/sprites/props/obra_monumento_numerado.png",
+   "block": 8
+  },
+  {
+   "key": "refeitor",
+   "group": "tower_bosses",
+   "source": "raw/tower_refeitor_s13689.png",
+   "output": "res://assets/sprites/enemies/refeitor.png",
+   "block": 8
+  },
+  {
+   "key": "pastor_das_correntes",
+   "group": "tower_bosses",
+   "source": "raw/tower_pastor_das_correntes_s28583.png",
+   "output": "res://assets/sprites/enemies/pastor_das_correntes.png",
+   "block": 8
+  },
+  {
+   "key": "guardia_do_no_mae",
+   "group": "tower_bosses",
+   "source": "raw/tower_guardia_do_no_mae_s74865.png",
+   "output": "res://assets/sprites/enemies/guardia_do_no_mae.png",
+   "block": 8
+  },
+  {
+   "key": "guardiao_da_comporta",
+   "group": "tower_bosses",
+   "source": "raw/tower_guardiao_da_comporta_s90956.png",
+   "output": "res://assets/sprites/enemies/guardiao_da_comporta.png",
+   "block": 8
+  },
+  {
+   "key": "coroa_dos_condutores",
+   "group": "tower_bosses",
+   "source": "raw/tower_coroa_dos_condutores_s60861.png",
+   "output": "res://assets/sprites/enemies/coroa_dos_condutores.png",
+   "block": 8
+  },
+  {
+   "key": "guardiao_do_marco_cego",
+   "group": "tower_bosses",
+   "source": "raw/tower_guardiao_do_marco_cego_s31165.png",
+   "output": "res://assets/sprites/enemies/guardiao_do_marco_cego.png",
+   "block": 8
+  },
+  {
+   "key": "palpebra_do_horizonte",
+   "group": "tower_bosses",
+   "source": "raw/tower_palpebra_do_horizonte_s23581.png",
+   "output": "res://assets/sprites/enemies/palpebra_do_horizonte.png",
+   "block": 8
+  },
+  {
+   "key": "guardiao_do_eixo_zero",
+   "group": "tower_bosses",
+   "source": "raw/tower_guardiao_do_eixo_zero_s1826.png",
+   "output": "res://assets/sprites/enemies/guardiao_do_eixo_zero.png",
+   "block": 8
+  },
+  {
+   "key": "guardiao_da_ultima_escolha",
+   "group": "tower_bosses",
+   "source": "raw/tower_guardiao_da_ultima_escolha_s45671.png",
+   "output": "res://assets/sprites/enemies/guardiao_da_ultima_escolha.png",
+   "block": 8
+  },
+  {
+   "key": "regente_centesimo",
+   "group": "tower_bosses",
+   "source": "raw/tower_regente_centesimo_s76069.png",
+   "output": "res://assets/sprites/enemies/regente_centesimo.png",
+   "block": 8
+  },
+  {
+   "key": "npc_alda_serrin",
+   "group": "npcs",
+   "source": "raw/npc_alda_serrin_s14894.png",
+   "output": "res://assets/sprites/npcs/alda_serrin.png",
+   "block": 12
+  },
+  {
+   "key": "npc_nara_quiral",
+   "group": "npcs",
+   "source": "raw/npc_nara_quiral_s88288.png",
+   "output": "res://assets/sprites/npcs/nara_quiral.png",
+   "block": 12
+  },
+  {
+   "key": "npc_dalia_ferral",
+   "group": "npcs",
+   "source": "raw/npc_dalia_ferral_s87080.png",
+   "output": "res://assets/sprites/npcs/dalia_ferral.png",
+   "block": 12
+  },
+  {
+   "key": "npc_cassio_rotavela",
+   "group": "npcs",
+   "source": "raw/npc_cassio_rotavela_s57528.png",
+   "output": "res://assets/sprites/npcs/cassio_rotavela.png",
+   "block": 12
+  },
+  {
+   "key": "npc_tamar_vardal",
+   "group": "npcs",
+   "source": "raw/npc_tamar_vardal_s67875.png",
+   "output": "res://assets/sprites/npcs/tamar_vardal.png",
+   "block": 12
+  },
+  {
+   "key": "npc_ivo_cerne",
+   "group": "npcs",
+   "source": "raw/npc_ivo_cerne_s52918.png",
+   "output": "res://assets/sprites/npcs/ivo_cerne.png",
+   "block": 12
+  },
+  {
+   "key": "npc_maura_salvedra",
+   "group": "npcs",
+   "source": "raw/npc_maura_salvedra_s80600.png",
+   "output": "res://assets/sprites/npcs/maura_salvedra.png",
+   "block": 12
+  },
+  {
+   "key": "npc_lior_campelo",
+   "group": "npcs",
+   "source": "raw/npc_lior_campelo_s30668.png",
+   "output": "res://assets/sprites/npcs/lior_campelo.png",
+   "block": 12
+  },
+  {
+   "key": "npc_brina_pedralva",
+   "group": "npcs",
+   "source": "raw/npc_brina_pedralva_s47261.png",
+   "output": "res://assets/sprites/npcs/brina_pedralva.png",
+   "block": 12
+  },
+  {
+   "key": "npc_oren_lumeiro",
+   "group": "npcs",
+   "source": "raw/npc_oren_lumeiro_s23268.png",
+   "output": "res://assets/sprites/npcs/oren_lumeiro.png",
+   "block": 12
+  },
+  {
+   "key": "npc_elen",
+   "group": "npcs",
+   "source": "raw/npc_elen_s73957.png",
+   "output": "res://assets/sprites/npcs/elen.png",
+   "block": 12
+  },
+  {
+   "key": "npc_comum_guarda",
+   "group": "npcs",
+   "source": "raw/npc_comum_guarda_s40379.png",
+   "output": "res://assets/sprites/npcs/comum_guarda.png",
+   "block": 12
+  },
+  {
+   "key": "npc_comum_feirante",
+   "group": "npcs",
+   "source": "raw/npc_comum_feirante_s62525.png",
+   "output": "res://assets/sprites/npcs/comum_feirante.png",
+   "block": 12
+  },
+  {
+   "key": "npc_comum_trabalhador",
+   "group": "npcs",
+   "source": "raw/npc_comum_trabalhador_s12113.png",
+   "output": "res://assets/sprites/npcs/comum_trabalhador.png",
+   "block": 12
+  },
+  {
+   "key": "npc_comum_lavrador",
+   "group": "npcs",
+   "source": "raw/npc_comum_lavrador_s25103.png",
+   "output": "res://assets/sprites/npcs/comum_lavrador.png",
+   "block": 12
+  },
+  {
+   "key": "npc_comum_aventureiro",
+   "group": "npcs",
+   "source": "raw/npc_comum_aventureiro_s16169.png",
+   "output": "res://assets/sprites/npcs/comum_aventureiro.png",
+   "block": 12
+  },
+  {
+   "key": "npc_comum_crianca",
+   "group": "npcs",
+   "source": "raw/npc_comum_crianca_s24382.png",
+   "output": "res://assets/sprites/npcs/comum_crianca.png",
+   "block": 12
+  },
+  {
+   "key": "village_forja",
+   "group": "village_buildings",
+   "source": "raw/village_forja_s88539.png",
+   "output": "res://assets/sprites/buildings/forja.png",
+   "block": 8
+  },
+  {
+   "key": "village_enfermaria",
+   "group": "village_buildings",
+   "source": "raw/village_enfermaria_s65650.png",
+   "output": "res://assets/sprites/buildings/enfermaria.png",
+   "block": 8
+  },
+  {
+   "key": "village_conselho",
+   "group": "village_buildings",
+   "source": "raw/village_conselho_s80384.png",
+   "output": "res://assets/sprites/buildings/conselho.png",
+   "block": 8
+  },
+  {
+   "key": "village_arquivo",
+   "group": "village_buildings",
+   "source": "raw/village_arquivo_s87496.png",
+   "output": "res://assets/sprites/buildings/arquivo.png",
+   "block": 8
+  },
+  {
+   "key": "village_posto_guarda",
+   "group": "village_buildings",
+   "source": "raw/village_posto_guarda_s70250.png",
+   "output": "res://assets/sprites/buildings/posto_guarda.png",
+   "block": 8
+  },
+  {
+   "key": "village_barraca_frutas",
+   "group": "village_props",
+   "source": "raw/village_barraca_frutas_s74099.png",
+   "output": "res://assets/sprites/props/barraca_frutas.png",
+   "block": 12
+  },
+  {
+   "key": "village_barraca_tecidos",
+   "group": "village_props",
+   "source": "raw/village_barraca_tecidos_s26944.png",
+   "output": "res://assets/sprites/props/barraca_tecidos.png",
+   "block": 12
+  },
+  {
+   "key": "village_fonte",
+   "group": "village_props",
+   "source": "raw/village_fonte_s36016.png",
+   "output": "res://assets/sprites/props/fonte.png",
+   "block": 8
+  },
+  {
+   "key": "village_plantacao",
+   "group": "village_props",
+   "source": "raw/village_plantacao_s41673.png",
+   "output": "res://assets/sprites/props/plantacao.png",
+   "block": 8
+  },
+  {
+   "key": "village_banco",
+   "group": "village_props",
+   "source": "raw/village_banco_s11906.png",
+   "output": "res://assets/sprites/props/banco.png",
+   "block": 12
+  },
+  {
+   "key": "village_galinha",
+   "group": "village_props",
+   "source": "raw/village_galinha_s33614.png",
+   "output": "res://assets/sprites/props/galinha.png",
+   "block": 12
+  },
+  {
+   "key": "village_bandeira",
+   "group": "village_props",
+   "source": "raw/village_bandeira_s54109.png",
+   "output": "res://assets/sprites/props/bandeira.png",
+   "block": 12
+  },
+  {
+   "key": "village_andaime_vila",
+   "group": "village_props",
+   "source": "raw/village_andaime_vila_s88690.png",
+   "output": "res://assets/sprites/props/andaime_vila.png",
+   "block": 8
+  }
+ ]
+}

@@ -1,0 +1,2406 @@
+{
+ "base_url": "http://192.168.0.3:8000",
+ "project_id": "11d58db5-594b-4fa7-801a-9fe26023dbb9",
+ "style_profile_id": "ea84cff4-30c5-4c74-91a3-885d89f13082",
+ "provider": "diffusers",
+ "size": 512,
+ "negative_prompt": "blurry, photo, 3d render, realistic, text, watermark, signature, anti-aliasing, smooth gradients, multiple characters, sprite sheet, character sheet, grid, cropped, cut off feet, portrait, close-up, busy background, noise, furniture, extra objects, scenery, landscape, ground plate",
+ "assets": [
+  {
+   "key": "eloa",
+   "asset_type": "character",
+   "name": "Eloa Ferral",
+   "metadata": {
+    "race": "velario"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg game character sprite, single person standing alone, full body from head to feet, facing the viewer, small chibi proportions, clean dark outline, muted earthy colors, plain white background, young woman with short dark hair, glowing cyan light lines on her arms and face, sleeveless teal tunic, brown leather apron and belt, brown boots, coiled metal wire on her forearms",
+   "seeds": [
+    11,
+    15,
+    16
+   ],
+   "size": 512
+  },
+  {
+   "key": "sena",
+   "asset_type": "character",
+   "name": "Sena Rotavela",
+   "metadata": {
+    "race": "diade"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg game character sprite, single person standing alone, full body from head to feet, facing the viewer, small chibi proportions, clean dark outline, muted earthy colors, plain white background, young woman with long braided auburn hair, traveler outfit with green scarf, rope coiled on shoulder, holding a long spear, brown boots",
+   "seeds": [
+    51,
+    52,
+    53
+   ],
+   "size": 512
+  },
+  {
+   "key": "cira",
+   "asset_type": "character",
+   "name": "Cira Salvedra",
+   "metadata": {
+    "race": "nacario"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg game character sprite, single person standing alone, full body from head to feet, facing the viewer, small chibi proportions, clean dark outline, muted earthy colors, plain white background, young woman with pale ceramic mineral plates on her cheeks and shoulders, white hair in a bun, light grey medic coat, heavy copper gauntlets on both hands",
+   "seeds": [
+    61,
+    62,
+    63
+   ],
+   "size": 512
+  },
+  {
+   "key": "rui",
+   "asset_type": "character",
+   "name": "Rui Pedralva",
+   "metadata": {
+    "race": "human"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg game character sprite, single person standing alone, full body from head to feet, facing the viewer, small chibi proportions, clean dark outline, muted earthy colors, plain white background, young man with short brown hair and a headband, builder work clothes, tool belt with hooks and ropes, holding a long measuring staff",
+   "seeds": [
+    71,
+    72,
+    73
+   ],
+   "size": 512
+  },
+  {
+   "key": "larva",
+   "asset_type": "monster",
+   "name": "Larva de Junta",
+   "metadata": {
+    "race": "juntideo"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg enemy sprite, single creature alone, whole body visible, clean dark outline, muted colors, plain white background, tiny pale stone larva, segmented grey body, small mandibles",
+   "seeds": [
+    81,
+    82
+   ],
+   "size": 512
+  },
+  {
+   "key": "raspador",
+   "asset_type": "monster",
+   "name": "Raspador de Junta",
+   "metadata": {
+    "race": "juntideo"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg enemy sprite, single creature alone, whole body visible, clean dark outline, muted colors, plain white background, small stone crawler monster, grey rock carapace with cracks, many little legs, scraping claws",
+   "seeds": [
+    21,
+    22
+   ],
+   "size": 512
+  },
+  {
+   "key": "sentinela",
+   "asset_type": "monster",
+   "name": "Sentinela de Cal",
+   "metadata": {
+    "race": "calcario"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg enemy sprite, single creature alone, whole body visible, clean dark outline, muted colors, plain white background, short squat limestone turret creature with a single glowing eye, white chalky stone body",
+   "seeds": [
+    83,
+    84
+   ],
+   "size": 512
+  },
+  {
+   "key": "emboscado",
+   "asset_type": "monster",
+   "name": "Emboscado de Reboco",
+   "metadata": {
+    "race": "rebocado"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg enemy sprite, single creature alone, whole body visible, clean dark outline, muted colors, plain white background, lean predator made of cracked plaster, long claws, crouching, beige plaster skin",
+   "seeds": [
+    85,
+    86
+   ],
+   "size": 512
+  },
+  {
+   "key": "molde",
+   "asset_type": "monster",
+   "name": "Molde de Ferramenta",
+   "metadata": {
+    "race": "moldado"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg enemy sprite, single creature alone, whole body visible, clean dark outline, muted colors, plain white background, mimic monster shaped like a toolbox with teeth and small legs, rusty metal",
+   "seeds": [
+    87,
+    88
+   ],
+   "size": 512
+  },
+  {
+   "key": "escora",
+   "asset_type": "monster",
+   "name": "Escora Hostil",
+   "metadata": {
+    "race": "calcario"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg enemy sprite, single creature alone, whole body visible, clean dark outline, muted colors, plain white background, bulky stone golem holding a wooden support beam, grey limestone body",
+   "seeds": [
+    89,
+    90
+   ],
+   "size": 512
+  },
+  {
+   "key": "vigia",
+   "asset_type": "monster",
+   "name": "Vigia Moldado",
+   "metadata": {
+    "race": "moldado"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg enemy sprite, single creature alone, whole body visible, clean dark outline, muted colors, plain white background, floating clay mask with one large eye and small clay arms, ochre clay",
+   "seeds": [
+    91,
+    92
+   ],
+   "size": 512
+  },
+  {
+   "key": "guardiao",
+   "asset_type": "monster",
+   "name": "Guardiao de Enxerto",
+   "metadata": {
+    "race": "enxertado"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg enemy sprite, single creature alone, whole body visible, clean dark outline, muted colors, plain white background, large boss monster made of grafted stone, metal tools and roots fused together, glowing cyan core in its chest, imposing",
+   "seeds": [
+    93,
+    94
+   ],
+   "size": 512
+  },
+  {
+   "key": "molde_vigilante",
+   "asset_type": "monster",
+   "name": "Molde Vigilante",
+   "metadata": {
+    "race": "construct"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg enemy sprite, single creature alone, whole body visible, clean dark outline, muted colors, plain white background, small friendly stone sentinel construct on a pedestal with a glowing cyan eye",
+   "seeds": [
+    95,
+    96
+   ],
+   "size": 512
+  },
+  {
+   "key": "tile_grass",
+   "asset_type": "tile",
+   "name": "Grama da Vila",
+   "metadata": {
+    "biome": "village"
+   },
+   "prompt": "pixel art, seamless tileable top-down ground texture, soft muted green grass, short and even, few tiny flowers, full frame, flat even lighting, subtle low contrast detail, no border, no objects",
+   "seeds": [
+    2031,
+    2032
+   ],
+   "size": 1024
+  },
+  {
+   "key": "tile_road",
+   "asset_type": "tile",
+   "name": "Estrada de Terra",
+   "metadata": {
+    "biome": "village"
+   },
+   "prompt": "pixel art, seamless tileable top-down ground texture, packed earth dirt path, warm brown soil with fine gravel, subtle, full frame, flat even lighting, subtle low contrast detail, no border, no objects",
+   "seeds": [
+    2033,
+    2034
+   ],
+   "size": 1024
+  },
+  {
+   "key": "tile_floor_wood",
+   "asset_type": "tile",
+   "name": "Piso de Madeira",
+   "metadata": {
+    "biome": "interior"
+   },
+   "prompt": "pixel art, seamless tileable top-down ground texture, dark walnut wooden floor planks, horizontal boards, subtle grain, full frame, flat even lighting, subtle low contrast detail, no border, no objects",
+   "seeds": [
+    2035,
+    2036
+   ],
+   "size": 1024
+  },
+  {
+   "key": "tile_floor_tower",
+   "asset_type": "tile",
+   "name": "Piso da Torre",
+   "metadata": {
+    "biome": "dungeon"
+   },
+   "prompt": "pixel art, seamless tileable top-down ground texture, large pale grey stone floor slabs, ancient dungeon floor, faint cracks, full frame, flat even lighting, subtle low contrast detail, no border, no objects",
+   "seeds": [
+    2037,
+    2038
+   ],
+   "size": 1024
+  },
+  {
+   "key": "house",
+   "asset_type": "building",
+   "name": "Casa de Aresta",
+   "metadata": {
+    "category": "house"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg building sprite, one single building alone, whole building visible, clean dark outline, muted earthy colors, plain white background, small village house, stone walls, red tiled roof, wooden door",
+   "seeds": [
+    42,
+    43
+   ],
+   "size": 1024
+  },
+  {
+   "key": "armazem",
+   "asset_type": "building",
+   "name": "Armazem Rotavela",
+   "metadata": {
+    "category": "house"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg building sprite, one single building alone, whole building visible, clean dark outline, muted earthy colors, plain white background, merchant warehouse, wooden walls, wide double doors, crates and barrels by the door, dark green roof",
+   "seeds": [
+    44,
+    45
+   ],
+   "size": 1024
+  },
+  {
+   "key": "expedicoes",
+   "asset_type": "building",
+   "name": "Casa das Expedicoes",
+   "metadata": {
+    "category": "house"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg building sprite, one single building alone, whole building visible, clean dark outline, muted earthy colors, plain white background, guild hall of adventurers, stone and timber, banner with a map symbol over the door, slate blue roof",
+   "seeds": [
+    46,
+    47
+   ],
+   "size": 1024
+  },
+  {
+   "key": "torre",
+   "asset_type": "building",
+   "name": "Entrada da Torre",
+   "metadata": {
+    "category": "ruin"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg building sprite, one single building alone, whole building visible, clean dark outline, muted earthy colors, plain white background, ancient stone tower entrance gate, large dark arched doorway, carved numbered marks on pale stone",
+   "seeds": [
+    48,
+    49
+   ],
+   "size": 1024
+  },
+  {
+   "key": "tree",
+   "asset_type": "decoration",
+   "name": "Arvore",
+   "metadata": {
+    "category": "tree"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg prop sprite, one single object alone, clean dark outline, muted earthy colors, plain white background, leafy round tree with brown trunk",
+   "seeds": [
+    1101,
+    1102
+   ],
+   "size": 1024
+  },
+  {
+   "key": "pine",
+   "asset_type": "decoration",
+   "name": "Pinheiro",
+   "metadata": {
+    "category": "tree"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg prop sprite, one single object alone, clean dark outline, muted earthy colors, plain white background, dark green pine tree",
+   "seeds": [
+    1103
+   ],
+   "size": 1024
+  },
+  {
+   "key": "lamp",
+   "asset_type": "prop",
+   "name": "Poste de Lampiao",
+   "metadata": {
+    "category": "lamp"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg prop sprite, one single object alone, clean dark outline, muted earthy colors, plain white background, wooden lamp post with a warm glowing lantern",
+   "seeds": [
+    104,
+    105
+   ],
+   "size": 512,
+   "negative_prompt": "blurry, photo, 3d render, realistic, text, watermark, signature, anti-aliasing, smooth gradients, multiple characters, sprite sheet, character sheet, grid, cropped, cut off feet, portrait, close-up, busy background, noise, extra objects, scenery, landscape, ground plate"
+  },
+  {
+   "key": "crates",
+   "asset_type": "prop",
+   "name": "Caixas",
+   "metadata": {
+    "category": "crate"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg prop sprite, one single object alone, clean dark outline, muted earthy colors, plain white background, stack of wooden crates and a barrel",
+   "seeds": [
+    106
+   ],
+   "size": 512,
+   "negative_prompt": "blurry, photo, 3d render, realistic, text, watermark, signature, anti-aliasing, smooth gradients, multiple characters, sprite sheet, character sheet, grid, cropped, cut off feet, portrait, close-up, busy background, noise, extra objects, scenery, landscape, ground plate"
+  },
+  {
+   "key": "well",
+   "asset_type": "prop",
+   "name": "Poco",
+   "metadata": {
+    "category": "well"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg prop sprite, one single object alone, clean dark outline, muted earthy colors, plain white background, round stone water well with wooden roof",
+   "seeds": [
+    107
+   ],
+   "size": 512,
+   "negative_prompt": "blurry, photo, 3d render, realistic, text, watermark, signature, anti-aliasing, smooth gradients, multiple characters, sprite sheet, character sheet, grid, cropped, cut off feet, portrait, close-up, busy background, noise, extra objects, scenery, landscape, ground plate"
+  },
+  {
+   "key": "pillar",
+   "asset_type": "prop",
+   "name": "Pilar da Torre",
+   "metadata": {
+    "category": "ruin"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg prop sprite, one single object alone, clean dark outline, muted earthy colors, plain white background, tall cracked pale stone pillar block",
+   "seeds": [
+    1108,
+    1109
+   ],
+   "size": 1024
+  },
+  {
+   "key": "bed",
+   "asset_type": "prop",
+   "name": "Cama",
+   "metadata": {
+    "category": "furniture"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg prop sprite, one single object alone, clean dark outline, muted earthy colors, plain white background, simple wooden bed with blanket, seen from above",
+   "seeds": [
+    110
+   ],
+   "size": 512,
+   "negative_prompt": "blurry, photo, 3d render, realistic, text, watermark, signature, anti-aliasing, smooth gradients, multiple characters, sprite sheet, character sheet, grid, cropped, cut off feet, portrait, close-up, busy background, noise, extra objects, scenery, landscape, ground plate"
+  },
+  {
+   "key": "table",
+   "asset_type": "prop",
+   "name": "Mesa",
+   "metadata": {
+    "category": "furniture"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg prop sprite, one single object alone, clean dark outline, muted earthy colors, plain white background, wooden table with two stools",
+   "seeds": [
+    111
+   ],
+   "size": 512,
+   "negative_prompt": "blurry, photo, 3d render, realistic, text, watermark, signature, anti-aliasing, smooth gradients, multiple characters, sprite sheet, character sheet, grid, cropped, cut off feet, portrait, close-up, busy background, noise, extra objects, scenery, landscape, ground plate"
+  },
+  {
+   "key": "shelf",
+   "asset_type": "prop",
+   "name": "Estante",
+   "metadata": {
+    "category": "furniture"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg prop sprite, one single object alone, clean dark outline, muted earthy colors, plain white background, wooden shelf with books and jars",
+   "seeds": [
+    112
+   ],
+   "size": 512,
+   "negative_prompt": "blurry, photo, 3d render, realistic, text, watermark, signature, anti-aliasing, smooth gradients, multiple characters, sprite sheet, character sheet, grid, cropped, cut off feet, portrait, close-up, busy background, noise, extra objects, scenery, landscape, ground plate"
+  },
+  {
+   "key": "forge",
+   "asset_type": "prop",
+   "name": "Bancada",
+   "metadata": {
+    "category": "furniture"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg prop sprite, one single object alone, clean dark outline, muted earthy colors, plain white background, small workbench with tools and an anvil",
+   "seeds": [
+    113
+   ],
+   "size": 512,
+   "negative_prompt": "blurry, photo, 3d render, realistic, text, watermark, signature, anti-aliasing, smooth gradients, multiple characters, sprite sheet, character sheet, grid, cropped, cut off feet, portrait, close-up, busy background, noise, extra objects, scenery, landscape, ground plate"
+  },
+  {
+   "key": "bush",
+   "asset_type": "decoration",
+   "name": "Arbusto",
+   "metadata": {
+    "category": "bush"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg prop sprite, one single object alone, clean dark outline, muted earthy colors, plain white background, round leafy green bush",
+   "seeds": [
+    121,
+    122
+   ],
+   "size": 512,
+   "negative_prompt": "blurry, photo, 3d render, realistic, text, watermark, signature, anti-aliasing, smooth gradients, multiple characters, sprite sheet, character sheet, grid, cropped, cut off feet, portrait, close-up, busy background, noise, extra objects, scenery, landscape, ground plate"
+  },
+  {
+   "key": "rocks",
+   "asset_type": "decoration",
+   "name": "Pedras",
+   "metadata": {
+    "category": "rock"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg prop sprite, one single object alone, clean dark outline, muted earthy colors, plain white background, cluster of small grey rocks",
+   "seeds": [
+    123,
+    124
+   ],
+   "size": 512,
+   "negative_prompt": "blurry, photo, 3d render, realistic, text, watermark, signature, anti-aliasing, smooth gradients, multiple characters, sprite sheet, character sheet, grid, cropped, cut off feet, portrait, close-up, busy background, noise, extra objects, scenery, landscape, ground plate"
+  },
+  {
+   "key": "flowers",
+   "asset_type": "decoration",
+   "name": "Flores",
+   "metadata": {
+    "category": "flower"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg prop sprite, one single object alone, clean dark outline, muted earthy colors, plain white background, small patch of wildflowers, yellow and white",
+   "seeds": [
+    125,
+    126
+   ],
+   "size": 512,
+   "negative_prompt": "blurry, photo, 3d render, realistic, text, watermark, signature, anti-aliasing, smooth gradients, multiple characters, sprite sheet, character sheet, grid, cropped, cut off feet, portrait, close-up, busy background, noise, extra objects, scenery, landscape, ground plate"
+  },
+  {
+   "key": "fence",
+   "asset_type": "prop",
+   "name": "Cerca",
+   "metadata": {
+    "category": "fence"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg prop sprite, one single object alone, clean dark outline, muted earthy colors, plain white background, short wooden fence segment, horizontal",
+   "seeds": [
+    127,
+    128
+   ],
+   "size": 512,
+   "negative_prompt": "blurry, photo, 3d render, realistic, text, watermark, signature, anti-aliasing, smooth gradients, multiple characters, sprite sheet, character sheet, grid, cropped, cut off feet, portrait, close-up, busy background, noise, extra objects, scenery, landscape, ground plate"
+  },
+  {
+   "key": "cart",
+   "asset_type": "prop",
+   "name": "Carroca",
+   "metadata": {
+    "category": "cart"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg prop sprite, one single object alone, clean dark outline, muted earthy colors, plain white background, wooden merchant cart with sacks",
+   "seeds": [
+    129
+   ],
+   "size": 512,
+   "negative_prompt": "blurry, photo, 3d render, realistic, text, watermark, signature, anti-aliasing, smooth gradients, multiple characters, sprite sheet, character sheet, grid, cropped, cut off feet, portrait, close-up, busy background, noise, extra objects, scenery, landscape, ground plate"
+  },
+  {
+   "key": "sign",
+   "asset_type": "prop",
+   "name": "Placa",
+   "metadata": {
+    "category": "sign"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg prop sprite, one single object alone, clean dark outline, muted earthy colors, plain white background, wooden signpost with arrow",
+   "seeds": [
+    130
+   ],
+   "size": 512,
+   "negative_prompt": "blurry, photo, 3d render, realistic, text, watermark, signature, anti-aliasing, smooth gradients, multiple characters, sprite sheet, character sheet, grid, cropped, cut off feet, portrait, close-up, busy background, noise, extra objects, scenery, landscape, ground plate"
+  },
+  {
+   "key": "hay",
+   "asset_type": "prop",
+   "name": "Feno",
+   "metadata": {
+    "category": "hay"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg prop sprite, one single object alone, clean dark outline, muted earthy colors, plain white background, haystack bale",
+   "seeds": [
+    131
+   ],
+   "size": 512,
+   "negative_prompt": "blurry, photo, 3d render, realistic, text, watermark, signature, anti-aliasing, smooth gradients, multiple characters, sprite sheet, character sheet, grid, cropped, cut off feet, portrait, close-up, busy background, noise, extra objects, scenery, landscape, ground plate"
+  },
+  {
+   "key": "barrels",
+   "asset_type": "prop",
+   "name": "Barris",
+   "metadata": {
+    "category": "barrel"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg prop sprite, one single object alone, clean dark outline, muted earthy colors, plain white background, two wooden barrels",
+   "seeds": [
+    132
+   ],
+   "size": 512,
+   "negative_prompt": "blurry, photo, 3d render, realistic, text, watermark, signature, anti-aliasing, smooth gradients, multiple characters, sprite sheet, character sheet, grid, cropped, cut off feet, portrait, close-up, busy background, noise, extra objects, scenery, landscape, ground plate"
+  },
+  {
+   "key": "house2",
+   "asset_type": "building",
+   "name": "Casa Azul",
+   "metadata": {
+    "category": "house"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg building sprite, one single building alone, whole building visible, clean dark outline, muted earthy colors, plain white background, small cottage, plaster walls, blue slate roof, chimney, flower box",
+   "seeds": [
+    141,
+    142
+   ],
+   "size": 1024
+  },
+  {
+   "key": "house3",
+   "asset_type": "building",
+   "name": "Casa de Madeira",
+   "metadata": {
+    "category": "house"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg building sprite, one single building alone, whole building visible, clean dark outline, muted earthy colors, plain white background, small timber cabin, brown wooden walls, thatched straw roof",
+   "seeds": [
+    143,
+    144
+   ],
+   "size": 1024
+  },
+  {
+   "key": "icon_agulha_lastro",
+   "asset_type": "icon",
+   "name": "Icone agulha_lastro",
+   "metadata": {},
+   "prompt": "pixel art rpg skill icon, square icon filling the entire frame, ornate dark stone border frame, dark background inside, a heavy glowing metal needle shard flying diagonally with a cyan trail, glowing, high contrast, centered symbol, game ui icon",
+   "negative_prompt": "blurry, photo, 3d render, realistic, text, letters, numbers, watermark, signature, multiple icons, icon sheet, grid, sprite sheet, cropped",
+   "seeds": [
+    202,
+    203
+   ]
+  },
+  {
+   "key": "icon_passo_vetorial",
+   "asset_type": "icon",
+   "name": "Icone passo_vetorial",
+   "metadata": {},
+   "prompt": "pixel art rpg skill icon, square icon filling the entire frame, ornate dark stone border frame, dark background inside, a hooded figure dashing forward leaving teal motion streaks, glowing, high contrast, centered symbol, game ui icon",
+   "negative_prompt": "blurry, photo, 3d render, realistic, text, letters, numbers, watermark, signature, multiple icons, icon sheet, grid, sprite sheet, cropped",
+   "seeds": [
+    204,
+    205
+   ]
+  },
+  {
+   "key": "icon_pulso_cicatriz",
+   "asset_type": "icon",
+   "name": "Icone pulso_cicatriz",
+   "metadata": {},
+   "prompt": "pixel art rpg skill icon, square icon filling the entire frame, ornate dark stone border frame, dark background inside, a pale cyan shockwave ring bursting out of cracked stone, glowing, high contrast, centered symbol, game ui icon",
+   "negative_prompt": "blurry, photo, 3d render, realistic, text, letters, numbers, watermark, signature, multiple icons, icon sheet, grid, sprite sheet, cropped",
+   "seeds": [
+    206,
+    207
+   ]
+  },
+  {
+   "key": "icon_prisao_gravitica",
+   "asset_type": "icon",
+   "name": "Icone prisao_gravitica",
+   "metadata": {},
+   "prompt": "pixel art rpg skill icon, square icon filling the entire frame, ornate dark stone border frame, dark background inside, a dark purple gravity vortex pulling small rocks into its center, glowing, high contrast, centered symbol, game ui icon",
+   "negative_prompt": "blurry, photo, 3d render, realistic, text, letters, numbers, watermark, signature, multiple icons, icon sheet, grid, sprite sheet, cropped",
+   "seeds": [
+    208,
+    209
+   ]
+  },
+  {
+   "key": "icon_muralha_refeita",
+   "asset_type": "icon",
+   "name": "Icone muralha_refeita",
+   "metadata": {},
+   "prompt": "pixel art rpg skill icon, square icon filling the entire frame, ornate dark stone border frame, dark background inside, a stone wall rising from the ground with glowing cyan seams, glowing, high contrast, centered symbol, game ui icon",
+   "negative_prompt": "blurry, photo, 3d render, realistic, text, letters, numbers, watermark, signature, multiple icons, icon sheet, grid, sprite sheet, cropped",
+   "seeds": [
+    210,
+    211
+   ]
+  },
+  {
+   "key": "icon_elo_residual",
+   "asset_type": "icon",
+   "name": "Icone elo_residual",
+   "metadata": {},
+   "prompt": "pixel art rpg skill icon, square icon filling the entire frame, ornate dark stone border frame, dark background inside, cyan lightning chaining between three glowing points, glowing, high contrast, centered symbol, game ui icon",
+   "negative_prompt": "blurry, photo, 3d render, realistic, text, letters, numbers, watermark, signature, multiple icons, icon sheet, grid, sprite sheet, cropped",
+   "seeds": [
+    212,
+    213
+   ]
+  },
+  {
+   "key": "icon_molde_vigilante",
+   "asset_type": "icon",
+   "name": "Icone molde_vigilante",
+   "metadata": {},
+   "prompt": "pixel art rpg skill icon, square icon filling the entire frame, ornate dark stone border frame, dark background inside, a small stone sentinel construct with one glowing cyan eye, glowing, high contrast, centered symbol, game ui icon",
+   "negative_prompt": "blurry, photo, 3d render, realistic, text, letters, numbers, watermark, signature, multiple icons, icon sheet, grid, sprite sheet, cropped",
+   "seeds": [
+    214,
+    215
+   ]
+  },
+  {
+   "key": "icon_semeadura_vital",
+   "asset_type": "icon",
+   "name": "Icone semeadura_vital",
+   "metadata": {},
+   "prompt": "pixel art rpg skill icon, square icon filling the entire frame, ornate dark stone border frame, dark background inside, a green seedling sprouting inside a glowing circle of healing runes, glowing, high contrast, centered symbol, game ui icon",
+   "negative_prompt": "blurry, photo, 3d render, realistic, text, letters, numbers, watermark, signature, multiple icons, icon sheet, grid, sprite sheet, cropped",
+   "seeds": [
+    216,
+    217
+   ]
+  },
+  {
+   "key": "icon_projeteis_gemeos",
+   "asset_type": "icon",
+   "name": "Icone projeteis_gemeos",
+   "metadata": {},
+   "prompt": "pixel art rpg support gem icon, square icon filling the entire frame, ornate bronze border frame, dark background inside, a faceted gem with an engraved symbol of two parallel arrows, glowing, high contrast, game ui icon",
+   "negative_prompt": "blurry, photo, 3d render, realistic, text, letters, numbers, watermark, signature, multiple icons, icon sheet, grid, sprite sheet, cropped",
+   "seeds": [
+    218
+   ]
+  },
+  {
+   "key": "icon_perfuracao_refeita",
+   "asset_type": "icon",
+   "name": "Icone perfuracao_refeita",
+   "metadata": {},
+   "prompt": "pixel art rpg support gem icon, square icon filling the entire frame, ornate bronze border frame, dark background inside, a faceted gem with an engraved symbol of an arrow piercing a stone block, glowing, high contrast, game ui icon",
+   "negative_prompt": "blurry, photo, 3d render, realistic, text, letters, numbers, watermark, signature, multiple icons, icon sheet, grid, sprite sheet, cropped",
+   "seeds": [
+    220
+   ]
+  },
+  {
+   "key": "icon_ricochete_de_junta",
+   "asset_type": "icon",
+   "name": "Icone ricochete_de_junta",
+   "metadata": {},
+   "prompt": "pixel art rpg support gem icon, square icon filling the entire frame, ornate bronze border frame, dark background inside, a faceted gem with an engraved symbol of a zigzag bouncing arrow, glowing, high contrast, game ui icon",
+   "negative_prompt": "blurry, photo, 3d render, realistic, text, letters, numbers, watermark, signature, multiple icons, icon sheet, grid, sprite sheet, cropped",
+   "seeds": [
+    222
+   ]
+  },
+  {
+   "key": "icon_area_expandida",
+   "asset_type": "icon",
+   "name": "Icone area_expandida",
+   "metadata": {},
+   "prompt": "pixel art rpg support gem icon, square icon filling the entire frame, ornate bronze border frame, dark background inside, a faceted gem with an engraved symbol of concentric circles expanding outward, glowing, high contrast, game ui icon",
+   "negative_prompt": "blurry, photo, 3d render, realistic, text, letters, numbers, watermark, signature, multiple icons, icon sheet, grid, sprite sheet, cropped",
+   "seeds": [
+    224
+   ]
+  },
+  {
+   "key": "icon_foco_concentrado",
+   "asset_type": "icon",
+   "name": "Icone foco_concentrado",
+   "metadata": {},
+   "prompt": "pixel art rpg support gem icon, square icon filling the entire frame, ornate bronze border frame, dark background inside, a faceted gem with an engraved symbol of arrows converging into one point, glowing, high contrast, game ui icon",
+   "negative_prompt": "blurry, photo, 3d render, realistic, text, letters, numbers, watermark, signature, multiple icons, icon sheet, grid, sprite sheet, cropped",
+   "seeds": [
+    226
+   ]
+  },
+  {
+   "key": "icon_eco_atrasado",
+   "asset_type": "icon",
+   "name": "Icone eco_atrasado",
+   "metadata": {},
+   "prompt": "pixel art rpg support gem icon, square icon filling the entire frame, ornate bronze border frame, dark background inside, a faceted gem with an engraved symbol of a shape followed by a fading echo, glowing, high contrast, game ui icon",
+   "negative_prompt": "blurry, photo, 3d render, realistic, text, letters, numbers, watermark, signature, multiple icons, icon sheet, grid, sprite sheet, cropped",
+   "seeds": [
+    228
+   ]
+  },
+  {
+   "key": "icon_fluxo_rapido",
+   "asset_type": "icon",
+   "name": "Icone fluxo_rapido",
+   "metadata": {},
+   "prompt": "pixel art rpg support gem icon, square icon filling the entire frame, ornate bronze border frame, dark background inside, a faceted gem with an engraved symbol of an hourglass with speed lines, glowing, high contrast, game ui icon",
+   "negative_prompt": "blurry, photo, 3d render, realistic, text, letters, numbers, watermark, signature, multiple icons, icon sheet, grid, sprite sheet, cropped",
+   "seeds": [
+    230
+   ]
+  },
+  {
+   "key": "icon_duracao_estendida",
+   "asset_type": "icon",
+   "name": "Icone duracao_estendida",
+   "metadata": {},
+   "prompt": "pixel art rpg support gem icon, square icon filling the entire frame, ornate bronze border frame, dark background inside, a faceted gem with an engraved symbol of an hourglass wrapped in a ribbon, glowing, high contrast, game ui icon",
+   "negative_prompt": "blurry, photo, 3d render, realistic, text, letters, numbers, watermark, signature, multiple icons, icon sheet, grid, sprite sheet, cropped",
+   "seeds": [
+    232
+   ]
+  },
+  {
+   "key": "icon_drenagem_vital",
+   "asset_type": "icon",
+   "name": "Icone drenagem_vital",
+   "metadata": {},
+   "prompt": "pixel art rpg support gem icon, square icon filling the entire frame, ornate bronze border frame, dark background inside, a faceted gem with an engraved symbol of a heart with a drop of blood, glowing, high contrast, game ui icon",
+   "negative_prompt": "blurry, photo, 3d render, realistic, text, letters, numbers, watermark, signature, multiple icons, icon sheet, grid, sprite sheet, cropped",
+   "seeds": [
+    234
+   ]
+  },
+  {
+   "key": "icon_impulso_de_impacto",
+   "asset_type": "icon",
+   "name": "Icone impulso_de_impacto",
+   "metadata": {},
+   "prompt": "pixel art rpg support gem icon, square icon filling the entire frame, ornate bronze border frame, dark background inside, a faceted gem with an engraved symbol of a fist with a shockwave, glowing, high contrast, game ui icon",
+   "negative_prompt": "blurry, photo, 3d render, realistic, text, letters, numbers, watermark, signature, multiple icons, icon sheet, grid, sprite sheet, cropped",
+   "seeds": [
+    236
+   ]
+  },
+  {
+   "key": "icon_busca_residual",
+   "asset_type": "icon",
+   "name": "Icone busca_residual",
+   "metadata": {},
+   "prompt": "pixel art rpg support gem icon, square icon filling the entire frame, ornate bronze border frame, dark background inside, a faceted gem with an engraved symbol of a curved arrow homing on an eye, glowing, high contrast, game ui icon",
+   "negative_prompt": "blurry, photo, 3d render, realistic, text, letters, numbers, watermark, signature, multiple icons, icon sheet, grid, sprite sheet, cropped",
+   "seeds": [
+    238
+   ]
+  },
+  {
+   "key": "icon_sobrecarga_instavel",
+   "asset_type": "icon",
+   "name": "Icone sobrecarga_instavel",
+   "metadata": {},
+   "prompt": "pixel art rpg support gem icon, square icon filling the entire frame, ornate bronze border frame, dark background inside, a faceted gem with an engraved symbol of a cracked crystal leaking sparks, glowing, high contrast, game ui icon",
+   "negative_prompt": "blurry, photo, 3d render, realistic, text, letters, numbers, watermark, signature, multiple icons, icon sheet, grid, sprite sheet, cropped",
+   "seeds": [
+    240
+   ]
+  },
+  {
+   "key": "vfx_needle",
+   "asset_type": "vfx",
+   "name": "vfx_needle",
+   "metadata": {},
+   "prompt": "pixel art game visual effect sprite, a single glowing metal needle projectile pointing right, cyan glow around it, isolated on plain white background, no ground, no characters",
+   "negative_prompt": "blurry, photo, 3d render, realistic, text, watermark, multiple effects, sprite sheet, grid, ground, scenery, characters",
+   "seeds": [
+    301,
+    302
+   ]
+  },
+  {
+   "key": "vfx_bolt",
+   "asset_type": "vfx",
+   "name": "vfx_bolt",
+   "metadata": {},
+   "prompt": "pixel art game visual effect sprite, a small glowing cyan magic bolt orb with a short tail, pointing right, isolated on plain white background, no ground, no characters",
+   "negative_prompt": "blurry, photo, 3d render, realistic, text, watermark, multiple effects, sprite sheet, grid, ground, scenery, characters",
+   "seeds": [
+    303,
+    304
+   ]
+  },
+  {
+   "key": "vfx_impact",
+   "asset_type": "vfx",
+   "name": "vfx_impact",
+   "metadata": {},
+   "prompt": "pixel art game visual effect sprite, a bright magic impact burst explosion with white and cyan sparks, isolated on plain white background, no ground, no characters",
+   "negative_prompt": "blurry, photo, 3d render, realistic, text, watermark, multiple effects, sprite sheet, grid, ground, scenery, characters",
+   "seeds": [
+    305,
+    306
+   ]
+  },
+  {
+   "key": "vfx_spark",
+   "asset_type": "vfx",
+   "name": "vfx_spark",
+   "metadata": {},
+   "prompt": "pixel art game visual effect sprite, a tiny star shaped spark of white light, isolated on plain white background, no ground, no characters",
+   "negative_prompt": "blurry, photo, 3d render, realistic, text, watermark, multiple effects, sprite sheet, grid, ground, scenery, characters",
+   "seeds": [
+    307,
+    308
+   ]
+  },
+  {
+   "key": "vfx_shockwave",
+   "asset_type": "vfx",
+   "name": "vfx_shockwave",
+   "metadata": {},
+   "prompt": "pixel art game visual effect sprite, top-down view of a circular shockwave ring of dust and stone debris, empty hollow center, isolated on plain white background, no ground, no characters",
+   "negative_prompt": "blurry, photo, 3d render, realistic, text, watermark, multiple effects, sprite sheet, grid, ground, scenery, characters",
+   "seeds": [
+    309,
+    310
+   ]
+  },
+  {
+   "key": "vfx_gravity",
+   "asset_type": "vfx",
+   "name": "vfx_gravity",
+   "metadata": {},
+   "prompt": "pixel art game visual effect sprite, top-down view of a round swirling purple gravity vortex disk with a dark center, isolated on plain white background, no ground, no characters",
+   "negative_prompt": "blurry, photo, 3d render, realistic, text, watermark, multiple effects, sprite sheet, grid, ground, scenery, characters",
+   "seeds": [
+    311,
+    312
+   ]
+  },
+  {
+   "key": "vfx_sanctuary",
+   "asset_type": "vfx",
+   "name": "vfx_sanctuary",
+   "metadata": {},
+   "prompt": "pixel art game visual effect sprite, top-down view of a round glowing green rune circle magic seal with small sprouting leaves, isolated on plain white background, no ground, no characters",
+   "negative_prompt": "blurry, photo, 3d render, realistic, text, watermark, multiple effects, sprite sheet, grid, ground, scenery, characters",
+   "seeds": [
+    313,
+    314
+   ]
+  },
+  {
+   "key": "vfx_stone",
+   "asset_type": "vfx",
+   "name": "vfx_stone",
+   "metadata": {},
+   "prompt": "pixel art game visual effect sprite, a single small floating stone plate with glowing cyan cracks, isolated on plain white background, no ground, no characters",
+   "negative_prompt": "blurry, photo, 3d render, realistic, text, watermark, multiple effects, sprite sheet, grid, ground, scenery, characters",
+   "seeds": [
+    315,
+    316
+   ]
+  },
+  {
+   "key": "tower_semeador_de_juncos",
+   "asset_type": "monster",
+   "name": "Semeador de Juncos",
+   "metadata": {
+    "biome": "bosque"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg enemy sprite, single creature alone, whole body visible, clean dark outline, muted colors, plain white background, small hopping seed creature made of reeds and pale leaves, tiny legs",
+   "seeds": [
+    77871
+   ],
+   "size": 512
+  },
+  {
+   "key": "tower_planador_de_rajada",
+   "asset_type": "monster",
+   "name": "Planador de Rajada",
+   "metadata": {
+    "biome": "bosque"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg enemy sprite, single creature alone, whole body visible, clean dark outline, muted colors, plain white background, gliding membrane flying creature with long thin wings, pale green, gust spines",
+   "seeds": [
+    34600
+   ],
+   "size": 512
+  },
+  {
+   "key": "tower_casca_de_pressao",
+   "asset_type": "monster",
+   "name": "Casca de Pressao",
+   "metadata": {
+    "biome": "bosque"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg enemy sprite, single creature alone, whole body visible, clean dark outline, muted colors, plain white background, round armored seed pod beast swollen with pressure, cracked shell leaking air",
+   "seeds": [
+    52747
+   ],
+   "size": 512
+  },
+  {
+   "key": "tower_predador_da_calmaria",
+   "asset_type": "monster",
+   "name": "Predador da Calmaria",
+   "metadata": {
+    "biome": "bosque"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg enemy sprite, single creature alone, whole body visible, clean dark outline, muted colors, plain white background, sleek grey feline predator with mineral plates, glowing green eyes, lurking",
+   "seeds": [
+    75944
+   ],
+   "size": 512
+  },
+  {
+   "key": "tile_floor_bosque",
+   "asset_type": "tile",
+   "name": "Piso Bosque dos Ventos Presos",
+   "metadata": {
+    "biome": "bosque"
+   },
+   "prompt": "pixel art, seamless tileable top-down ground texture, mossy mineral ground with pale green reeds stubble and small pebbles, windswept, full frame, flat even lighting, subtle low contrast detail, no border, no objects",
+   "seeds": [
+    42023
+   ],
+   "size": 1024
+  },
+  {
+   "key": "prop_bosque_arvore_oca",
+   "asset_type": "prop",
+   "name": "Arvore Oca",
+   "metadata": {
+    "biome": "bosque"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg prop sprite, one single object alone, clean dark outline, muted earthy colors, plain white background, hollow mineral tree with pale bark and holes, wind swept branches",
+   "seeds": [
+    32328
+   ],
+   "size": 1024
+  },
+  {
+   "key": "prop_bosque_juncos",
+   "asset_type": "prop",
+   "name": "Juncos",
+   "metadata": {
+    "biome": "bosque"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg prop sprite, one single object alone, clean dark outline, muted earthy colors, plain white background, tall cluster of mineral reeds, pale green and grey",
+   "seeds": [
+    10765
+   ],
+   "size": 1024
+  },
+  {
+   "key": "prop_bosque_arco_de_pedra",
+   "asset_type": "prop",
+   "name": "Arco De Pedra",
+   "metadata": {
+    "biome": "bosque"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg prop sprite, one single object alone, clean dark outline, muted earthy colors, plain white background, natural stone arch bridge fragment covered in moss",
+   "seeds": [
+    52410
+   ],
+   "size": 1024
+  },
+  {
+   "key": "tower_esporinho",
+   "asset_type": "monster",
+   "name": "Esporinho",
+   "metadata": {
+    "biome": "manto"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg enemy sprite, single creature alone, whole body visible, clean dark outline, muted colors, plain white background, tiny walking mushroom creature puffing spores",
+   "seeds": [
+    17392
+   ],
+   "size": 512
+  },
+  {
+   "key": "tower_tecelao_micelial",
+   "asset_type": "monster",
+   "name": "Tecelao Micelial",
+   "metadata": {
+    "biome": "manto"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg enemy sprite, single creature alone, whole body visible, clean dark outline, muted colors, plain white background, spider like fungus creature weaving glowing mycelium threads",
+   "seeds": [
+    52523
+   ],
+   "size": 512
+  },
+  {
+   "key": "tower_sentinela_de_chapeu",
+   "asset_type": "monster",
+   "name": "Sentinela de Chapeu",
+   "metadata": {
+    "biome": "manto"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg enemy sprite, single creature alone, whole body visible, clean dark outline, muted colors, plain white background, stout mushroom guardian with thick shield-like cap",
+   "seeds": [
+    87379
+   ],
+   "size": 512
+  },
+  {
+   "key": "tower_devorador_branco",
+   "asset_type": "monster",
+   "name": "Devorador Branco",
+   "metadata": {
+    "biome": "manto"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg enemy sprite, single creature alone, whole body visible, clean dark outline, muted colors, plain white background, pale white sterile beast without decay, smooth bone-like skin, hollow eyes",
+   "seeds": [
+    58845
+   ],
+   "size": 512
+  },
+  {
+   "key": "tile_floor_manto",
+   "asset_type": "tile",
+   "name": "Piso Manto dos Esporos",
+   "metadata": {
+    "biome": "manto"
+   },
+   "prompt": "pixel art, seamless tileable top-down ground texture, damp dark forest floor covered with mycelium threads, small glowing amber spores, purple moss, full frame, flat even lighting, subtle low contrast detail, no border, no objects",
+   "seeds": [
+    7751
+   ],
+   "size": 1024
+  },
+  {
+   "key": "prop_manto_cogumelo_gigante",
+   "asset_type": "prop",
+   "name": "Cogumelo Gigante",
+   "metadata": {
+    "biome": "manto"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg prop sprite, one single object alone, clean dark outline, muted earthy colors, plain white background, giant mushroom with wide purple cap and glowing amber spots",
+   "seeds": [
+    19124
+   ],
+   "size": 1024
+  },
+  {
+   "key": "prop_manto_tronco_oco",
+   "asset_type": "prop",
+   "name": "Tronco Oco",
+   "metadata": {
+    "biome": "manto"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg prop sprite, one single object alone, clean dark outline, muted earthy colors, plain white background, fallen hollow log covered with small fungi",
+   "seeds": [
+    4714
+   ],
+   "size": 1024
+  },
+  {
+   "key": "prop_manto_poca_ambar",
+   "asset_type": "prop",
+   "name": "Poca Ambar",
+   "metadata": {
+    "biome": "manto"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg prop sprite, one single object alone, clean dark outline, muted earthy colors, plain white background, small pool of glowing amber liquid surrounded by stones",
+   "seeds": [
+    11829
+   ],
+   "size": 1024
+  },
+  {
+   "key": "tower_filtrador",
+   "asset_type": "monster",
+   "name": "Filtrador",
+   "metadata": {
+    "biome": "bacias"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg enemy sprite, single creature alone, whole body visible, clean dark outline, muted colors, plain white background, small amphibian filter feeder with wide mouth and blue skin",
+   "seeds": [
+    31971
+   ],
+   "size": 512
+  },
+  {
+   "key": "tower_anfibio_de_canal",
+   "asset_type": "monster",
+   "name": "Anfibio de Canal",
+   "metadata": {
+    "biome": "bacias"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg enemy sprite, single creature alone, whole body visible, clean dark outline, muted colors, plain white background, frog like amphibian spitting water, teal skin with orange spots",
+   "seeds": [
+    81889
+   ],
+   "size": 512
+  },
+  {
+   "key": "tower_predador_de_lama",
+   "asset_type": "monster",
+   "name": "Predador de Lama",
+   "metadata": {
+    "biome": "bacias"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg enemy sprite, single creature alone, whole body visible, clean dark outline, muted colors, plain white background, mud covered crocodile like predator, brown and grey",
+   "seeds": [
+    26145
+   ],
+   "size": 512
+  },
+  {
+   "key": "tower_colosso_de_conchas",
+   "asset_type": "monster",
+   "name": "Colosso de Conchas",
+   "metadata": {
+    "biome": "bacias"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg enemy sprite, single creature alone, whole body visible, clean dark outline, muted colors, plain white background, large crab like creature carrying a colony of shells on its back",
+   "seeds": [
+    75303
+   ],
+   "size": 512
+  },
+  {
+   "key": "tile_floor_bacias",
+   "asset_type": "tile",
+   "name": "Piso Bacias do Quarto Pulso",
+   "metadata": {
+    "biome": "bacias"
+   },
+   "prompt": "pixel art, seamless tileable top-down ground texture, wet cave stone floor with shallow puddles and blue green algae, mineral terraces, full frame, flat even lighting, subtle low contrast detail, no border, no objects",
+   "seeds": [
+    63669
+   ],
+   "size": 1024
+  },
+  {
+   "key": "prop_bacias_comporta",
+   "asset_type": "prop",
+   "name": "Comporta",
+   "metadata": {
+    "biome": "bacias"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg prop sprite, one single object alone, clean dark outline, muted earthy colors, plain white background, ancient stone sluice gate post with rusty metal wheel",
+   "seeds": [
+    7031
+   ],
+   "size": 1024
+  },
+  {
+   "key": "prop_bacias_colonia_de_conchas",
+   "asset_type": "prop",
+   "name": "Colonia De Conchas",
+   "metadata": {
+    "biome": "bacias"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg prop sprite, one single object alone, clean dark outline, muted earthy colors, plain white background, cluster of large shells and barnacles on a rock",
+   "seeds": [
+    72872
+   ],
+   "size": 1024
+  },
+  {
+   "key": "prop_bacias_barco_naufragado",
+   "asset_type": "prop",
+   "name": "Barco Naufragado",
+   "metadata": {
+    "biome": "bacias"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg prop sprite, one single object alone, clean dark outline, muted earthy colors, plain white background, small wrecked wooden boat half broken",
+   "seeds": [
+    16715
+   ],
+   "size": 1024
+  },
+  {
+   "key": "tower_escavador_vitreo",
+   "asset_type": "monster",
+   "name": "Escavador Vitreo",
+   "metadata": {
+    "biome": "ermo"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg enemy sprite, single creature alone, whole body visible, clean dark outline, muted colors, plain white background, small burrowing beetle with black glass shell",
+   "seeds": [
+    69406
+   ],
+   "size": 512
+  },
+  {
+   "key": "tower_carapaca_carregada",
+   "asset_type": "monster",
+   "name": "Carapaca Carregada",
+   "metadata": {
+    "biome": "ermo"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg enemy sprite, single creature alone, whole body visible, clean dark outline, muted colors, plain white background, armored beast with crystal spikes glowing violet electricity",
+   "seeds": [
+    80465
+   ],
+   "size": 512
+  },
+  {
+   "key": "tower_cacador_de_metal",
+   "asset_type": "monster",
+   "name": "Cacador de Metal",
+   "metadata": {
+    "biome": "ermo"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg enemy sprite, single creature alone, whole body visible, clean dark outline, muted colors, plain white background, lean predator with copper antennae shooting sparks",
+   "seeds": [
+    78228
+   ],
+   "size": 512
+  },
+  {
+   "key": "tower_ninho_de_descarga",
+   "asset_type": "monster",
+   "name": "Ninho de Descarga",
+   "metadata": {
+    "biome": "ermo"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg enemy sprite, single creature alone, whole body visible, clean dark outline, muted colors, plain white background, living crystal nest creature pulsing with lightning",
+   "seeds": [
+    87493
+   ],
+   "size": 512
+  },
+  {
+   "key": "tile_floor_ermo",
+   "asset_type": "tile",
+   "name": "Piso Ermo do Trovao Preso",
+   "metadata": {
+    "biome": "ermo"
+   },
+   "prompt": "pixel art, seamless tileable top-down ground texture, black volcanic glass ground with thin copper veins and small cracks, dark and shiny, full frame, flat even lighting, subtle low contrast detail, no border, no objects",
+   "seeds": [
+    85414
+   ],
+   "size": 1024
+  },
+  {
+   "key": "prop_ermo_cristal_carregado",
+   "asset_type": "prop",
+   "name": "Cristal Carregado",
+   "metadata": {
+    "biome": "ermo"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg prop sprite, one single object alone, clean dark outline, muted earthy colors, plain white background, tall jagged violet crystal crackling with electricity",
+   "seeds": [
+    75373
+   ],
+   "size": 1024
+  },
+  {
+   "key": "prop_ermo_torre_de_cobre",
+   "asset_type": "prop",
+   "name": "Torre De Cobre",
+   "metadata": {
+    "biome": "ermo"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg prop sprite, one single object alone, clean dark outline, muted earthy colors, plain white background, twisted copper spire rising from black glass",
+   "seeds": [
+    21231
+   ],
+   "size": 1024
+  },
+  {
+   "key": "prop_ermo_posto_vitrificado",
+   "asset_type": "prop",
+   "name": "Posto Vitrificado",
+   "metadata": {
+    "biome": "ermo"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg prop sprite, one single object alone, clean dark outline, muted earthy colors, plain white background, ruined vitrified stone outpost wall fragment",
+   "seeds": [
+    66742
+   ],
+   "size": 1024
+  },
+  {
+   "key": "tower_tracador",
+   "asset_type": "monster",
+   "name": "Tracador",
+   "metadata": {
+    "biome": "arquivo"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg enemy sprite, single creature alone, whole body visible, clean dark outline, muted colors, plain white background, small lizard leaving glowing mineral lines behind its tail",
+   "seeds": [
+    25225
+   ],
+   "size": 512
+  },
+  {
+   "key": "tower_devorador_de_tinta",
+   "asset_type": "monster",
+   "name": "Devorador de Tinta",
+   "metadata": {
+    "biome": "arquivo"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg enemy sprite, single creature alone, whole body visible, clean dark outline, muted colors, plain white background, ink black slug creature eating paper scraps",
+   "seeds": [
+    45435
+   ],
+   "size": 512
+  },
+  {
+   "key": "tower_sinaleiro_falso",
+   "asset_type": "monster",
+   "name": "Sinaleiro Falso",
+   "metadata": {
+    "biome": "arquivo"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg enemy sprite, single creature alone, whole body visible, clean dark outline, muted colors, plain white background, creature disguised as a signpost with a hidden eye",
+   "seeds": [
+    49278
+   ],
+   "size": 512
+  },
+  {
+   "key": "tower_cartografo_oco",
+   "asset_type": "monster",
+   "name": "Cartografo Oco",
+   "metadata": {
+    "biome": "arquivo"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg enemy sprite, single creature alone, whole body visible, clean dark outline, muted colors, plain white background, hollow robed figure made of maps and measuring rods",
+   "seeds": [
+    41183
+   ],
+   "size": 512
+  },
+  {
+   "key": "tile_floor_arquivo",
+   "asset_type": "tile",
+   "name": "Piso Arquivo das Rotas Mortas",
+   "metadata": {
+    "biome": "arquivo"
+   },
+   "prompt": "pixel art, seamless tileable top-down ground texture, ancient engraved stone road tiles with carved route lines and faded map symbols, beige, full frame, flat even lighting, subtle low contrast detail, no border, no objects",
+   "seeds": [
+    40424
+   ],
+   "size": 1024
+  },
+  {
+   "key": "prop_arquivo_marco_movel",
+   "asset_type": "prop",
+   "name": "Marco Movel",
+   "metadata": {
+    "biome": "arquivo"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg prop sprite, one single object alone, clean dark outline, muted earthy colors, plain white background, tall carved stone milestone marker with arrows",
+   "seeds": [
+    8640
+   ],
+   "size": 1024
+  },
+  {
+   "key": "prop_arquivo_instrumento_de_medida",
+   "asset_type": "prop",
+   "name": "Instrumento De Medida",
+   "metadata": {
+    "biome": "arquivo"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg prop sprite, one single object alone, clean dark outline, muted earthy colors, plain white background, old brass measuring instrument on a stone pedestal",
+   "seeds": [
+    26766
+   ],
+   "size": 1024
+  },
+  {
+   "key": "prop_arquivo_estante_de_mapas",
+   "asset_type": "prop",
+   "name": "Estante De Mapas",
+   "metadata": {
+    "biome": "arquivo"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg prop sprite, one single object alone, clean dark outline, muted earthy colors, plain white background, stone shelf full of rolled maps and scrolls",
+   "seeds": [
+    83790
+   ],
+   "size": 1024
+  },
+  {
+   "key": "tower_limpador",
+   "asset_type": "monster",
+   "name": "Limpador",
+   "metadata": {
+    "biome": "planicie"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg enemy sprite, single creature alone, whole body visible, clean dark outline, muted colors, plain white background, small cleaner bird like creature with long beak",
+   "seeds": [
+    38794
+   ],
+   "size": 512
+  },
+  {
+   "key": "tower_predador_de_dobra",
+   "asset_type": "monster",
+   "name": "Predador de Dobra",
+   "metadata": {
+    "biome": "planicie"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg enemy sprite, single creature alone, whole body visible, clean dark outline, muted colors, plain white background, flat predator hiding in skin folds, wide jaws",
+   "seeds": [
+    39627
+   ],
+   "size": 512
+  },
+  {
+   "key": "tower_migrante",
+   "asset_type": "monster",
+   "name": "Migrante",
+   "metadata": {
+    "biome": "planicie"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg enemy sprite, single creature alone, whole body visible, clean dark outline, muted colors, plain white background, six legged migrating herd beast with mossy back",
+   "seeds": [
+    31449
+   ],
+   "size": 512
+  },
+  {
+   "key": "tower_colosso_menor",
+   "asset_type": "monster",
+   "name": "Colosso Menor",
+   "metadata": {
+    "biome": "planicie"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg enemy sprite, single creature alone, whole body visible, clean dark outline, muted colors, plain white background, small colossus creature with rocky body and moss, sleepy eyes",
+   "seeds": [
+    13587
+   ],
+   "size": 512
+  },
+  {
+   "key": "tile_floor_planicie",
+   "asset_type": "tile",
+   "name": "Piso Planicie dos Adormecidos",
+   "metadata": {
+    "biome": "planicie"
+   },
+   "prompt": "pixel art, seamless tileable top-down ground texture, mineral skin ground of a sleeping colossus with moss patches and pores, warm brown and grey, full frame, flat even lighting, subtle low contrast detail, no border, no objects",
+   "seeds": [
+    68379
+   ],
+   "size": 1024
+  },
+  {
+   "key": "prop_planicie_arvore_parasita",
+   "asset_type": "prop",
+   "name": "Arvore Parasita",
+   "metadata": {
+    "biome": "planicie"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg prop sprite, one single object alone, clean dark outline, muted earthy colors, plain white background, parasitic tree growing from rocky skin with red roots",
+   "seeds": [
+    26306
+   ],
+   "size": 1024
+  },
+  {
+   "key": "prop_planicie_crista_ossea",
+   "asset_type": "prop",
+   "name": "Crista Ossea",
+   "metadata": {
+    "biome": "planicie"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg prop sprite, one single object alone, clean dark outline, muted earthy colors, plain white background, giant bone ridge emerging from the ground",
+   "seeds": [
+    52101
+   ],
+   "size": 1024
+  },
+  {
+   "key": "prop_planicie_respiradouro",
+   "asset_type": "prop",
+   "name": "Respiradouro",
+   "metadata": {
+    "biome": "planicie"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg prop sprite, one single object alone, clean dark outline, muted earthy colors, plain white background, breathing vent hole in rocky skin with steam",
+   "seeds": [
+    59355
+   ],
+   "size": 1024
+  },
+  {
+   "key": "tower_aderente_menor",
+   "asset_type": "monster",
+   "name": "Aderente Menor",
+   "metadata": {
+    "biome": "eixos"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg enemy sprite, single creature alone, whole body visible, clean dark outline, muted colors, plain white background, suction cup creature clinging with many small arms",
+   "seeds": [
+    74869
+   ],
+   "size": 512
+  },
+  {
+   "key": "tower_planador_de_eixo",
+   "asset_type": "monster",
+   "name": "Planador de Eixo",
+   "metadata": {
+    "biome": "eixos"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg enemy sprite, single creature alone, whole body visible, clean dark outline, muted colors, plain white background, flat gliding creature with metallic fins",
+   "seeds": [
+    64103
+   ],
+   "size": 512
+  },
+  {
+   "key": "tower_ilha_pesada",
+   "asset_type": "monster",
+   "name": "Ilha Pesada",
+   "metadata": {
+    "biome": "eixos"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg enemy sprite, single creature alone, whole body visible, clean dark outline, muted colors, plain white background, heavy floating rock creature with tiny legs underneath",
+   "seeds": [
+    68900
+   ],
+   "size": 512
+  },
+  {
+   "key": "tower_cortador_de_ancoras",
+   "asset_type": "monster",
+   "name": "Cortador de Ancoras",
+   "metadata": {
+    "biome": "eixos"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg enemy sprite, single creature alone, whole body visible, clean dark outline, muted colors, plain white background, mantis like predator with blade arms cutting cables",
+   "seeds": [
+    83869
+   ],
+   "size": 512
+  },
+  {
+   "key": "tile_floor_eixos",
+   "asset_type": "tile",
+   "name": "Piso Eixos Partidos",
+   "metadata": {
+    "biome": "eixos"
+   },
+   "prompt": "pixel art, seamless tileable top-down ground texture, dark metal floor plates with cables and anchor bolts, scratched, blue grey, full frame, flat even lighting, subtle low contrast detail, no border, no objects",
+   "seeds": [
+    80846
+   ],
+   "size": 1024
+  },
+  {
+   "key": "prop_eixos_ancora_gravitacional",
+   "asset_type": "prop",
+   "name": "Ancora Gravitacional",
+   "metadata": {
+    "biome": "eixos"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg prop sprite, one single object alone, clean dark outline, muted earthy colors, plain white background, heavy anchor weight hanging from a broken cable",
+   "seeds": [
+    22345
+   ],
+   "size": 1024
+  },
+  {
+   "key": "prop_eixos_eixo_partido",
+   "asset_type": "prop",
+   "name": "Eixo Partido",
+   "metadata": {
+    "biome": "eixos"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg prop sprite, one single object alone, clean dark outline, muted earthy colors, plain white background, broken rotating metal axis pillar",
+   "seeds": [
+    77056
+   ],
+   "size": 1024
+  },
+  {
+   "key": "prop_eixos_carretel_de_cabo",
+   "asset_type": "prop",
+   "name": "Carretel De Cabo",
+   "metadata": {
+    "biome": "eixos"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg prop sprite, one single object alone, clean dark outline, muted earthy colors, plain white background, large cable spool with thick rope",
+   "seeds": [
+    60366
+   ],
+   "size": 1024
+  },
+  {
+   "key": "tower_eco_de_presa",
+   "asset_type": "monster",
+   "name": "Eco de Presa",
+   "metadata": {
+    "biome": "campos"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg enemy sprite, single creature alone, whole body visible, clean dark outline, muted colors, plain white background, translucent echo of a small deer creature, ghostly",
+   "seeds": [
+    56981
+   ],
+   "size": 512
+  },
+  {
+   "key": "tower_flor_de_escolha",
+   "asset_type": "monster",
+   "name": "Flor de Escolha",
+   "metadata": {
+    "biome": "campos"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg enemy sprite, single creature alone, whole body visible, clean dark outline, muted colors, plain white background, carnivorous flower with two different heads",
+   "seeds": [
+    49635
+   ],
+   "size": 512
+  },
+  {
+   "key": "tower_cacador_de_versoes",
+   "asset_type": "monster",
+   "name": "Cacador de Versoes",
+   "metadata": {
+    "biome": "campos"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg enemy sprite, single creature alone, whole body visible, clean dark outline, muted colors, plain white background, hound with flickering doubled outline",
+   "seeds": [
+    84579
+   ],
+   "size": 512
+  },
+  {
+   "key": "tower_fixador_vivo",
+   "asset_type": "monster",
+   "name": "Fixador Vivo",
+   "metadata": {
+    "biome": "campos"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg enemy sprite, single creature alone, whole body visible, clean dark outline, muted colors, plain white background, crystalline organism that solidifies reality around it",
+   "seeds": [
+    46802
+   ],
+   "size": 512
+  },
+  {
+   "key": "tile_floor_campos",
+   "asset_type": "tile",
+   "name": "Piso Campos do Quase",
+   "metadata": {
+    "biome": "campos"
+   },
+   "prompt": "pixel art, seamless tileable top-down ground texture, overgrown ruined garden floor with broken tiles and flowers, dreamlike pale colors, full frame, flat even lighting, subtle low contrast detail, no border, no objects",
+   "seeds": [
+    24370
+   ],
+   "size": 1024
+  },
+  {
+   "key": "prop_campos_ruina_impossivel",
+   "asset_type": "prop",
+   "name": "Ruina Impossivel",
+   "metadata": {
+    "biome": "campos"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg prop sprite, one single object alone, clean dark outline, muted earthy colors, plain white background, ruined arch of a city that never existed, translucent edges",
+   "seeds": [
+    68779
+   ],
+   "size": 1024
+  },
+  {
+   "key": "prop_campos_jardim_possivel",
+   "asset_type": "prop",
+   "name": "Jardim Possivel",
+   "metadata": {
+    "biome": "campos"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg prop sprite, one single object alone, clean dark outline, muted earthy colors, plain white background, flower bed with flowers in impossible colors",
+   "seeds": [
+    56450
+   ],
+   "size": 1024
+  },
+  {
+   "key": "prop_campos_fixador",
+   "asset_type": "prop",
+   "name": "Fixador",
+   "metadata": {
+    "biome": "campos"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg prop sprite, one single object alone, clean dark outline, muted earthy colors, plain white background, strange pillar organism that solidifies the air around it",
+   "seeds": [
+    4741
+   ],
+   "size": 1024
+  },
+  {
+   "key": "tower_operario_sem_autor",
+   "asset_type": "monster",
+   "name": "Operario Sem Autor",
+   "metadata": {
+    "biome": "obra"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg enemy sprite, single creature alone, whole body visible, clean dark outline, muted colors, plain white background, faceless worker figure made of bricks and rope",
+   "seeds": [
+    53663
+   ],
+   "size": 512
+  },
+  {
+   "key": "tower_molde_vivo",
+   "asset_type": "monster",
+   "name": "Molde Vivo",
+   "metadata": {
+    "biome": "obra"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg enemy sprite, single creature alone, whole body visible, clean dark outline, muted colors, plain white background, living plaster mold creature copying shapes",
+   "seeds": [
+    59004
+   ],
+   "size": 512
+  },
+  {
+   "key": "tower_marca_numerada",
+   "asset_type": "monster",
+   "name": "Marca Numerada",
+   "metadata": {
+    "biome": "obra"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg enemy sprite, single creature alone, whole body visible, clean dark outline, muted colors, plain white background, floating stone tablet with glowing number carved",
+   "seeds": [
+    39212
+   ],
+   "size": 512
+  },
+  {
+   "key": "tower_eco_regional",
+   "asset_type": "monster",
+   "name": "Eco Regional",
+   "metadata": {
+    "biome": "obra"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg enemy sprite, single creature alone, whole body visible, clean dark outline, muted colors, plain white background, patchwork beast made of pieces of all previous biomes",
+   "seeds": [
+    11911
+   ],
+   "size": 512
+  },
+  {
+   "key": "tile_floor_obra",
+   "asset_type": "tile",
+   "name": "Piso Obra Inacabada",
+   "metadata": {
+    "biome": "obra"
+   },
+   "prompt": "pixel art, seamless tileable top-down ground texture, unfinished construction floor with scaffold planks, stone blocks and chalk marks, full frame, flat even lighting, subtle low contrast detail, no border, no objects",
+   "seeds": [
+    6363
+   ],
+   "size": 1024
+  },
+  {
+   "key": "prop_obra_andaime",
+   "asset_type": "prop",
+   "name": "Andaime",
+   "metadata": {
+    "biome": "obra"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg prop sprite, one single object alone, clean dark outline, muted earthy colors, plain white background, wooden scaffold with ropes and planks",
+   "seeds": [
+    9069
+   ],
+   "size": 1024
+  },
+  {
+   "key": "prop_obra_molde_de_lugar",
+   "asset_type": "prop",
+   "name": "Molde De Lugar",
+   "metadata": {
+    "biome": "obra"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg prop sprite, one single object alone, clean dark outline, muted earthy colors, plain white background, half built statue mold of a building",
+   "seeds": [
+    70898
+   ],
+   "size": 1024
+  },
+  {
+   "key": "prop_obra_monumento_numerado",
+   "asset_type": "prop",
+   "name": "Monumento Numerado",
+   "metadata": {
+    "biome": "obra"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg prop sprite, one single object alone, clean dark outline, muted earthy colors, plain white background, stone monument covered with numbers and marks",
+   "seeds": [
+    9896
+   ],
+   "size": 1024
+  },
+  {
+   "key": "tower_refeitor",
+   "asset_type": "monster",
+   "name": "O Refeitor",
+   "metadata": {
+    "biome": "galerias",
+    "boss": true
+   },
+   "prompt": "pixel art, 3/4 top-down rpg enemy sprite, single creature alone, whole body visible, clean dark outline, muted colors, plain white background, large boss monster, reconstruction golem made of moving stone frames and arches, glowing cyan seams, seven floating stone frames around it, imposing",
+   "seeds": [
+    13689,
+    13690
+   ],
+   "size": 512
+  },
+  {
+   "key": "tower_pastor_das_correntes",
+   "asset_type": "monster",
+   "name": "Pastor das Correntes",
+   "metadata": {
+    "biome": "bosque",
+    "boss": true
+   },
+   "prompt": "pixel art, 3/4 top-down rpg enemy sprite, single creature alone, whole body visible, clean dark outline, muted colors, plain white background, large boss monster, huge migratory sky whale like creature trapped by mineral membranes, pale green and grey, wind swirling, imposing",
+   "seeds": [
+    28583,
+    28584
+   ],
+   "size": 512
+  },
+  {
+   "key": "tower_guardia_do_no_mae",
+   "asset_type": "monster",
+   "name": "Guardia do No-Mae",
+   "metadata": {
+    "biome": "manto",
+    "boss": true
+   },
+   "prompt": "pixel art, 3/4 top-down rpg enemy sprite, single creature alone, whole body visible, clean dark outline, muted colors, plain white background, large boss monster, giant fungal queen creature rooted in mycelium web, glowing amber nodes, half covered with sterile white crust, imposing",
+   "seeds": [
+    74865,
+    74866
+   ],
+   "size": 512
+  },
+  {
+   "key": "tower_guardiao_da_comporta",
+   "asset_type": "monster",
+   "name": "Guardiao da Comporta",
+   "metadata": {
+    "biome": "bacias",
+    "boss": true
+   },
+   "prompt": "pixel art, 3/4 top-down rpg enemy sprite, single creature alone, whole body visible, clean dark outline, muted colors, plain white background, large boss monster, ancient leviathan amphibian guarding a stone sluice gate, blue scales, shell armor, water dripping, imposing",
+   "seeds": [
+    90956,
+    90957
+   ],
+   "size": 512
+  },
+  {
+   "key": "tower_coroa_dos_condutores",
+   "asset_type": "monster",
+   "name": "Coroa dos Condutores",
+   "metadata": {
+    "biome": "ermo",
+    "boss": true
+   },
+   "prompt": "pixel art, 3/4 top-down rpg enemy sprite, single creature alone, whole body visible, clean dark outline, muted colors, plain white background, large boss monster, floating crown shaped storm entity made of copper rods and violet crystals, lightning arcs, imposing",
+   "seeds": [
+    60861,
+    60862
+   ],
+   "size": 512
+  },
+  {
+   "key": "tower_guardiao_do_marco_cego",
+   "asset_type": "monster",
+   "name": "Guardiao do Marco Cego",
+   "metadata": {
+    "biome": "arquivo",
+    "boss": true
+   },
+   "prompt": "pixel art, 3/4 top-down rpg enemy sprite, single creature alone, whole body visible, clean dark outline, muted colors, plain white background, large boss monster, giant stone milestone golem covered with engraved routes and arrows pointing nowhere, beige stone, ink veins, imposing",
+   "seeds": [
+    31165,
+    31166
+   ],
+   "size": 512
+  },
+  {
+   "key": "tower_palpebra_do_horizonte",
+   "asset_type": "monster",
+   "name": "Palpebra do Horizonte",
+   "metadata": {
+    "biome": "planicie",
+    "boss": true
+   },
+   "prompt": "pixel art, 3/4 top-down rpg enemy sprite, single creature alone, whole body visible, clean dark outline, muted colors, plain white background, large boss monster, enormous half asleep eye creature embedded in rocky mountain skin, heavy eyelid, moss and roots, imposing",
+   "seeds": [
+    23581,
+    23582
+   ],
+   "size": 512
+  },
+  {
+   "key": "tower_guardiao_do_eixo_zero",
+   "asset_type": "monster",
+   "name": "Guardiao do Eixo Zero",
+   "metadata": {
+    "biome": "eixos",
+    "boss": true
+   },
+   "prompt": "pixel art, 3/4 top-down rpg enemy sprite, single creature alone, whole body visible, clean dark outline, muted colors, plain white background, large boss monster, gyroscope shaped metal guardian with rotating rings and broken anchors, blue steel, gravity distortion, imposing",
+   "seeds": [
+    1826,
+    1827
+   ],
+   "size": 512
+  },
+  {
+   "key": "tower_guardiao_da_ultima_escolha",
+   "asset_type": "monster",
+   "name": "Guardiao da Ultima Escolha",
+   "metadata": {
+    "biome": "campos",
+    "boss": true
+   },
+   "prompt": "pixel art, 3/4 top-down rpg enemy sprite, single creature alone, whole body visible, clean dark outline, muted colors, plain white background, large boss monster, three headed guardian made of overlapping translucent versions of itself, pale garden colors, flowers, imposing",
+   "seeds": [
+    45671,
+    45672
+   ],
+   "size": 512
+  },
+  {
+   "key": "tower_regente_centesimo",
+   "asset_type": "monster",
+   "name": "Regente Centesimo",
+   "metadata": {
+    "biome": "obra",
+    "boss": true
+   },
+   "prompt": "pixel art, 3/4 top-down rpg enemy sprite, single creature alone, whole body visible, clean dark outline, muted colors, plain white background, large boss monster, regal construct of numbered stone tablets and unfinished architecture, crown of one hundred marks, gold and stone, imposing",
+   "seeds": [
+    76069,
+    76070
+   ],
+   "size": 512
+  },
+  {
+   "key": "npc_alda_serrin",
+   "asset_type": "character",
+   "name": "Alda Serrin",
+   "metadata": {
+    "role": "Regente de Aresta"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg game character sprite, single person standing alone, full body from head to feet, facing the viewer, small chibi proportions, clean dark outline, muted earthy colors, plain white background, elegant middle aged woman with long silver hair, pale blue robe with gold trim, holding a sealed scroll",
+   "seeds": [
+    14894
+   ],
+   "size": 512
+  },
+  {
+   "key": "npc_nara_quiral",
+   "asset_type": "character",
+   "name": "Nara Quiral",
+   "metadata": {
+    "role": "Diretora da Casa das Expedicoes"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg game character sprite, single person standing alone, full body from head to feet, facing the viewer, small chibi proportions, clean dark outline, muted earthy colors, plain white background, athletic woman with short copper hair and scarred arm, leather explorer coat, map case on her hip",
+   "seeds": [
+    88288
+   ],
+   "size": 512
+  },
+  {
+   "key": "npc_dalia_ferral",
+   "asset_type": "character",
+   "name": "Dalia Ferral",
+   "metadata": {
+    "role": "Mestra da Forja"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg game character sprite, single person standing alone, full body from head to feet, facing the viewer, small chibi proportions, clean dark outline, muted earthy colors, plain white background, stern older woman blacksmith with grey braid, heavy leather apron, soot on her face, holding a hammer",
+   "seeds": [
+    87080
+   ],
+   "size": 512
+  },
+  {
+   "key": "npc_cassio_rotavela",
+   "asset_type": "character",
+   "name": "Cassio Rotavela",
+   "metadata": {
+    "role": "Primeiro Signatario"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg game character sprite, single person standing alone, full body from head to feet, facing the viewer, small chibi proportions, clean dark outline, muted earthy colors, plain white background, well dressed merchant man with neat beard, burgundy coat with gold buttons, ledger book under arm",
+   "seeds": [
+    57528
+   ],
+   "size": 512
+  },
+  {
+   "key": "npc_tamar_vardal",
+   "asset_type": "character",
+   "name": "Tamar Vardal",
+   "metadata": {
+    "role": "Custodio da Vigilia"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg game character sprite, single person standing alone, full body from head to feet, facing the viewer, small chibi proportions, clean dark outline, muted earthy colors, plain white background, tall androgynous person in dark blue guard robe with silver crest, two toned hair half black half white",
+   "seeds": [
+    67875
+   ],
+   "size": 512
+  },
+  {
+   "key": "npc_ivo_cerne",
+   "asset_type": "character",
+   "name": "Ivo Cerne",
+   "metadata": {
+    "role": "Comandante da Guarda"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg game character sprite, single person standing alone, full body from head to feet, facing the viewer, small chibi proportions, clean dark outline, muted earthy colors, plain white background, muscular guard commander in steel breastplate and red cape, short black hair, spear in hand",
+   "seeds": [
+    52918
+   ],
+   "size": 512
+  },
+  {
+   "key": "npc_maura_salvedra",
+   "asset_type": "character",
+   "name": "Maura Salvedra",
+   "metadata": {
+    "role": "Voz da Enfermaria"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg game character sprite, single person standing alone, full body from head to feet, facing the viewer, small chibi proportions, clean dark outline, muted earthy colors, plain white background, kind healer woman with dark curly hair tied up, white and green robe, satchel of herbs",
+   "seeds": [
+    80600
+   ],
+   "size": 512
+  },
+  {
+   "key": "npc_lior_campelo",
+   "asset_type": "character",
+   "name": "Lior Campelo",
+   "metadata": {
+    "role": "Guardiao da Colheita"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg game character sprite, single person standing alone, full body from head to feet, facing the viewer, small chibi proportions, clean dark outline, muted earthy colors, plain white background, farmer man with straw hat, light brown skin, simple green tunic, farmer man with straw hat, light brown skin, simple green tunic, holding a hoe",
+   "seeds": [
+    30668,
+    30669
+   ],
+   "size": 512,
+   "negative_prompt": "blurry, photo, 3d render, realistic, text, watermark, signature, anti-aliasing, smooth gradients, multiple characters, sprite sheet, character sheet, grid, cropped, cut off feet, portrait, close-up, busy background, noise, furniture, extra objects, scenery, landscape, ground plate, multiple characters, many characters, sprite sheet, grid, collage, several objects, icons, set, collection, tileset"
+  },
+  {
+   "key": "npc_brina_pedralva",
+   "asset_type": "character",
+   "name": "Brina Pedralva",
+   "metadata": {
+    "role": "Mestra de Obra"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg game character sprite, single person standing alone, full body from head to feet, facing the viewer, small chibi proportions, clean dark outline, muted earthy colors, plain white background, sturdy builder woman with rolled sleeves, orange headscarf, tool belt, carrying a wooden beam",
+   "seeds": [
+    47261
+   ],
+   "size": 512
+  },
+  {
+   "key": "npc_oren_lumeiro",
+   "asset_type": "character",
+   "name": "Oren Lumeiro",
+   "metadata": {
+    "role": "Curador-Mor"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg game character sprite, single person standing alone, full body from head to feet, facing the viewer, small chibi proportions, clean dark outline, muted earthy colors, plain white background, old scholar man with long white beard, round spectacles, dark purple robe, stack of books",
+   "seeds": [
+    23268
+   ],
+   "size": 512
+  },
+  {
+   "key": "npc_elen",
+   "asset_type": "character",
+   "name": "Elen",
+   "metadata": {
+    "role": "Moradora da casa de teto vermelho"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg game character sprite, single person standing alone, full body from head to feet, facing the viewer, small chibi proportions, clean dark outline, muted earthy colors, plain white background, young woman with long brown hair in a ponytail, simple beige dress with red shawl, holding a basket",
+   "seeds": [
+    73957
+   ],
+   "size": 512
+  },
+  {
+   "key": "npc_comum_guarda",
+   "asset_type": "character",
+   "name": "Guarda",
+   "metadata": {
+    "role": "guarda"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg game character sprite, single person standing alone, full body from head to feet, facing the viewer, small chibi proportions, clean dark outline, muted earthy colors, plain white background, town guard soldier with leather armor and spear, blue tabard",
+   "seeds": [
+    40379
+   ],
+   "size": 512
+  },
+  {
+   "key": "npc_comum_feirante",
+   "asset_type": "character",
+   "name": "Feirante",
+   "metadata": {
+    "role": "feirante"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg game character sprite, single person standing alone, full body from head to feet, facing the viewer, small chibi proportions, clean dark outline, muted earthy colors, plain white background, market vendor with apron and headscarf, market vendor woman with apron and headscarf, holding one apple",
+   "seeds": [
+    62525,
+    62526
+   ],
+   "size": 512,
+   "negative_prompt": "blurry, photo, 3d render, realistic, text, watermark, signature, anti-aliasing, smooth gradients, multiple characters, sprite sheet, character sheet, grid, cropped, cut off feet, portrait, close-up, busy background, noise, furniture, extra objects, scenery, landscape, ground plate, multiple characters, many characters, sprite sheet, grid, collage, several objects, icons, set, collection, tileset"
+  },
+  {
+   "key": "npc_comum_trabalhador",
+   "asset_type": "character",
+   "name": "Trabalhador",
+   "metadata": {
+    "role": "trabalhador"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg game character sprite, single person standing alone, full body from head to feet, facing the viewer, small chibi proportions, clean dark outline, muted earthy colors, plain white background, construction worker with simple clothes and a pickaxe",
+   "seeds": [
+    12113
+   ],
+   "size": 512
+  },
+  {
+   "key": "npc_comum_lavrador",
+   "asset_type": "character",
+   "name": "Lavrador",
+   "metadata": {
+    "role": "lavrador"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg game character sprite, single person standing alone, full body from head to feet, facing the viewer, small chibi proportions, clean dark outline, muted earthy colors, plain white background, peasant farmer man with straw hat and a hoe on his shoulder",
+   "seeds": [
+    25103,
+    25104
+   ],
+   "size": 512,
+   "negative_prompt": "blurry, photo, 3d render, realistic, text, watermark, signature, anti-aliasing, smooth gradients, multiple characters, sprite sheet, character sheet, grid, cropped, cut off feet, portrait, close-up, busy background, noise, furniture, extra objects, scenery, landscape, ground plate, multiple characters, many characters, sprite sheet, grid, collage, several objects, icons, set, collection, tileset"
+  },
+  {
+   "key": "npc_comum_aventureiro",
+   "asset_type": "character",
+   "name": "Aventureiro",
+   "metadata": {
+    "role": "aventureiro"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg game character sprite, single person standing alone, full body from head to feet, facing the viewer, small chibi proportions, clean dark outline, muted earthy colors, plain white background, young adventurer with backpack, sword and travel cloak",
+   "seeds": [
+    16169
+   ],
+   "size": 512
+  },
+  {
+   "key": "npc_comum_crianca",
+   "asset_type": "character",
+   "name": "Crianca",
+   "metadata": {
+    "role": "crianca"
+   },
+   "prompt": "pixel art, 3/4 top-down rpg game character sprite, single person standing alone, full body from head to feet, facing the viewer, small chibi proportions, clean dark outline, muted earthy colors, plain white background, small child with messy hair running, simple tunic, holding a wooden toy",
+   "seeds": [
+    24382
+   ],
+   "size": 512
+  },
+  {
+   "key": "village_forja",
+   "asset_type": "building",
+   "name": "forja",
+   "metadata": {
+    "village": true
+   },
+   "prompt": "pixel art, 3/4 top-down rpg building sprite, one single building alone, clean dark outline, muted earthy colors, plain white background, village forge building with big chimney, stone walls, anvil and glowing furnace at the entrance",
+   "seeds": [
+    88539
+   ],
+   "size": 1024
+  },
+  {
+   "key": "village_enfermaria",
+   "asset_type": "building",
+   "name": "enfermaria",
+   "metadata": {
+    "village": true
+   },
+   "prompt": "pixel art, 3/4 top-down rpg building sprite, one single building alone, clean dark outline, muted earthy colors, plain white background, village infirmary building with white walls, green roof and a herb garden",
+   "seeds": [
+    65650
+   ],
+   "size": 1024
+  },
+  {
+   "key": "village_conselho",
+   "asset_type": "building",
+   "name": "conselho",
+   "metadata": {
+    "village": true
+   },
+   "prompt": "pixel art, 3/4 top-down rpg building sprite, one single building alone, clean dark outline, muted earthy colors, plain white background, village council hall, large stone building with columns, banners and wide stairs",
+   "seeds": [
+    80384
+   ],
+   "size": 1024
+  },
+  {
+   "key": "village_arquivo",
+   "asset_type": "building",
+   "name": "arquivo",
+   "metadata": {
+    "village": true
+   },
+   "prompt": "pixel art, 3/4 top-down rpg building sprite, one single building alone, clean dark outline, muted earthy colors, plain white background, old archive building with tall narrow windows, purple roof and scroll sign",
+   "seeds": [
+    87496
+   ],
+   "size": 1024
+  },
+  {
+   "key": "village_posto_guarda",
+   "asset_type": "building",
+   "name": "posto_guarda",
+   "metadata": {
+    "village": true
+   },
+   "prompt": "pixel art, 3/4 top-down rpg building sprite, one single building alone, clean dark outline, muted earthy colors, plain white background, wooden guard watchtower with a small roofed platform and blue flag",
+   "seeds": [
+    70250
+   ],
+   "size": 1024
+  },
+  {
+   "key": "village_barraca_frutas",
+   "asset_type": "prop",
+   "name": "barraca_frutas",
+   "metadata": {
+    "village": true
+   },
+   "prompt": "pixel art, 3/4 top-down rpg prop sprite, one single object alone, clean dark outline, muted earthy colors, plain white background, market stall with striped red and white awning selling fruits and vegetables",
+   "seeds": [
+    74099
+   ],
+   "size": 512
+  },
+  {
+   "key": "village_barraca_tecidos",
+   "asset_type": "prop",
+   "name": "barraca_tecidos",
+   "metadata": {
+    "village": true
+   },
+   "prompt": "pixel art, 3/4 top-down rpg prop sprite, one single object alone, clean dark outline, muted earthy colors, plain white background, market stall with blue awning selling colorful fabrics",
+   "seeds": [
+    26944
+   ],
+   "size": 512
+  },
+  {
+   "key": "village_fonte",
+   "asset_type": "prop",
+   "name": "fonte",
+   "metadata": {
+    "village": true
+   },
+   "prompt": "pixel art, 3/4 top-down rpg prop sprite, one single object alone, clean dark outline, muted earthy colors, plain white background, single round stone fountain with water, no trees, no plaza, isolated",
+   "seeds": [
+    36016,
+    36017
+   ],
+   "size": 1024,
+   "negative_prompt": "blurry, photo, 3d render, realistic, text, watermark, signature, anti-aliasing, smooth gradients, multiple characters, sprite sheet, character sheet, grid, cropped, cut off feet, portrait, close-up, busy background, noise, furniture, extra objects, scenery, landscape, ground plate, multiple characters, many characters, sprite sheet, grid, collage, several objects, icons, set, collection, tileset"
+  },
+  {
+   "key": "village_plantacao",
+   "asset_type": "prop",
+   "name": "plantacao",
+   "metadata": {
+    "village": true
+   },
+   "prompt": "pixel art, 3/4 top-down rpg prop sprite, one single object alone, clean dark outline, muted earthy colors, plain white background, single small vegetable garden plot with three rows of green crops in brown soil, isolated",
+   "seeds": [
+    41673,
+    41674
+   ],
+   "size": 1024,
+   "negative_prompt": "blurry, photo, 3d render, realistic, text, watermark, signature, anti-aliasing, smooth gradients, multiple characters, sprite sheet, character sheet, grid, cropped, cut off feet, portrait, close-up, busy background, noise, furniture, extra objects, scenery, landscape, ground plate, multiple characters, many characters, sprite sheet, grid, collage, several objects, icons, set, collection, tileset"
+  },
+  {
+   "key": "village_banco",
+   "asset_type": "prop",
+   "name": "banco",
+   "metadata": {
+    "village": true
+   },
+   "prompt": "pixel art, 3/4 top-down rpg prop sprite, one single object alone, clean dark outline, muted earthy colors, plain white background, wooden park bench",
+   "seeds": [
+    11906
+   ],
+   "size": 512
+  },
+  {
+   "key": "village_galinha",
+   "asset_type": "prop",
+   "name": "galinha",
+   "metadata": {
+    "village": true
+   },
+   "prompt": "pixel art, 3/4 top-down rpg prop sprite, one single object alone, clean dark outline, muted earthy colors, plain white background, small white chicken",
+   "seeds": [
+    33614
+   ],
+   "size": 512
+  },
+  {
+   "key": "village_bandeira",
+   "asset_type": "prop",
+   "name": "bandeira",
+   "metadata": {
+    "village": true
+   },
+   "prompt": "pixel art, 3/4 top-down rpg prop sprite, one single object alone, clean dark outline, muted earthy colors, plain white background, single tall wooden flag pole with a long hanging blue and gold banner",
+   "seeds": [
+    54109,
+    54110
+   ],
+   "size": 512,
+   "negative_prompt": "blurry, photo, 3d render, realistic, text, watermark, signature, anti-aliasing, smooth gradients, multiple characters, sprite sheet, character sheet, grid, cropped, cut off feet, portrait, close-up, busy background, noise, furniture, extra objects, scenery, landscape, ground plate, multiple characters, many characters, sprite sheet, grid, collage, several objects, icons, set, collection, tileset"
+  },
+  {
+   "key": "village_andaime_vila",
+   "asset_type": "prop",
+   "name": "andaime_vila",
+   "metadata": {
+    "village": true
+   },
+   "prompt": "pixel art, 3/4 top-down rpg prop sprite, one single object alone, clean dark outline, muted earthy colors, plain white background, single wooden construction scaffold tower with ladders and planks",
+   "seeds": [
+    88690,
+    88691
+   ],
+   "size": 1024,
+   "negative_prompt": "blurry, photo, 3d render, realistic, text, watermark, signature, anti-aliasing, smooth gradients, multiple characters, sprite sheet, character sheet, grid, cropped, cut off feet, portrait, close-up, busy background, noise, furniture, extra objects, scenery, landscape, ground plate, multiple characters, many characters, sprite sheet, grid, collage, several objects, icons, set, collection, tileset"
+  }
+ ]
+}

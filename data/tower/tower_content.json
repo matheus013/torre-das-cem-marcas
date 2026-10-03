@@ -1,0 +1,4641 @@
+{
+ "version": 1,
+ "biomes": [
+  {
+   "id": "galerias",
+   "name": "Galerias Refeitas",
+   "floors": [
+    1,
+    7
+   ],
+   "ambient": "5c6680",
+   "mechanic": "Cicatrizacao",
+   "hazard": {
+    "type": "slam",
+    "label": "Parede em formacao",
+    "radius": 70,
+    "delay": 1.2,
+    "interval": 7.0,
+    "damage": 14
+   },
+   "tile": "tiles/floor_tower",
+   "props": [
+    "props/pillar",
+    "props/rocks",
+    "props/crates"
+   ],
+   "enemies": [
+    "larva_de_junta",
+    "raspador_de_junta",
+    "sentinela_de_cal",
+    "emboscado_de_reboco",
+    "molde_de_ferramenta",
+    "escora_hostil",
+    "vigia_moldado"
+   ],
+   "materials": []
+  },
+  {
+   "id": "bosque",
+   "name": "Bosque dos Ventos Presos",
+   "floors": [
+    8,
+    16
+   ],
+   "ambient": "6a8a7a",
+   "mechanic": "Mares de Vento",
+   "hazard": {
+    "type": "gust",
+    "label": "Rajada",
+    "length": 520,
+    "width": 90,
+    "delay": 1.1,
+    "interval": 6.0,
+    "damage": 10,
+    "push": 140
+   },
+   "tile": "tiles/floor_bosque",
+   "props": [
+    "props/bosque_arvore_oca",
+    "props/bosque_juncos",
+    "props/bosque_arco_de_pedra"
+   ],
+   "enemies": [
+    "semeador_de_juncos",
+    "planador_de_rajada",
+    "casca_de_pressao",
+    "predador_da_calmaria"
+   ],
+   "materials": [
+    "junco_mineral",
+    "membrana_de_pressao"
+   ]
+  },
+  {
+   "id": "manto",
+   "name": "Manto dos Esporos",
+   "floors": [
+    17,
+    27
+   ],
+   "ambient": "7a6a8a",
+   "mechanic": "Rede Micelial",
+   "hazard": {
+    "type": "zone",
+    "label": "Nuvem de esporos",
+    "radius": 85,
+    "delay": 1.0,
+    "interval": 6.5,
+    "damage": 6,
+    "duration": 4.0
+   },
+   "tile": "tiles/floor_manto",
+   "props": [
+    "props/manto_cogumelo_gigante",
+    "props/manto_tronco_oco",
+    "props/manto_poca_ambar"
+   ],
+   "enemies": [
+    "esporinho",
+    "tecelao_micelial",
+    "sentinela_de_chapeu",
+    "devorador_branco"
+   ],
+   "materials": [
+    "lanterna_de_esporo",
+    "ambar_micelial"
+   ]
+  },
+  {
+   "id": "bacias",
+   "name": "Bacias do Quarto Pulso",
+   "floors": [
+    28,
+    39
+   ],
+   "ambient": "5a7a92",
+   "mechanic": "Ciclo das Quatro Aguas",
+   "hazard": {
+    "type": "zone",
+    "label": "Lamina d'agua",
+    "radius": 110,
+    "delay": 1.3,
+    "interval": 7.0,
+    "damage": 4,
+    "duration": 5.0,
+    "slow": 0.35
+   },
+   "tile": "tiles/floor_bacias",
+   "props": [
+    "props/bacias_comporta",
+    "props/bacias_colonia_de_conchas",
+    "props/bacias_barco_naufragado"
+   ],
+   "enemies": [
+    "filtrador",
+    "anfibio_de_canal",
+    "predador_de_lama",
+    "colosso_de_conchas"
+   ],
+   "materials": [
+    "lodo_mineral",
+    "perola_de_refluxo"
+   ]
+  },
+  {
+   "id": "ermo",
+   "name": "Ermo do Trovao Preso",
+   "floors": [
+    40,
+    51
+   ],
+   "ambient": "6a5a8a",
+   "mechanic": "Acumulo e Descarga",
+   "hazard": {
+    "type": "slam",
+    "label": "Descarga",
+    "radius": 80,
+    "delay": 1.0,
+    "interval": 5.0,
+    "damage": 18
+   },
+   "tile": "tiles/floor_ermo",
+   "props": [
+    "props/ermo_cristal_carregado",
+    "props/ermo_torre_de_cobre",
+    "props/ermo_posto_vitrificado"
+   ],
+   "enemies": [
+    "escavador_vitreo",
+    "carapaca_carregada",
+    "cacador_de_metal",
+    "ninho_de_descarga"
+   ],
+   "materials": [
+    "vidro_negro",
+    "cristal_de_carga"
+   ]
+  },
+  {
+   "id": "arquivo",
+   "name": "Arquivo das Rotas Mortas",
+   "floors": [
+    52,
+    63
+   ],
+   "ambient": "8a7a62",
+   "mechanic": "Cartografia Reativa",
+   "hazard": {
+    "type": "line",
+    "label": "Rota que se redesenha",
+    "length": 600,
+    "width": 70,
+    "delay": 1.2,
+    "interval": 6.0,
+    "damage": 16
+   },
+   "tile": "tiles/floor_arquivo",
+   "props": [
+    "props/arquivo_marco_movel",
+    "props/arquivo_instrumento_de_medida",
+    "props/arquivo_estante_de_mapas"
+   ],
+   "enemies": [
+    "tracador",
+    "devorador_de_tinta",
+    "sinaleiro_falso",
+    "cartografo_oco"
+   ],
+   "materials": [
+    "tinta_mineral",
+    "marco_gravado"
+   ]
+  },
+  {
+   "id": "planicie",
+   "name": "Planicie dos Adormecidos",
+   "floors": [
+    64,
+    72
+   ],
+   "ambient": "8a6a62",
+   "mechanic": "Movimento Colossal",
+   "hazard": {
+    "type": "donut",
+    "label": "Respiracao do colosso",
+    "radius": 220,
+    "inner": 90,
+    "delay": 1.5,
+    "interval": 8.0,
+    "damage": 18
+   },
+   "tile": "tiles/floor_planicie",
+   "props": [
+    "props/planicie_arvore_parasita",
+    "props/planicie_crista_ossea",
+    "props/planicie_respiradouro"
+   ],
+   "enemies": [
+    "limpador",
+    "predador_de_dobra",
+    "migrante",
+    "colosso_menor"
+   ],
+   "materials": [
+    "pele_mineral",
+    "seiva_colossal"
+   ]
+  },
+  {
+   "id": "eixos",
+   "name": "Eixos Partidos",
+   "floors": [
+    73,
+    81
+   ],
+   "ambient": "5a6a8a",
+   "mechanic": "Orientacao Gravitacional",
+   "hazard": {
+    "type": "pull",
+    "label": "Poco de vetor",
+    "radius": 180,
+    "delay": 1.4,
+    "interval": 7.0,
+    "damage": 16,
+    "strength": 160
+   },
+   "tile": "tiles/floor_eixos",
+   "props": [
+    "props/eixos_ancora_gravitacional",
+    "props/eixos_eixo_partido",
+    "props/eixos_carretel_de_cabo"
+   ],
+   "enemies": [
+    "aderente_menor",
+    "planador_de_eixo",
+    "ilha_pesada",
+    "cortador_de_ancoras"
+   ],
+   "materials": [
+    "cabo_de_lastro",
+    "fragmento_de_eixo"
+   ]
+  },
+  {
+   "id": "campos",
+   "name": "Campos do Quase",
+   "floors": [
+    82,
+    93
+   ],
+   "ambient": "7a8a6a",
+   "mechanic": "Possibilidades Transitorias",
+   "hazard": {
+    "type": "meteor",
+    "label": "Possibilidade que se fixa",
+    "radius": 75,
+    "count": 4,
+    "spread": 320,
+    "delay": 1.3,
+    "interval": 6.5,
+    "damage": 22
+   },
+   "tile": "tiles/floor_campos",
+   "props": [
+    "props/campos_ruina_impossivel",
+    "props/campos_jardim_possivel",
+    "props/campos_fixador"
+   ],
+   "enemies": [
+    "eco_de_presa",
+    "flor_de_escolha",
+    "cacador_de_versoes",
+    "fixador_vivo"
+   ],
+   "materials": [
+    "petala_possivel",
+    "semente_do_quase"
+   ]
+  },
+  {
+   "id": "obra",
+   "name": "Obra Inacabada",
+   "floors": [
+    94,
+    100
+   ],
+   "ambient": "7a6a5a",
+   "mechanic": "Convergencia Regional",
+   "hazard": {
+    "type": "mixed",
+    "label": "Convergencia",
+    "interval": 5.0,
+    "damage": 24
+   },
+   "tile": "tiles/floor_obra",
+   "props": [
+    "props/obra_andaime",
+    "props/obra_molde_de_lugar",
+    "props/obra_monumento_numerado"
+   ],
+   "enemies": [
+    "operario_sem_autor",
+    "molde_vivo",
+    "marca_numerada",
+    "eco_regional"
+   ],
+   "materials": [
+    "material_sem_autor",
+    "marca_de_mandato"
+   ]
+  }
+ ],
+ "floors": [
+  {
+   "floor": 1,
+   "biome": "galerias",
+   "name": "Patio das Marcas",
+   "kind": "explore",
+   "health_multiplier": 1.0,
+   "damage_multiplier": 1.0,
+   "hazard_multiplier": 1.0,
+   "seed": 65881,
+   "size": [
+    3200,
+    2400
+   ],
+   "packs": 21,
+   "kill_quota": 18
+  },
+  {
+   "floor": 2,
+   "biome": "galerias",
+   "name": "Vias de Extracao",
+   "kind": "explore",
+   "health_multiplier": 1.085,
+   "damage_multiplier": 1.045,
+   "hazard_multiplier": 1.04,
+   "seed": 65827,
+   "size": [
+    3226,
+    2420
+   ],
+   "packs": 21,
+   "kill_quota": 19
+  },
+  {
+   "floor": 3,
+   "biome": "galerias",
+   "name": "Vias de Extracao",
+   "kind": "explore",
+   "health_multiplier": 1.17,
+   "damage_multiplier": 1.09,
+   "hazard_multiplier": 1.08,
+   "seed": 40453,
+   "size": [
+    3253,
+    2440
+   ],
+   "packs": 22,
+   "kill_quota": 19
+  },
+  {
+   "floor": 4,
+   "biome": "galerias",
+   "name": "Camara Refeita",
+   "kind": "boss",
+   "health_multiplier": 1.255,
+   "damage_multiplier": 1.135,
+   "hazard_multiplier": 1.12,
+   "seed": 61110,
+   "boss_id": "guardiao_de_enxerto",
+   "size": [
+    1400,
+    1100
+   ],
+   "arena_radius": 430
+  },
+  {
+   "floor": 5,
+   "biome": "galerias",
+   "name": "Fratura Recente",
+   "kind": "explore",
+   "health_multiplier": 1.34,
+   "damage_multiplier": 1.18,
+   "hazard_multiplier": 1.16,
+   "seed": 86640,
+   "size": [
+    3306,
+    2480
+   ],
+   "packs": 22,
+   "kill_quota": 20
+  },
+  {
+   "floor": 6,
+   "biome": "galerias",
+   "name": "Fratura Recente",
+   "kind": "explore",
+   "health_multiplier": 1.425,
+   "damage_multiplier": 1.225,
+   "hazard_multiplier": 1.2,
+   "seed": 27434,
+   "size": [
+    3333,
+    2500
+   ],
+   "packs": 23,
+   "kill_quota": 21
+  },
+  {
+   "floor": 7,
+   "biome": "galerias",
+   "name": "Porta das Sete Molduras",
+   "kind": "boss",
+   "health_multiplier": 1.51,
+   "damage_multiplier": 1.27,
+   "hazard_multiplier": 1.24,
+   "seed": 47692,
+   "boss_id": "refeitor",
+   "size": [
+    1400,
+    1100
+   ],
+   "arena_radius": 430
+  },
+  {
+   "floor": 8,
+   "biome": "bosque",
+   "name": "Desfiladeiros do Sopro",
+   "kind": "explore",
+   "health_multiplier": 1.595,
+   "damage_multiplier": 1.315,
+   "hazard_multiplier": 1.28,
+   "seed": 32509,
+   "size": [
+    3386,
+    2540
+   ],
+   "packs": 23,
+   "kill_quota": 22
+  },
+  {
+   "floor": 9,
+   "biome": "bosque",
+   "name": "Desfiladeiros do Sopro",
+   "kind": "explore",
+   "health_multiplier": 1.68,
+   "damage_multiplier": 1.36,
+   "hazard_multiplier": 1.32,
+   "seed": 7179,
+   "size": [
+    3413,
+    2560
+   ],
+   "packs": 24,
+   "kill_quota": 22
+  },
+  {
+   "floor": 10,
+   "biome": "bosque",
+   "name": "Bosque Oco",
+   "kind": "explore",
+   "health_multiplier": 1.765,
+   "damage_multiplier": 1.405,
+   "hazard_multiplier": 1.36,
+   "seed": 63321,
+   "size": [
+    3440,
+    2580
+   ],
+   "packs": 24,
+   "kill_quota": 23
+  },
+  {
+   "floor": 11,
+   "biome": "bosque",
+   "name": "Bosque Oco",
+   "kind": "explore",
+   "health_multiplier": 1.85,
+   "damage_multiplier": 1.45,
+   "hazard_multiplier": 1.4,
+   "seed": 11215,
+   "size": [
+    3466,
+    2600
+   ],
+   "packs": 25,
+   "kill_quota": 23
+  },
+  {
+   "floor": 12,
+   "biome": "bosque",
+   "name": "Bosque Oco",
+   "kind": "explore",
+   "health_multiplier": 1.935,
+   "damage_multiplier": 1.495,
+   "hazard_multiplier": 1.44,
+   "seed": 18629,
+   "size": [
+    3493,
+    2620
+   ],
+   "packs": 25,
+   "kill_quota": 24
+  },
+  {
+   "floor": 13,
+   "biome": "bosque",
+   "name": "Calmaria Morta",
+   "kind": "explore",
+   "health_multiplier": 2.02,
+   "damage_multiplier": 1.54,
+   "hazard_multiplier": 1.48,
+   "seed": 32291,
+   "size": [
+    3520,
+    2640
+   ],
+   "packs": 25,
+   "kill_quota": 24
+  },
+  {
+   "floor": 14,
+   "biome": "bosque",
+   "name": "Calmaria Morta",
+   "kind": "explore",
+   "health_multiplier": 2.105,
+   "damage_multiplier": 1.585,
+   "hazard_multiplier": 1.52,
+   "seed": 65408,
+   "size": [
+    3546,
+    2660
+   ],
+   "packs": 26,
+   "kill_quota": 25
+  },
+  {
+   "floor": 15,
+   "biome": "bosque",
+   "name": "Calmaria Morta",
+   "kind": "explore",
+   "health_multiplier": 2.19,
+   "damage_multiplier": 1.63,
+   "hazard_multiplier": 1.56,
+   "seed": 54198,
+   "size": [
+    3573,
+    2680
+   ],
+   "packs": 26,
+   "kill_quota": 25
+  },
+  {
+   "floor": 16,
+   "biome": "bosque",
+   "name": "Pulmao da Pedra",
+   "kind": "boss",
+   "health_multiplier": 2.275,
+   "damage_multiplier": 1.675,
+   "hazard_multiplier": 1.6,
+   "seed": 37468,
+   "boss_id": "pastor_das_correntes",
+   "size": [
+    1400,
+    1100
+   ],
+   "arena_radius": 430
+  },
+  {
+   "floor": 17,
+   "biome": "manto",
+   "name": "Borda Seca",
+   "kind": "explore",
+   "health_multiplier": 2.36,
+   "damage_multiplier": 1.72,
+   "hazard_multiplier": 1.64,
+   "seed": 61178,
+   "size": [
+    3626,
+    2720
+   ],
+   "packs": 27,
+   "kill_quota": 26
+  },
+  {
+   "floor": 18,
+   "biome": "manto",
+   "name": "Borda Seca",
+   "kind": "explore",
+   "health_multiplier": 2.445,
+   "damage_multiplier": 1.765,
+   "hazard_multiplier": 1.68,
+   "seed": 19627,
+   "size": [
+    3653,
+    2740
+   ],
+   "packs": 27,
+   "kill_quota": 27
+  },
+  {
+   "floor": 19,
+   "biome": "manto",
+   "name": "Copa Baixa",
+   "kind": "explore",
+   "health_multiplier": 2.53,
+   "damage_multiplier": 1.81,
+   "hazard_multiplier": 1.72,
+   "seed": 31837,
+   "size": [
+    3680,
+    2760
+   ],
+   "packs": 28,
+   "kill_quota": 27
+  },
+  {
+   "floor": 20,
+   "biome": "manto",
+   "name": "Copa Baixa",
+   "kind": "explore",
+   "health_multiplier": 2.615,
+   "damage_multiplier": 1.855,
+   "hazard_multiplier": 1.76,
+   "seed": 63274,
+   "size": [
+    3706,
+    2780
+   ],
+   "packs": 28,
+   "kill_quota": 28
+  },
+  {
+   "floor": 21,
+   "biome": "manto",
+   "name": "Copa Baixa",
+   "kind": "explore",
+   "health_multiplier": 2.7,
+   "damage_multiplier": 1.9,
+   "hazard_multiplier": 1.8,
+   "seed": 30060,
+   "size": [
+    3733,
+    2800
+   ],
+   "packs": 29,
+   "kill_quota": 28
+  },
+  {
+   "floor": 22,
+   "biome": "manto",
+   "name": "Encruzilhada das Lanternas",
+   "kind": "explore",
+   "health_multiplier": 2.785,
+   "damage_multiplier": 1.945,
+   "hazard_multiplier": 1.84,
+   "seed": 56310,
+   "size": [
+    3760,
+    2820
+   ],
+   "packs": 29,
+   "kill_quota": 29
+  },
+  {
+   "floor": 23,
+   "biome": "manto",
+   "name": "Encruzilhada das Lanternas",
+   "kind": "explore",
+   "health_multiplier": 2.87,
+   "damage_multiplier": 1.99,
+   "hazard_multiplier": 1.88,
+   "seed": 86208,
+   "size": [
+    3786,
+    2840
+   ],
+   "packs": 29,
+   "kill_quota": 29
+  },
+  {
+   "floor": 24,
+   "biome": "manto",
+   "name": "Encruzilhada das Lanternas",
+   "kind": "explore",
+   "health_multiplier": 2.955,
+   "damage_multiplier": 2.035,
+   "hazard_multiplier": 1.92,
+   "seed": 81059,
+   "size": [
+    3813,
+    2860
+   ],
+   "packs": 30,
+   "kill_quota": 30
+  },
+  {
+   "floor": 25,
+   "biome": "manto",
+   "name": "Branco Esteril",
+   "kind": "explore",
+   "health_multiplier": 3.04,
+   "damage_multiplier": 2.08,
+   "hazard_multiplier": 1.96,
+   "seed": 41429,
+   "size": [
+    3840,
+    2880
+   ],
+   "packs": 30,
+   "kill_quota": 30
+  },
+  {
+   "floor": 26,
+   "biome": "manto",
+   "name": "Branco Esteril",
+   "kind": "explore",
+   "health_multiplier": 3.125,
+   "damage_multiplier": 2.125,
+   "hazard_multiplier": 2.0,
+   "seed": 1855,
+   "size": [
+    3866,
+    2900
+   ],
+   "packs": 31,
+   "kill_quota": 31
+  },
+  {
+   "floor": 27,
+   "biome": "manto",
+   "name": "No-Mae",
+   "kind": "boss",
+   "health_multiplier": 3.21,
+   "damage_multiplier": 2.17,
+   "hazard_multiplier": 2.04,
+   "seed": 77097,
+   "boss_id": "guardia_do_no_mae",
+   "size": [
+    1400,
+    1100
+   ],
+   "arena_radius": 430
+  },
+  {
+   "floor": 28,
+   "biome": "bacias",
+   "name": "Pedras de Vazante",
+   "kind": "explore",
+   "health_multiplier": 3.295,
+   "damage_multiplier": 2.215,
+   "hazard_multiplier": 2.08,
+   "seed": 32632,
+   "size": [
+    3920,
+    2940
+   ],
+   "packs": 32,
+   "kill_quota": 32
+  },
+  {
+   "floor": 29,
+   "biome": "bacias",
+   "name": "Pedras de Vazante",
+   "kind": "explore",
+   "health_multiplier": 3.38,
+   "damage_multiplier": 2.26,
+   "hazard_multiplier": 2.12,
+   "seed": 43870,
+   "size": [
+    3946,
+    2960
+   ],
+   "packs": 32,
+   "kill_quota": 32
+  },
+  {
+   "floor": 30,
+   "biome": "bacias",
+   "name": "Pedras de Vazante",
+   "kind": "explore",
+   "health_multiplier": 3.465,
+   "damage_multiplier": 2.305,
+   "hazard_multiplier": 2.16,
+   "seed": 72667,
+   "size": [
+    3973,
+    2980
+   ],
+   "packs": 32,
+   "kill_quota": 33
+  },
+  {
+   "floor": 31,
+   "biome": "bacias",
+   "name": "Canais de Pressao",
+   "kind": "explore",
+   "health_multiplier": 3.55,
+   "damage_multiplier": 2.35,
+   "hazard_multiplier": 2.2,
+   "seed": 51581,
+   "size": [
+    4000,
+    3000
+   ],
+   "packs": 33,
+   "kill_quota": 33
+  },
+  {
+   "floor": 32,
+   "biome": "bacias",
+   "name": "Canais de Pressao",
+   "kind": "explore",
+   "health_multiplier": 3.635,
+   "damage_multiplier": 2.395,
+   "hazard_multiplier": 2.24,
+   "seed": 70599,
+   "size": [
+    4026,
+    3020
+   ],
+   "packs": 33,
+   "kill_quota": 34
+  },
+  {
+   "floor": 33,
+   "biome": "bacias",
+   "name": "Canais de Pressao",
+   "kind": "explore",
+   "health_multiplier": 3.72,
+   "damage_multiplier": 2.44,
+   "hazard_multiplier": 2.28,
+   "seed": 5569,
+   "size": [
+    4053,
+    3040
+   ],
+   "packs": 34,
+   "kill_quota": 34
+  },
+  {
+   "floor": 34,
+   "biome": "bacias",
+   "name": "Bacia dos Naufragios",
+   "kind": "explore",
+   "health_multiplier": 3.805,
+   "damage_multiplier": 2.485,
+   "hazard_multiplier": 2.32,
+   "seed": 6370,
+   "size": [
+    4080,
+    3060
+   ],
+   "packs": 34,
+   "kill_quota": 35
+  },
+  {
+   "floor": 35,
+   "biome": "bacias",
+   "name": "Bacia dos Naufragios",
+   "kind": "explore",
+   "health_multiplier": 3.89,
+   "damage_multiplier": 2.53,
+   "hazard_multiplier": 2.36,
+   "seed": 29876,
+   "size": [
+    4106,
+    3080
+   ],
+   "packs": 35,
+   "kill_quota": 35
+  },
+  {
+   "floor": 36,
+   "biome": "bacias",
+   "name": "Bacia dos Naufragios",
+   "kind": "explore",
+   "health_multiplier": 3.975,
+   "damage_multiplier": 2.575,
+   "hazard_multiplier": 2.4,
+   "seed": 49214,
+   "size": [
+    4133,
+    3100
+   ],
+   "packs": 35,
+   "kill_quota": 36
+  },
+  {
+   "floor": 37,
+   "biome": "bacias",
+   "name": "Leito Oco",
+   "kind": "explore",
+   "health_multiplier": 4.06,
+   "damage_multiplier": 2.62,
+   "hazard_multiplier": 2.44,
+   "seed": 80536,
+   "size": [
+    4160,
+    3120
+   ],
+   "packs": 36,
+   "kill_quota": 36
+  },
+  {
+   "floor": 38,
+   "biome": "bacias",
+   "name": "Leito Oco",
+   "kind": "explore",
+   "health_multiplier": 4.145,
+   "damage_multiplier": 2.665,
+   "hazard_multiplier": 2.48,
+   "seed": 52825,
+   "size": [
+    4186,
+    3140
+   ],
+   "packs": 36,
+   "kill_quota": 37
+  },
+  {
+   "floor": 39,
+   "biome": "bacias",
+   "name": "Comporta do Quarto Pulso",
+   "kind": "boss",
+   "health_multiplier": 4.23,
+   "damage_multiplier": 2.71,
+   "hazard_multiplier": 2.52,
+   "seed": 84047,
+   "boss_id": "guardiao_da_comporta",
+   "size": [
+    1400,
+    1100
+   ],
+   "arena_radius": 430
+  },
+  {
+   "floor": 40,
+   "biome": "ermo",
+   "name": "Planicies de Vidro Negro",
+   "kind": "explore",
+   "health_multiplier": 4.315,
+   "damage_multiplier": 2.755,
+   "hazard_multiplier": 2.56,
+   "seed": 88812,
+   "size": [
+    4240,
+    3180
+   ],
+   "packs": 37,
+   "kill_quota": 38
+  },
+  {
+   "floor": 41,
+   "biome": "ermo",
+   "name": "Planicies de Vidro Negro",
+   "kind": "explore",
+   "health_multiplier": 4.4,
+   "damage_multiplier": 2.8,
+   "hazard_multiplier": 2.6,
+   "seed": 81834,
+   "size": [
+    4266,
+    3200
+   ],
+   "packs": 37,
+   "kill_quota": 38
+  },
+  {
+   "floor": 42,
+   "biome": "ermo",
+   "name": "Planicies de Vidro Negro",
+   "kind": "explore",
+   "health_multiplier": 4.485,
+   "damage_multiplier": 2.845,
+   "hazard_multiplier": 2.64,
+   "seed": 28336,
+   "size": [
+    4293,
+    3220
+   ],
+   "packs": 38,
+   "kill_quota": 39
+  },
+  {
+   "floor": 43,
+   "biome": "ermo",
+   "name": "Campos de Carga",
+   "kind": "explore",
+   "health_multiplier": 4.57,
+   "damage_multiplier": 2.89,
+   "hazard_multiplier": 2.68,
+   "seed": 73318,
+   "size": [
+    4320,
+    3240
+   ],
+   "packs": 38,
+   "kill_quota": 39
+  },
+  {
+   "floor": 44,
+   "biome": "ermo",
+   "name": "Campos de Carga",
+   "kind": "explore",
+   "health_multiplier": 4.655,
+   "damage_multiplier": 2.935,
+   "hazard_multiplier": 2.72,
+   "seed": 59333,
+   "size": [
+    4346,
+    3260
+   ],
+   "packs": 39,
+   "kill_quota": 40
+  },
+  {
+   "floor": 45,
+   "biome": "ermo",
+   "name": "Campos de Carga",
+   "kind": "explore",
+   "health_multiplier": 4.74,
+   "damage_multiplier": 2.98,
+   "hazard_multiplier": 2.76,
+   "seed": 39123,
+   "size": [
+    4373,
+    3280
+   ],
+   "packs": 39,
+   "kill_quota": 40
+  },
+  {
+   "floor": 46,
+   "biome": "ermo",
+   "name": "Abrigos Quebrados",
+   "kind": "explore",
+   "health_multiplier": 4.825,
+   "damage_multiplier": 3.025,
+   "hazard_multiplier": 2.8,
+   "seed": 36953,
+   "size": [
+    4400,
+    3300
+   ],
+   "packs": 40,
+   "kill_quota": 41
+  },
+  {
+   "floor": 47,
+   "biome": "ermo",
+   "name": "Abrigos Quebrados",
+   "kind": "explore",
+   "health_multiplier": 4.91,
+   "damage_multiplier": 3.07,
+   "hazard_multiplier": 2.84,
+   "seed": 44095,
+   "size": [
+    4426,
+    3320
+   ],
+   "packs": 40,
+   "kill_quota": 41
+  },
+  {
+   "floor": 48,
+   "biome": "ermo",
+   "name": "Abrigos Quebrados",
+   "kind": "explore",
+   "health_multiplier": 4.995,
+   "damage_multiplier": 3.115,
+   "hazard_multiplier": 2.88,
+   "seed": 63854,
+   "size": [
+    4453,
+    3340
+   ],
+   "packs": 41,
+   "kill_quota": 42
+  },
+  {
+   "floor": 49,
+   "biome": "ermo",
+   "name": "Tempestade Espelhada",
+   "kind": "explore",
+   "health_multiplier": 5.08,
+   "damage_multiplier": 3.16,
+   "hazard_multiplier": 2.92,
+   "seed": 20216,
+   "size": [
+    4480,
+    3360
+   ],
+   "packs": 41,
+   "kill_quota": 42
+  },
+  {
+   "floor": 50,
+   "biome": "ermo",
+   "name": "Tempestade Espelhada",
+   "kind": "explore",
+   "health_multiplier": 5.165,
+   "damage_multiplier": 3.205,
+   "hazard_multiplier": 2.96,
+   "seed": 41405,
+   "size": [
+    4506,
+    3380
+   ],
+   "packs": 42,
+   "kill_quota": 43
+  },
+  {
+   "floor": 51,
+   "biome": "ermo",
+   "name": "Coroa dos Condutores",
+   "kind": "boss",
+   "health_multiplier": 5.25,
+   "damage_multiplier": 3.25,
+   "hazard_multiplier": 3.0,
+   "seed": 77675,
+   "boss_id": "coroa_dos_condutores",
+   "size": [
+    1400,
+    1100
+   ],
+   "arena_radius": 430
+  },
+  {
+   "floor": 52,
+   "biome": "arquivo",
+   "name": "Estradas Sobrepostas",
+   "kind": "explore",
+   "health_multiplier": 5.335,
+   "damage_multiplier": 3.295,
+   "hazard_multiplier": 3.04,
+   "seed": 86945,
+   "size": [
+    4560,
+    3420
+   ],
+   "packs": 43,
+   "kill_quota": 44
+  },
+  {
+   "floor": 53,
+   "biome": "arquivo",
+   "name": "Estradas Sobrepostas",
+   "kind": "explore",
+   "health_multiplier": 5.42,
+   "damage_multiplier": 3.34,
+   "hazard_multiplier": 3.08,
+   "seed": 12231,
+   "size": [
+    4586,
+    3440
+   ],
+   "packs": 43,
+   "kill_quota": 44
+  },
+  {
+   "floor": 54,
+   "biome": "arquivo",
+   "name": "Estradas Sobrepostas",
+   "kind": "explore",
+   "health_multiplier": 5.505,
+   "damage_multiplier": 3.385,
+   "hazard_multiplier": 3.12,
+   "seed": 44996,
+   "size": [
+    4613,
+    3460
+   ],
+   "packs": 44,
+   "kill_quota": 45
+  },
+  {
+   "floor": 55,
+   "biome": "arquivo",
+   "name": "Salas de Medida",
+   "kind": "explore",
+   "health_multiplier": 5.59,
+   "damage_multiplier": 3.43,
+   "hazard_multiplier": 3.16,
+   "seed": 29042,
+   "size": [
+    4640,
+    3480
+   ],
+   "packs": 44,
+   "kill_quota": 45
+  },
+  {
+   "floor": 56,
+   "biome": "arquivo",
+   "name": "Salas de Medida",
+   "kind": "explore",
+   "health_multiplier": 5.675,
+   "damage_multiplier": 3.475,
+   "hazard_multiplier": 3.2,
+   "seed": 11480,
+   "size": [
+    4666,
+    3500
+   ],
+   "packs": 45,
+   "kill_quota": 46
+  },
+  {
+   "floor": 57,
+   "biome": "arquivo",
+   "name": "Salas de Medida",
+   "kind": "explore",
+   "health_multiplier": 5.76,
+   "damage_multiplier": 3.52,
+   "hazard_multiplier": 3.24,
+   "seed": 39934,
+   "size": [
+    4693,
+    3520
+   ],
+   "packs": 45,
+   "kill_quota": 46
+  },
+  {
+   "floor": 58,
+   "biome": "arquivo",
+   "name": "Oficinas Desviadas",
+   "kind": "explore",
+   "health_multiplier": 5.845,
+   "damage_multiplier": 3.565,
+   "hazard_multiplier": 3.28,
+   "seed": 34415,
+   "size": [
+    4720,
+    3540
+   ],
+   "packs": 46,
+   "kill_quota": 47
+  },
+  {
+   "floor": 59,
+   "biome": "arquivo",
+   "name": "Oficinas Desviadas",
+   "kind": "explore",
+   "health_multiplier": 5.93,
+   "damage_multiplier": 3.61,
+   "hazard_multiplier": 3.32,
+   "seed": 10457,
+   "size": [
+    4746,
+    3560
+   ],
+   "packs": 46,
+   "kill_quota": 47
+  },
+  {
+   "floor": 60,
+   "biome": "arquivo",
+   "name": "Oficinas Desviadas",
+   "kind": "explore",
+   "health_multiplier": 6.015,
+   "damage_multiplier": 3.655,
+   "hazard_multiplier": 3.36,
+   "seed": 21374,
+   "size": [
+    4773,
+    3580
+   ],
+   "packs": 47,
+   "kill_quota": 48
+  },
+  {
+   "floor": 61,
+   "biome": "arquivo",
+   "name": "Duas Marchas",
+   "kind": "explore",
+   "health_multiplier": 6.1,
+   "damage_multiplier": 3.7,
+   "hazard_multiplier": 3.4,
+   "seed": 11608,
+   "size": [
+    4800,
+    3600
+   ],
+   "packs": 48,
+   "kill_quota": 48
+  },
+  {
+   "floor": 62,
+   "biome": "arquivo",
+   "name": "Duas Marchas",
+   "kind": "explore",
+   "health_multiplier": 6.185,
+   "damage_multiplier": 3.745,
+   "hazard_multiplier": 3.44,
+   "seed": 36002,
+   "size": [
+    4800,
+    3600
+   ],
+   "packs": 48,
+   "kill_quota": 49
+  },
+  {
+   "floor": 63,
+   "biome": "arquivo",
+   "name": "Marco Cego",
+   "kind": "boss",
+   "health_multiplier": 6.27,
+   "damage_multiplier": 3.79,
+   "hazard_multiplier": 3.48,
+   "seed": 42452,
+   "boss_id": "guardiao_do_marco_cego",
+   "size": [
+    1400,
+    1100
+   ],
+   "arena_radius": 430
+  },
+  {
+   "floor": 64,
+   "biome": "planicie",
+   "name": "Horizonte Impossivel",
+   "kind": "explore",
+   "health_multiplier": 6.355,
+   "damage_multiplier": 3.835,
+   "hazard_multiplier": 3.52,
+   "seed": 88007,
+   "size": [
+    4800,
+    3600
+   ],
+   "packs": 48,
+   "kill_quota": 50
+  },
+  {
+   "floor": 65,
+   "biome": "planicie",
+   "name": "Dorso das Estacoes",
+   "kind": "explore",
+   "health_multiplier": 6.44,
+   "damage_multiplier": 3.88,
+   "hazard_multiplier": 3.56,
+   "seed": 5857,
+   "size": [
+    4800,
+    3600
+   ],
+   "packs": 48,
+   "kill_quota": 50
+  },
+  {
+   "floor": 66,
+   "biome": "planicie",
+   "name": "Dorso das Estacoes",
+   "kind": "explore",
+   "health_multiplier": 6.525,
+   "damage_multiplier": 3.925,
+   "hazard_multiplier": 3.6,
+   "seed": 57115,
+   "size": [
+    4800,
+    3600
+   ],
+   "packs": 48,
+   "kill_quota": 51
+  },
+  {
+   "floor": 67,
+   "biome": "planicie",
+   "name": "Dorso das Estacoes",
+   "kind": "explore",
+   "health_multiplier": 6.61,
+   "damage_multiplier": 3.97,
+   "hazard_multiplier": 3.64,
+   "seed": 84877,
+   "size": [
+    4800,
+    3600
+   ],
+   "packs": 48,
+   "kill_quota": 51
+  },
+  {
+   "floor": 68,
+   "biome": "planicie",
+   "name": "Vales de Pulso",
+   "kind": "explore",
+   "health_multiplier": 6.695,
+   "damage_multiplier": 4.015,
+   "hazard_multiplier": 3.68,
+   "seed": 90284,
+   "size": [
+    4800,
+    3600
+   ],
+   "packs": 48,
+   "kill_quota": 52
+  },
+  {
+   "floor": 69,
+   "biome": "planicie",
+   "name": "Vales de Pulso",
+   "kind": "explore",
+   "health_multiplier": 6.78,
+   "damage_multiplier": 4.06,
+   "hazard_multiplier": 3.72,
+   "seed": 90426,
+   "size": [
+    4800,
+    3600
+   ],
+   "packs": 48,
+   "kill_quota": 52
+  },
+  {
+   "floor": 70,
+   "biome": "planicie",
+   "name": "Campo das Mudas",
+   "kind": "explore",
+   "health_multiplier": 6.865,
+   "damage_multiplier": 4.105,
+   "hazard_multiplier": 3.76,
+   "seed": 61679,
+   "size": [
+    4800,
+    3600
+   ],
+   "packs": 48,
+   "kill_quota": 53
+  },
+  {
+   "floor": 71,
+   "biome": "planicie",
+   "name": "Campo das Mudas",
+   "kind": "explore",
+   "health_multiplier": 6.95,
+   "damage_multiplier": 4.15,
+   "hazard_multiplier": 3.8,
+   "seed": 64041,
+   "size": [
+    4800,
+    3600
+   ],
+   "packs": 48,
+   "kill_quota": 53
+  },
+  {
+   "floor": 72,
+   "biome": "planicie",
+   "name": "Palpebra do Horizonte",
+   "kind": "boss",
+   "health_multiplier": 7.035,
+   "damage_multiplier": 4.195,
+   "hazard_multiplier": 3.84,
+   "seed": 19379,
+   "boss_id": "palpebra_do_horizonte",
+   "size": [
+    1400,
+    1100
+   ],
+   "arena_radius": 430
+  },
+  {
+   "floor": 73,
+   "biome": "eixos",
+   "name": "Escadas Laterais",
+   "kind": "explore",
+   "health_multiplier": 7.12,
+   "damage_multiplier": 4.24,
+   "hazard_multiplier": 3.88,
+   "seed": 20901,
+   "size": [
+    4800,
+    3600
+   ],
+   "packs": 48,
+   "kill_quota": 54
+  },
+  {
+   "floor": 74,
+   "biome": "eixos",
+   "name": "Escadas Laterais",
+   "kind": "explore",
+   "health_multiplier": 7.205,
+   "damage_multiplier": 4.285,
+   "hazard_multiplier": 3.92,
+   "seed": 71382,
+   "size": [
+    4800,
+    3600
+   ],
+   "packs": 48,
+   "kill_quota": 55
+  },
+  {
+   "floor": 75,
+   "biome": "eixos",
+   "name": "Pocos de Vetor",
+   "kind": "explore",
+   "health_multiplier": 7.29,
+   "damage_multiplier": 4.33,
+   "hazard_multiplier": 3.96,
+   "seed": 52368,
+   "size": [
+    4800,
+    3600
+   ],
+   "packs": 48,
+   "kill_quota": 55
+  },
+  {
+   "floor": 76,
+   "biome": "eixos",
+   "name": "Pocos de Vetor",
+   "kind": "explore",
+   "health_multiplier": 7.375,
+   "damage_multiplier": 4.375,
+   "hazard_multiplier": 4.0,
+   "seed": 46410,
+   "size": [
+    4800,
+    3600
+   ],
+   "packs": 48,
+   "kill_quota": 56
+  },
+  {
+   "floor": 77,
+   "biome": "eixos",
+   "name": "Pocos de Vetor",
+   "kind": "explore",
+   "health_multiplier": 7.46,
+   "damage_multiplier": 4.42,
+   "hazard_multiplier": 4.04,
+   "seed": 30252,
+   "size": [
+    4800,
+    3600
+   ],
+   "packs": 48,
+   "kill_quota": 56
+  },
+  {
+   "floor": 78,
+   "biome": "eixos",
+   "name": "Camara do Primeiro Lastro",
+   "kind": "explore",
+   "health_multiplier": 7.545,
+   "damage_multiplier": 4.465,
+   "hazard_multiplier": 4.08,
+   "seed": 78541,
+   "size": [
+    4800,
+    3600
+   ],
+   "packs": 48,
+   "kill_quota": 57
+  },
+  {
+   "floor": 79,
+   "biome": "eixos",
+   "name": "Queda das Ancoras",
+   "kind": "explore",
+   "health_multiplier": 7.63,
+   "damage_multiplier": 4.51,
+   "hazard_multiplier": 4.12,
+   "seed": 8667,
+   "size": [
+    4800,
+    3600
+   ],
+   "packs": 48,
+   "kill_quota": 57
+  },
+  {
+   "floor": 80,
+   "biome": "eixos",
+   "name": "Queda das Ancoras",
+   "kind": "explore",
+   "health_multiplier": 7.715,
+   "damage_multiplier": 4.555,
+   "hazard_multiplier": 4.16,
+   "seed": 46624,
+   "size": [
+    4800,
+    3600
+   ],
+   "packs": 48,
+   "kill_quota": 58
+  },
+  {
+   "floor": 81,
+   "biome": "eixos",
+   "name": "Eixo Zero",
+   "kind": "boss",
+   "health_multiplier": 7.8,
+   "damage_multiplier": 4.6,
+   "hazard_multiplier": 4.2,
+   "seed": 83846,
+   "boss_id": "guardiao_do_eixo_zero",
+   "size": [
+    1400,
+    1100
+   ],
+   "arena_radius": 430
+  },
+  {
+   "floor": 82,
+   "biome": "campos",
+   "name": "Bifurcacoes Vivas",
+   "kind": "explore",
+   "health_multiplier": 7.885,
+   "damage_multiplier": 4.645,
+   "hazard_multiplier": 4.24,
+   "seed": 81900,
+   "size": [
+    4800,
+    3600
+   ],
+   "packs": 48,
+   "kill_quota": 59
+  },
+  {
+   "floor": 83,
+   "biome": "campos",
+   "name": "Bifurcacoes Vivas",
+   "kind": "explore",
+   "health_multiplier": 7.97,
+   "damage_multiplier": 4.69,
+   "hazard_multiplier": 4.28,
+   "seed": 90538,
+   "size": [
+    4800,
+    3600
+   ],
+   "packs": 48,
+   "kill_quota": 59
+  },
+  {
+   "floor": 84,
+   "biome": "campos",
+   "name": "Bifurcacoes Vivas",
+   "kind": "explore",
+   "health_multiplier": 8.055,
+   "damage_multiplier": 4.735,
+   "hazard_multiplier": 4.32,
+   "seed": 38985,
+   "size": [
+    4800,
+    3600
+   ],
+   "packs": 48,
+   "kill_quota": 60
+  },
+  {
+   "floor": 85,
+   "biome": "campos",
+   "name": "Bifurcacoes Vivas",
+   "kind": "explore",
+   "health_multiplier": 8.14,
+   "damage_multiplier": 4.78,
+   "hazard_multiplier": 4.36,
+   "seed": 58239,
+   "size": [
+    4800,
+    3600
+   ],
+   "packs": 48,
+   "kill_quota": 60
+  },
+  {
+   "floor": 86,
+   "biome": "campos",
+   "name": "Jardins Possiveis",
+   "kind": "explore",
+   "health_multiplier": 8.225,
+   "damage_multiplier": 4.825,
+   "hazard_multiplier": 4.4,
+   "seed": 1045,
+   "size": [
+    4800,
+    3600
+   ],
+   "packs": 48,
+   "kill_quota": 61
+  },
+  {
+   "floor": 87,
+   "biome": "campos",
+   "name": "Jardins Possiveis",
+   "kind": "explore",
+   "health_multiplier": 8.31,
+   "damage_multiplier": 4.87,
+   "hazard_multiplier": 4.44,
+   "seed": 50867,
+   "size": [
+    4800,
+    3600
+   ],
+   "packs": 48,
+   "kill_quota": 61
+  },
+  {
+   "floor": 88,
+   "biome": "campos",
+   "name": "Jardins Possiveis",
+   "kind": "explore",
+   "health_multiplier": 8.395,
+   "damage_multiplier": 4.915,
+   "hazard_multiplier": 4.48,
+   "seed": 42242,
+   "size": [
+    4800,
+    3600
+   ],
+   "packs": 48,
+   "kill_quota": 62
+  },
+  {
+   "floor": 89,
+   "biome": "campos",
+   "name": "Ruinas do Nunca",
+   "kind": "explore",
+   "health_multiplier": 8.48,
+   "damage_multiplier": 4.96,
+   "hazard_multiplier": 4.52,
+   "seed": 69492,
+   "size": [
+    4800,
+    3600
+   ],
+   "packs": 48,
+   "kill_quota": 62
+  },
+  {
+   "floor": 90,
+   "biome": "campos",
+   "name": "Ruinas do Nunca",
+   "kind": "explore",
+   "health_multiplier": 8.565,
+   "damage_multiplier": 5.005,
+   "hazard_multiplier": 4.56,
+   "seed": 41265,
+   "size": [
+    4800,
+    3600
+   ],
+   "packs": 48,
+   "kill_quota": 63
+  },
+  {
+   "floor": 91,
+   "biome": "campos",
+   "name": "Ruinas do Nunca",
+   "kind": "explore",
+   "health_multiplier": 8.65,
+   "damage_multiplier": 5.05,
+   "hazard_multiplier": 4.6,
+   "seed": 23879,
+   "size": [
+    4800,
+    3600
+   ],
+   "packs": 48,
+   "kill_quota": 63
+  },
+  {
+   "floor": 92,
+   "biome": "campos",
+   "name": "Horizonte Reduzido",
+   "kind": "explore",
+   "health_multiplier": 8.735,
+   "damage_multiplier": 5.095,
+   "hazard_multiplier": 4.64,
+   "seed": 70621,
+   "size": [
+    4800,
+    3600
+   ],
+   "packs": 48,
+   "kill_quota": 64
+  },
+  {
+   "floor": 93,
+   "biome": "campos",
+   "name": "Ultima Escolha",
+   "kind": "boss",
+   "health_multiplier": 8.82,
+   "damage_multiplier": 5.14,
+   "hazard_multiplier": 4.68,
+   "seed": 41707,
+   "boss_id": "guardiao_da_ultima_escolha",
+   "size": [
+    1400,
+    1100
+   ],
+   "arena_radius": 430
+  },
+  {
+   "floor": 94,
+   "biome": "obra",
+   "name": "Vestibulo das Consequencias",
+   "kind": "explore",
+   "health_multiplier": 8.905,
+   "damage_multiplier": 5.185,
+   "hazard_multiplier": 4.72,
+   "seed": 58840,
+   "size": [
+    4800,
+    3600
+   ],
+   "packs": 48,
+   "kill_quota": 65
+  },
+  {
+   "floor": 95,
+   "biome": "obra",
+   "name": "Oficinas Sem Autor",
+   "kind": "explore",
+   "health_multiplier": 8.99,
+   "damage_multiplier": 5.23,
+   "hazard_multiplier": 4.76,
+   "seed": 90206,
+   "size": [
+    4800,
+    3600
+   ],
+   "packs": 48,
+   "kill_quota": 65
+  },
+  {
+   "floor": 96,
+   "biome": "obra",
+   "name": "Oficinas Sem Autor",
+   "kind": "explore",
+   "health_multiplier": 9.075,
+   "damage_multiplier": 5.275,
+   "hazard_multiplier": 4.8,
+   "seed": 77828,
+   "size": [
+    4800,
+    3600
+   ],
+   "packs": 48,
+   "kill_quota": 66
+  },
+  {
+   "floor": 97,
+   "biome": "obra",
+   "name": "Galeria dos Seis Fundamentos",
+   "kind": "explore",
+   "health_multiplier": 9.16,
+   "damage_multiplier": 5.32,
+   "hazard_multiplier": 4.84,
+   "seed": 66818,
+   "size": [
+    4800,
+    3600
+   ],
+   "packs": 48,
+   "kill_quota": 66
+  },
+  {
+   "floor": 98,
+   "biome": "obra",
+   "name": "Camara das Cem Marcas",
+   "kind": "explore",
+   "health_multiplier": 9.245,
+   "damage_multiplier": 5.365,
+   "hazard_multiplier": 4.88,
+   "seed": 61779,
+   "size": [
+    4800,
+    3600
+   ],
+   "packs": 48,
+   "kill_quota": 67
+  },
+  {
+   "floor": 99,
+   "biome": "obra",
+   "name": "Ultimo Limiar",
+   "kind": "explore",
+   "health_multiplier": 9.33,
+   "damage_multiplier": 5.41,
+   "hazard_multiplier": 4.92,
+   "seed": 26565,
+   "size": [
+    4800,
+    3600
+   ],
+   "packs": 48,
+   "kill_quota": 67
+  },
+  {
+   "floor": 100,
+   "biome": "obra",
+   "name": "Sala Sem Numero",
+   "kind": "boss",
+   "health_multiplier": 9.415,
+   "damage_multiplier": 5.455,
+   "hazard_multiplier": 4.96,
+   "seed": 28114,
+   "boss_id": "regente_centesimo",
+   "size": [
+    1400,
+    1100
+   ],
+   "arena_radius": 430
+  }
+ ],
+ "bosses": [
+  {
+   "floor": 4,
+   "biome": "galerias",
+   "id": "guardiao_de_enxerto",
+   "name": "Guardiao de Enxerto",
+   "health": 900,
+   "damage": 24,
+   "speed": 38,
+   "abilities": [
+    {
+     "type": "slam",
+     "targets": 1,
+     "radius": 80,
+     "delay": 1.3,
+     "damage": 26,
+     "cooldown": 4.5
+    },
+    {
+     "type": "nova",
+     "radius": 150,
+     "delay": 1.4,
+     "damage": 30,
+     "cooldown": 7.0
+    },
+    {
+     "type": "summon",
+     "count": 2,
+     "cooldown": 14.0,
+     "phase": 2
+    }
+   ],
+   "phases": [
+    0.6
+   ],
+   "enrage": 150,
+   "loot_table_id": "saque_guardiao_de_enxerto"
+  },
+  {
+   "floor": 7,
+   "biome": "galerias",
+   "id": "refeitor",
+   "name": "O Refeitor",
+   "health": 1400,
+   "damage": 28,
+   "speed": 40,
+   "abilities": [
+    {
+     "type": "cross",
+     "length": 560,
+     "width": 70,
+     "delay": 1.4,
+     "damage": 34,
+     "cooldown": 6.0
+    },
+    {
+     "type": "slam",
+     "targets": 2,
+     "radius": 85,
+     "delay": 1.2,
+     "damage": 28,
+     "cooldown": 4.5
+    },
+    {
+     "type": "donut",
+     "radius": 300,
+     "inner": 110,
+     "delay": 1.6,
+     "damage": 36,
+     "cooldown": 9.0,
+     "phase": 2
+    },
+    {
+     "type": "summon",
+     "count": 3,
+     "cooldown": 16.0,
+     "phase": 2
+    }
+   ],
+   "phases": [
+    0.65,
+    0.3
+   ],
+   "enrage": 180,
+   "loot_table_id": "saque_refeitor"
+  },
+  {
+   "floor": 16,
+   "biome": "bosque",
+   "id": "pastor_das_correntes",
+   "name": "Pastor das Correntes",
+   "health": 2200,
+   "damage": 32,
+   "speed": 34,
+   "abilities": [
+    {
+     "type": "gust",
+     "length": 640,
+     "width": 110,
+     "delay": 1.3,
+     "damage": 26,
+     "push": 180,
+     "cooldown": 5.0
+    },
+    {
+     "type": "barrage",
+     "count": 12,
+     "speed": 260,
+     "damage": 18,
+     "cooldown": 7.0
+    },
+    {
+     "type": "pull",
+     "radius": 360,
+     "delay": 1.8,
+     "damage": 40,
+     "strength": 200,
+     "cooldown": 11.0,
+     "phase": 2
+    },
+    {
+     "type": "meteor",
+     "count": 5,
+     "radius": 80,
+     "spread": 360,
+     "delay": 1.4,
+     "damage": 30,
+     "cooldown": 9.0,
+     "phase": 2
+    }
+   ],
+   "phases": [
+    0.6,
+    0.3
+   ],
+   "enrage": 180,
+   "loot_table_id": "saque_pastor_das_correntes"
+  },
+  {
+   "floor": 27,
+   "biome": "manto",
+   "id": "guardia_do_no_mae",
+   "name": "Guardia do No-Mae",
+   "health": 3200,
+   "damage": 36,
+   "speed": 26,
+   "abilities": [
+    {
+     "type": "zone",
+     "targets": 3,
+     "radius": 95,
+     "delay": 1.1,
+     "damage": 10,
+     "duration": 6.0,
+     "cooldown": 6.0
+    },
+    {
+     "type": "nova",
+     "radius": 170,
+     "delay": 1.4,
+     "damage": 40,
+     "cooldown": 7.5
+    },
+    {
+     "type": "summon",
+     "count": 4,
+     "cooldown": 13.0
+    },
+    {
+     "type": "donut",
+     "radius": 340,
+     "inner": 120,
+     "delay": 1.6,
+     "damage": 44,
+     "cooldown": 10.0,
+     "phase": 2
+    }
+   ],
+   "phases": [
+    0.6,
+    0.3
+   ],
+   "enrage": 200,
+   "loot_table_id": "saque_guardia_do_no_mae"
+  },
+  {
+   "floor": 39,
+   "biome": "bacias",
+   "id": "guardiao_da_comporta",
+   "name": "Guardiao da Comporta",
+   "health": 4600,
+   "damage": 42,
+   "speed": 32,
+   "abilities": [
+    {
+     "type": "line",
+     "count": 3,
+     "spread": 0.35,
+     "length": 620,
+     "width": 90,
+     "delay": 1.3,
+     "damage": 42,
+     "cooldown": 6.0
+    },
+    {
+     "type": "zone",
+     "targets": 4,
+     "radius": 110,
+     "delay": 1.2,
+     "damage": 12,
+     "duration": 6.0,
+     "slow": 0.4,
+     "cooldown": 7.0
+    },
+    {
+     "type": "charge",
+     "width": 110,
+     "delay": 1.2,
+     "damage": 50,
+     "cooldown": 9.0
+    },
+    {
+     "type": "barrage",
+     "count": 16,
+     "speed": 240,
+     "damage": 22,
+     "cooldown": 8.0,
+     "phase": 2
+    }
+   ],
+   "phases": [
+    0.6,
+    0.3
+   ],
+   "enrage": 210,
+   "loot_table_id": "saque_guardiao_da_comporta"
+  },
+  {
+   "floor": 51,
+   "biome": "ermo",
+   "id": "coroa_dos_condutores",
+   "name": "Coroa dos Condutores",
+   "health": 6200,
+   "damage": 48,
+   "speed": 30,
+   "abilities": [
+    {
+     "type": "meteor",
+     "count": 7,
+     "radius": 85,
+     "spread": 380,
+     "delay": 1.1,
+     "damage": 46,
+     "cooldown": 5.5
+    },
+    {
+     "type": "cross",
+     "length": 640,
+     "width": 80,
+     "delay": 1.3,
+     "damage": 50,
+     "cooldown": 7.0
+    },
+    {
+     "type": "barrage",
+     "count": 20,
+     "speed": 280,
+     "damage": 24,
+     "cooldown": 8.0
+    },
+    {
+     "type": "nova",
+     "radius": 200,
+     "delay": 1.3,
+     "damage": 56,
+     "cooldown": 9.0,
+     "phase": 2
+    }
+   ],
+   "phases": [
+    0.65,
+    0.35
+   ],
+   "enrage": 220,
+   "loot_table_id": "saque_coroa_dos_condutores"
+  },
+  {
+   "floor": 63,
+   "biome": "arquivo",
+   "id": "guardiao_do_marco_cego",
+   "name": "Guardiao do Marco Cego",
+   "health": 8000,
+   "damage": 54,
+   "speed": 34,
+   "abilities": [
+    {
+     "type": "line",
+     "count": 5,
+     "spread": 0.3,
+     "length": 680,
+     "width": 80,
+     "delay": 1.3,
+     "damage": 52,
+     "cooldown": 6.0
+    },
+    {
+     "type": "slam",
+     "targets": 4,
+     "radius": 95,
+     "delay": 1.1,
+     "damage": 48,
+     "cooldown": 5.0
+    },
+    {
+     "type": "charge",
+     "width": 120,
+     "delay": 1.1,
+     "damage": 60,
+     "cooldown": 8.0
+    },
+    {
+     "type": "donut",
+     "radius": 360,
+     "inner": 120,
+     "delay": 1.5,
+     "damage": 60,
+     "cooldown": 10.0,
+     "phase": 2
+    }
+   ],
+   "phases": [
+    0.6,
+    0.3
+   ],
+   "enrage": 230,
+   "loot_table_id": "saque_guardiao_do_marco_cego"
+  },
+  {
+   "floor": 72,
+   "biome": "planicie",
+   "id": "palpebra_do_horizonte",
+   "name": "Palpebra do Horizonte",
+   "health": 10500,
+   "damage": 60,
+   "speed": 0,
+   "abilities": [
+    {
+     "type": "donut",
+     "radius": 380,
+     "inner": 130,
+     "delay": 1.6,
+     "damage": 64,
+     "cooldown": 8.0
+    },
+    {
+     "type": "line",
+     "count": 4,
+     "spread": 0.5,
+     "length": 700,
+     "width": 100,
+     "delay": 1.4,
+     "damage": 60,
+     "cooldown": 6.5
+    },
+    {
+     "type": "summon",
+     "count": 5,
+     "cooldown": 12.0
+    },
+    {
+     "type": "meteor",
+     "count": 8,
+     "radius": 90,
+     "spread": 400,
+     "delay": 1.3,
+     "damage": 56,
+     "cooldown": 7.0,
+     "phase": 2
+    }
+   ],
+   "phases": [
+    0.6,
+    0.3
+   ],
+   "enrage": 240,
+   "loot_table_id": "saque_palpebra_do_horizonte"
+  },
+  {
+   "floor": 81,
+   "biome": "eixos",
+   "id": "guardiao_do_eixo_zero",
+   "name": "Guardiao do Eixo Zero",
+   "health": 13000,
+   "damage": 66,
+   "speed": 36,
+   "abilities": [
+    {
+     "type": "pull",
+     "radius": 400,
+     "delay": 1.6,
+     "damage": 70,
+     "strength": 240,
+     "cooldown": 9.0
+    },
+    {
+     "type": "cross",
+     "length": 700,
+     "width": 90,
+     "delay": 1.2,
+     "damage": 66,
+     "cooldown": 6.0
+    },
+    {
+     "type": "barrage",
+     "count": 24,
+     "speed": 300,
+     "damage": 30,
+     "cooldown": 7.0
+    },
+    {
+     "type": "charge",
+     "width": 120,
+     "delay": 1.0,
+     "damage": 72,
+     "cooldown": 8.0,
+     "phase": 2
+    }
+   ],
+   "phases": [
+    0.6,
+    0.3
+   ],
+   "enrage": 240,
+   "loot_table_id": "saque_guardiao_do_eixo_zero"
+  },
+  {
+   "floor": 93,
+   "biome": "campos",
+   "id": "guardiao_da_ultima_escolha",
+   "name": "Guardiao da Ultima Escolha",
+   "health": 16000,
+   "damage": 72,
+   "speed": 40,
+   "abilities": [
+    {
+     "type": "meteor",
+     "count": 9,
+     "radius": 90,
+     "spread": 420,
+     "delay": 1.2,
+     "damage": 70,
+     "cooldown": 6.0
+    },
+    {
+     "type": "donut",
+     "radius": 380,
+     "inner": 120,
+     "delay": 1.4,
+     "damage": 74,
+     "cooldown": 8.0
+    },
+    {
+     "type": "line",
+     "count": 6,
+     "spread": 0.45,
+     "length": 700,
+     "width": 80,
+     "delay": 1.3,
+     "damage": 70,
+     "cooldown": 6.5
+    },
+    {
+     "type": "summon",
+     "count": 5,
+     "cooldown": 12.0,
+     "phase": 2
+    }
+   ],
+   "phases": [
+    0.65,
+    0.35
+   ],
+   "enrage": 250,
+   "loot_table_id": "saque_guardiao_da_ultima_escolha"
+  },
+  {
+   "floor": 100,
+   "biome": "obra",
+   "id": "regente_centesimo",
+   "name": "Regente Centesimo",
+   "health": 22000,
+   "damage": 80,
+   "speed": 38,
+   "abilities": [
+    {
+     "type": "cross",
+     "length": 720,
+     "width": 90,
+     "delay": 1.2,
+     "damage": 80,
+     "cooldown": 5.5
+    },
+    {
+     "type": "meteor",
+     "count": 10,
+     "radius": 95,
+     "spread": 440,
+     "delay": 1.2,
+     "damage": 78,
+     "cooldown": 6.0
+    },
+    {
+     "type": "donut",
+     "radius": 400,
+     "inner": 130,
+     "delay": 1.4,
+     "damage": 84,
+     "cooldown": 8.0
+    },
+    {
+     "type": "barrage",
+     "count": 28,
+     "speed": 300,
+     "damage": 34,
+     "cooldown": 7.0
+    },
+    {
+     "type": "pull",
+     "radius": 420,
+     "delay": 1.5,
+     "damage": 86,
+     "strength": 260,
+     "cooldown": 10.0,
+     "phase": 2
+    },
+    {
+     "type": "summon",
+     "count": 6,
+     "cooldown": 12.0,
+     "phase": 2
+    }
+   ],
+   "phases": [
+    0.7,
+    0.4,
+    0.15
+   ],
+   "enrage": 260,
+   "loot_table_id": "saque_regente_centesimo"
+  }
+ ],
+ "party_abilities": {
+  "2": [
+   {
+    "type": "slam",
+    "targets": 2,
+    "radius": 80,
+    "delay": 1.2,
+    "damage_ratio": 0.8,
+    "cooldown": 8.0
+   }
+  ],
+  "3": [
+   {
+    "type": "line",
+    "count": 2,
+    "spread": 0.8,
+    "length": 560,
+    "width": 70,
+    "delay": 1.3,
+    "damage_ratio": 0.9,
+    "cooldown": 9.0
+   }
+  ],
+  "4": [
+   {
+    "type": "meteor",
+    "count": 4,
+    "radius": 80,
+    "spread": 360,
+    "delay": 1.3,
+    "damage_ratio": 0.9,
+    "cooldown": 8.0
+   }
+  ]
+ },
+ "enemies": [
+  {
+   "id": "semeador_de_juncos",
+   "name": "Semeador de Juncos",
+   "race_id": "ventania",
+   "rank_id": "nascente",
+   "encounter_class": "common",
+   "mechanic": "swarm",
+   "kind": "melee",
+   "health": 34,
+   "damage": 8,
+   "speed": 66,
+   "attack_interval": 0.7,
+   "loot_table_id": "saque_semeador_de_juncos",
+   "allow_affixes": true,
+   "biome": "bosque",
+   "lore": "Semeador de Juncos do bioma Bosque dos Ventos Presos."
+  },
+  {
+   "id": "planador_de_rajada",
+   "name": "Planador de Rajada",
+   "race_id": "ventania",
+   "rank_id": "maduro",
+   "encounter_class": "common",
+   "mechanic": "telegraphed_shot",
+   "kind": "ranged",
+   "health": 48,
+   "damage": 11,
+   "speed": 34,
+   "attack_interval": 1.5,
+   "loot_table_id": "saque_planador_de_rajada",
+   "allow_affixes": true,
+   "biome": "bosque",
+   "lore": "Planador de Rajada do bioma Bosque dos Ventos Presos."
+  },
+  {
+   "id": "casca_de_pressao",
+   "name": "Casca de Pressao",
+   "race_id": "ventania",
+   "rank_id": "maduro",
+   "encounter_class": "common",
+   "mechanic": "erode_cover",
+   "kind": "melee",
+   "health": 64,
+   "damage": 12,
+   "speed": 40,
+   "attack_interval": 0.8,
+   "loot_table_id": "saque_casca_de_pressao",
+   "allow_affixes": true,
+   "biome": "bosque",
+   "lore": "Casca de Pressao do bioma Bosque dos Ventos Presos."
+  },
+  {
+   "id": "predador_da_calmaria",
+   "name": "Predador da Calmaria",
+   "race_id": "ventania",
+   "rank_id": "evoluido",
+   "encounter_class": "elite",
+   "mechanic": "wall_ambush",
+   "kind": "ambusher",
+   "health": 88,
+   "damage": 18,
+   "speed": 50,
+   "attack_interval": 1.1,
+   "loot_table_id": "saque_predador_da_calmaria",
+   "allow_affixes": true,
+   "biome": "bosque",
+   "lore": "Predador da Calmaria do bioma Bosque dos Ventos Presos."
+  },
+  {
+   "id": "esporinho",
+   "name": "Esporinho",
+   "race_id": "micelar",
+   "rank_id": "nascente",
+   "encounter_class": "common",
+   "mechanic": "swarm",
+   "kind": "melee",
+   "health": 36,
+   "damage": 8,
+   "speed": 60,
+   "attack_interval": 0.7,
+   "loot_table_id": "saque_esporinho",
+   "allow_affixes": true,
+   "biome": "manto",
+   "lore": "Esporinho do bioma Manto dos Esporos."
+  },
+  {
+   "id": "tecelao_micelial",
+   "name": "Tecelao Micelial",
+   "race_id": "micelar",
+   "rank_id": "maduro",
+   "encounter_class": "common",
+   "mechanic": "mark_target",
+   "kind": "ranged",
+   "health": 50,
+   "damage": 12,
+   "speed": 30,
+   "attack_interval": 1.4,
+   "loot_table_id": "saque_tecelao_micelial",
+   "allow_affixes": true,
+   "biome": "manto",
+   "lore": "Tecelao Micelial do bioma Manto dos Esporos."
+  },
+  {
+   "id": "sentinela_de_chapeu",
+   "name": "Sentinela de Chapeu",
+   "race_id": "micelar",
+   "rank_id": "maduro",
+   "encounter_class": "common",
+   "mechanic": "enemy_barrier",
+   "kind": "support",
+   "health": 70,
+   "damage": 8,
+   "speed": 22,
+   "attack_interval": 1.8,
+   "loot_table_id": "saque_sentinela_de_chapeu",
+   "allow_affixes": true,
+   "biome": "manto",
+   "lore": "Sentinela de Chapeu do bioma Manto dos Esporos."
+  },
+  {
+   "id": "devorador_branco",
+   "name": "Devorador Branco",
+   "race_id": "micelar",
+   "rank_id": "evoluido",
+   "encounter_class": "elite",
+   "mechanic": "incorporate_objects",
+   "kind": "melee",
+   "health": 96,
+   "damage": 18,
+   "speed": 40,
+   "attack_interval": 1.2,
+   "loot_table_id": "saque_devorador_branco",
+   "allow_affixes": true,
+   "biome": "manto",
+   "lore": "Devorador Branco do bioma Manto dos Esporos."
+  },
+  {
+   "id": "filtrador",
+   "name": "Filtrador",
+   "race_id": "lodoso",
+   "rank_id": "nascente",
+   "encounter_class": "common",
+   "mechanic": "swarm",
+   "kind": "melee",
+   "health": 38,
+   "damage": 8,
+   "speed": 58,
+   "attack_interval": 0.75,
+   "loot_table_id": "saque_filtrador",
+   "allow_affixes": true,
+   "biome": "bacias",
+   "lore": "Filtrador do bioma Bacias do Quarto Pulso."
+  },
+  {
+   "id": "anfibio_de_canal",
+   "name": "Anfibio de Canal",
+   "race_id": "lodoso",
+   "rank_id": "maduro",
+   "encounter_class": "common",
+   "mechanic": "telegraphed_shot",
+   "kind": "ranged",
+   "health": 52,
+   "damage": 12,
+   "speed": 32,
+   "attack_interval": 1.5,
+   "loot_table_id": "saque_anfibio_de_canal",
+   "allow_affixes": true,
+   "biome": "bacias",
+   "lore": "Anfibio de Canal do bioma Bacias do Quarto Pulso."
+  },
+  {
+   "id": "predador_de_lama",
+   "name": "Predador de Lama",
+   "race_id": "lodoso",
+   "rank_id": "maduro",
+   "encounter_class": "common",
+   "mechanic": "wall_ambush",
+   "kind": "ambusher",
+   "health": 66,
+   "damage": 13,
+   "speed": 44,
+   "attack_interval": 0.85,
+   "loot_table_id": "saque_predador_de_lama",
+   "allow_affixes": true,
+   "biome": "bacias",
+   "lore": "Predador de Lama do bioma Bacias do Quarto Pulso."
+  },
+  {
+   "id": "colosso_de_conchas",
+   "name": "Colosso de Conchas",
+   "race_id": "lodoso",
+   "rank_id": "evoluido",
+   "encounter_class": "elite",
+   "mechanic": "enemy_barrier",
+   "kind": "support",
+   "health": 110,
+   "damage": 14,
+   "speed": 24,
+   "attack_interval": 1.6,
+   "loot_table_id": "saque_colosso_de_conchas",
+   "allow_affixes": true,
+   "biome": "bacias",
+   "lore": "Colosso de Conchas do bioma Bacias do Quarto Pulso."
+  },
+  {
+   "id": "escavador_vitreo",
+   "name": "Escavador Vitreo",
+   "race_id": "carregado",
+   "rank_id": "nascente",
+   "encounter_class": "common",
+   "mechanic": "swarm",
+   "kind": "melee",
+   "health": 40,
+   "damage": 9,
+   "speed": 62,
+   "attack_interval": 0.7,
+   "loot_table_id": "saque_escavador_vitreo",
+   "allow_affixes": true,
+   "biome": "ermo",
+   "lore": "Escavador Vitreo do bioma Ermo do Trovao Preso."
+  },
+  {
+   "id": "carapaca_carregada",
+   "name": "Carapaca Carregada",
+   "race_id": "carregado",
+   "rank_id": "maduro",
+   "encounter_class": "common",
+   "mechanic": "erode_cover",
+   "kind": "melee",
+   "health": 70,
+   "damage": 14,
+   "speed": 40,
+   "attack_interval": 0.85,
+   "loot_table_id": "saque_carapaca_carregada",
+   "allow_affixes": true,
+   "biome": "ermo",
+   "lore": "Carapaca Carregada do bioma Ermo do Trovao Preso."
+  },
+  {
+   "id": "cacador_de_metal",
+   "name": "Cacador de Metal",
+   "race_id": "carregado",
+   "rank_id": "maduro",
+   "encounter_class": "common",
+   "mechanic": "mark_target",
+   "kind": "ranged",
+   "health": 54,
+   "damage": 13,
+   "speed": 34,
+   "attack_interval": 1.3,
+   "loot_table_id": "saque_cacador_de_metal",
+   "allow_affixes": true,
+   "biome": "ermo",
+   "lore": "Cacador de Metal do bioma Ermo do Trovao Preso."
+  },
+  {
+   "id": "ninho_de_descarga",
+   "name": "Ninho de Descarga",
+   "race_id": "carregado",
+   "rank_id": "evoluido",
+   "encounter_class": "elite",
+   "mechanic": "incorporate_objects",
+   "kind": "support",
+   "health": 115,
+   "damage": 20,
+   "speed": 20,
+   "attack_interval": 1.3,
+   "loot_table_id": "saque_ninho_de_descarga",
+   "allow_affixes": true,
+   "biome": "ermo",
+   "lore": "Ninho de Descarga do bioma Ermo do Trovao Preso."
+  },
+  {
+   "id": "tracador",
+   "name": "Tracador",
+   "race_id": "cartografo",
+   "rank_id": "nascente",
+   "encounter_class": "common",
+   "mechanic": "swarm",
+   "kind": "melee",
+   "health": 40,
+   "damage": 10,
+   "speed": 60,
+   "attack_interval": 0.7,
+   "loot_table_id": "saque_tracador",
+   "allow_affixes": true,
+   "biome": "arquivo",
+   "lore": "Tracador do bioma Arquivo das Rotas Mortas."
+  },
+  {
+   "id": "devorador_de_tinta",
+   "name": "Devorador de Tinta",
+   "race_id": "cartografo",
+   "rank_id": "maduro",
+   "encounter_class": "common",
+   "mechanic": "erode_cover",
+   "kind": "melee",
+   "health": 72,
+   "damage": 14,
+   "speed": 42,
+   "attack_interval": 0.85,
+   "loot_table_id": "saque_devorador_de_tinta",
+   "allow_affixes": true,
+   "biome": "arquivo",
+   "lore": "Devorador de Tinta do bioma Arquivo das Rotas Mortas."
+  },
+  {
+   "id": "sinaleiro_falso",
+   "name": "Sinaleiro Falso",
+   "race_id": "cartografo",
+   "rank_id": "maduro",
+   "encounter_class": "common",
+   "mechanic": "telegraphed_shot",
+   "kind": "ranged",
+   "health": 56,
+   "damage": 14,
+   "speed": 30,
+   "attack_interval": 1.4,
+   "loot_table_id": "saque_sinaleiro_falso",
+   "allow_affixes": true,
+   "biome": "arquivo",
+   "lore": "Sinaleiro Falso do bioma Arquivo das Rotas Mortas."
+  },
+  {
+   "id": "cartografo_oco",
+   "name": "Cartografo Oco",
+   "race_id": "cartografo",
+   "rank_id": "evoluido",
+   "encounter_class": "elite",
+   "mechanic": "mark_target",
+   "kind": "ranged",
+   "health": 104,
+   "damage": 20,
+   "speed": 32,
+   "attack_interval": 1.2,
+   "loot_table_id": "saque_cartografo_oco",
+   "allow_affixes": true,
+   "biome": "arquivo",
+   "lore": "Cartografo Oco do bioma Arquivo das Rotas Mortas."
+  },
+  {
+   "id": "limpador",
+   "name": "Limpador",
+   "race_id": "parasitario",
+   "rank_id": "nascente",
+   "encounter_class": "common",
+   "mechanic": "swarm",
+   "kind": "melee",
+   "health": 44,
+   "damage": 10,
+   "speed": 58,
+   "attack_interval": 0.7,
+   "loot_table_id": "saque_limpador",
+   "allow_affixes": true,
+   "biome": "planicie",
+   "lore": "Limpador do bioma Planicie dos Adormecidos."
+  },
+  {
+   "id": "predador_de_dobra",
+   "name": "Predador de Dobra",
+   "race_id": "parasitario",
+   "rank_id": "maduro",
+   "encounter_class": "common",
+   "mechanic": "wall_ambush",
+   "kind": "ambusher",
+   "health": 78,
+   "damage": 16,
+   "speed": 46,
+   "attack_interval": 0.85,
+   "loot_table_id": "saque_predador_de_dobra",
+   "allow_affixes": true,
+   "biome": "planicie",
+   "lore": "Predador de Dobra do bioma Planicie dos Adormecidos."
+  },
+  {
+   "id": "migrante",
+   "name": "Migrante",
+   "race_id": "parasitario",
+   "rank_id": "maduro",
+   "encounter_class": "common",
+   "mechanic": "erode_cover",
+   "kind": "melee",
+   "health": 84,
+   "damage": 15,
+   "speed": 38,
+   "attack_interval": 0.9,
+   "loot_table_id": "saque_migrante",
+   "allow_affixes": true,
+   "biome": "planicie",
+   "lore": "Migrante do bioma Planicie dos Adormecidos."
+  },
+  {
+   "id": "colosso_menor",
+   "name": "Colosso Menor",
+   "race_id": "parasitario",
+   "rank_id": "evoluido",
+   "encounter_class": "elite",
+   "mechanic": "incorporate_objects",
+   "kind": "melee",
+   "health": 140,
+   "damage": 22,
+   "speed": 24,
+   "attack_interval": 1.3,
+   "loot_table_id": "saque_colosso_menor",
+   "allow_affixes": true,
+   "biome": "planicie",
+   "lore": "Colosso Menor do bioma Planicie dos Adormecidos."
+  },
+  {
+   "id": "aderente_menor",
+   "name": "Aderente Menor",
+   "race_id": "aderente",
+   "rank_id": "nascente",
+   "encounter_class": "common",
+   "mechanic": "swarm",
+   "kind": "melee",
+   "health": 46,
+   "damage": 11,
+   "speed": 64,
+   "attack_interval": 0.7,
+   "loot_table_id": "saque_aderente_menor",
+   "allow_affixes": true,
+   "biome": "eixos",
+   "lore": "Aderente Menor do bioma Eixos Partidos."
+  },
+  {
+   "id": "planador_de_eixo",
+   "name": "Planador de Eixo",
+   "race_id": "aderente",
+   "rank_id": "maduro",
+   "encounter_class": "common",
+   "mechanic": "telegraphed_shot",
+   "kind": "ranged",
+   "health": 60,
+   "damage": 15,
+   "speed": 36,
+   "attack_interval": 1.3,
+   "loot_table_id": "saque_planador_de_eixo",
+   "allow_affixes": true,
+   "biome": "eixos",
+   "lore": "Planador de Eixo do bioma Eixos Partidos."
+  },
+  {
+   "id": "ilha_pesada",
+   "name": "Ilha Pesada",
+   "race_id": "aderente",
+   "rank_id": "maduro",
+   "encounter_class": "common",
+   "mechanic": "enemy_barrier",
+   "kind": "support",
+   "health": 96,
+   "damage": 12,
+   "speed": 18,
+   "attack_interval": 1.7,
+   "loot_table_id": "saque_ilha_pesada",
+   "allow_affixes": true,
+   "biome": "eixos",
+   "lore": "Ilha Pesada do bioma Eixos Partidos."
+  },
+  {
+   "id": "cortador_de_ancoras",
+   "name": "Cortador de Ancoras",
+   "race_id": "aderente",
+   "rank_id": "evoluido",
+   "encounter_class": "elite",
+   "mechanic": "erode_cover",
+   "kind": "melee",
+   "health": 130,
+   "damage": 24,
+   "speed": 50,
+   "attack_interval": 1.0,
+   "loot_table_id": "saque_cortador_de_ancoras",
+   "allow_affixes": true,
+   "biome": "eixos",
+   "lore": "Cortador de Ancoras do bioma Eixos Partidos."
+  },
+  {
+   "id": "eco_de_presa",
+   "name": "Eco de Presa",
+   "race_id": "possivel",
+   "rank_id": "nascente",
+   "encounter_class": "common",
+   "mechanic": "swarm",
+   "kind": "melee",
+   "health": 48,
+   "damage": 12,
+   "speed": 62,
+   "attack_interval": 0.7,
+   "loot_table_id": "saque_eco_de_presa",
+   "allow_affixes": true,
+   "biome": "campos",
+   "lore": "Eco de Presa do bioma Campos do Quase."
+  },
+  {
+   "id": "flor_de_escolha",
+   "name": "Flor de Escolha",
+   "race_id": "possivel",
+   "rank_id": "maduro",
+   "encounter_class": "common",
+   "mechanic": "mark_target",
+   "kind": "ranged",
+   "health": 62,
+   "damage": 16,
+   "speed": 26,
+   "attack_interval": 1.3,
+   "loot_table_id": "saque_flor_de_escolha",
+   "allow_affixes": true,
+   "biome": "campos",
+   "lore": "Flor de Escolha do bioma Campos do Quase."
+  },
+  {
+   "id": "cacador_de_versoes",
+   "name": "Cacador de Versoes",
+   "race_id": "possivel",
+   "rank_id": "maduro",
+   "encounter_class": "common",
+   "mechanic": "wall_ambush",
+   "kind": "ambusher",
+   "health": 84,
+   "damage": 18,
+   "speed": 48,
+   "attack_interval": 0.85,
+   "loot_table_id": "saque_cacador_de_versoes",
+   "allow_affixes": true,
+   "biome": "campos",
+   "lore": "Cacador de Versoes do bioma Campos do Quase."
+  },
+  {
+   "id": "fixador_vivo",
+   "name": "Fixador Vivo",
+   "race_id": "possivel",
+   "rank_id": "evoluido",
+   "encounter_class": "elite",
+   "mechanic": "enemy_barrier",
+   "kind": "support",
+   "health": 150,
+   "damage": 18,
+   "speed": 22,
+   "attack_interval": 1.5,
+   "loot_table_id": "saque_fixador_vivo",
+   "allow_affixes": true,
+   "biome": "campos",
+   "lore": "Fixador Vivo do bioma Campos do Quase."
+  },
+  {
+   "id": "operario_sem_autor",
+   "name": "Operario Sem Autor",
+   "race_id": "sem_autor",
+   "rank_id": "maduro",
+   "encounter_class": "common",
+   "mechanic": "swarm",
+   "kind": "melee",
+   "health": 60,
+   "damage": 14,
+   "speed": 60,
+   "attack_interval": 0.7,
+   "loot_table_id": "saque_operario_sem_autor",
+   "allow_affixes": true,
+   "biome": "obra",
+   "lore": "Operario Sem Autor do bioma Obra Inacabada."
+  },
+  {
+   "id": "molde_vivo",
+   "name": "Molde Vivo",
+   "race_id": "sem_autor",
+   "rank_id": "maduro",
+   "encounter_class": "common",
+   "mechanic": "erode_cover",
+   "kind": "melee",
+   "health": 96,
+   "damage": 18,
+   "speed": 42,
+   "attack_interval": 0.85,
+   "loot_table_id": "saque_molde_vivo",
+   "allow_affixes": true,
+   "biome": "obra",
+   "lore": "Molde Vivo do bioma Obra Inacabada."
+  },
+  {
+   "id": "marca_numerada",
+   "name": "Marca Numerada",
+   "race_id": "sem_autor",
+   "rank_id": "evoluido",
+   "encounter_class": "common",
+   "mechanic": "mark_target",
+   "kind": "ranged",
+   "health": 74,
+   "damage": 18,
+   "speed": 30,
+   "attack_interval": 1.2,
+   "loot_table_id": "saque_marca_numerada",
+   "allow_affixes": true,
+   "biome": "obra",
+   "lore": "Marca Numerada do bioma Obra Inacabada."
+  },
+  {
+   "id": "eco_regional",
+   "name": "Eco Regional",
+   "race_id": "sem_autor",
+   "rank_id": "alfa",
+   "encounter_class": "elite",
+   "mechanic": "incorporate_objects",
+   "kind": "melee",
+   "health": 170,
+   "damage": 26,
+   "speed": 34,
+   "attack_interval": 1.2,
+   "loot_table_id": "saque_eco_regional",
+   "allow_affixes": true,
+   "biome": "obra",
+   "lore": "Eco Regional do bioma Obra Inacabada."
+  },
+  {
+   "id": "refeitor",
+   "name": "O Refeitor",
+   "race_id": "enxertado",
+   "rank_id": "apice",
+   "encounter_class": "boss",
+   "mechanic": "boss_kit",
+   "kind": "boss",
+   "health": 1400,
+   "damage": 28,
+   "speed": 40,
+   "attack_interval": 1.1,
+   "loot_table_id": "saque_refeitor",
+   "allow_affixes": false,
+   "biome": "galerias",
+   "lore": "Guardiao do Limiar de Galerias Refeitas."
+  },
+  {
+   "id": "pastor_das_correntes",
+   "name": "Pastor das Correntes",
+   "race_id": "ventania",
+   "rank_id": "apice",
+   "encounter_class": "boss",
+   "mechanic": "boss_kit",
+   "kind": "boss",
+   "health": 2200,
+   "damage": 32,
+   "speed": 34,
+   "attack_interval": 1.1,
+   "loot_table_id": "saque_pastor_das_correntes",
+   "allow_affixes": false,
+   "biome": "bosque",
+   "lore": "Guardiao do Limiar de Bosque dos Ventos Presos."
+  },
+  {
+   "id": "guardia_do_no_mae",
+   "name": "Guardia do No-Mae",
+   "race_id": "micelar",
+   "rank_id": "apice",
+   "encounter_class": "boss",
+   "mechanic": "boss_kit",
+   "kind": "boss",
+   "health": 3200,
+   "damage": 36,
+   "speed": 26,
+   "attack_interval": 1.1,
+   "loot_table_id": "saque_guardia_do_no_mae",
+   "allow_affixes": false,
+   "biome": "manto",
+   "lore": "Guardiao do Limiar de Manto dos Esporos."
+  },
+  {
+   "id": "guardiao_da_comporta",
+   "name": "Guardiao da Comporta",
+   "race_id": "lodoso",
+   "rank_id": "apice",
+   "encounter_class": "boss",
+   "mechanic": "boss_kit",
+   "kind": "boss",
+   "health": 4600,
+   "damage": 42,
+   "speed": 32,
+   "attack_interval": 1.1,
+   "loot_table_id": "saque_guardiao_da_comporta",
+   "allow_affixes": false,
+   "biome": "bacias",
+   "lore": "Guardiao do Limiar de Bacias do Quarto Pulso."
+  },
+  {
+   "id": "coroa_dos_condutores",
+   "name": "Coroa dos Condutores",
+   "race_id": "carregado",
+   "rank_id": "apice",
+   "encounter_class": "boss",
+   "mechanic": "boss_kit",
+   "kind": "boss",
+   "health": 6200,
+   "damage": 48,
+   "speed": 30,
+   "attack_interval": 1.1,
+   "loot_table_id": "saque_coroa_dos_condutores",
+   "allow_affixes": false,
+   "biome": "ermo",
+   "lore": "Guardiao do Limiar de Ermo do Trovao Preso."
+  },
+  {
+   "id": "guardiao_do_marco_cego",
+   "name": "Guardiao do Marco Cego",
+   "race_id": "cartografo",
+   "rank_id": "apice",
+   "encounter_class": "boss",
+   "mechanic": "boss_kit",
+   "kind": "boss",
+   "health": 8000,
+   "damage": 54,
+   "speed": 34,
+   "attack_interval": 1.1,
+   "loot_table_id": "saque_guardiao_do_marco_cego",
+   "allow_affixes": false,
+   "biome": "arquivo",
+   "lore": "Guardiao do Limiar de Arquivo das Rotas Mortas."
+  },
+  {
+   "id": "palpebra_do_horizonte",
+   "name": "Palpebra do Horizonte",
+   "race_id": "parasitario",
+   "rank_id": "apice",
+   "encounter_class": "boss",
+   "mechanic": "boss_kit",
+   "kind": "boss",
+   "health": 10500,
+   "damage": 60,
+   "speed": 0,
+   "attack_interval": 1.1,
+   "loot_table_id": "saque_palpebra_do_horizonte",
+   "allow_affixes": false,
+   "biome": "planicie",
+   "lore": "Guardiao do Limiar de Planicie dos Adormecidos."
+  },
+  {
+   "id": "guardiao_do_eixo_zero",
+   "name": "Guardiao do Eixo Zero",
+   "race_id": "aderente",
+   "rank_id": "apice",
+   "encounter_class": "boss",
+   "mechanic": "boss_kit",
+   "kind": "boss",
+   "health": 13000,
+   "damage": 66,
+   "speed": 36,
+   "attack_interval": 1.1,
+   "loot_table_id": "saque_guardiao_do_eixo_zero",
+   "allow_affixes": false,
+   "biome": "eixos",
+   "lore": "Guardiao do Limiar de Eixos Partidos."
+  },
+  {
+   "id": "guardiao_da_ultima_escolha",
+   "name": "Guardiao da Ultima Escolha",
+   "race_id": "possivel",
+   "rank_id": "apice",
+   "encounter_class": "boss",
+   "mechanic": "boss_kit",
+   "kind": "boss",
+   "health": 16000,
+   "damage": 72,
+   "speed": 40,
+   "attack_interval": 1.1,
+   "loot_table_id": "saque_guardiao_da_ultima_escolha",
+   "allow_affixes": false,
+   "biome": "campos",
+   "lore": "Guardiao do Limiar de Campos do Quase."
+  },
+  {
+   "id": "regente_centesimo",
+   "name": "Regente Centesimo",
+   "race_id": "sem_autor",
+   "rank_id": "apice",
+   "encounter_class": "boss",
+   "mechanic": "boss_kit",
+   "kind": "boss",
+   "health": 22000,
+   "damage": 80,
+   "speed": 38,
+   "attack_interval": 1.1,
+   "loot_table_id": "saque_regente_centesimo",
+   "allow_affixes": false,
+   "biome": "obra",
+   "lore": "Guardiao do Limiar de Obra Inacabada."
+  }
+ ],
+ "monster_races": [
+  {
+   "id": "ventania",
+   "name": "Ventania",
+   "trait": "barrier_breaker",
+   "stat_profile": {
+    "health": 0.9,
+    "damage": 1.0,
+    "speed": 1.2,
+    "attack_interval": 0.9
+   },
+   "description": "Criaturas leves moldadas pelas correntes; atravessam defesas apressadas."
+  },
+  {
+   "id": "micelar",
+   "name": "Micelar",
+   "trait": "effect_feeder",
+   "stat_profile": {
+    "health": 1.15,
+    "damage": 0.95,
+    "speed": 0.9,
+    "attack_interval": 1.05
+   },
+   "description": "Organismos da rede que se alimentam de efeitos persistentes e materia em decomposicao."
+  },
+  {
+   "id": "lodoso",
+   "name": "Lodoso",
+   "trait": "stone_skin",
+   "stat_profile": {
+    "health": 1.2,
+    "damage": 1.0,
+    "speed": 0.85,
+    "attack_interval": 1.1
+   },
+   "description": "Fauna de lama e conchas, lenta e protegida por camadas minerais."
+  },
+  {
+   "id": "carregado",
+   "name": "Carregado",
+   "trait": "adaptive_shell",
+   "stat_profile": {
+    "health": 1.05,
+    "damage": 1.15,
+    "speed": 1.0,
+    "attack_interval": 0.95
+   },
+   "description": "Carapacas que acumulam carga e se adaptam a impactos repetidos."
+  },
+  {
+   "id": "cartografo",
+   "name": "Cartografo",
+   "trait": "wall_camouflage",
+   "stat_profile": {
+    "health": 1.0,
+    "damage": 1.1,
+    "speed": 1.05,
+    "attack_interval": 1.0
+   },
+   "description": "Seres que seguem marcos e se escondem em rotas desenhadas."
+  },
+  {
+   "id": "parasitario",
+   "name": "Parasitario",
+   "trait": "effect_feeder",
+   "stat_profile": {
+    "health": 1.25,
+    "damage": 1.05,
+    "speed": 0.9,
+    "attack_interval": 1.05
+   },
+   "description": "Ecossistemas que vivem sobre colossos e se nutrem de suas feridas."
+  },
+  {
+   "id": "aderente",
+   "name": "Aderente",
+   "trait": "barrier_breaker",
+   "stat_profile": {
+    "health": 1.0,
+    "damage": 1.15,
+    "speed": 1.15,
+    "attack_interval": 0.95
+   },
+   "description": "Criaturas que atravessam superficies e cortam ancoragens."
+  },
+  {
+   "id": "possivel",
+   "name": "Possivel",
+   "trait": "adaptive_shell",
+   "stat_profile": {
+    "health": 1.1,
+    "damage": 1.15,
+    "speed": 1.05,
+    "attack_interval": 1.0
+   },
+   "description": "Criaturas que alternam versoes de si mesmas e aprendem com o que as atinge."
+  },
+  {
+   "id": "sem_autor",
+   "name": "Sem Autor",
+   "trait": "effect_feeder",
+   "stat_profile": {
+    "health": 1.3,
+    "damage": 1.2,
+    "speed": 1.0,
+    "attack_interval": 1.0
+   },
+   "description": "Formas montadas por processos sem autor a partir de todas as regioes."
+  }
+ ],
+ "items": [
+  {
+   "id": "junco_mineral",
+   "name": "Junco Mineral",
+   "item_type": "material",
+   "slot": "none",
+   "tier": "common",
+   "biome": "bosque"
+  },
+  {
+   "id": "membrana_de_pressao",
+   "name": "Membrana de Pressao",
+   "item_type": "material",
+   "slot": "none",
+   "tier": "uncommon",
+   "biome": "bosque"
+  },
+  {
+   "id": "lanterna_de_esporo",
+   "name": "Lanterna de Esporo",
+   "item_type": "material",
+   "slot": "none",
+   "tier": "common",
+   "biome": "manto"
+  },
+  {
+   "id": "ambar_micelial",
+   "name": "Ambar Micelial",
+   "item_type": "material",
+   "slot": "none",
+   "tier": "uncommon",
+   "biome": "manto"
+  },
+  {
+   "id": "lodo_mineral",
+   "name": "Lodo Mineral",
+   "item_type": "material",
+   "slot": "none",
+   "tier": "common",
+   "biome": "bacias"
+  },
+  {
+   "id": "perola_de_refluxo",
+   "name": "Perola de Refluxo",
+   "item_type": "material",
+   "slot": "none",
+   "tier": "rare",
+   "biome": "bacias"
+  },
+  {
+   "id": "vidro_negro",
+   "name": "Vidro Negro",
+   "item_type": "material",
+   "slot": "none",
+   "tier": "common",
+   "biome": "ermo"
+  },
+  {
+   "id": "cristal_de_carga",
+   "name": "Cristal de Carga",
+   "item_type": "material",
+   "slot": "none",
+   "tier": "rare",
+   "biome": "ermo"
+  },
+  {
+   "id": "tinta_mineral",
+   "name": "Tinta Mineral",
+   "item_type": "material",
+   "slot": "none",
+   "tier": "common",
+   "biome": "arquivo"
+  },
+  {
+   "id": "marco_gravado",
+   "name": "Marco Gravado",
+   "item_type": "material",
+   "slot": "none",
+   "tier": "rare",
+   "biome": "arquivo"
+  },
+  {
+   "id": "pele_mineral",
+   "name": "Pele Mineral",
+   "item_type": "material",
+   "slot": "none",
+   "tier": "common",
+   "biome": "planicie"
+  },
+  {
+   "id": "seiva_colossal",
+   "name": "Seiva Colossal",
+   "item_type": "material",
+   "slot": "none",
+   "tier": "rare",
+   "biome": "planicie"
+  },
+  {
+   "id": "cabo_de_lastro",
+   "name": "Cabo de Lastro",
+   "item_type": "material",
+   "slot": "none",
+   "tier": "common",
+   "biome": "eixos"
+  },
+  {
+   "id": "fragmento_de_eixo",
+   "name": "Fragmento de Eixo",
+   "item_type": "material",
+   "slot": "none",
+   "tier": "rare",
+   "biome": "eixos"
+  },
+  {
+   "id": "petala_possivel",
+   "name": "Petala Possivel",
+   "item_type": "material",
+   "slot": "none",
+   "tier": "uncommon",
+   "biome": "campos"
+  },
+  {
+   "id": "semente_do_quase",
+   "name": "Semente do Quase",
+   "item_type": "material",
+   "slot": "none",
+   "tier": "rare",
+   "biome": "campos"
+  },
+  {
+   "id": "material_sem_autor",
+   "name": "Material Sem Autor",
+   "item_type": "material",
+   "slot": "none",
+   "tier": "rare",
+   "biome": "obra"
+  },
+  {
+   "id": "marca_de_mandato",
+   "name": "Marca de Mandato",
+   "item_type": "material",
+   "slot": "none",
+   "tier": "epic",
+   "biome": "obra"
+  }
+ ],
+ "loot_tables": [
+  {
+   "id": "saque_semeador_de_juncos",
+   "entries": [
+    {
+     "item_id": "pedra_regenerativa",
+     "chance": 0.35,
+     "minimum": 1,
+     "maximum": 1
+    },
+    {
+     "item_id": "junco_mineral",
+     "chance": 0.7,
+     "minimum": 1,
+     "maximum": 2
+    },
+    {
+     "item_id": "membrana_de_pressao",
+     "chance": 0.08,
+     "minimum": 1,
+     "maximum": 1
+    }
+   ]
+  },
+  {
+   "id": "saque_planador_de_rajada",
+   "entries": [
+    {
+     "item_id": "pedra_regenerativa",
+     "chance": 0.35,
+     "minimum": 1,
+     "maximum": 1
+    },
+    {
+     "item_id": "junco_mineral",
+     "chance": 0.7,
+     "minimum": 1,
+     "maximum": 2
+    },
+    {
+     "item_id": "membrana_de_pressao",
+     "chance": 0.08,
+     "minimum": 1,
+     "maximum": 1
+    }
+   ]
+  },
+  {
+   "id": "saque_casca_de_pressao",
+   "entries": [
+    {
+     "item_id": "pedra_regenerativa",
+     "chance": 0.35,
+     "minimum": 1,
+     "maximum": 1
+    },
+    {
+     "item_id": "junco_mineral",
+     "chance": 0.7,
+     "minimum": 1,
+     "maximum": 2
+    },
+    {
+     "item_id": "membrana_de_pressao",
+     "chance": 0.08,
+     "minimum": 1,
+     "maximum": 1
+    }
+   ]
+  },
+  {
+   "id": "saque_predador_da_calmaria",
+   "entries": [
+    {
+     "item_id": "pedra_regenerativa",
+     "chance": 0.35,
+     "minimum": 1,
+     "maximum": 1
+    },
+    {
+     "item_id": "junco_mineral",
+     "chance": 1.0,
+     "minimum": 1,
+     "maximum": 3
+    },
+    {
+     "item_id": "membrana_de_pressao",
+     "chance": 0.35,
+     "minimum": 1,
+     "maximum": 1
+    }
+   ]
+  },
+  {
+   "id": "saque_esporinho",
+   "entries": [
+    {
+     "item_id": "pedra_regenerativa",
+     "chance": 0.35,
+     "minimum": 1,
+     "maximum": 1
+    },
+    {
+     "item_id": "lanterna_de_esporo",
+     "chance": 0.7,
+     "minimum": 1,
+     "maximum": 2
+    },
+    {
+     "item_id": "ambar_micelial",
+     "chance": 0.08,
+     "minimum": 1,
+     "maximum": 1
+    }
+   ]
+  },
+  {
+   "id": "saque_tecelao_micelial",
+   "entries": [
+    {
+     "item_id": "pedra_regenerativa",
+     "chance": 0.35,
+     "minimum": 1,
+     "maximum": 1
+    },
+    {
+     "item_id": "lanterna_de_esporo",
+     "chance": 0.7,
+     "minimum": 1,
+     "maximum": 2
+    },
+    {
+     "item_id": "ambar_micelial",
+     "chance": 0.08,
+     "minimum": 1,
+     "maximum": 1
+    }
+   ]
+  },
+  {
+   "id": "saque_sentinela_de_chapeu",
+   "entries": [
+    {
+     "item_id": "pedra_regenerativa",
+     "chance": 0.35,
+     "minimum": 1,
+     "maximum": 1
+    },
+    {
+     "item_id": "lanterna_de_esporo",
+     "chance": 0.7,
+     "minimum": 1,
+     "maximum": 2
+    },
+    {
+     "item_id": "ambar_micelial",
+     "chance": 0.08,
+     "minimum": 1,
+     "maximum": 1
+    }
+   ]
+  },
+  {
+   "id": "saque_devorador_branco",
+   "entries": [
+    {
+     "item_id": "pedra_regenerativa",
+     "chance": 0.35,
+     "minimum": 1,
+     "maximum": 1
+    },
+    {
+     "item_id": "lanterna_de_esporo",
+     "chance": 1.0,
+     "minimum": 1,
+     "maximum": 3
+    },
+    {
+     "item_id": "ambar_micelial",
+     "chance": 0.35,
+     "minimum": 1,
+     "maximum": 1
+    }
+   ]
+  },
+  {
+   "id": "saque_filtrador",
+   "entries": [
+    {
+     "item_id": "pedra_regenerativa",
+     "chance": 0.35,
+     "minimum": 1,
+     "maximum": 1
+    },
+    {
+     "item_id": "lodo_mineral",
+     "chance": 0.7,
+     "minimum": 1,
+     "maximum": 2
+    },
+    {
+     "item_id": "perola_de_refluxo",
+     "chance": 0.08,
+     "minimum": 1,
+     "maximum": 1
+    }
+   ]
+  },
+  {
+   "id": "saque_anfibio_de_canal",
+   "entries": [
+    {
+     "item_id": "pedra_regenerativa",
+     "chance": 0.35,
+     "minimum": 1,
+     "maximum": 1
+    },
+    {
+     "item_id": "lodo_mineral",
+     "chance": 0.7,
+     "minimum": 1,
+     "maximum": 2
+    },
+    {
+     "item_id": "perola_de_refluxo",
+     "chance": 0.08,
+     "minimum": 1,
+     "maximum": 1
+    }
+   ]
+  },
+  {
+   "id": "saque_predador_de_lama",
+   "entries": [
+    {
+     "item_id": "pedra_regenerativa",
+     "chance": 0.35,
+     "minimum": 1,
+     "maximum": 1
+    },
+    {
+     "item_id": "lodo_mineral",
+     "chance": 0.7,
+     "minimum": 1,
+     "maximum": 2
+    },
+    {
+     "item_id": "perola_de_refluxo",
+     "chance": 0.08,
+     "minimum": 1,
+     "maximum": 1
+    }
+   ]
+  },
+  {
+   "id": "saque_colosso_de_conchas",
+   "entries": [
+    {
+     "item_id": "pedra_regenerativa",
+     "chance": 0.35,
+     "minimum": 1,
+     "maximum": 1
+    },
+    {
+     "item_id": "lodo_mineral",
+     "chance": 1.0,
+     "minimum": 1,
+     "maximum": 3
+    },
+    {
+     "item_id": "perola_de_refluxo",
+     "chance": 0.35,
+     "minimum": 1,
+     "maximum": 1
+    }
+   ]
+  },
+  {
+   "id": "saque_escavador_vitreo",
+   "entries": [
+    {
+     "item_id": "pedra_regenerativa",
+     "chance": 0.35,
+     "minimum": 1,
+     "maximum": 1
+    },
+    {
+     "item_id": "vidro_negro",
+     "chance": 0.7,
+     "minimum": 1,
+     "maximum": 2
+    },
+    {
+     "item_id": "cristal_de_carga",
+     "chance": 0.08,
+     "minimum": 1,
+     "maximum": 1
+    }
+   ]
+  },
+  {
+   "id": "saque_carapaca_carregada",
+   "entries": [
+    {
+     "item_id": "pedra_regenerativa",
+     "chance": 0.35,
+     "minimum": 1,
+     "maximum": 1
+    },
+    {
+     "item_id": "vidro_negro",
+     "chance": 0.7,
+     "minimum": 1,
+     "maximum": 2
+    },
+    {
+     "item_id": "cristal_de_carga",
+     "chance": 0.08,
+     "minimum": 1,
+     "maximum": 1
+    }
+   ]
+  },
+  {
+   "id": "saque_cacador_de_metal",
+   "entries": [
+    {
+     "item_id": "pedra_regenerativa",
+     "chance": 0.35,
+     "minimum": 1,
+     "maximum": 1
+    },
+    {
+     "item_id": "vidro_negro",
+     "chance": 0.7,
+     "minimum": 1,
+     "maximum": 2
+    },
+    {
+     "item_id": "cristal_de_carga",
+     "chance": 0.08,
+     "minimum": 1,
+     "maximum": 1
+    }
+   ]
+  },
+  {
+   "id": "saque_ninho_de_descarga",
+   "entries": [
+    {
+     "item_id": "pedra_regenerativa",
+     "chance": 0.35,
+     "minimum": 1,
+     "maximum": 1
+    },
+    {
+     "item_id": "vidro_negro",
+     "chance": 1.0,
+     "minimum": 1,
+     "maximum": 3
+    },
+    {
+     "item_id": "cristal_de_carga",
+     "chance": 0.35,
+     "minimum": 1,
+     "maximum": 1
+    }
+   ]
+  },
+  {
+   "id": "saque_tracador",
+   "entries": [
+    {
+     "item_id": "pedra_regenerativa",
+     "chance": 0.35,
+     "minimum": 1,
+     "maximum": 1
+    },
+    {
+     "item_id": "tinta_mineral",
+     "chance": 0.7,
+     "minimum": 1,
+     "maximum": 2
+    },
+    {
+     "item_id": "marco_gravado",
+     "chance": 0.08,
+     "minimum": 1,
+     "maximum": 1
+    }
+   ]
+  },
+  {
+   "id": "saque_devorador_de_tinta",
+   "entries": [
+    {
+     "item_id": "pedra_regenerativa",
+     "chance": 0.35,
+     "minimum": 1,
+     "maximum": 1
+    },
+    {
+     "item_id": "tinta_mineral",
+     "chance": 0.7,
+     "minimum": 1,
+     "maximum": 2
+    },
+    {
+     "item_id": "marco_gravado",
+     "chance": 0.08,
+     "minimum": 1,
+     "maximum": 1
+    }
+   ]
+  },
+  {
+   "id": "saque_sinaleiro_falso",
+   "entries": [
+    {
+     "item_id": "pedra_regenerativa",
+     "chance": 0.35,
+     "minimum": 1,
+     "maximum": 1
+    },
+    {
+     "item_id": "tinta_mineral",
+     "chance": 0.7,
+     "minimum": 1,
+     "maximum": 2
+    },
+    {
+     "item_id": "marco_gravado",
+     "chance": 0.08,
+     "minimum": 1,
+     "maximum": 1
+    }
+   ]
+  },
+  {
+   "id": "saque_cartografo_oco",
+   "entries": [
+    {
+     "item_id": "pedra_regenerativa",
+     "chance": 0.35,
+     "minimum": 1,
+     "maximum": 1
+    },
+    {
+     "item_id": "tinta_mineral",
+     "chance": 1.0,
+     "minimum": 1,
+     "maximum": 3
+    },
+    {
+     "item_id": "marco_gravado",
+     "chance": 0.35,
+     "minimum": 1,
+     "maximum": 1
+    }
+   ]
+  },
+  {
+   "id": "saque_limpador",
+   "entries": [
+    {
+     "item_id": "pedra_regenerativa",
+     "chance": 0.35,
+     "minimum": 1,
+     "maximum": 1
+    },
+    {
+     "item_id": "pele_mineral",
+     "chance": 0.7,
+     "minimum": 1,
+     "maximum": 2
+    },
+    {
+     "item_id": "seiva_colossal",
+     "chance": 0.08,
+     "minimum": 1,
+     "maximum": 1
+    }
+   ]
+  },
+  {
+   "id": "saque_predador_de_dobra",
+   "entries": [
+    {
+     "item_id": "pedra_regenerativa",
+     "chance": 0.35,
+     "minimum": 1,
+     "maximum": 1
+    },
+    {
+     "item_id": "pele_mineral",
+     "chance": 0.7,
+     "minimum": 1,
+     "maximum": 2
+    },
+    {
+     "item_id": "seiva_colossal",
+     "chance": 0.08,
+     "minimum": 1,
+     "maximum": 1
+    }
+   ]
+  },
+  {
+   "id": "saque_migrante",
+   "entries": [
+    {
+     "item_id": "pedra_regenerativa",
+     "chance": 0.35,
+     "minimum": 1,
+     "maximum": 1
+    },
+    {
+     "item_id": "pele_mineral",
+     "chance": 0.7,
+     "minimum": 1,
+     "maximum": 2
+    },
+    {
+     "item_id": "seiva_colossal",
+     "chance": 0.08,
+     "minimum": 1,
+     "maximum": 1
+    }
+   ]
+  },
+  {
+   "id": "saque_colosso_menor",
+   "entries": [
+    {
+     "item_id": "pedra_regenerativa",
+     "chance": 0.35,
+     "minimum": 1,
+     "maximum": 1
+    },
+    {
+     "item_id": "pele_mineral",
+     "chance": 1.0,
+     "minimum": 1,
+     "maximum": 3
+    },
+    {
+     "item_id": "seiva_colossal",
+     "chance": 0.35,
+     "minimum": 1,
+     "maximum": 1
+    }
+   ]
+  },
+  {
+   "id": "saque_aderente_menor",
+   "entries": [
+    {
+     "item_id": "pedra_regenerativa",
+     "chance": 0.35,
+     "minimum": 1,
+     "maximum": 1
+    },
+    {
+     "item_id": "cabo_de_lastro",
+     "chance": 0.7,
+     "minimum": 1,
+     "maximum": 2
+    },
+    {
+     "item_id": "fragmento_de_eixo",
+     "chance": 0.08,
+     "minimum": 1,
+     "maximum": 1
+    }
+   ]
+  },
+  {
+   "id": "saque_planador_de_eixo",
+   "entries": [
+    {
+     "item_id": "pedra_regenerativa",
+     "chance": 0.35,
+     "minimum": 1,
+     "maximum": 1
+    },
+    {
+     "item_id": "cabo_de_lastro",
+     "chance": 0.7,
+     "minimum": 1,
+     "maximum": 2
+    },
+    {
+     "item_id": "fragmento_de_eixo",
+     "chance": 0.08,
+     "minimum": 1,
+     "maximum": 1
+    }
+   ]
+  },
+  {
+   "id": "saque_ilha_pesada",
+   "entries": [
+    {
+     "item_id": "pedra_regenerativa",
+     "chance": 0.35,
+     "minimum": 1,
+     "maximum": 1
+    },
+    {
+     "item_id": "cabo_de_lastro",
+     "chance": 0.7,
+     "minimum": 1,
+     "maximum": 2
+    },
+    {
+     "item_id": "fragmento_de_eixo",
+     "chance": 0.08,
+     "minimum": 1,
+     "maximum": 1
+    }
+   ]
+  },
+  {
+   "id": "saque_cortador_de_ancoras",
+   "entries": [
+    {
+     "item_id": "pedra_regenerativa",
+     "chance": 0.35,
+     "minimum": 1,
+     "maximum": 1
+    },
+    {
+     "item_id": "cabo_de_lastro",
+     "chance": 1.0,
+     "minimum": 1,
+     "maximum": 3
+    },
+    {
+     "item_id": "fragmento_de_eixo",
+     "chance": 0.35,
+     "minimum": 1,
+     "maximum": 1
+    }
+   ]
+  },
+  {
+   "id": "saque_eco_de_presa",
+   "entries": [
+    {
+     "item_id": "pedra_regenerativa",
+     "chance": 0.35,
+     "minimum": 1,
+     "maximum": 1
+    },
+    {
+     "item_id": "petala_possivel",
+     "chance": 0.7,
+     "minimum": 1,
+     "maximum": 2
+    },
+    {
+     "item_id": "semente_do_quase",
+     "chance": 0.08,
+     "minimum": 1,
+     "maximum": 1
+    }
+   ]
+  },
+  {
+   "id": "saque_flor_de_escolha",
+   "entries": [
+    {
+     "item_id": "pedra_regenerativa",
+     "chance": 0.35,
+     "minimum": 1,
+     "maximum": 1
+    },
+    {
+     "item_id": "petala_possivel",
+     "chance": 0.7,
+     "minimum": 1,
+     "maximum": 2
+    },
+    {
+     "item_id": "semente_do_quase",
+     "chance": 0.08,
+     "minimum": 1,
+     "maximum": 1
+    }
+   ]
+  },
+  {
+   "id": "saque_cacador_de_versoes",
+   "entries": [
+    {
+     "item_id": "pedra_regenerativa",
+     "chance": 0.35,
+     "minimum": 1,
+     "maximum": 1
+    },
+    {
+     "item_id": "petala_possivel",
+     "chance": 0.7,
+     "minimum": 1,
+     "maximum": 2
+    },
+    {
+     "item_id": "semente_do_quase",
+     "chance": 0.08,
+     "minimum": 1,
+     "maximum": 1
+    }
+   ]
+  },
+  {
+   "id": "saque_fixador_vivo",
+   "entries": [
+    {
+     "item_id": "pedra_regenerativa",
+     "chance": 0.35,
+     "minimum": 1,
+     "maximum": 1
+    },
+    {
+     "item_id": "petala_possivel",
+     "chance": 1.0,
+     "minimum": 1,
+     "maximum": 3
+    },
+    {
+     "item_id": "semente_do_quase",
+     "chance": 0.35,
+     "minimum": 1,
+     "maximum": 1
+    }
+   ]
+  },
+  {
+   "id": "saque_operario_sem_autor",
+   "entries": [
+    {
+     "item_id": "pedra_regenerativa",
+     "chance": 0.35,
+     "minimum": 1,
+     "maximum": 1
+    },
+    {
+     "item_id": "material_sem_autor",
+     "chance": 0.7,
+     "minimum": 1,
+     "maximum": 2
+    },
+    {
+     "item_id": "marca_de_mandato",
+     "chance": 0.08,
+     "minimum": 1,
+     "maximum": 1
+    }
+   ]
+  },
+  {
+   "id": "saque_molde_vivo",
+   "entries": [
+    {
+     "item_id": "pedra_regenerativa",
+     "chance": 0.35,
+     "minimum": 1,
+     "maximum": 1
+    },
+    {
+     "item_id": "material_sem_autor",
+     "chance": 0.7,
+     "minimum": 1,
+     "maximum": 2
+    },
+    {
+     "item_id": "marca_de_mandato",
+     "chance": 0.08,
+     "minimum": 1,
+     "maximum": 1
+    }
+   ]
+  },
+  {
+   "id": "saque_marca_numerada",
+   "entries": [
+    {
+     "item_id": "pedra_regenerativa",
+     "chance": 0.35,
+     "minimum": 1,
+     "maximum": 1
+    },
+    {
+     "item_id": "material_sem_autor",
+     "chance": 0.7,
+     "minimum": 1,
+     "maximum": 2
+    },
+    {
+     "item_id": "marca_de_mandato",
+     "chance": 0.08,
+     "minimum": 1,
+     "maximum": 1
+    }
+   ]
+  },
+  {
+   "id": "saque_eco_regional",
+   "entries": [
+    {
+     "item_id": "pedra_regenerativa",
+     "chance": 0.35,
+     "minimum": 1,
+     "maximum": 1
+    },
+    {
+     "item_id": "material_sem_autor",
+     "chance": 1.0,
+     "minimum": 1,
+     "maximum": 3
+    },
+    {
+     "item_id": "marca_de_mandato",
+     "chance": 0.35,
+     "minimum": 1,
+     "maximum": 1
+    }
+   ]
+  },
+  {
+   "id": "saque_refeitor",
+   "entries": [
+    {
+     "item_id": "pedra_regenerativa",
+     "chance": 1.0,
+     "minimum": 3,
+     "maximum": 5
+    },
+    {
+     "item_id": "pedra_regenerativa",
+     "chance": 1.0,
+     "minimum": 4,
+     "maximum": 8
+    },
+    {
+     "item_id": "argila_de_enxerto",
+     "chance": 1.0,
+     "minimum": 1,
+     "maximum": 3
+    }
+   ]
+  },
+  {
+   "id": "saque_pastor_das_correntes",
+   "entries": [
+    {
+     "item_id": "pedra_regenerativa",
+     "chance": 1.0,
+     "minimum": 3,
+     "maximum": 5
+    },
+    {
+     "item_id": "junco_mineral",
+     "chance": 1.0,
+     "minimum": 4,
+     "maximum": 8
+    },
+    {
+     "item_id": "membrana_de_pressao",
+     "chance": 1.0,
+     "minimum": 1,
+     "maximum": 3
+    }
+   ]
+  },
+  {
+   "id": "saque_guardia_do_no_mae",
+   "entries": [
+    {
+     "item_id": "pedra_regenerativa",
+     "chance": 1.0,
+     "minimum": 3,
+     "maximum": 5
+    },
+    {
+     "item_id": "lanterna_de_esporo",
+     "chance": 1.0,
+     "minimum": 4,
+     "maximum": 8
+    },
+    {
+     "item_id": "ambar_micelial",
+     "chance": 1.0,
+     "minimum": 1,
+     "maximum": 3
+    }
+   ]
+  },
+  {
+   "id": "saque_guardiao_da_comporta",
+   "entries": [
+    {
+     "item_id": "pedra_regenerativa",
+     "chance": 1.0,
+     "minimum": 3,
+     "maximum": 5
+    },
+    {
+     "item_id": "lodo_mineral",
+     "chance": 1.0,
+     "minimum": 4,
+     "maximum": 8
+    },
+    {
+     "item_id": "perola_de_refluxo",
+     "chance": 1.0,
+     "minimum": 1,
+     "maximum": 3
+    }
+   ]
+  },
+  {
+   "id": "saque_coroa_dos_condutores",
+   "entries": [
+    {
+     "item_id": "pedra_regenerativa",
+     "chance": 1.0,
+     "minimum": 3,
+     "maximum": 5
+    },
+    {
+     "item_id": "vidro_negro",
+     "chance": 1.0,
+     "minimum": 4,
+     "maximum": 8
+    },
+    {
+     "item_id": "cristal_de_carga",
+     "chance": 1.0,
+     "minimum": 1,
+     "maximum": 3
+    }
+   ]
+  },
+  {
+   "id": "saque_guardiao_do_marco_cego",
+   "entries": [
+    {
+     "item_id": "pedra_regenerativa",
+     "chance": 1.0,
+     "minimum": 3,
+     "maximum": 5
+    },
+    {
+     "item_id": "tinta_mineral",
+     "chance": 1.0,
+     "minimum": 4,
+     "maximum": 8
+    },
+    {
+     "item_id": "marco_gravado",
+     "chance": 1.0,
+     "minimum": 1,
+     "maximum": 3
+    }
+   ]
+  },
+  {
+   "id": "saque_palpebra_do_horizonte",
+   "entries": [
+    {
+     "item_id": "pedra_regenerativa",
+     "chance": 1.0,
+     "minimum": 3,
+     "maximum": 5
+    },
+    {
+     "item_id": "pele_mineral",
+     "chance": 1.0,
+     "minimum": 4,
+     "maximum": 8
+    },
+    {
+     "item_id": "seiva_colossal",
+     "chance": 1.0,
+     "minimum": 1,
+     "maximum": 3
+    }
+   ]
+  },
+  {
+   "id": "saque_guardiao_do_eixo_zero",
+   "entries": [
+    {
+     "item_id": "pedra_regenerativa",
+     "chance": 1.0,
+     "minimum": 3,
+     "maximum": 5
+    },
+    {
+     "item_id": "cabo_de_lastro",
+     "chance": 1.0,
+     "minimum": 4,
+     "maximum": 8
+    },
+    {
+     "item_id": "fragmento_de_eixo",
+     "chance": 1.0,
+     "minimum": 1,
+     "maximum": 3
+    }
+   ]
+  },
+  {
+   "id": "saque_guardiao_da_ultima_escolha",
+   "entries": [
+    {
+     "item_id": "pedra_regenerativa",
+     "chance": 1.0,
+     "minimum": 3,
+     "maximum": 5
+    },
+    {
+     "item_id": "petala_possivel",
+     "chance": 1.0,
+     "minimum": 4,
+     "maximum": 8
+    },
+    {
+     "item_id": "semente_do_quase",
+     "chance": 1.0,
+     "minimum": 1,
+     "maximum": 3
+    }
+   ]
+  },
+  {
+   "id": "saque_regente_centesimo",
+   "entries": [
+    {
+     "item_id": "pedra_regenerativa",
+     "chance": 1.0,
+     "minimum": 3,
+     "maximum": 5
+    },
+    {
+     "item_id": "material_sem_autor",
+     "chance": 1.0,
+     "minimum": 4,
+     "maximum": 8
+    },
+    {
+     "item_id": "marca_de_mandato",
+     "chance": 1.0,
+     "minimum": 1,
+     "maximum": 3
+    }
+   ]
+  }
+ ]
+}
