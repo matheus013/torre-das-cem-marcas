@@ -129,3 +129,15 @@ Suite final: 32 testes aprovados, zero falhas. Capturas das opcoes/controles
 inspecionadas em 720p, 1080p e ultrawide. Builds finais de Windows/Linux/macOS
 geradas sem erros ou avisos. Validacao dos tres PCKs usa runtime release macOS;
 QA nativo Windows/Linux e hardware de controle permanece pendente.
+
+## Atualizacao do roadmap e repositorio
+
+Implementacao enviada a `origin/main`: `04e03ae`. Documentacao enviada:
+`eda37f6`. Roadmap atualizado com o resumo das entregas, separacao entre
+capturas verificadas e QA completo, limitacoes atuais de controle e proxima
+frente de persistencia segura, seguida por audio e acessibilidade.
+
+Na consulta desta atualizacao, o workflow Testes do commit `eda37f6` estava
+em andamento: https://github.com/matheus013/torre-das-cem-marcas/actions/runs/37088880678.
+O workflow de releases ainda precisa de execucao remota e verificacao dos
+artefatos. Resultado local de 32 testes nao substitui confirmacao do CI.

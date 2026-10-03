@@ -6,6 +6,27 @@ Este plano complementa o roadmap de MVP; a quantidade de conteudo existente
 nao substitui os criterios de qualidade abaixo. Datas de lancamento dependem
 de playtests e aprovacoes, nao de estimativas de porcentagem.
 
+## Situacao atual
+
+Implementacao enviada para `origin/main` nos commits `04e03ae` (gameplay,
+opcoes, controles, mira e distribuicao) e `eda37f6` (documentacao e QA).
+
+- Suite local: 32 testes aprovados, zero falhas, incluindo rede e vila online.
+- Builds release Windows/Linux e macOS de QA geradas sem erros ou avisos.
+- Os tres pacotes PCK passaram no autoteste com runtime release macOS.
+  Executaveis nativos Windows/Linux ainda nao foram validados em maquinas limpas.
+- Opcoes persistentes, pausa solo, remapeamento de teclado, mapeamento inicial
+  Xbox/PS4/PS5 e mira automatica opcional implementados.
+- Capturas do titulo e opcoes/controles verificadas em 720p, 1080p e ultrawide.
+  Isso ainda nao valida todos os menus e estados de combate nessas resolucoes.
+- [CI de testes do commit eda37f6](https://github.com/matheus013/torre-das-cem-marcas/actions/runs/37088880678):
+  em andamento na consulta desta atualizacao; resultado ainda nao confirmado.
+- Workflow de releases disponivel, mas execucao remota e artefatos baixados
+  ainda pendentes. Atualmente dispara manualmente ou em pull requests.
+
+EA1 e EA2 permanecem abertos. Nenhuma build foi enviada para a Steam, e
+nenhum marco de QA externo ou aprovacao da Valve foi concluido.
+
 ## Escopo de lancamento
 
 - Windows x86_64 e teclado/mouse como alvo inicial.
@@ -23,14 +44,15 @@ de playtests e aprovacoes, nao de estimativas de porcentagem.
 
 | Marco | Entrega | Criterio de saida | Estado |
 | --- | --- | --- | --- |
-| EA1 | Build reproduzivel | Exports release Windows/Linux, pacote verificado e primeira execucao em Windows limpo | Em andamento |
-| EA2 | Experiencia publica | Opcoes persistentes, controles configuraveis, audio essencial, pausa solo e menus legiveis | Em andamento |
+| EA1 | Build reproduzivel | Exports release Windows/Linux, pacote verificado e primeira execucao em Windows limpo | Faltam CI release, QA nativo e migracao do nome |
+| EA2 | Experiencia publica | Opcoes persistentes, controles configuraveis, audio essencial, pausa solo e menus legiveis | Faltam audio, acessibilidade e QA externo |
 | EA3 | Persistencia e estabilidade | Save atomico, backup, recuperacao, migracao e atualizacao sem perda de progresso | Pendente |
 | EA4 | Solo e co-op confiaveis | Ciclo completo, desempenho medido, desconexoes tratadas e testes externos | Pendente |
 | EA5 | Produto e loja | Licencas, creditos, requisitos, midia, descricao e respostas de Early Access | Pendente |
 | EA6 | Candidato e Steam | Instalacao via Steam, revisoes aprovadas, prazos cumpridos e plano de suporte | Pendente |
 
-EA1 precede EA2 e EA3; EA4 valida os tres. Preparacao de loja e onboarding
+Infraestrutura de EA1 permite avancar EA2 e EA3 enquanto o QA nativo esta
+pendente; EA4 valida os tres. Preparacao de loja e onboarding
 podem ocorrer em paralelo, mas nenhuma caracteristica deve ser anunciada antes
 de sua comprovacao. Problemas que destroem saves ou impedem progresso bloqueiam
 qualquer lancamento.
@@ -44,6 +66,8 @@ qualquer lancamento.
 - [x] Versao central no projeto e exibida no menu.
 - [x] Workflow que testa, exporta, verifica o pacote release e guarda artefatos.
 - [x] Executar e registrar exports e verificacao do pacote localmente.
+- [x] Versionar e enviar a implementacao e o roadmap ao repositorio remoto.
+- [ ] Confirmar o resultado do CI de testes no GitHub.
 - [ ] Executar workflow no GitHub e verificar os artefatos baixados.
 - [ ] Testar Windows limpo sem Godot, abertura pelo executavel e partida solo.
 - [ ] Definir nome final de application/config/name com migracao de user://.
@@ -65,12 +89,22 @@ significa que todo codigo interno foi removido.
 - [ ] Validar Xbox, DualShock 4 e DualSense por USB/Bluetooth em plataformas alvo.
 - [x] Menu de pausa solo; em co-op menus nao prometem pausar o mundo.
 - [ ] Sons de dano, habilidades, saque, morte e interface; musica/ambiencia.
-- [ ] Texto e menus utilizaveis em 1280x720, 1920x1080 e ultrawide.
+- [x] Inspecionar titulo e opcoes/controles em 1280x720, 1920x1080 e ultrawide.
+- [ ] Validar todos os menus, HUD e estados de combate nessas resolucoes.
 - [ ] Sinais de combate nao dependem somente de cor; ajuste de efeitos intensos.
 - [ ] Primeira sessao permite entender entrada, retirada, morte e persistencia.
 
 Saida: jogador externo consegue iniciar, ajustar preferencias, fazer uma
 expedicao, retornar e sair sem orientacao verbal. Audio tem licenca registrada.
+
+O suporte de controle atual tem mapeamento padrao e testes simulados. Acoes
+de teclado podem ser remapeadas; botoes de controle ainda nao. Entrada de IP
+do co-op e configuracao textual dos provedores de IA dependem de teclado.
+Nao anunciar Full Controller Support antes de validar esses fluxos e hardware.
+
+Mira automatica: H por padrao (remapeavel), L3 ou opcoes. Prefere sempre o
+inimigo vivo mais proximo na mesma zona, recalcula o alvo e usa a mira manual
+quando nao ha inimigos. A escolha persiste e pode mudar durante a partida ou pausa.
 
 ## EA3: saves e diagnostico
 
@@ -135,10 +169,28 @@ devem ser integrados quando contribuem para as funcionalidades prometidas.
 
 ## Execucao e evidencias
 
+### Proximas entregas
+
+1. EA3: auditar persistencia e implementar save atomico, backup e recuperacao;
+   usar essa base para migrar a pasta antes de alterar o nome tecnico.
+2. EA2: produzir/integrar audio com origem e licenca registradas, ligado aos
+   buses e controles de volume ja implementados.
+3. EA2: acessibilidade dos sinais, intensidade de efeitos e revisao dos demais
+   menus/HUD; validar primeira sessao sem orientacao verbal.
+4. EA1/EA2: executar CI release, baixar artefatos e testar Windows/Linux limpos
+   e Xbox/DualShock 4/DualSense por USB/Bluetooth e com Steam Input.
+5. EA4: desempenho, estabilidade prolongada e playtests externos solo/co-op.
+6. EA5/EA6: loja, licencas, conta Steamworks, depots e revisoes de publicacao.
+
+Esta ordem prioriza progresso salvo com seguranca. Validacoes externas e
+onboarding podem acontecer em paralelo; a data de venda permanece indefinida.
+
+### Comandos
+
 Comandos: `sh tests/run_all.sh`, `sh tools/release/build.sh all` e
 `sh tools/release/build.sh macos`. Instalar templates oficiais da mesma versao
 da engine (4.6.3). `all` gera Windows e Linux, nao macOS.
-c
+
 Validacao do pacote usa um runtime release, nao o editor Godot:
 `sh tools/release/check.sh /caminho/absoluto/aresta`.
 Executar fora do checkout evita que arquivos locais escondam omissoes do PCK.
