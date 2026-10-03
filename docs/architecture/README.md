@@ -56,6 +56,10 @@ A interface jogável em `src/prototype/build_lab/` permite testar:
 
 O laboratório usa os mesmos modelos testados pelo domínio, mas ainda trabalha com conteúdo e fórmulas provisórios.
 
+## Interface e integração contínua
+
+A interface escala pela menor razão da tela em relação a 1280×720 e se prende às bordas (decisão 564). `.github/workflows/tests.yml` roda `tests/run_all.sh` com Godot 4.6.3 headless no GitHub Actions (decisão 568).
+
 ## Exploração da vila
 
 A prova em `src/prototype/village/` valida mapa maior que a tela, câmera acompanhando, colisões e entrada e saída de um interior com ponto de retorno preservado.

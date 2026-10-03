@@ -35,6 +35,10 @@ A Torre tinha um único mapa (Pátio das Marcas) do tamanho de uma tela e uma sa
 - A cena desenha o chão do bioma, a arena, o portal (selado durante o chefe), a escada (selada até a cota), telegrafias com preenchimento progressivo, zonas de perigo, luzes do andar e a barra do chefe. Props e inimigos fora da câmera não são desenhados.
 - A aba TORRE (tecla `T`) lista os andares alcançados, recordes por modo e permite escolher o andar de partida.
 
+### Calibragem
+
+- `tools/bench/balance_probe.gd` roda andares de amostra sem janela, em solo ou em grupo (`-- --party=4`), e mede tempo, dano sofrido, quedas e derrotas. Os multiplicadores de Vida dos chefes e o dano do Regente ficam em `BOSS_HEALTH_CALIBRATION` e `REGENTE_DAMAGE_SCALE` no gerador, que também escreve o documento 75.
+
 ## Consequências
 
 - `tests/tower_floors_test.gd` verifica biomas, chefes, layouts, habilidades em área, combinações de grupo, perigos, patrulha e recordes.

@@ -40,6 +40,8 @@ Uma conclusão cuidadosa do recorte deve levar um personagem novo ao nível 3 ou
 
 ### Incapacitação
 
+**Implementado (decisão 565):** queda com janela de 20, 14 e 8 s, estabilização por aliado parado ao lado por 3 s, retorno com 25% de Vida e Ferimento de Expedição (−10% de Vida máxima até sair da Torre). Solo e grupo inteiro caído encerram a expedição.
+
 - Ao chegar a zero de Vida, o personagem cai por vinte segundos.
 - Estabilizar exige três segundos de interação contínua ou ferramenta equivalente.
 - O estabilizado retorna com 25% de Vida e um Ferimento de Expedição.

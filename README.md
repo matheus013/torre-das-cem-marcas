@@ -6,6 +6,8 @@ RPG de ação roguelike em pixel art para **um a quatro jogadores**, solo ou em 
 
 > **Estado:** beta jogável em desenvolvimento (Godot 4.6.3, GDScript). Números de combate, saque e progressão são provisórios e servem para playtest.
 
+Preparação para distribuição: [roadmap Steam em acesso antecipado](docs/roadmap-steam-acesso-antecipado.md) e [registro de execução](docs/steam-ea-execucao.md). Builds release: `sh tools/release/build.sh all` (Windows e Linux; exige templates Godot 4.6.3). Artefatos em `builds/` ainda precisam de QA antes da publicação.
+
 ---
 
 ## Sumário
@@ -57,6 +59,7 @@ Na tela de título:
 | **HOSPEDAR CO-OP** | abre seu mundo para até três amigos (porta 7777) |
 | **ENTRAR EM CO-OP** | entra no mundo de um amigo pelo IP |
 | **MORADORES (IA)** | escolhe o modo dos moradores: padrão ou com modelo de linguagem |
+| **OPÇÕES** | vídeo, limite de FPS, VSync e volumes; preferências persistem entre sessões |
 
 ---
 
@@ -67,6 +70,8 @@ Na tela de título:
 Desça a Torre andar por andar, derrote os monstros, recolha o saque e volte vivo para Aresta. Cada pedra regenerativa entregue fortalece a vila. Cada andar alcançado fica liberado como ponto de partida. Cada chefe derrotado abre o caminho para o próximo bioma. O fundo fica no **andar 100**.
 
 ### Controles
+
+As teclas abaixo são os padrões. Em **OPÇÕES → Controles**, selecione uma ação e pressione a nova tecla; **Aplicar** grava a mudança. Conflitos no mesmo contexto são bloqueados. **Esc** cancela a captura e permanece reservado para a pausa. O movimento pelo botão direito do mouse continua disponível.
 
 | Tecla | Ação |
 |---|---|
@@ -82,7 +87,24 @@ Desça a Torre andar por andar, derrote os monstros, recolha o saque e volte viv
 | **V** | trocar de personagem (fora da Torre) |
 | **F5 / F9** | salvar / carregar o mundo (solo ou host) |
 | **F6** | alternar os moradores entre modo padrão e com IA (solo ou host) |
-| **Esc** | sair da sessão (o host salva antes) |
+| **Esc** | abrir opções e pausar no solo; no co-op o mundo continua. **Voltar ao menu** encerra a sessão (o host salva antes) |
+| **H** | ligar/desligar a mira automática no inimigo vivo mais próximo da mesma zona |
+
+O mapeamento inicial de controle usa os botões normalizados de Xbox e PlayStation:
+
+| Ação | Xbox | PS4 / PS5 |
+|---|---|---|
+| Movimento / mira | analógico esquerdo / direito | analógico esquerdo / direito |
+| Gemas 1 a 4 | LB, RB, X, Y | L1, R1, quadrado, triângulo |
+| Conversar / confirmar | A | cruz |
+| Cancelar | B | círculo |
+| Item rápido | RT | R2 |
+| Inventário | View | Share / Create |
+| Personagem / gemas / Torre / trocar personagem | direcional cima / esquerda / baixo / direita | direcional cima / esquerda / baixo / direita |
+| Pausa | Menu / Start | Options |
+| Alternar mira automática | clicar analógico esquerdo (L3) | L3 |
+
+Salvar, carregar e alternar moradores também estão na aba **Sessão** das opções. A mira automática é opcional, conserva a preferência e usa a mira manual quando não há inimigos. A navegação dos menus aceita direcional/analógico e confirmação/cancelamento. A configuração de IP do co-op e de provedores de IA ainda exige entrada de texto. Compatibilidade por USB/Bluetooth com controles físicos precisa de QA antes de anunciar suporte completo na Steam.
 
 ### As quatro personagens
 
@@ -156,9 +178,11 @@ As quatro teclas **Q, W, E, R** usam **Gemas Ativas** (projétil, investida, exp
 - Equipamentos têm **fabricação** (Improvisada, Regular, Refinada, Magistral), que aumenta os bônus da peça.
 - Equipe pela aba **Inventário** (**I**). Equipar num espaço ocupado troca as peças.
 
-### Morrer na Torre
+### Cair e morrer na Torre
 
-Se sua vida acabar, você volta a Aresta e **sua carga fica no chão** onde caiu. Volte ao mesmo andar para recuperá-la. Experiência e equipamento já equipado não se perdem.
+- **Em grupo:** com vida zero você **cai** por 20 segundos (14 na segunda queda, 8 na terceira). Um aliado parado ao seu lado por 3 segundos o **estabiliza**; você volta com 25% de vida e um Ferimento de Expedição (−10% de vida máxima até voltar à vila).
+- **Derrota:** em solo, na quarta queda, se a janela acabar ou se o grupo inteiro cair, você volta a Aresta e **sua carga fica no chão** onde caiu. Volte ao mesmo andar para recuperá-la. Experiência e equipamento equipado não se perdem.
+- Fora de combate, depois de 4 segundos sem levar dano, a vida se recupera aos poucos.
 
 ### Recordes
 
@@ -229,11 +253,15 @@ godot --path . -- --public --npc-mode=ia --npc-provider=ollama --npc-url=http://
 | `tests/` | testes headless e provas de rede |
 | `tools/` | geradores de conteúdo, pipeline de arte, benchmark e jogo local em co-op |
 
-### Testes
+### Testes e balanceamento
 
 ```sh
 sh tests/run_all.sh    # todos os testes headless e as provas de rede (host + 3 clientes)
+godot --headless --path . --script tools/bench/balance_probe.gd             # sonda de balanceamento em solo
+godot --headless --path . --script tools/bench/balance_probe.gd -- --party=4  # e em grupo
 ```
+
+O GitHub Actions roda `tests/run_all.sh` a cada push em `main` (`.github/workflows/tests.yml`).
 
 ### Atalhos de desenvolvimento
 

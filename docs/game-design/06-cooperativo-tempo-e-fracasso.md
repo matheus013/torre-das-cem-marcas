@@ -34,6 +34,8 @@
 
 ## Queda e estabilização
 
+Implementado no jogo com os números do documento 58 (decisão 565).
+
 - Um personagem caído pode ser estabilizado por aliados dentro de um período limitado.
 - Pode retornar ao combate com ferimento.
 - Sem estabilização, fica incapacitado pelo restante da expedição.

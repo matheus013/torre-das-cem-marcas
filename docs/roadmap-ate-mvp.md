@@ -121,11 +121,12 @@ Um host e três clientes conseguem mover personagens distintos, usar habilidades
 - [x] cem andares em dez biomas, onze chefes com habilidades de área, patrulha, respawn acelerado e recordes por modo (decisões 553 a 559);
 - [x] vila ampliada com trinta moradores, rotinas, conversa e modo padrão ou com IA (decisões 560 e 561); agente que cuida da própria build (decisão 562);
 - [ ] medição com latência e perda de pacotes reais;
-- [ ] integração contínua mínima (o executor `tests/run_all.sh` existe; falta um repositório com CI).
+- [x] integração contínua mínima: `.github/workflows/tests.yml` roda `tests/run_all.sh` no GitHub Actions (decisão 568);
+- [x] interface proporcional à tela (decisão 564);
 
 ## Marco 2 — Sandbox de combate
 
-**Prova antecipada disponível:** os quatro personagens do beta são escolhíveis no Pátio com suas Passivas Autorais, HUD individual, ataque automático, quatro Gemas Ativas, efeitos visuais e retorno de inimigos. Números de dano e crítico provisório também estão ativos. Suportes, evoluções, níveis, cargas extras e estabilidade de gema participam do combate e são editados na aba Skills; atributos ativos seguem a decisão 531. As árvores de evolução do 10 ao 100 alteram o combate, o saque cai no chão e a Torre tem cem andares jogáveis com chefes por bioma. Queda e estabilização de personagens ainda não participam.
+**Prova antecipada disponível:** os quatro personagens do beta são escolhíveis no Pátio com suas Passivas Autorais, HUD individual, ataque automático, quatro Gemas Ativas, efeitos visuais e retorno de inimigos. Números de dano e crítico provisório também estão ativos. Suportes, evoluções, níveis, cargas extras e estabilidade de gema participam do combate e são editados na aba Skills; atributos ativos seguem a decisão 531. As árvores de evolução do 10 ao 100 alteram o combate, o saque cai no chão e a Torre tem cem andares jogáveis com chefes por bioma. Queda e estabilização seguem o documento 58 (decisão 565) e a primeira calibragem por sonda está registrada na decisão 566.
 
 ### Objetivo
 
@@ -144,7 +145,7 @@ Provar que controlar cada personagem é claro e divertido antes de produzir mapa
 - ataque automático, quatro slots de Gemas Ativas e dois suportes por slot;
 - HUD individual e sinais de cooperação;
 - alvo de treino, inimigo corpo a corpo e ameaça à distância temporários;
-- queda, estabilização, morte e troca de personagem para teste;
+- queda, estabilização, morte e troca de personagem para teste (queda e estabilização ativas, decisão 565);
 - escalonamento básico para um a quatro jogadores (orçamento, Vida de elite e chefe e recompensa já ativos; faltam ações de chefe por grupo).
 
 ### Critério de saída
