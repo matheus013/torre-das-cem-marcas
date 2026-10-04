@@ -3041,6 +3041,8 @@ func view_snapshot() -> Dictionary:
 			"breath": state["breath"],
 			"max_breath": max_breath(peer_id),
 			"barrier": state["barrier"],
+			"barrier_timer": maxf(0.0, float(state.get("barrier_timer", 0.0))),
+			"status_effects": player_status_effects(peer_id),
 			"invulnerable": float(state["invulnerable"]) > 0.0,
 			"downed": bool(state.get("downed", false)),
 			"downed_timer": float(state.get("downed_timer", 0.0)),
@@ -3053,6 +3055,7 @@ func view_snapshot() -> Dictionary:
 			"max_cooldowns": _slot_cooldowns(peer_id),
 			"gem_ids": (_gem_state(peer_id).get("slots", GEM_IDS) as Array).duplicate(),
 			"skill_tooltips": skill_tooltips(peer_id),
+			"skill_costs": skill_costs(peer_id),
 			"quick_items": state["quick_items"],
 			"carried_stone": state["carried_stone"],
 			"level": level,
@@ -3072,6 +3075,8 @@ func view_snapshot() -> Dictionary:
 			"shield_hits": enemy["shield_hits"], "flash": enemy.get("flash", 0.0),
 			"awakened": enemy["awakened"], "base_mechanic": enemy["base_mechanic"],
 			"race_trait": enemy["race_trait"], "race_id": enemy["race_id"], "rank_id": enemy["rank_id"],
+			"slow": float(enemy.get("slow_amount", 0.0)), "slow_timer": float(enemy.get("slow_timer", 0.0)),
+			"vulnerable": float(enemy.get("vulnerable_amount", 0.0)), "vulnerable_timer": float(enemy.get("vulnerable_timer", 0.0)),
 			"boss": bool(enemy.get("floor_boss", false)) or bool(enemy.get("champion", false)),
 			"name": String(enemy.get("display_name", "")), "chasing": bool(enemy.get("chasing", false)),
 			"moving": (enemy.get("wander_target", enemy["position"]) as Vector2).distance_to(enemy["position"] as Vector2) > 6.0 or bool(enemy.get("chasing", false)),
@@ -3243,6 +3248,47 @@ func _skills_model(peer_id: int) -> Array[Dictionary]:
 			"breath_cost": float(resolved.get("breath_cost", 0.0)), "charges": 1 + maxi(0, int(resolved.get("extra_charge", 0))),
 			"cooldown": float(resolved.get("cooldown", 0.0)) / maxf(0.01, float(derived_stats(peer_id).get("cooldown_recovery_multiplier", 1.0))),
 		})
+	return result
+
+
+func player_status_effects(peer_id: int) -> Array[Dictionary]:
+	var state := player(peer_id)
+	var result: Array[Dictionary] = []
+	if float(state.get("barrier", 0.0)) > 0.0:
+		result.append({"id":"barrier", "name":"Barreira", "icon":"muralha_refeita", "remaining":float(state.get("barrier_timer", 0.0)), "value":float(state["barrier"]), "description":"Absorve dano antes da Vida."})
+	if float(state.get("invulnerable", 0.0)) > 0.0:
+		result.append({"id":"invulnerable", "name":"Invulneravel", "icon":"passo_vetorial", "remaining":float(state["invulnerable"]), "description":"Protecao temporaria contra dano."})
+	if state.get("zone") == arena_zone():
+		var position := state["position"] as Vector2
+		for spec in [["healing", "healing", "Cultivo", "semeadura_vital"], ["stability", "stability", "Estabilidade", "abrigo_de_escora"]]:
+			var best := 0.0
+			var remaining := 0.0
+			for effect in persistent_effects:
+				if String(effect.get("mechanic", "")) == "sanctuary" and float(effect.get("duration", 0.0)) > 0.0 and position.distance_to(effect["position"] as Vector2) <= float(effect["radius"]):
+					var value := float(effect.get(spec[1], 0.0))
+					if value > best:
+						best = value
+						remaining = float(effect["duration"])
+			if best > 0.0:
+				result.append({"id":spec[0], "name":spec[2], "icon":spec[3], "remaining":remaining, "value":best, "description":"Cura enquanto estiver no circulo." if spec[0] == "healing" else "Reduz dano recebido em %.0f%% dentro do circulo." % (best * 100.0)})
+		var slow := 0.0
+		var slow_time := 0.0
+		for hazard in hazard_zones:
+			if state["zone"] == &"tower" and position.distance_to(hazard["position"] as Vector2) <= float(hazard["radius"]) and float(hazard.get("remaining", 0.0)) > 0.0 and float(hazard.get("slow", 0.0)) > slow:
+				slow = float(hazard["slow"])
+				slow_time = float(hazard["remaining"])
+		if slow > 0.0:
+			result.append({"id":"slow", "name":"Lentidao", "icon":"anel_de_geada", "remaining":slow_time, "description":"Movimento reduzido em %.0f%% enquanto estiver na zona." % (slow * 100.0)})
+	var wounds := int(state.get("wounds", 0))
+	if wounds > 0:
+		result.append({"id":"wound", "name":"Ferimento x%d" % wounds, "icon":"drenagem_vital", "remaining":-1.0, "description":"Vida maxima reduzida em %.0f%% ate retornar a vila." % (minf(0.5, wounds * WOUND_PENALTY) * 100.0)})
+	return result
+
+
+func skill_costs(peer_id: int) -> Array[float]:
+	var result: Array[float] = []
+	for slot in range(4):
+		result.append(float(resolve_slot(peer_id, slot).get("breath_cost", 0.0)))
 	return result
 
 

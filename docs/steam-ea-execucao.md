@@ -1,5 +1,20 @@
 # Registro de execucao: Steam Early Access
 
+## 2026-10-04: seis melhorias do HUD
+
+Skills distinguem pronta/recarga/sem Folego/caido; barreira quantificada e
+temporizada; efeitos com icones, duracao e hover; mira automatica com
+estado/alvo e marca dourada; painel de aliados com recursos, queda/resgate e
+reconexao; avisos de Vida critica, Folego insuficiente e escada liberada.
+Dados autoritativos adicionais seguem no snapshot, incluindo condicoes do
+inimigo. Escala do HUD corrigida para janelas estreitas sem alterar menus.
+Capturas controladas de quatro jogadores em 1280x720, 640x720 e 1920x1080,
+com mira automatica e manual; nao equivalem a playtest com controles fisicos.
+Escopo e limites documentados em `hud-combate.md`.
+Suite local: 41 testes aprovados, zero falhas, incluindo rede, persistencia
+e controles simulados. Export macOS final sem erros ou avisos; autoteste do
+pacote release aprovado (`RELEASE_PACK_OK`).
+
 ## 2026-10-04: descricoes ao passar o mouse
 
 Descricoes de itens no inventario, equipamentos e listas de carga/armazem;

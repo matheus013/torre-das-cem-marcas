@@ -17,7 +17,11 @@ com hordas, QA externo e validacao fisica de controles continuam pendentes.
 Base anterior enviada para `origin/main` nos commits `04e03ae` (gameplay,
 opcoes, controles, mira e distribuicao) e `eda37f6` (documentacao e QA).
 
-- Suite local atual: 40 testes aprovados, zero falhas, incluindo descricoes por hover, menus, gemas, armas, CFG/perfil, saves e rede.
+- Suite local atual: 41 testes aprovados, zero falhas, incluindo estados do HUD, descricoes por hover, menus, gemas, armas, CFG/perfil, saves e rede.
+- Seis melhorias do [HUD de combate](hud-combate.md) implementadas: efeitos,
+  barreira, disponibilidade de skills, mira/alvo, grupo e avisos contextuais.
+  Capturas controladas verificadas em 720p, 1080p e janela estreita; isso nao
+  encerra a validacao de todos os menus nem o QA com controles fisicos.
 - Build macOS de QA regenerada e autoteste do runtime release aprovado nesta entrega.
 - Builds release Windows/Linux e macOS de QA geradas sem erros ou avisos.
 - Os tres pacotes PCK passaram no autoteste com runtime release macOS.

@@ -16,6 +16,11 @@ resolve os achados de G0.
 
 ## G0: confiar no combate e no loot
 
+HUD em 2026-10-04: seis sugestoes implementadas (recursos das skills,
+barreira, efeitos com duracao, mira/alvo, grupo/resgate/reconexao e avisos).
+Ver [HUD de combate](hud-combate.md). Dados replicados pelo host; sem mudar
+balanceamento. Nao fecha QA externo, audio nem acessibilidade completa.
+
 Descricoes por hover adicionadas em 2026-10-04 a itens/equipamentos nos menus
 e skills no menu/HUD. A descricao identifica bonus e efeitos ainda sem
 consumidor no beta. Isso melhora G3.4, mas nao fecha comparacao de atributos,

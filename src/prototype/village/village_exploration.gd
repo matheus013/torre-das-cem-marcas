@@ -461,6 +461,8 @@ func _apply_events(events: Array) -> void:
 			"status":
 				if int(entry.get("peer", 0)) in [0, _local_peer]:
 					_status = String(entry.get("text", ""))
+					if _status == "Folego insuficiente." and _combat_hud != null:
+						_combat_hud.call("announce", "FOLEGO INSUFICIENTE", "breath")
 			"clear_vfx":
 				if int(entry.get("peer", 0)) == _local_peer:
 					_vfx.call("clear")
@@ -1107,9 +1109,11 @@ func _draw() -> void:
 		_draw_village_life_overlay(visible_rect)
 	if (BindingsScript.pad_device >= 0 or SettingsScript.auto_aim) and in_arena and not _input_blocked():
 		var aim_position := _skill_target()
-		draw_arc(aim_position, 8.0, 0.0, TAU, 24, Color("7fd6e0"), 2.0)
-		draw_line(aim_position - Vector2(12.0, 0.0), aim_position + Vector2(12.0, 0.0), Color("7fd6e0"), 1.0)
-		draw_line(aim_position - Vector2(0.0, 12.0), aim_position + Vector2(0.0, 12.0), Color("7fd6e0"), 1.0)
+		var selected := SettingsScript.auto_aim and not _nearest_enemy().is_empty()
+		var aim_color := Color("e8b84a") if selected else Color("7fd6e0")
+		draw_arc(aim_position, 18.0 if selected else 8.0, 0.0, TAU, 24, aim_color, 2.0)
+		draw_line(aim_position - Vector2(12.0, 0.0), aim_position + Vector2(12.0, 0.0), aim_color, 1.0)
+		draw_line(aim_position - Vector2(0.0, 12.0), aim_position + Vector2(0.0, 12.0), aim_color, 1.0)
 	if in_arena:
 		for projectile: Dictionary in _view.get("projectiles", []) as Array:
 			var position := projectile["position"] as Vector2
@@ -2011,7 +2015,11 @@ func _layout_interface() -> void:
 	_village_log_label.position = Vector2(16.0, size.y - 136.0)
 	_talk_hint.position = Vector2((size.x - 280.0) * 0.5, size.y - 170.0)
 	_combat_hud.position = Vector2.ZERO
-	_combat_hud.size = size
+	var window_size := Vector2(get_window().size)
+	var screen_scale := maxf(0.01, minf(window_size.x / viewport.x, window_size.y / viewport.y))
+	var hud_scale := maxf(1.0, 0.75 / (ui_scale * screen_scale))
+	_combat_hud.scale = Vector2.ONE * hud_scale
+	_combat_hud.size = size / hud_scale
 	for full in [_player_menu, _character_panel]:
 		(full as Control).set_anchors_preset(Control.PRESET_TOP_LEFT)
 		(full as Control).position = Vector2.ZERO
@@ -2050,11 +2058,13 @@ func _update_interface() -> void:
 	var local := _local()
 	if not arena or local.is_empty():
 		_combat_hud.visible = false
+		_combat_hud.call("clear_context")
 		_combat_label.visible = true
 		_combat_label.text = "Pedra armazenada: %d   Progresso da vila: %d   ·   Proxima entrada na Torre: andar %d (%s: mapa e recordes)" % [int(_view.get("banked_stone", 0)), int(_view.get("village_progress", 0)), int(_view.get("tower_start_floor", 1)), BindingsScript.label("tower")]
 		return
 	_combat_label.visible = false
 	_combat_hud.visible = true
+	_combat_hud.call("set_context", local, players, _local_peer, SettingsScript.auto_aim, _nearest_enemy() if SettingsScript.auto_aim else {}, floor_view)
 	var gem_ids := local.get("gem_ids", []) as Array
 	var gem_key := ",".join(PackedStringArray(gem_ids))
 	if gem_key != _last_gem_key:
