@@ -17,6 +17,7 @@ func _key(code: Key) -> InputEventKey:
 
 
 func _run() -> void:
+	_clean()
 	var defaults := Bindings.defaults()
 	if not Bindings.valid(defaults) or not Bindings.conflict(defaults, "skill_1", KEY_E) == "skill_3" or not Bindings.conflict(defaults, "interact", KEY_Q).is_empty():
 		return _fail("Context-aware conflict rules are incorrect")
@@ -29,7 +30,7 @@ func _run() -> void:
 	config.save(PATH)
 	if Bindings.read(PATH) != defaults:
 		return _fail("Corrupt conflicting settings did not recover defaults")
-	DirAccess.remove_absolute(PATH)
+	_clean()
 	Bindings.apply(defaults)
 	var title := (load("res://src/game/title_screen.tscn") as PackedScene).instantiate()
 	root.add_child(title)
@@ -81,13 +82,18 @@ func _run() -> void:
 	await process_frame
 	Bindings.apply(defaults)
 	Settings.apply(Settings.DEFAULTS)
-	DirAccess.remove_absolute(PATH)
+	_clean()
 	print("INPUT_BINDINGS_OK: conflicts, capture, persistence and live menu/skill dispatch")
 	quit(0)
 
 
 func _fail(message: String) -> void:
 	paused = false
-	DirAccess.remove_absolute(PATH)
+	_clean()
 	push_error(message)
 	quit(1)
+
+
+func _clean() -> void:
+	for suffix in ["", ".bak", ".tmp", ".bak.tmp"]:
+		DirAccess.remove_absolute(PATH + suffix)

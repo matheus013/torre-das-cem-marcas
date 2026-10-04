@@ -1,6 +1,7 @@
 extends RefCounted
 
 const BindingsScript := preload("res://src/core/app/input_bindings.gd")
+const ConfigStore := preload("res://src/core/persistence/config_store.gd")
 
 const PATH := "user://aresta_settings.cfg"
 const SECTION := "game"
@@ -12,8 +13,9 @@ static var auto_aim := false
 
 static func read(path: String = PATH) -> Dictionary:
 	var values := DEFAULTS.duplicate()
-	var config := ConfigFile.new()
-	if config.load(path) == OK:
+	var result := ConfigStore.read(path)
+	var config: ConfigFile = result["config"]
+	if result["error"] == OK:
 		for key: String in DEFAULTS:
 			values[key] = config.get_value(SECTION, key, DEFAULTS[key])
 	return sanitize(values)
@@ -29,16 +31,7 @@ static func toggle_auto_aim(path: String = PATH) -> Error:
 static func save(values: Dictionary, path: String = PATH, bindings: Dictionary = {}) -> Error:
 	if not bindings.is_empty() and not BindingsScript.valid(bindings):
 		return ERR_INVALID_PARAMETER
-	var config := ConfigFile.new()
-	var error := config.load(path)
-	if error != OK and error != ERR_FILE_NOT_FOUND:
-		return error
-	var clean := sanitize(values)
-	for key: String in DEFAULTS:
-		config.set_value(SECTION, key, clean[key])
-	for action: String in bindings:
-		config.set_value("controls", action, bindings[action])
-	return config.save(path)
+	return ConfigStore.update(path, {SECTION: sanitize(values), "controls": bindings})
 
 
 static func sanitize(values: Dictionary) -> Dictionary:

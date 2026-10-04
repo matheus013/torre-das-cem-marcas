@@ -158,3 +158,26 @@ Validacao local desta entrega: 34 testes aprovados, zero falhas, incluindo
 rede/vila online e os dois novos testes de persistencia. Export macOS de QA
 regenerado e autoteste release executado fora do checkout aprovado. Nao foi
 repetido QA nativo Windows/Linux; o novo CI sera disparado pelo push.
+
+## EA3: configuracoes e identidade (2026-10-03)
+
+CFG preservado e gravacao/backup compartilhados com saves via `atomic_file.gd`.
+Opcoes, controles, modo dev e IA preservam secoes existentes. Opcoes avisam
+recuperacao no dialogo; falhas de IA nao alteram o modo nem anunciam sucesso.
+Perfil recupera o mesmo ID do backup; falha irrecuperavel usa ID temporario
+estavel no processo, sem sobrescrever evidencia. Valores malformados de IA
+usam defaults, e campos fora da whitelist nao entram em novas gravacoes.
+
+Testes dev isolados revelaram falha de prioridade em `boot_scene`: `--public`
+agora retorna explicitamente a cena publica, independente da preferencia local.
+CI de `7ead65f` confirmado aprovado:
+https://github.com/matheus013/torre-das-cem-marcas/actions/runs/37171840741.
+
+Continuam pendentes fixture historica autentica, migracao de pasta, QA nativo
+de falhas e comunicacao do progresso co-op ao convidado. CFG parcialmente
+truncado mas ainda sintaticamente valido nao tem deteccao por checksum.
+
+Validacao final: 35 testes aprovados, zero falhas, incluindo rede e controles.
+Build macOS de QA regenerada sem erros/avisos de export e autoteste release
+fora do checkout aprovado. Erros de parse nos testes de CFG sao esperados
+para fixtures corrompidas; nenhum SCRIPT ERROR foi aceito pela suite.

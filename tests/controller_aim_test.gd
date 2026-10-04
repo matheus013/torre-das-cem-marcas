@@ -17,6 +17,7 @@ func _button(index: JoyButton) -> InputEventJoypadButton:
 
 
 func _run() -> void:
+	_clean()
 	Bindings.apply(Bindings.defaults())
 	Settings.apply(Settings.DEFAULTS)
 	if not Bindings.pressed(_button(JOY_BUTTON_LEFT_SHOULDER), "skill_1") or not Bindings.pressed(_button(JOY_BUTTON_LEFT_STICK), "auto_aim") or Bindings.pad_label("skill_1", true) != "L1":
@@ -100,13 +101,18 @@ func _run() -> void:
 	village.queue_free()
 	await process_frame
 	Settings.apply(Settings.DEFAULTS)
-	DirAccess.remove_absolute(PATH)
+	_clean()
 	print("CONTROLLER_AIM_OK: gamepad menus, pause, triggers, auto/manual aim and disconnect")
 	quit(0)
 
 
 func _fail(message: String) -> void:
 	paused = false
-	DirAccess.remove_absolute(PATH)
+	_clean()
 	push_error(message)
 	quit(1)
+
+
+func _clean() -> void:
+	for suffix in ["", ".bak", ".tmp", ".bak.tmp"]:
+		DirAccess.remove_absolute(PATH + suffix)

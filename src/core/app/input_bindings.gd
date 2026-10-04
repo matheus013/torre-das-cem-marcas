@@ -1,5 +1,7 @@
 extends RefCounted
 
+const ConfigStore := preload("res://src/core/persistence/config_store.gd")
+
 const PATH := "user://aresta_settings.cfg"
 const PAD_BUTTONS := {"skill_1": JOY_BUTTON_LEFT_SHOULDER, "skill_2": JOY_BUTTON_RIGHT_SHOULDER, "skill_3": JOY_BUTTON_X, "skill_4": JOY_BUTTON_Y, "interact": JOY_BUTTON_A, "inventory": JOY_BUTTON_BACK, "character": JOY_BUTTON_DPAD_UP, "skills": JOY_BUTTON_DPAD_LEFT, "tower": JOY_BUTTON_DPAD_DOWN, "switch_character": JOY_BUTTON_DPAD_RIGHT, "auto_aim": JOY_BUTTON_LEFT_STICK}
 static var pad_device := -1
@@ -61,8 +63,9 @@ static func valid(values: Dictionary) -> bool:
 
 static func read(path: String = PATH) -> Dictionary:
 	var values := defaults()
-	var config := ConfigFile.new()
-	if config.load(path) == OK:
+	var result := ConfigStore.read(path)
+	var config: ConfigFile = result["config"]
+	if result["error"] == OK:
 		for action: String in SPECS:
 			values[action] = config.get_value("controls", action, values[action])
 	return values if valid(values) else defaults()

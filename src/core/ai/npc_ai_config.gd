@@ -7,6 +7,7 @@ extends RefCounted
 ## A chave de API nunca é gravada: o arquivo guarda apenas o nome da variável de ambiente.
 
 const PATH := "user://aresta_npc_ai.cfg"
+const ConfigStore := preload("res://src/core/persistence/config_store.gd")
 const MODES: Array[String] = ["padrao", "ia"]
 const PROVIDERS: Array[String] = ["ollama", "openai", "anthropic"]
 const DEFAULTS := {
@@ -26,10 +27,11 @@ const PROVIDER_DEFAULTS := {
 }
 
 
-static func load_settings() -> Dictionary:
+static func load_settings(path: String = PATH) -> Dictionary:
 	var settings := DEFAULTS.duplicate()
-	var config := ConfigFile.new()
-	if config.load(PATH) == OK:
+	var result := ConfigStore.read(path)
+	var config: ConfigFile = result["config"]
+	if result["error"] == OK:
 		for key: String in DEFAULTS:
 			if config.has_section_key("npc_ai", key):
 				settings[key] = config.get_value("npc_ai", key)
@@ -45,13 +47,12 @@ static func load_settings() -> Dictionary:
 	return _sanitize(settings)
 
 
-static func save_settings(settings: Dictionary) -> void:
-	var config := ConfigFile.new()
-	config.load(PATH)
+static func save_settings(settings: Dictionary, path: String = PATH) -> Error:
 	var clean := _sanitize(settings)
+	var values: Dictionary = {}
 	for key: String in DEFAULTS:
-		config.set_value("npc_ai", key, clean[key])
-	config.save(PATH)
+		values[key] = clean[key]
+	return ConfigStore.update(path, {"npc_ai": values})
 
 
 static func api_key(settings: Dictionary) -> String:
@@ -60,7 +61,17 @@ static func api_key(settings: Dictionary) -> String:
 
 
 static func _sanitize(settings: Dictionary) -> Dictionary:
-	var result := settings.duplicate()
+	var result := DEFAULTS.duplicate()
+	for key: String in DEFAULTS:
+		var value: Variant = settings.get(key, DEFAULTS[key])
+		if DEFAULTS[key] is String:
+			if value is String or value is StringName:
+				result[key] = String(value)
+		else:
+			if value is String and String(value).is_valid_float():
+				value = float(value)
+			if (value is int or value is float) and is_finite(float(value)):
+				result[key] = value
 	if String(result["mode"]) not in MODES:
 		result["mode"] = "padrao"
 	if String(result["provider"]) not in PROVIDERS:

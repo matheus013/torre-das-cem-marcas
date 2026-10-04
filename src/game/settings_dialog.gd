@@ -119,6 +119,11 @@ func open(pause_solo: bool = false) -> void:
 	_capturing = ""
 	_update_bindings()
 	_error.text = ""
+	var stored := SettingsScript.ConfigStore.read(_settings_path)
+	if stored["recovered"]:
+		_error.text = "Opcoes e controles recuperados do backup. A ultima alteracao pode faltar."
+	elif stored["error"] not in [OK, ERR_FILE_NOT_FOUND]:
+		_error.text = "Configuracao indisponivel. Padroes em uso; arquivo anterior preservado."
 	_paused_by_us = pause_solo and not get_tree().paused
 	if _paused_by_us:
 		get_tree().paused = true

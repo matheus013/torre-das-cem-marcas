@@ -123,7 +123,10 @@ func _collect() -> Dictionary:
 
 
 func _save() -> void:
-	NpcAiConfigScript.save_settings(_collect())
+	var error := NpcAiConfigScript.save_settings(_collect())
+	if error != OK:
+		_result.text = "Falha ao salvar configuracao (%d). Arquivo anterior preservado." % error
+		return
 	_settings = NpcAiConfigScript.load_settings()
 	_result.text = "Configuracao salva. Modo: %s." % ("com IA" if _settings["mode"] == "ia" else "padrao")
 

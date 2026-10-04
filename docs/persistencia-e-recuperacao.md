@@ -1,6 +1,7 @@
 # Persistencia e recuperacao
 
-Auditoria em 2026-10-03. Esta entrega cobre mundo e recordes; nao encerra EA3.
+Auditoria em 2026-10-03. Mundo, recordes, configuracoes e perfil protegidos;
+migracao historica e QA nativo ainda impedem encerrar EA3.
 
 ## Arquivos em user://
 
@@ -8,9 +9,9 @@ Auditoria em 2026-10-03. Esta entrega cobre mundo e recordes; nao encerra EA3.
 | --- | --- | --- |
 | aresta_prototype_save.json | Solo/host: mundo, inventarios das personagens, progressao e estado do jogador host | Temporario, validacao, backup e recuperacao |
 | aresta_floor_records.json | Solo/host: tempos por andar e tamanho de grupo | Temporario, validacao, backup e recuperacao |
-| aresta_settings.cfg | Opcoes, teclado, mira automatica e preferencia dev | ConfigFile direto; endurecimento pendente |
-| aresta_profile.cfg | Identidade local usada para reconexao | ConfigFile direto; endurecimento pendente |
-| aresta_npc_ai.cfg | Preferencias opcionais de IA, sem gravar chave de API | ConfigFile direto; endurecimento pendente |
+| aresta_settings.cfg | Opcoes, teclado, mira automatica e preferencia dev | Temporario, backup, recuperacao e preservacao de secoes |
+| aresta_profile.cfg | Identidade local usada para reconexao | Temporario, backup e validacao do ID |
+| aresta_npc_ai.cfg | Preferencias opcionais de IA, sem gravar chave de API | Temporario, backup, recuperacao e whitelist de campos |
 | aresta_dev_content.json | Conteudo do editor de desenvolvimento | JSON direto; fora do fluxo publico |
 
 Logs do motor e arquivos de testes nao sao progresso. Nao enviar a pasta inteira
@@ -19,7 +20,8 @@ a pasta; nao renomear antes de implementar migracao de diretorio.
 
 ## Gravacao e recuperacao
 
-`json_store.gd` pressupoe um unico escritor: duas instancias na mesma pasta de
+`atomic_file.gd`, usado por JSON e ConfigFile, pressupoe um unico escritor:
+duas instancias na mesma pasta de
 usuario nao podem salvar simultaneamente. Steam Cloud ainda nao esta integrado.
 
 1. Valida dados e le o arquivo anterior sem modifica-lo.
@@ -37,6 +39,27 @@ da ultima gravacao. Sem backup valido, o mundo atual permanece inalterado.
 
 Voltar ao menu salva antes de desconectar. Se falhar, mantem a sessao e exibe
 erro. Fechar pelo sistema operacional ainda nao garante autosave.
+
+## Configuracoes e identidade
+
+O formato `.cfg` anterior continua legivel, sem conversao de pasta. Atualizacoes
+preservam secoes desconhecidas e as preferencias dos outros consumidores do
+mesmo arquivo. Opcoes e teclado leem o mesmo backup; o dialogo avisa quando
+houve recuperacao. Modo dev e IA tambem usam gravacao protegida. Falha ao salvar
+IA mantem o modo em uso e aparece na UI, sem anunciar sucesso.
+
+Sem configuracao recuperavel, leitores usam defaults e escritores recusam
+sobrescrever o arquivo corrompido. O perfil exige ID textual nao vazio; recupera
+o mesmo ID pelo backup. Sem perfil recuperavel ou sem permissao para gravar,
+gera identidade temporaria estavel durante o processo e avisa nos logs. A
+identidade temporaria nao recupera a reserva/progresso do ID perdido e pode
+mudar apos reiniciar. O perfil antigo nao e substituido silenciosamente.
+
+ConfigFile valida sintaxe; opcoes/teclado/IA mantem sanitizacao de valores.
+Um truncamento que ainda forme um `.cfg` sintaticamente valido pode ser lido
+como parcial, com defaults para chaves ausentes: nao ha checksum/completude.
+Diagnosticos de parse sao emitidos pelo motor. Preferencias de IA persistem
+somente campos conhecidos; chave de API nao e incluida em novas gravacoes.
 
 ## Versoes e co-op
 
@@ -62,8 +85,12 @@ abandonado, arquivos invalidos, falhas induzidas de abertura, protecao de versao
 futura e rejeicao sem mutacao do mundo. `tests/world_persistence_test.gd`:
 recuperacao na cena, aviso visivel no estado da UI, protecao de clientes e recordes.
 O smoke test existente verifica equipamentos, gemas e progressao apos salvar.
+`tests/config_persistence_test.gd`: compatibilidade com CFG anterior, secoes
+preservadas, recuperacao de controles/mira com aviso, falhas de escrita,
+recuperacao de identidade, ID temporario estavel e exclusao de campos secretos.
+Testes dev agora usam arquivo isolado, sem alterar preferencias do jogador.
 
 Flush e rename nao substituem prova de queda de energia nem garantem durabilidade
 fisica em qualquer filesystem. Pendentes: matar processo entre etapas, disco
 cheio real, permissao negada, falha de rename, Windows/Linux nativos, concorrencia,
-configuracoes protegidas, migracao de pasta e troca de build com save historico.
+migracao de pasta e troca de build com save historico.

@@ -9,6 +9,7 @@ func _init() -> void:
 
 
 func _run() -> void:
+	_clean()
 	var clean := SettingsScript.sanitize({"fullscreen": "true", "resolution": 99, "fps": 19, "vsync": null, "master": -20.0, "music": INF, "effects": 250.0})
 	if clean["fullscreen"] or not clean["vsync"] or clean["resolution"] != 3 or clean["fps"] != 60 or clean["master"] != 0.0 or clean["music"] != 100.0 or clean["effects"] != 100.0:
 		return _fail("Invalid configuration values were not sanitized")
@@ -27,7 +28,7 @@ func _run() -> void:
 	SettingsScript.apply(SettingsScript.DEFAULTS)
 	if AudioServer.is_bus_mute(AudioServer.get_bus_index("Master")):
 		return _fail("Restoring volume did not unmute Master")
-	DirAccess.remove_absolute(TEST_PATH)
+	_clean()
 
 	var title := (load("res://src/game/title_screen.tscn") as PackedScene).instantiate()
 	root.add_child(title)
@@ -52,7 +53,7 @@ func _run() -> void:
 	dialog.call("_apply")
 	if not dialog.visible or Engine.max_fps != 120 or (dialog.get("_error") as Label).text.is_empty():
 		return _fail("Failed save closed the dialog or changed runtime preferences")
-	DirAccess.remove_absolute(TEST_PATH)
+	_clean()
 	dialog.hide()
 	title.queue_free()
 	await process_frame
@@ -98,6 +99,11 @@ func _run() -> void:
 
 func _fail(message: String) -> void:
 	paused = false
-	DirAccess.remove_absolute(TEST_PATH)
+	_clean()
 	push_error(message)
 	quit(1)
+
+
+func _clean() -> void:
+	for suffix in ["", ".bak", ".tmp", ".bak.tmp"]:
+		DirAccess.remove_absolute(TEST_PATH + suffix)

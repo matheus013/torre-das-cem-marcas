@@ -211,8 +211,13 @@ func _toggle_npc_mode() -> void:
 	if _sim == null:
 		_status = "Somente o host escolhe o modo dos moradores."
 		return
-	_npc_settings["mode"] = "padrao" if String(_npc_settings.get("mode", "padrao")) == "ia" else "ia"
-	NpcAiConfigScript.save_settings(_npc_settings)
+	var pending := _npc_settings.duplicate()
+	pending["mode"] = "padrao" if String(pending.get("mode", "padrao")) == "ia" else "ia"
+	var error := NpcAiConfigScript.save_settings(pending)
+	if error != OK:
+		_status = "Falha ao salvar modo dos moradores (%d). Modo anterior mantido." % error
+		return
+	_npc_settings = pending
 	(_sim.get("village_life") as RefCounted).set("mode", String(_npc_settings["mode"]))
 	_status = "Moradores no modo %s (%s %s)." % ["COM IA" if _npc_settings["mode"] == "ia" else "PADRAO", _npc_settings["provider"], _npc_settings["model"]]
 
