@@ -46,6 +46,14 @@ func ring(position: Vector2, radius: float) -> void:
 	_add({"kind": "ring", "sprite": "vfx/shockwave", "position": position, "radius": radius, "duration": 0.35})
 
 
+func cone(position: Vector2, direction: Vector2, radius: float, angle: float) -> void:
+	_add({"kind": "cone", "position": position, "direction": direction, "radius": radius, "angle": angle, "duration": 0.3})
+
+
+func target_ring(position: Vector2, radius: float, duration: float) -> void:
+	_add({"kind": "target_ring", "position": position, "radius": radius, "duration": duration})
+
+
 func spark(position: Vector2) -> void:
 	_add({"kind": "burst", "sprite": "vfx/spark", "position": position + Vector2(randf_range(-6.0, 6.0), randf_range(-14.0, -4.0)), "radius": 10.0, "duration": 0.16})
 
@@ -112,6 +120,19 @@ func _draw() -> void:
 				_draw_burst(effect, progress)
 			"ring":
 				_draw_ring(effect, progress)
+			"cone":
+				var center: Vector2 = effect["position"]
+				var heading := (effect["direction"] as Vector2).angle()
+				var half := float(effect["angle"]) * 0.5
+				var radius := float(effect["radius"])
+				draw_arc(center, radius, heading - half, heading + half, 24, Color(GLOW, 1.0 - progress), 3.0)
+				for edge in [-half, half]:
+					draw_line(center, center + Vector2.RIGHT.rotated(heading + edge) * radius, Color(CORE, 1.0 - progress), 2.0)
+			"target_ring":
+				var center: Vector2 = effect["position"]
+				var radius := float(effect["radius"])
+				draw_arc(center, radius, 0, TAU, 32, Color(GLOW, 0.45), 2.0)
+				draw_arc(center, radius * (1.0 - progress), 0, TAU, 32, CORE, 2.0)
 			"chain":
 				_draw_chain(effect, progress)
 			"ghost":

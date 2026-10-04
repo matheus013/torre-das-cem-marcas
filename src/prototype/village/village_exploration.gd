@@ -1544,6 +1544,17 @@ func _draw_drop(drop: Dictionary) -> void:
 func _draw_ground_effect(effect: Dictionary) -> void:
 	var position := effect.get("position", Vector2.ZERO) as Vector2
 	var radius := float(effect.get("radius", 40.0))
+	if String(effect.get("mechanic", "")) == "orbit":
+		for point: Vector2 in effect.get("points", []) as Array:
+			_draw_sprite("vfx/needle", point, false, Color("c8f2f0"))
+			draw_arc(point, float(effect.get("collision_radius", 20.0)), 0, TAU, 16, Color("7fd6e0"), 1.5)
+		return
+	if String(effect.get("mechanic", "")) == "mine":
+		var armed := bool(effect.get("armed", false))
+		_draw_sprite("vfx/impact", position, false, Color("e8b84a") if armed else Color("aaa59a"))
+		draw_arc(position, radius, 0, TAU, 32, Color("e8b84a") if armed else Color("aaa59a"), 1.5)
+		draw_line(position + Vector2(-8, 0), position + Vector2(8, 0), Color("f2e6c9"), 2)
+		return
 	var sanctuary := String(effect.get("mechanic", "")) == "sanctuary"
 	var remaining := clampf(float(effect.get("duration", 1.0)), 0.0, 1.0)
 	var texture := SpriteLibraryScript.texture("vfx/sanctuary" if sanctuary else "vfx/gravity")

@@ -18,6 +18,7 @@ const VillageLifeScript := preload("res://src/simulation/npc/village_life.gd")
 const PassiveRuntimeScript := preload("res://src/gameplay/passives/passive_runtime.gd")
 const LayoutScript := preload("res://src/gameplay/world/world_layout.gd")
 const MilestoneEffectsScript := preload("res://src/gameplay/progression/milestone_effects.gd")
+const SkillGeometryScript := preload("res://src/gameplay/skills/skill_geometry.gd")
 const LootDifficultyScript := preload("res://src/gameplay/loot/loot_difficulty.gd")
 
 const MAX_PLAYERS := 4
@@ -636,7 +637,7 @@ func _after_skill(peer_id: int, effect: Dictionary, target: Vector2, echo: float
 			if copy.has(key):
 				copy[key] = float(copy[key]) * echo
 		copy.erase("repeat_count")
-		_scheduled.append({"time": 0.3, "peer": peer_id, "effect": copy, "target": target})
+		_scheduled.append({"time": 0.3, "peer": peer_id, "effect": copy, "target": target, "zone": state["zone"], "floor": current_floor})
 	if String(effect.get("mechanic", "")) == "dash":
 		for mechanic in _mechanics(peer_id, "dash_nova"):
 			var radius := float(mechanic.get("radius", 80.0))
@@ -754,6 +755,8 @@ func _run_scheduled(delta: float) -> void:
 		_scheduled.remove_at(index)
 		var peer_id := int(entry["peer"])
 		if players.has(peer_id) and player(peer_id)["zone"] in ARENA_ZONES:
+			if int(entry.get("floor", current_floor)) != current_floor or entry.get("zone", player(peer_id)["zone"]) != player(peer_id)["zone"]:
+				continue
 			execute_gem_effect(peer_id, entry["effect"] as Dictionary, entry["target"] as Vector2)
 			if is_milestone_paused():
 				return
@@ -782,6 +785,7 @@ func _step_barrier(peer_id: int, delta: float) -> void:
 
 func _step_player(peer_id: int, delta: float) -> void:
 	var state := players[peer_id] as Dictionary
+	state["breath_hit_budget"] = minf(8.0, float(state.get("breath_hit_budget", 8.0)) + delta * 8.0)
 	if bool(state.get("downed", false)):
 		_step_downed(peer_id, delta)
 		return
@@ -843,13 +847,13 @@ func _step_player(peer_id: int, delta: float) -> void:
 	_apply_passive_requests(peer_id, passive.call("on_player_moved", state["position"]) as Array)
 	state["attack_timer"] = float(state["attack_timer"]) - delta
 	if float(state["attack_timer"]) <= 0.0:
-		var nearest := nearest_enemy_to(state["position"] as Vector2, AUTO_ATTACK_RANGE)
+		var weapon := weapon_attack_model(peer_id)
+		var nearest := nearest_enemy_to(state["position"] as Vector2, float(weapon["range"]))
 		if nearest >= 0:
 			var first := enemies[nearest]["position"] as Vector2
 			_vfx(state["zone"], "travel", ["vfx/bolt", (state["position"] as Vector2) - Vector2(0.0, 14.0), first, 0.07, 9.0])
-			var effective := derived_stats(peer_id).get("effective_primaries", {}) as Dictionary
-			var damage := AUTO_ATTACK_DAMAGE * _mod(peer_id, "auto_damage_mult") * level_power(peer_id) * (1.0 + float(effective.get(&"strength", 0.0)) * 0.004 + float(effective.get(&"agility", 0.0)) * 0.002)
-			var imprint := {}
+			var damage := float(weapon["damage"])
+			var imprint := {"crit_add": weapon["crit_add"], "damage_type": weapon["damage_type"], "knockback": weapon.get("knockback", 0.0), "vulnerable": weapon.get("vulnerable", 0.0), "vulnerable_duration": weapon.get("vulnerable_duration", 0.0)}
 			for mechanic in _mechanics(peer_id, "auto_imprint"):
 				var last := state.get("last_hit", {}) as Dictionary
 				for key: String in ["slow", "slow_duration", "vulnerable", "vulnerable_duration", "life_steal"]:
@@ -861,13 +865,26 @@ func _step_player(peer_id: int, delta: float) -> void:
 					var spot := enemy["position"] as Vector2
 					if spot != first and spot.distance_to(first) <= 150.0 and extra_targets.size() < int(mechanic.get("targets", 1)):
 						extra_targets.append(spot)
-			damage_enemy(peer_id, nearest, damage, imprint)
+			var origin := state["position"] as Vector2
+			var direction := origin.direction_to(first)
+			match String(weapon["pattern"]):
+				"line":
+					var end := origin + direction * float(weapon["range"])
+					_vfx(state["zone"], "chain", [[origin, end] as Array[Vector2]])
+					_damage_segment(peer_id, origin, end, float(weapon["width"]), damage, int(weapon["targets"]), imprint)
+				"cone":
+					_vfx(state["zone"], "cone", [origin, direction, float(weapon["range"]), float(weapon["angle"])])
+					for index in range(enemies.size() - 1, -1, -1):
+						if index < enemies.size() and SkillGeometryScript.in_cone(enemies[index]["position"] as Vector2, origin, direction, float(weapon["range"]), float(weapon["angle"])):
+							damage_enemy(peer_id, index, damage, imprint)
+				_:
+					damage_enemy(peer_id, nearest, damage, imprint)
 			for spot in extra_targets:
 				var chained := nearest_enemy_to(spot, 4.0)
 				if chained >= 0:
 					_vfx(state["zone"], "chain", [[first, spot] as Array[Vector2]])
 					damage_enemy(peer_id, chained, damage * float(_mechanics(peer_id, "auto_chain")[0].get("ratio", 0.5)), imprint)
-			state["attack_timer"] = AUTO_ATTACK_INTERVAL / float(derived_stats(peer_id).get("automatic_attack_rate_multiplier", 1.0))
+			state["attack_timer"] = float(weapon["interval"])
 
 
 # ---------------------------------------------------------------- movimento e zonas
@@ -1882,6 +1899,8 @@ func nearest_enemy_to(origin: Vector2, max_range: float) -> int:
 # ---------------------------------------------------------------- dano
 
 func damage_enemies(peer_id: int, center: Vector2, radius: float, damage: float, hit: Dictionary = {}) -> void:
+	if damage <= 0.0:
+		return
 	for index in range(enemies.size() - 1, -1, -1):
 		if index < enemies.size() and center.distance_to(enemies[index]["position"] as Vector2) <= radius:
 			damage_enemy(peer_id, index, damage, hit)
@@ -1915,7 +1934,7 @@ func damage_enemy(peer_id: int, index: int, damage: float, hit: Dictionary = {})
 	if critical:
 		damage *= minf(2.0, CRIT_MULTIPLIER + maxf(0.0, float(derived.get("critical_damage_multiplier", 1.5)) - 1.5) + float(derived.get("critical_damage_bonus", 0.0)))
 	var race_trait := String(enemy.get("race_trait", ""))
-	if race_trait == "stone_skin":
+	if race_trait == "stone_skin" and String(hit.get("damage_type", "physical")) == "physical":
 		damage *= 0.85
 	_vfx(zone, "number", [enemy_position, damage, critical])
 	_vfx(zone, "spark", [enemy_position])
@@ -1938,6 +1957,11 @@ func damage_enemy(peer_id: int, index: int, damage: float, hit: Dictionary = {})
 			heal_player(peer_id, damage * steal)
 		if float(hit.get("barrier_per_hit", 0.0)) > 0.0:
 			_add_barrier(peer_id, float(hit["barrier_per_hit"]), 3.0)
+		if float(hit.get("breath_per_hit", 0.0)) > 0.0:
+			var budget := float(attacker.get("breath_hit_budget", 8.0))
+			var gained := minf(budget, float(hit["breath_per_hit"]))
+			attacker["breath_hit_budget"] = budget - gained
+			attacker["breath"] = minf(max_breath(peer_id), float(attacker["breath"]) + gained)
 		if float(hit.get("knockback", 0.0)) > 0.0:
 			var away := (enemy_position - (attacker["position"] as Vector2)).normalized()
 			if not bool(enemy.get("floor_boss", false)):
@@ -2144,8 +2168,39 @@ func execute_gem_effect(peer_id: int, effect: Dictionary, target: Vector2) -> vo
 	var power := float(effect.get("power", 0.0))
 	var hit := _hit_context(effect)
 	match mechanic:
-		"projectile":
+		"projectile", "boomerang":
 			_cast_projectiles(peer_id, effect, target, hit)
+		"cone":
+			var direction := (target - position).normalized()
+			if direction == Vector2.ZERO:
+				direction = Vector2.RIGHT
+			var angle := clampf(float(effect.get("angle", 1.2)), 0.1, TAU)
+			_vfx(zone, "cone", [position, direction, radius, angle])
+			for index in range(enemies.size() - 1, -1, -1):
+				if index < enemies.size() and SkillGeometryScript.in_cone(enemies[index]["position"], position, direction, radius, angle):
+					damage_enemy(peer_id, index, power, hit)
+		"beam":
+			var direction := (target - position).normalized()
+			if direction == Vector2.ZERO:
+				direction = Vector2.RIGHT
+			var end := position + direction * float(effect.get("range", 450.0))
+			_vfx(zone, "chain", [[position, end]])
+			_damage_segment(peer_id, position, end, float(effect.get("width", 18.0)), power, enemies.size(), hit)
+		"meteor":
+			var center := _ranged_skill_target(peer_id, target, effect)
+			var count := clampi(int(effect.get("meteor_count", 1)), 1, 8)
+			for index in range(count):
+				var spread := Vector2.ZERO if count == 1 else Vector2.RIGHT.rotated(TAU * index / float(count)) * float(effect.get("spread", 80.0))
+				var landing := (center + spread).clamp(Vector2(20, 20), _zone_size(zone) - Vector2(20, 20))
+				var delay := maxf(0.1, float(effect.get("delay", 0.8))) + index * 0.12
+				_vfx(zone, "target_ring", [landing, radius, delay])
+				var impact := effect.duplicate(true)
+				impact["mechanic"] = "impact"
+				impact["repeat_count"] = 0
+				_scheduled.append({"time": delay, "peer": peer_id, "effect": impact, "target": landing, "zone": zone, "floor": current_floor})
+		"impact":
+			_vfx(zone, "burst", [target, radius])
+			damage_enemies(peer_id, target, radius, power, hit)
 		"dash":
 			var direction := (target - position).normalized()
 			if direction == Vector2.ZERO:
@@ -2164,12 +2219,26 @@ func execute_gem_effect(peer_id: int, effect: Dictionary, target: Vector2) -> vo
 			if float(effect.get("arrival_barrier", 0.0)) > 0.0:
 				_add_barrier(peer_id, float(effect["arrival_barrier"]), 3.0)
 		"nova":
-			_vfx(zone, "ring", [position, radius])
-			damage_enemies(peer_id, position, radius, power, hit)
-		"field", "sanctuary":
+			var center := _ranged_skill_target(peer_id, target, effect) if bool(effect.get("remote_nova", false)) else position
+			var inner := maxf(0.0, float(effect.get("inner_radius", 0.0)))
+			_vfx(zone, "ring", [center, radius])
+			if inner > 0.0:
+				_vfx(zone, "ring", [center, inner])
+			for index in range(enemies.size() - 1, -1, -1):
+				if index < enemies.size():
+					var distance := center.distance_to(enemies[index]["position"])
+					if distance >= inner and distance <= radius:
+						damage_enemy(peer_id, index, power, hit)
+		"field", "sanctuary", "orbit", "mine":
 			var effect_position := position if mechanic == "sanctuary" else target
+			if mechanic == "orbit":
+				effect_position = position
+			elif mechanic != "sanctuary":
+				effect_position = _ranged_skill_target(peer_id, target, effect)
+			_limit_skill_deployments(peer_id, String(effect.get("gem_id", effect.get("id", ""))))
 			persistent_effects.append({
 				"mechanic": mechanic,
+				"gem_id": String(effect.get("gem_id", effect.get("id", ""))),
 				"owner_peer": peer_id,
 				"position": effect_position,
 				"radius": radius,
@@ -2181,7 +2250,13 @@ func execute_gem_effect(peer_id: int, effect: Dictionary, target: Vector2) -> vo
 				"tick_timer": 0.0,
 				"pull": float(effect.get("pull_strength", 0.0)),
 				"expire_damage": float(effect.get("expire_damage", 0.0)),
-				"follows": bool(effect.get("field_follows_player", false)),
+				"follows": mechanic == "orbit" or bool(effect.get("field_follows_player", false)),
+				"orbit_count": clampi(int(effect.get("orbit_count", 3)), 1, 8),
+				"phase": 0.0,
+				"angular_speed": float(effect.get("angular_speed", 2.5)),
+				"collision_radius": float(effect.get("collision_radius", 20.0)),
+				"arm_timer": maxf(0.0, float(effect.get("arm_delay", 1.0))),
+				"trigger_radius": float(effect.get("trigger_radius", 70.0)),
 				"overheal_barrier": bool(effect.get("overheal_barrier", false)),
 				"stability": clampf(float(effect.get("stability", 0.0)), 0.0, STABILITY_LIMIT),
 				"hit": hit,
@@ -2204,24 +2279,42 @@ func execute_gem_effect(peer_id: int, effect: Dictionary, target: Vector2) -> vo
 			_vfx(zone, "ring", [position, radius])
 		"chain":
 			_damage_chain(peer_id, effect, hit)
-	var repeats := int(effect.get("repeat_count", 0))
+	var repeats := clampi(int(effect.get("repeat_count", 0)), 0, 4)
 	if repeats > 0:
 		var echo := effect.duplicate(true)
 		echo["repeat_count"] = 0
 		for index in range(repeats):
-			_scheduled.append({"time": float(effect.get("repeat_delay", 0.6)) * float(index + 1), "peer": peer_id, "effect": echo, "target": target})
+			_scheduled.append({"time": maxf(0.05, float(effect.get("repeat_delay", 0.6))) * float(index + 1), "peer": peer_id, "effect": echo, "target": target, "zone": zone, "floor": current_floor})
+
+
+func _ranged_skill_target(peer_id: int, target: Vector2, effect: Dictionary) -> Vector2:
+	var origin: Vector2 = player(peer_id)["position"]
+	var offset := target - origin
+	var reach := maxf(1.0, float(effect.get("range", 420.0)))
+	return (origin + offset.limit_length(reach)).clamp(Vector2(20, 20), _zone_size(player(peer_id)["zone"]) - Vector2(20, 20))
+
+
+func _limit_skill_deployments(peer_id: int, gem_id: String) -> void:
+	var owned: Array[Dictionary] = []
+	for current in persistent_effects:
+		if int(current.get("owner_peer", -1)) == peer_id and String(current.get("gem_id", "")) == gem_id and String(current.get("mechanic", "")) != "summon":
+			owned.append(current)
+	if owned.size() >= 8:
+		persistent_effects.erase(owned[0])
 
 
 func _hit_context(effect: Dictionary) -> Dictionary:
 	return {
+		"damage_type": "arcane" if "magic" in (effect.get("tags", []) as Array) else "physical",
 		"crit_add": float(effect.get("critical_chance", 0.0)),
 		"life_steal": float(effect.get("life_steal", 0.0)),
 		"knockback": float(effect.get("knockback", 0.0)),
 		"slow": clampf(float(effect.get("slow", 0.0)), 0.0, 0.8),
-		"slow_duration": maxf(1.0, float(effect.get("duration", 1.5))) if effect.has("slow") else 0.0,
+		"slow_duration": maxf(1.0, float(effect.get("status_duration", effect.get("duration", 1.5)))) if effect.has("slow") else 0.0,
 		"vulnerable": float(effect.get("damage_taken", 0.0)),
-		"vulnerable_duration": float(effect.get("duration", 3.0)),
+		"vulnerable_duration": float(effect.get("status_duration", effect.get("duration", 3.0))),
 		"barrier_per_hit": float(effect.get("barrier_per_hit", 0.0)),
+		"breath_per_hit": float(effect.get("breath_per_hit", 0.0)),
 		"gem": true,
 	}
 
@@ -2311,7 +2404,7 @@ func _cast_projectiles(peer_id: int, effect: Dictionary, target: Vector2, hit: D
 	var aim := target - origin
 	var distance := minf(aim.length(), max_range)
 	var direction := aim.normalized() if aim.length() > 0.1 else Vector2.RIGHT
-	var count := 1 + int(effect.get("projectile_count", 0))
+	var count := clampi(1 + int(effect.get("projectile_count", 0)), 1, 8)
 	var radius := float(effect.get("radius", 42.0)) + float(effect.get("impact_area", 0.0))
 	var power := float(effect.get("power", 0.0))
 	var pierce := int(effect.get("pierce", 0))
@@ -2345,6 +2438,11 @@ func _cast_projectiles(peer_id: int, effect: Dictionary, target: Vector2, hit: D
 		if bool(effect.get("return_projectile", false)):
 			_vfx(zone, "travel", ["vfx/needle", end, origin, travel_time * 1.5, 16.0])
 			_damage_segment(peer_id, end, origin, 22.0, power * 0.6, 99, hit)
+		for branch in range(clampi(int(effect.get("fork_count", 0)), 0, 4)):
+			var branch_angle := (float(branch) - float(clampi(int(effect.get("fork_count", 0)), 0, 4) - 1) * 0.5) * 0.75
+			var branch_end := end + direction.rotated(branch_angle) * max_range * 0.4
+			_vfx(zone, "travel", ["vfx/needle", end, branch_end, travel_time, 16.0])
+			_damage_segment(peer_id, end, branch_end, 20.0, power * 0.65, 99, hit)
 
 
 ## Dano ao longo de uma linha, do ponto inicial para o final, limitado a "limit" alvos.
@@ -2376,6 +2474,15 @@ func _update_persistent_effects(delta: float) -> void:
 			effect["duration"] = float(effect["duration"]) - delta
 		if mechanic != "summon" and bool(effect.get("follows", false)) and players.has(owner_peer):
 			effect["position"] = player(owner_peer)["position"]
+		if mechanic == "orbit":
+			effect["phase"] = fmod(float(effect.get("phase", 0.0)) + float(effect["angular_speed"]) * delta, TAU)
+		if mechanic == "mine":
+			effect["arm_timer"] = maxf(0.0, float(effect["arm_timer"]) - delta)
+			if float(effect["duration"]) <= 0.0 or (float(effect["arm_timer"]) <= 0.0 and nearest_enemy_to(effect["position"], float(effect["trigger_radius"])) >= 0):
+				_vfx(arena_zone(), "burst", [effect["position"], float(effect["radius"])])
+				damage_enemies(owner_peer, effect["position"], float(effect["radius"]), float(effect["power"]), effect.get("hit", {}) as Dictionary)
+				persistent_effects.erase(effect)
+			continue
 		if float(effect.get("pull", 0.0)) > 0.0:
 			for enemy in enemies:
 				var to_center := (effect["position"] as Vector2) - (enemy["position"] as Vector2)
@@ -2386,18 +2493,27 @@ func _update_persistent_effects(delta: float) -> void:
 			var owner_offset := (player(owner_peer)["position"] as Vector2) - summon_position
 			if owner_offset.length() > 42.0:
 				effect["position"] = summon_position + owner_offset.normalized() * minf(float(effect.get("movement_speed", 120.0)) * delta, owner_offset.length() - 42.0)
+		elif mechanic == "summon" and String(effect.get("behavior", "")) == "chase_target":
+			var nearest := _summon_target(effect)
+			if nearest >= 0:
+				var offset := (enemies[nearest]["position"] as Vector2) - (effect["position"] as Vector2)
+				if offset.length() > float(effect["range"]) * 0.7:
+					effect["position"] = (effect["position"] as Vector2) + offset.normalized() * minf(float(effect["movement_speed"]) * delta, offset.length())
 		effect["tick_timer"] = float(effect["tick_timer"]) - delta
 		if float(effect["tick_timer"]) <= 0.0:
 			effect["tick_timer"] = float(effect["tick_interval"])
 			if mechanic == "summon":
-				var nearest := nearest_enemy_to(effect["position"] as Vector2, float(effect["range"]))
-				if nearest >= 0:
-					damage_enemy(owner_peer, nearest, float(effect["power"]))
+				var nearest := _summon_target(effect)
+				if nearest >= 0 and (enemies[nearest]["position"] as Vector2).distance_to(effect["position"]) <= float(effect["range"]):
+					damage_enemy(owner_peer, nearest, float(effect["power"]), effect.get("hit", {}) as Dictionary)
+			elif mechanic == "orbit":
+				for point in SkillGeometryScript.orbit_points(effect["position"], float(effect["radius"]), float(effect["phase"]), int(effect["orbit_count"])):
+					damage_enemies(owner_peer, point, float(effect["collision_radius"]), float(effect["power"]), effect.get("hit", {}) as Dictionary)
 			else:
 				damage_enemies(owner_peer, effect["position"] as Vector2, float(effect["radius"]), float(effect["power"]), effect.get("hit", {}) as Dictionary)
 				if mechanic == "sanctuary":
 					for member in _players_in_arena():
-						if member == owner_peer or (player(member)["position"] as Vector2).distance_to(effect["position"] as Vector2) <= float(effect["radius"]):
+						if (player(member)["position"] as Vector2).distance_to(effect["position"] as Vector2) <= float(effect["radius"]):
 							var member_state := player(member)
 							var healed := float(member_state["health"]) + float(effect["healing"])
 							if bool(effect.get("overheal_barrier", false)) and healed > max_health(member):
@@ -2408,8 +2524,26 @@ func _update_persistent_effects(delta: float) -> void:
 			if expire > 0.0:
 				var expire_radius := float(effect.get("expire_radius", effect.get("radius", 80.0)))
 				_vfx(arena_zone(), "ring", [effect["position"], expire_radius])
-				damage_enemies(owner_peer, effect["position"] as Vector2, expire_radius, expire)
+				damage_enemies(owner_peer, effect["position"] as Vector2, expire_radius, expire, effect.get("hit", {}) as Dictionary)
 			persistent_effects.erase(effect)
+
+
+func _summon_target(effect: Dictionary) -> int:
+	var chosen := -1
+	var best := INF
+	var center: Vector2 = effect["position"]
+	if String(effect.get("targeting", "")) == "owner_target":
+		center = effect.get("owner_target", center)
+	for index in range(enemies.size()):
+		var distance := center.distance_to(enemies[index]["position"])
+		var reach := 600.0 if String(effect.get("behavior", "")) == "chase_target" else float(effect["range"])
+		if distance > reach:
+			continue
+		var score := float(enemies[index]["health"]) if String(effect.get("targeting", "")) == "lowest_health_hostile" else distance
+		if score < best:
+			best = score
+			chosen = index
+	return chosen
 
 
 func _spawn_summons(peer_id: int, effect: Dictionary, target: Vector2) -> void:
@@ -2455,6 +2589,8 @@ func _spawn_summons(peer_id: int, effect: Dictionary, target: Vector2) -> void:
 			"can_be_damaged": bool(definition.get("can_be_damaged", true)),
 			"expire_damage": float(effect.get("expire_damage", 0.0)),
 			"expire_radius": float(effect.get("expire_radius", 80.0)),
+			"hit": _hit_context(effect),
+			"owner_target": target,
 		})
 		_next_summon_sequence += 1
 
@@ -2492,14 +2628,15 @@ func _damage_chain(peer_id: int, effect: Dictionary, hit: Dictionary) -> void:
 	var heal := float(effect.get("heal_per_chain", 0.0)) * float(chosen.size())
 	if heal > 0.0:
 		state["health"] = minf(max_health(peer_id), float(state["health"]) + heal)
-	var hits := chosen.duplicate()
+	var hits: Array[Dictionary] = []
+	for index: int in chosen:
+		hits.append(enemies[index])
 	if bool(effect.get("repeat_last_target", false)):
-		hits.append(chosen[-1])
-	var order := hits.duplicate()
-	order.sort()
-	order.reverse()
-	for index: int in order:
-		damage_enemy(peer_id, index, power, hit)
+		hits.append(hits[-1])
+	for enemy in hits:
+		var index := enemies.find(enemy)
+		if index >= 0:
+			damage_enemy(peer_id, index, power, hit)
 
 
 func _apply_passive_requests(peer_id: int, requests: Array) -> void:
@@ -2946,6 +3083,8 @@ func view_snapshot() -> Dictionary:
 		effect_views.append({
 			"mechanic": effect["mechanic"], "position": effect["position"], "radius": effect.get("radius", 40.0),
 			"duration": effect.get("duration", 1.0), "collision_radius": effect.get("collision_radius", 12.0),
+			"points": SkillGeometryScript.orbit_points(effect["position"], float(effect["radius"]), float(effect.get("phase", 0.0)), int(effect.get("orbit_count", 1))) if String(effect["mechanic"]) == "orbit" else [],
+			"armed": float(effect.get("arm_timer", 0.0)) <= 0.0,
 		})
 	return {
 		"players": player_views,
@@ -3068,7 +3207,7 @@ func _skills_model(peer_id: int) -> Array[Dictionary]:
 		var attached: Array[Dictionary] = []
 		for support_id: Variant in (gems["supports"] as Array)[slot]:
 			var support := support_definition(String(support_id))
-			attached.append({"id": String(support_id), "name": String(support.get("name", support_id)), "drain": int(support.get("drain", 0))})
+			attached.append({"id": String(support_id), "name": String(support.get("name", support_id)), "drain": int(support.get("drain", 0)), "category": support.get("category", "buff"), "description": support.get("description", "")})
 		var available: Array[Dictionary] = []
 		for support in _collection("support_gems"):
 			var support_id := String(support.get("id", ""))
@@ -3077,7 +3216,7 @@ func _skills_model(peer_id: int) -> Array[Dictionary]:
 				if (other as Array).has(support_id):
 					in_use = true
 			if not in_use and bool(resolver.call("supports", definition, support)):
-				available.append({"id": support_id, "name": String(support.get("name", support_id)), "drain": int(support.get("drain", 0))})
+				available.append({"id": support_id, "name": String(support.get("name", support_id)), "drain": int(support.get("drain", 0)), "category": support.get("category", "buff"), "description": support.get("description", "")})
 		var pending: Array[Dictionary] = []
 		if not (progress["choices"] as Dictionary).has(str(level)):
 			for option in _evolution_options(gem_id, level):
@@ -3092,6 +3231,7 @@ func _skills_model(peer_id: int) -> Array[Dictionary]:
 		result.append({
 			"slot": slot, "key": GEM_SLOT_KEYS[slot], "id": gem_id, "name": String(definition.get("name", gem_id)),
 			"mechanic": String(definition.get("mechanic", "")), "tags": definition.get("tags", []),
+			"description": definition.get("description", ""),
 			"level": level, "max_level": GEM_MAX_LEVEL_BETA,
 			"experience": int(progress["experience"]), "experience_required": gem_experience_required(level),
 			"capacity_used": _used_capacity((gems["supports"] as Array)[slot] as Array), "capacity": gem_capacity(level),
@@ -3121,6 +3261,22 @@ func _milestone_choices(peer_id: int) -> Array[Dictionary]:
 	return choices
 
 
+func weapon_attack_model(peer_id: int) -> Dictionary:
+	var state := player(peer_id)
+	var equipment: EquipmentLoadout = _gear(peer_id).get("equipment") as EquipmentLoadout
+	var type_id := "unarmed"
+	var fabrication := 1.0
+	if equipment != null and equipment.weapon != null:
+		type_id = String(equipment.weapon.definition.weapon_type)
+		fabrication = LootDifficultyScript.fabrication_factor(String(equipment.weapon.quality))
+	var derived := derived_stats(peer_id)
+	var result := WeaponCombat.resolve(type_id, String(state.get("character_id", "")), derived.get("effective_primaries", {}) as Dictionary, fabrication)
+	result["damage"] = float(result["damage"]) * _mod(peer_id, "auto_damage_mult") * level_power(peer_id)
+	result["interval"] = float(result["interval"]) / maxf(0.01, float(derived.get("automatic_attack_rate_multiplier", 1.0)))
+	result["critical_chance"] = clampf(float(derived.get("critical_chance", CRIT_CHANCE)) + float(result["crit_add"]), 0.0, 0.5)
+	return result
+
+
 func menu_model(peer_id: int) -> Dictionary:
 	var state := player(peer_id)
 	var build := character_build(peer_id)
@@ -3145,6 +3301,7 @@ func menu_model(peer_id: int) -> Dictionary:
 	var equipment: EquipmentLoadout = gear.get("equipment") as EquipmentLoadout
 	return {
 		"character_name": state.get("character_name", ""),
+		"weapon_attack": weapon_attack_model(peer_id),
 		"level": build.level if build != null else 1,
 		"max_level": build.max_level if build != null else CharacterBuild.MAX_LEVEL,
 		"records": records.duplicate(true),

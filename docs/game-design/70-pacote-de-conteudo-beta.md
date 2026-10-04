@@ -6,11 +6,16 @@
 
 ## Escopo
 
+Atualizacao 2026-10-04: 36 ativas, 40 suportes (20 mecanicos + 20 buffs),
+quatro definicoes de invocacao e 14 familias de skills. As tabelas abaixo
+registram o recorte inicial; a lista vigente esta no [catalogo](../catalogo-gemas.md).
+Armas iniciais distintas e afinidades: [perfis](../armas-e-afinidades.md).
+
 O pacote cobre Aresta e os andares 1 a 4 das Galerias Refeitas. Seu objetivo é testar liberdade de build, diferenças de encontro, loot, tiers, afixos e o ciclo de retorno sem antecipar conteúdo das outras nove regiões.
 
 ## Personagens
 
-O beta oferece Eloa Ferral, Sena Rotavela, Cira Salvedra e Rui Pedralva. Cada personagem possui uma passiva autoral e duas escolhas de marco entre seis opções nos níveis 10 e 20. O limite individual do beta é 20; os demais personagens da primeira geração e níveis posteriores permanecem fora deste pacote.
+O beta oferece Eloa Ferral, Sena Rotavela, Cira Salvedra e Rui Pedralva, com passiva autoral e progressao ate 100. Marcos a cada dez niveis pausam a simulacao e oferecem seis escolhas. Os demais personagens permanecem fora deste pacote.
 
 ## Gemas Ativas
 

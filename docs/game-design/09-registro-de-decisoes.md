@@ -576,6 +576,11 @@ Este registro resume as rodadas aprovadas. Os documentos temáticos contêm as r
 567. **Portais e escadas com arte:** o portal de retorno é um arco de pedra com redemoinho animado (vermelho e gradeado quando a arena está selada) e a escada é uma escadaria que, fechada, recebe uma barreira de runas vermelhas; abertas, sobem faíscas. Sprites gerados no PixelForge.
 568. **Integração contínua:** `.github/workflows/tests.yml` baixa o Godot 4.6.3 headless no Linux, importa o projeto e roda `tests/run_all.sh` a cada push em `main` e em pull requests.
 
+569. **Marcos com pausa:** por solicitacao do responsavel, niveis 10 a 100 pausam a simulacao e abrem escolhas automaticamente. Jogadores conectados com escolha pendente precisam concluir; desconectados nao bloqueiam a retomada.
+570. **Catalogo ampliado de gemas:** a pedido do responsavel, beta com 36 ativas, 20 suportes mecanicos e 20 buffs, incluindo multishot, ricochete, roubo de Vida e recuperacao de Folego por acerto. Folego e o recurso existente, sem introduzir mana paralela. Disponibilidade livre no beta nao define a futura aquisicao por loot.
+571. **Armas e afinidades:** a pedido do responsavel, Eloa inicia com foco, Sena com lanca, Cira com manoplas e Rui com bastao. Cada tipo altera o ataque automatico e escala com atributos diferentes. Afinidades percentuais afetam seu dano sem bloquear equipamento ou gemas; substituem a ausencia anterior de afinidades, mantendo liberdade de build. Valores iniciais constam de `../armas-e-afinidades.md`.
+
 ## Regra de manutenção
+
 
 Novas decisões devem ser adicionadas ao documento temático correspondente e resumidas neste registro. Alterações em decisões existentes devem indicar claramente qual regra anterior foi substituída.

@@ -168,9 +168,12 @@ As quatro teclas **Q, W, E, R** usam **Gemas Ativas** (projétil, investida, exp
 - Personagens vão do **nível 1 ao 100**. Cada nível dá **+5 de Vida** e mais potência.
 - Níveis comuns dão **5 pontos de atributo** (Vitalidade, Força, Inteligência, Agilidade, Sorte, Sabedoria). Cada gema escala com os atributos que declara.
 - Os níveis **10, 20 … 100** oferecem uma **evolução** entre seis opções: Essência (fortalece a passiva), Adaptação (sobrevivência) e Convergência (grupo). Toda opção do nível 100 é uma mecânica nova.
-- O personagem só passa de um marco depois de escolher a evolução, na aba **Personagem** (**C**).
+- Ao chegar a um marco, a simulacao pausa e a tela de escolhas abre automaticamente; o jogo retoma depois das escolhas dos jogadores conectados.
 
 ### Saque e equipamento
+
+- Catalogo atual: [36 skills e 40 suportes](docs/catalogo-gemas.md), incluindo multishot, ricochete, roubo de Vida e Folego.
+- Cada personagem inicia com um [tipo de arma distinto](docs/armas-e-afinidades.md), com escala por atributos e afinidades percentuais.
 
 - O saque **cai no chão**: passe por cima para recolher.
 - Equipamentos e itens raros brilham e mostram o nome na cor do tier: Comum, Incomum, Raro, Épico, Lendário.

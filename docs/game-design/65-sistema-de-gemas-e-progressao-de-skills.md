@@ -2,14 +2,14 @@
 
 ## Estado de implementação do protótipo
 
-- As oito mecânicas-base do beta executam: projétil, dash, nova, campo, barreira, corrente, invocação e santuário.
+- O catalogo atual tem 36 ativas, 20 suportes mecanicos e 20 suportes de buff. As 14 familias incluem projetil, dash, nova, campo, barreira, corrente, invocacao, santuario, cone, feixe, orbita, mina, meteoro e bumerangue. Lista: [catalogo de gemas](../catalogo-gemas.md).
 - Cada personagem possui seu próprio loadout: quatro slots em Q, W, E e R, suportes por slot e nível, EXP e evoluções por gema (decisão 538).
 - A aba Skills (`G`) troca a gema de cada slot, encaixa e remove suportes compatíveis e escolhe a evolução pendente de cada nível, sempre fora da Torre.
 - Resolução no combate: base, evoluções por nível e suportes em ordem estável. Capacidade de suporte é `2 + nível` com no máximo dois suportes por slot.
 - Gemas recebem a mesma EXP da personagem e precisam de `80 × nível` para subir; a evolução do nível atual deve ser escolhida antes do próximo nível. O beta limita gemas ao nível 3.
 - Modificadores executados: projéteis em leque, perfuração, ricochete, homing, retorno, área no impacto, rastro e chegada do dash, barreira na chegada, repulsão, lentidão, vulnerabilidade, barreira por acerto, atração, campo que segue, excesso de cura em barreira, dano ao expirar, saltos de corrente, cura por salto, repetição no último alvo, eco agendado, roubo de vida e chance crítica adicional.
-- Cargas extras acumulam usos por slot e recarregam uma por vez; estabilidade de santuário reduz o dano recebido por aliados no raio (decisões 543 e 544). Todos os modificadores do beta executam.
-- Ícones provisórios desenhados por código identificam as 20 gemas do beta até o PixelForge gerar as versões definitivas (decisão 540).
+- Cargas extras acumulam usos por slot e recarregam uma por vez; estabilidade de santuario reduz o dano recebido por aliados no raio. O smoke de compatibilidade nao substitui playtests de todas as combinacoes; flags legadas de evolucao ainda exigem auditoria.
+- Icones provisorios desenhados por codigo identificam as 76 gemas do beta. Multishot, ricochete e roubo de Vida sao suportados; Sifao de Folego recupera o recurso atual, limitado a 8 pontos por segundo por jogador.
 - A implementação técnica está na ADR 0018.
 
 ## Estado

@@ -1,5 +1,28 @@
 # Registro de execucao: Steam Early Access
 
+## 2026-10-04: catalogo de combate e armas
+
+- 36 skills ativas, 20 suportes mecanicos e 20 buffs; 14 familias, novas
+  geometrias, zonas, antecipacao de impactos e quatro tipos de invocacao.
+- Multishot, ricochete, roubo de Vida e Sifao de Folego (8 pontos/s por
+  jogador). Folego substitui o pedido de recuperacao de mana no recurso atual.
+- Quatro armas iniciais preservam IDs/saves, agora com perfil real de
+  alcance, cadencia, escala, critico, tipo de dano e afinidade percentual.
+- Factory importa tags, incompatibilidades e duas maos; transacao recusada
+  preserva item no inventario. Metadados antigos nao viram efeitos por si so.
+- Suite local: 38 aprovados, zero falhas, incluindo rede. Smoke testa as
+  36 ativas, 505 pares compativeis, evolucoes, timing, icones e saves.
+- Teste adicional confirma geometria de armas, escala, afinidades,
+  reconstituicao de equipamento salvo e reducao fisica de Pele de Pedra.
+- Capturas nativas da aba Skills, Personagem e efeitos de orbita/mina/meteoro.
+- Release macOS regenerado e `RELEASE_PACK_OK` aprovado fora do checkout,
+  incluindo presenca e validacao do novo JSON de armas.
+
+Catalogo e manual em `catalogo-gemas.md` e `armas-e-afinidades.md`.
+Pendente: aquisicao de gemas por loot, playtests de balanceamento, arte/audio
+definitivos, benchmark de hordas, QA Windows/Linux e controles fisicos.
+Nenhum gate Steam EA foi declarado concluido por quantidade de conteudo.
+
 ## 2026-10-02: EA1
 
 Roadmap definido em `roadmap-steam-acesso-antecipado.md`.

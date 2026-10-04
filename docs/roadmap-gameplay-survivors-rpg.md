@@ -16,6 +16,14 @@ resolve os achados de G0.
 
 ## G0: confiar no combate e no loot
 
+Entrega 2026-10-04: catalogo ampliado para 36 ativas + 20 suportes mecanicos
++ 20 buffs, novos icones, geometria e efeitos reais; quatro tipos de arma
+inicial com escalas e afinidades. Testes de catalogo, compatibilidade e
+execucao cobrem esta base. G3.2 continua aberto: viabilidade e balanceamento
+precisam de playtests. G0.1 tem `fortune` corrigido e validacao de escalas;
+G0.2 tem importacao de metadados corrigida. Os gates completos permanecem
+pendentes de suas evidencias de aceitacao, sem declarar G0 concluido.
+
 - [ ] G0.1: validar referencias de atributos do catalogo/gerador; corrigir `luck` para `fortune` sem alterar IDs. Aceite: todas as escalas existem e Elo Residual responde a Fortune.
 - [ ] G0.2: importar tags, incompatibilidades e `two_handed`. Aceite: teste via factory impede equipar combinacoes invalidas, sem apagar itens do inventario.
 - [ ] G0.3: registrar cada atributo equipado e seu consumidor. Aceite: cada bonus exibido altera uma medida observavel, ou fica explicitamente indisponivel no beta.

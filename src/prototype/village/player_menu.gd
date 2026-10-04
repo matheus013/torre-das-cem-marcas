@@ -217,6 +217,15 @@ func _build_character() -> void:
 		float(derived.get("cooldown_recovery_multiplier", 1.0)) * 100.0,
 	], TEXT)
 	var chosen: Array = _model.get("chosen_milestones", []) as Array
+	var weapon := _model.get("weapon_attack", {}) as Dictionary
+	if not weapon.is_empty():
+		_section("ARMA: " + String(weapon.get("name", "")), "Afinidade %.0f%%" % float(weapon.get("affinity", 100.0)))
+		_add_text("DANO %.1f   ALCANCE %.0f   INTERVALO %.2fs   CRITICO %.1f%%" % [float(weapon["damage"]), float(weapon["range"]), float(weapon["interval"]), float(weapon["critical_chance"]) * 100.0], TEXT)
+		_add_text("TIPO: " + String(weapon["damage_type"]).to_upper(), MUTED)
+		for stat: String in weapon.get("scaling", {}) as Dictionary:
+			_add_text("%s: +%.1f%% por ponto" % [_stat_label(stat), float(weapon["scaling"][stat]) * 100.0], MUTED)
+		for type_id: String in weapon.get("affinities", {}) as Dictionary:
+			_add_text("%s: %.0f%%" % [String((WeaponCombat.data()["types"][type_id] as Dictionary)["name"]), float(weapon["affinities"][type_id])], MUTED)
 	if not chosen.is_empty():
 		_section("EVOLUCOES ESCOLHIDAS", "%d de 10" % chosen.size())
 		for entry: Dictionary in chosen:
@@ -356,6 +365,12 @@ func _build_skill_card(skill: Dictionary, gem_options: Array, safe: bool) -> voi
 			gem_slot_requested.emit(slot, chosen)
 	)
 	header.add_child(swap)
+	if not String(skill.get("description", "")).is_empty():
+		var description := Label.new()
+		description.text = String(skill["description"])
+		description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		description.add_theme_color_override("font_color", TEXT)
+		column.add_child(description)
 
 	var stats := Label.new()
 	stats.text = "Potencia %.0f   Recarga %.1f s   Evolucoes: %s" % [
@@ -375,7 +390,7 @@ func _build_skill_card(skill: Dictionary, gem_options: Array, safe: bool) -> voi
 	for support: Dictionary in skill.get("supports", []) as Array:
 		var chip := Button.new()
 		chip.text = "%s (%d)  x" % [String(support.get("name", "")), int(support.get("drain", 0))]
-		chip.tooltip_text = "Remover suporte"
+		chip.tooltip_text = "%s\n%s\nRemover suporte" % ["Mecanica" if String(support.get("category", "")) == "mechanic" else "Buff", String(support.get("description", ""))]
 		chip.disabled = not safe
 		var support_id := String(support.get("id", ""))
 		chip.pressed.connect(func() -> void: support_detach_requested.emit(slot, support_id))
@@ -388,8 +403,9 @@ func _build_skill_card(skill: Dictionary, gem_options: Array, safe: bool) -> voi
 		add.set_item_metadata(0, "")
 		for index in range(available.size()):
 			var support := available[index] as Dictionary
-			add.add_item("%s (%d)" % [String(support.get("name", "")), int(support.get("drain", 0))])
+			add.add_item("%s | %s (%d)" % ["Mecanica" if String(support.get("category", "")) == "mechanic" else "Buff", String(support.get("name", "")), int(support.get("drain", 0))])
 			add.set_item_metadata(index + 1, String(support.get("id", "")))
+			add.get_popup().set_item_tooltip(index + 1, String(support.get("description", "")))
 		add.item_selected.connect(func(index: int) -> void:
 			var support_id := String(add.get_item_metadata(index))
 			if not support_id.is_empty():
@@ -432,6 +448,10 @@ const MODIFIER_NAMES := {
 	"repeat_last_target": "repete no ultimo alvo", "return_projectile": "retorna", "ricochet": "ricochetes",
 	"slow": "lentidao", "speed": "velocidade", "stability": "estabilidade", "summon_count": "invocacoes",
 	"summon_follows_player": "invocacao segue", "trail_damage": "dano no rastro",
+	"angle": "abertura", "width": "largura", "angular_speed": "rotacao", "orbit_count": "orbitas",
+	"arm_delay": "tempo de armar", "meteor_count": "impactos", "delay": "atraso", "fork_count": "bifurcacoes",
+	"remote_nova": "pulso remoto", "inner_radius": "centro vazio", "invulnerability": "invulnerabilidade",
+	"breath_per_hit": "Folego por acerto",
 }
 
 

@@ -30,6 +30,12 @@ func definition_from_data(data: Dictionary) -> EquipmentItemDefinition:
 		SLOT_BY_NAME[slot_name] as EquipmentItemDefinition.Slot
 	)
 	var raw_stats: Variant = data.get("stats", {})
+	definition.weapon_type = StringName(String(data.get("weapon_type", "unarmed")))
+	definition.two_handed = bool(data.get("two_handed", false))
+	for tag: Variant in data.get("tags", []) as Array:
+		definition.tags.append(StringName(String(tag)))
+	for tag: Variant in data.get("incompatibility_tags", []) as Array:
+		definition.incompatibility_tags.append(StringName(String(tag)))
 	if raw_stats is Dictionary:
 		for raw_stat: Variant in raw_stats:
 			definition.stat_modifiers[StringName(String(raw_stat))] = float(raw_stats[raw_stat])

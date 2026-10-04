@@ -1,0 +1,15 @@
+{
+  "types": {
+    "unarmed": {"name":"Desarmado","range":130,"power":16,"interval":0.8,"crit_add":0,"damage_type":"physical","pattern":"single","scaling":{"strength":0.004}},
+    "focus": {"name":"Foco","range":340,"power":18,"interval":0.8,"crit_add":0.02,"damage_type":"arcane","pattern":"single","vulnerable":0.08,"vulnerable_duration":2,"scaling":{"intelligence":0.006,"wisdom":0.003}},
+    "spear": {"name":"Lanca","range":220,"power":22,"interval":0.75,"crit_add":0.06,"damage_type":"physical","pattern":"line","width":20,"targets":2,"scaling":{"strength":0.005,"agility":0.003}},
+    "gauntlets": {"name":"Manoplas","range":105,"power":12,"interval":0.4,"crit_add":-0.03,"damage_type":"physical","pattern":"single","knockback":5,"scaling":{"strength":0.004,"vitality":0.004}},
+    "staff": {"name":"Bastao","range":160,"power":28,"interval":1.1,"crit_add":0,"damage_type":"physical","pattern":"cone","angle":1.7,"knockback":35,"scaling":{"wisdom":0.004,"strength":0.004}}
+  },
+  "affinities": {
+    "eloa":{"focus":115,"spear":85,"gauntlets":80,"staff":100},
+    "sena":{"focus":85,"spear":115,"gauntlets":100,"staff":90},
+    "cira":{"focus":90,"spear":95,"gauntlets":115,"staff":100},
+    "rui":{"focus":85,"spear":100,"gauntlets":95,"staff":115}
+  }
+}

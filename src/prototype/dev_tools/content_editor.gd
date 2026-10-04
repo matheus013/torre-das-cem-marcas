@@ -271,7 +271,7 @@ func _build_form() -> void:
 		_add_number_field(&"loot_multiplier", "Multiplicador de loot", 0.0, 20.0, 1.0, 0.05)
 		_add_line_field(&"mechanic_id", "Mecanica opcional")
 	elif _mode == &"active_gem":
-		_add_option_field(&"mechanic", "Mecanica", ["projectile", "dash", "nova", "field", "barrier", "chain", "summon", "sanctuary"])
+		_add_option_field(&"mechanic", "Mecanica", BetaContentCatalog.ACTIVE_MECHANICS)
 		_add_line_field(&"summon_definition_id", "Definicao de summon")
 		_add_number_field(&"summon_count", "Quantidade de summons", 1.0, 8.0, 1.0)
 		_add_line_field(&"tags", "Tags separadas por virgula")
@@ -284,6 +284,9 @@ func _build_form() -> void:
 		_add_multiline_field(&"evolutions", "Evolucoes em JSON")
 	elif _mode == &"support_gem":
 		_add_line_field(&"requires", "Tags exigidas por virgula")
+		_add_option_field(&"category", "Categoria", ["mechanic", "buff"])
+		_add_line_field(&"allowed_mechanics", "Mecanicas compativeis por virgula")
+		_add_line_field(&"description", "Efeito e contrapartida")
 		_add_number_field(&"drain", "Custo de capacidade", 1.0, 100.0, 2.0)
 		_add_multiline_field(&"modifiers", "Modificadores em JSON")
 	elif _mode == &"summon":
@@ -482,6 +485,9 @@ func _save_entry() -> void:
 
 func _collect_form() -> Dictionary:
 	var entry := {"schema": String(_mode)}
+	var collection := _current_collection()
+	if _selected_index >= 0 and _selected_index < collection.size():
+		entry = (collection[_selected_index] as Dictionary).duplicate(true)
 	for key: StringName in _fields:
 		var field := _fields[key] as Control
 		if field is LineEdit:
@@ -495,6 +501,8 @@ func _collect_form() -> Dictionary:
 	if _mode in [&"active_gem", &"support_gem"]:
 		var list_key := "tags" if _mode == &"active_gem" else "requires"
 		entry[list_key] = _comma_list(String(entry.get(list_key, "")))
+		if _mode == &"support_gem":
+			entry["allowed_mechanics"] = _comma_list(String(entry.get("allowed_mechanics", "")))
 		var json_key := "evolutions" if _mode == &"active_gem" else "modifiers"
 		var json_text := String(entry.get(json_key, "{}")).strip_edges()
 		var parsed: Variant = {} if json_text.is_empty() else JSON.parse_string(json_text)

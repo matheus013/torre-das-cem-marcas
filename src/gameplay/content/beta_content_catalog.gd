@@ -5,6 +5,7 @@ const MajorEncounterDefinitionScript := preload("res://src/gameplay/encounters/m
 const DEFAULT_PATH := "res://data/beta/beta_content.json"
 const ACTIVE_MECHANICS: Array[String] = [
 	"projectile", "dash", "nova", "field", "barrier", "chain", "summon", "sanctuary",
+	"cone", "beam", "orbit", "mine", "meteor", "boomerang",
 ]
 const ENEMY_MECHANICS: Array[String] = [
 	"swarm", "erode_cover", "telegraphed_shot", "wall_ambush", "loot_mimic",
@@ -80,6 +81,11 @@ func validation_errors() -> Array[String]:
 	for character in collection("playable_characters"):
 		_validate_playable_character(character, errors)
 	for gem in collection("active_gems"):
+		for stat: Variant in gem.get("scaling", []):
+			if not CharacterBuild.PRIMARY_STATS.has(StringName(String(stat))):
+				errors.append("Unknown scaling stat in %s: %s" % [gem.get("id", ""), stat])
+		if float(gem.get("cooldown", 0.0)) <= 0.0:
+			errors.append("Active gem has invalid cooldown: %s" % gem.get("id", ""))
 		if String(gem.get("mechanic", "")) not in ACTIVE_MECHANICS:
 			errors.append("Unknown active mechanic: %s" % gem.get("id", ""))
 		if String(gem.get("mechanic", "")) == "summon":
@@ -92,6 +98,21 @@ func validation_errors() -> Array[String]:
 			if not evolutions is Dictionary or not evolutions.has(level) or not evolutions[level] is Array or evolutions[level].size() < 2:
 				errors.append("Active gem %s needs two choices at level %s" % [gem.get("id", ""), level])
 	for support in collection("support_gems"):
+		for mechanic: Variant in support.get("allowed_mechanics", []):
+			if String(mechanic) not in ACTIVE_MECHANICS:
+				errors.append("Unknown support mechanic: %s" % support.get("id", ""))
+		for modifier: Variant in support.get("modifiers", {}):
+			var field := String(modifier).trim_suffix("_multiplier").trim_suffix("_add")
+			if field not in SkillEffectResolver.SUPPORT_FIELDS:
+				errors.append("Unknown support modifier in %s: %s" % [support.get("id", ""), modifier])
+		if String(support.get("category", "")) not in ["mechanic", "buff"] or String(support.get("description", "")).is_empty():
+			errors.append("Support needs category and description: %s" % support.get("id", ""))
+		var compatible := false
+		var resolver := SkillEffectResolver.new()
+		for gem in collection("active_gems"):
+			compatible = compatible or resolver.supports(gem, support)
+		if not compatible:
+			errors.append("Support has no compatible active gem: %s" % support.get("id", ""))
 		if int(support.get("drain", 0)) <= 0:
 			errors.append("Support gem has invalid drain: %s" % support.get("id", ""))
 	for summon in collection("summons"):

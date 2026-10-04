@@ -1,6 +1,6 @@
 # Roadmap: Steam em acesso antecipado
 
-Atualizado em 2026-10-03. Objetivo: uma build paga que entrega um ciclo de jogo
+Atualizado em 2026-10-04. Objetivo: uma build paga que entrega um ciclo de jogo
 estavel, tem escopo descrito com honestidade e passa pela revisao da Steam.
 Este plano complementa o roadmap de MVP; a quantidade de conteudo existente
 nao substitui os criterios de qualidade abaixo. Datas de lancamento dependem
@@ -8,10 +8,16 @@ de playtests e aprovacoes, nao de estimativas de porcentagem.
 
 ## Situacao atual
 
-Implementacao enviada para `origin/main` nos commits `04e03ae` (gameplay,
+Entrega de gameplay em 2026-10-04: 36 skills ativas, 20 suportes mecanicos,
+20 buffs, quatro tipos de arma inicial com escala e afinidade percentual.
+Ver [catalogo](catalogo-gemas.md) e [armas](armas-e-afinidades.md).
+Isso amplia conteudo testavel, mas nao fecha EA4: balanceamento, desempenho
+com hordas, QA externo e validacao fisica de controles continuam pendentes.
+
+Base anterior enviada para `origin/main` nos commits `04e03ae` (gameplay,
 opcoes, controles, mira e distribuicao) e `eda37f6` (documentacao e QA).
 
-- Suite local: 35 testes aprovados, zero falhas, incluindo CFG/perfil, saves e rede.
+- Suite local atual: 38 testes aprovados, zero falhas, incluindo gemas, armas, CFG/perfil, saves e rede.
 - Build macOS de QA regenerada e autoteste do runtime release aprovado nesta entrega.
 - Builds release Windows/Linux e macOS de QA geradas sem erros ou avisos.
 - Os tres pacotes PCK passaram no autoteste com runtime release macOS.

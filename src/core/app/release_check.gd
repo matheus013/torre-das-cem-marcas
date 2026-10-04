@@ -12,7 +12,7 @@ static func run(tree: SceneTree) -> void:
 		if DevModeScript.enabled() or DevModeScript.boot_scene(args) != DevModeScript.PUBLIC_HOME:
 			_fail(tree, "Release exposes development home")
 			return
-	for path in ["res://data/village/village_content.json", "res://data/beta/beta_content.json", TowerContentScript.PATH]:
+	for path in ["res://data/village/village_content.json", "res://data/beta/beta_content.json", "res://data/combat/weapon_profiles.json", TowerContentScript.PATH]:
 		if not FileAccess.file_exists(path) or JSON.parse_string(FileAccess.get_file_as_string(path)) == null:
 			_fail(tree, "Missing or invalid packaged content: " + path)
 			return
@@ -20,6 +20,9 @@ static func run(tree: SceneTree) -> void:
 		if DirAccess.dir_exists_absolute(folder):
 			_fail(tree, "Development files included: " + folder)
 			return
+	if not WeaponCombat.validation_errors().is_empty():
+		_fail(tree, "Invalid weapon profiles")
+		return
 	for key in ["characters/eloa", "buildings/torre", "tiles/grass"]:
 		if load("res://assets/sprites/" + key + ".png") == null:
 			_fail(tree, "Missing packaged sprite: " + key)

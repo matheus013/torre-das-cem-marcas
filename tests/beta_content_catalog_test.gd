@@ -11,9 +11,9 @@ func _init() -> void:
 		return
 	var expected_counts := {
 		"playable_characters": 4,
-		"active_gems": 8,
-		"support_gems": 12,
-		"summons": 1,
+		"active_gems": 36,
+		"support_gems": 40,
+		"summons": 4,
 		"monster_races": 5,
 		"enemy_ranks": 5,
 		"enemies": 9,

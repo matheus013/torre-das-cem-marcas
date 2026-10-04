@@ -6,7 +6,7 @@
 - A exigência inicial é `60 + 35 × (nível atual - 1)`, provisória para o beta.
 - O HUD mostra nível, EXP atual, próxima exigência e bloqueio de evolução.
 - Níveis comuns concedem cinco pontos; a tela de Personagem distribui os seis atributos e apresenta as seis escolhas nos marcos.
-- Vitalidade altera Vida; Agilidade altera movimento e cadência automática; Sorte altera chance e multiplicador crítico; Sabedoria altera recuperação de recarga. As escalas de Força e Inteligência nas gemas ainda precisam entrar no resolvedor de combate.
+- Vitalidade altera Vida; Agilidade altera movimento e cadencia automatica; Sorte altera chance e multiplicador critico; Sabedoria altera recuperacao de recarga. Gemas usam os atributos declarados na sua escala, incluindo Forca e Inteligencia; armas possuem pares e coeficientes proprios.
 - Progresso individual dos quatro personagens, EXP, pontos, atributos e escolhas integram o salvamento.
 - Desde a decisão 549, as quatro personagens vão até o nível 100, cada nível soma 5 de Vida e os dez marcos têm seis escolhas executáveis no combate (documento 74).
 - Ao alcançar um marco (10, 20, ..., 100), a simulação pausa e a tela de evolução abre automaticamente com as escolhas existentes. Níveis comuns não pausam.
@@ -36,7 +36,7 @@
 
 - Não existem classes, arquétipos mecânicos nem árvore obrigatória por personagem.
 - Qualquer personagem pode investir em qualquer atributo primário e usar qualquer gema cujos requisitos consiga cumprir.
-- Identidade autoral aparece numa passiva única e impactante, sem afinidades que restrinjam build.
+- Identidade autoral aparece numa passiva unica e impactante. A pedido do responsavel, armas possuem afinidade percentual por personagem desde 2026-10-04, sem bloquear equipamentos ou restringir gemas. Ver [armas e afinidades](../armas-e-afinidades.md).
 - Cada marco oferece opções de um catálogo amplo influenciado pela build atual, sem listas de classe.
 - Quando existir uma evolução da passiva entre as opções, ela compete com alternativas mecânicas gerais; nunca é uma escolha obrigatória.
 - Escolhas híbridas permitem combinar duas direções sem alcançar o pico de uma especialização pura.

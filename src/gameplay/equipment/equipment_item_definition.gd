@@ -16,6 +16,7 @@ enum Slot {
 var id: StringName
 var slot: Slot
 var two_handed := false
+var weapon_type: StringName = &"unarmed"
 var stat_modifiers: Dictionary = {}
 var mechanic_changes: Array[StringName] = []
 var incompatibility_tags: Array[StringName] = []

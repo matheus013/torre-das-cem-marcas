@@ -28,18 +28,90 @@ func _init() -> void:
 	var force := "--force" in OS.get_cmdline_user_args()
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT))
 	var made := 0
-	for id: String in _painters():
+	var painters := _painters()
+	var active_ids: Array[String] = []
+	var catalog := JSON.parse_string(FileAccess.get_file_as_string("res://data/beta/beta_content.json")) as Dictionary
+	for collection: String in ["active_gems", "support_gems"]:
+		for definition: Dictionary in catalog[collection]:
+			var id := String(definition["id"])
+			if collection == "active_gems":
+				active_ids.append(id)
+			if not painters.has(id):
+				painters[id] = _catalog_icon.bind(id, definition)
+	for id: String in painters:
 		var path := ProjectSettings.globalize_path(OUTPUT + id + ".png")
 		if FileAccess.file_exists(path) and not force:
 			continue
 		_image = Image.create_empty(SIZE, SIZE, false, Image.FORMAT_RGBA8)
-		var support := not id in ["agulha_lastro", "passo_vetorial", "pulso_cicatriz", "prisao_gravitica", "muralha_refeita", "elo_residual", "molde_vigilante", "semeadura_vital"]
+		var support := id not in active_ids
 		_frame(support)
-		(_painters()[id] as Callable).call()
+		(painters[id] as Callable).call()
 		_image.save_png(path)
 		made += 1
 	print("SKILL_ICONS: %d gerados" % made)
 	quit(0)
+
+
+func _catalog_icon(id: String, definition: Dictionary) -> void:
+	var mechanic := String(definition.get("mechanic", ""))
+	var color := CYAN
+	if definition.has("category"):
+		color = GOLD if String(definition["category"]) == "mechanic" else GREEN
+		mechanic = "support"
+	match mechanic:
+		"projectile", "boomerang", "beam":
+			_line(Vector2i(6, 20), Vector2i(21, 6), color, 2)
+			if mechanic == "boomerang":
+				_line(Vector2i(21, 6), Vector2i(21, 20), PALE, 2)
+			elif mechanic == "beam":
+				_line(Vector2i(5, 16), Vector2i(17, 5), LIGHT, 1)
+		"cone":
+			_line(Vector2i(6, 14), Vector2i(22, 5), color, 2)
+			_line(Vector2i(6, 14), Vector2i(22, 22), color, 2)
+			_line(Vector2i(22, 5), Vector2i(22, 22), PALE, 1)
+		"dash":
+			_line(Vector2i(5, 14), Vector2i(22, 14), color, 2)
+			_line(Vector2i(16, 8), Vector2i(22, 14), PALE, 2)
+			_line(Vector2i(16, 20), Vector2i(22, 14), PALE, 2)
+		"mine", "meteor":
+			_ring(Vector2i(14, 16), 6, color)
+			_rect(Rect2i(12, 14, 4, 4), LIGHT)
+			_line(Vector2i(14, 4), Vector2i(14, 9), PALE, 2)
+			if mechanic == "meteor":
+				_line(Vector2i(19, 4), Vector2i(15, 11), GOLD, 2)
+		"orbit":
+			_ring(Vector2i(14, 14), 8, color)
+			for point in [Vector2i(14, 6), Vector2i(6, 14), Vector2i(20, 19)]:
+				_rect(Rect2i(point - Vector2i.ONE, Vector2i(3, 3)), LIGHT)
+		"summon":
+			_rect(Rect2i(10, 7, 8, 10), color)
+			_line(Vector2i(10, 17), Vector2i(6, 22), PALE, 2)
+			_line(Vector2i(18, 17), Vector2i(22, 22), PALE, 2)
+		"chain":
+			for point in [Vector2i(7, 8), Vector2i(20, 13), Vector2i(8, 21)]:
+				_ring(point, 3, color)
+			_line(Vector2i(7, 8), Vector2i(20, 13), PALE, 1)
+			_line(Vector2i(20, 13), Vector2i(8, 21), PALE, 1)
+		"barrier":
+			_line(Vector2i(6, 7), Vector2i(21, 7), color, 2)
+			_line(Vector2i(6, 7), Vector2i(14, 23), color, 2)
+			_line(Vector2i(21, 7), Vector2i(14, 23), color, 2)
+		"sanctuary":
+			_rect(Rect2i(6, 12, 16, 4), GREEN)
+			_rect(Rect2i(12, 6, 4, 16), PALE)
+		"support":
+			_ring(Vector2i(14, 14), 8, color)
+			_line(Vector2i(8, 14), Vector2i(20, 14), LIGHT, 2)
+			if String(definition["category"]) == "buff":
+				_line(Vector2i(14, 8), Vector2i(14, 20), LIGHT, 2)
+		_:
+			_ring(Vector2i(14, 14), 8, color)
+			_ring(Vector2i(14, 14), 4, PALE)
+	# Small ID sigil distinguishes same-family variants without overwriting authored art.
+	var signature := id.hash()
+	for bit in range(8):
+		if signature & (1 << bit):
+			_dot(Vector2i(5 + bit * 2, 24), GOLD)
 
 
 func _painters() -> Dictionary:

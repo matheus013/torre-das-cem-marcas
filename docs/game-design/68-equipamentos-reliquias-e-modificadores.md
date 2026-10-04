@@ -8,7 +8,7 @@
 - Equipamentos sorteados por tabelas de inimigos tornam-se instâncias únicas no inventário além do registro de saque da expedição.
 - Bônus de Vida, Fôlego, movimento, velocidade de ataque, crítico, recarga e atributos primários já participam dos valores derivados.
 - Localização, definição, tier, qualidade, integridade e sequência de IDs integram o save versão 6.
-- Mudanças mecânicas de armas e Relíquias ainda dependem da integração completa do pipeline de skills.
+- Quatro tipos de arma inicial possuem alcance, cadencia, geometria, tipo de dano, escala e afinidade percentual: [perfis atuais](../armas-e-afinidades.md). Mecanicas legadas descritas nos itens e Reliquias ainda dependem de integracao completa; nao confundir metadados importados com efeito executado.
 
 ## Estado
 
