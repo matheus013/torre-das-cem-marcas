@@ -17,7 +17,7 @@ com hordas, QA externo e validacao fisica de controles continuam pendentes.
 Base anterior enviada para `origin/main` nos commits `04e03ae` (gameplay,
 opcoes, controles, mira e distribuicao) e `eda37f6` (documentacao e QA).
 
-- Suite local atual: 38 testes aprovados, zero falhas, incluindo gemas, armas, CFG/perfil, saves e rede.
+- Suite local atual: 39 testes aprovados, zero falhas, incluindo clareza de menus, gemas, armas, CFG/perfil, saves e rede.
 - Build macOS de QA regenerada e autoteste do runtime release aprovado nesta entrega.
 - Builds release Windows/Linux e macOS de QA geradas sem erros ou avisos.
 - Os tres pacotes PCK passaram no autoteste com runtime release macOS.

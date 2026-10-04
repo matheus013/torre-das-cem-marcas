@@ -1,5 +1,15 @@
 # Registro de execucao: Steam Early Access
 
+## 2026-10-04: polimento dos menus de preparacao
+
+Listas de gemas/suportes alfabeticas, descricoes nos seletores, detalhes de
+Folego/cargas/recarga por Sabedoria, cura/barreira separadas e suporte acima
+da capacidade desabilitado. Nome da arma e tipo/padrao de ataque legiveis;
+trocar aba ou reabrir menu retorna ao topo. Teste dedicado e capturas nativas
+de Skills/Personagem em 1280x720. Mudancas de apresentacao, sem rebalancear.
+Suite local: 39 testes aprovados, zero falhas, incluindo rede e persistencia.
+Pacotes release nao foram regenerados nesta entrega de polimento.
+
 ## 2026-10-04: catalogo de combate e armas
 
 - 36 skills ativas, 20 suportes mecanicos e 20 buffs; 14 familias, novas

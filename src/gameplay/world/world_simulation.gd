@@ -3228,6 +3228,7 @@ func _skills_model(peer_id: int) -> Array[Dictionary]:
 				if String(option.get("id", "")) == choice_id:
 					chosen.append(String(option.get("name", choice_id)))
 		var resolved := resolve_slot(peer_id, slot)
+		available.sort_custom(func(left: Dictionary, right: Dictionary) -> bool: return String(left["name"]).naturalnocasecmp_to(String(right["name"])) < 0)
 		result.append({
 			"slot": slot, "key": GEM_SLOT_KEYS[slot], "id": gem_id, "name": String(definition.get("name", gem_id)),
 			"mechanic": String(definition.get("mechanic", "")), "tags": definition.get("tags", []),
@@ -3237,7 +3238,9 @@ func _skills_model(peer_id: int) -> Array[Dictionary]:
 			"capacity_used": _used_capacity((gems["supports"] as Array)[slot] as Array), "capacity": gem_capacity(level),
 			"supports": attached, "available_supports": available, "support_count": attached.size(),
 			"pending_choices": pending, "chosen": chosen,
-			"power": float(resolved.get("power", resolved.get("barrier", 0.0))), "cooldown": float(resolved.get("cooldown", 0.0)),
+			"power": float(resolved.get("power", 0.0)), "barrier": float(resolved.get("barrier", 0.0)), "healing": float(resolved.get("healing", 0.0)),
+			"breath_cost": float(resolved.get("breath_cost", 0.0)), "charges": 1 + maxi(0, int(resolved.get("extra_charge", 0))),
+			"cooldown": float(resolved.get("cooldown", 0.0)) / maxf(0.01, float(derived_stats(peer_id).get("cooldown_recovery_multiplier", 1.0))),
 		})
 	return result
 
@@ -3247,7 +3250,8 @@ func _gem_options(peer_id: int) -> Array[Dictionary]:
 	var gems := _gem_state(peer_id)
 	for definition in _collection("active_gems"):
 		var gem_id := String(definition.get("id", ""))
-		result.append({"id": gem_id, "name": String(definition.get("name", gem_id)), "equipped": (gems.get("slots", []) as Array).has(gem_id)})
+		result.append({"id": gem_id, "name": String(definition.get("name", gem_id)), "description": definition.get("description", ""), "equipped": (gems.get("slots", []) as Array).has(gem_id)})
+	result.sort_custom(func(left: Dictionary, right: Dictionary) -> bool: return String(left["name"]).naturalnocasecmp_to(String(right["name"])) < 0)
 	return result
 
 
@@ -3274,6 +3278,7 @@ func weapon_attack_model(peer_id: int) -> Dictionary:
 	result["damage"] = float(result["damage"]) * _mod(peer_id, "auto_damage_mult") * level_power(peer_id)
 	result["interval"] = float(result["interval"]) / maxf(0.01, float(derived.get("automatic_attack_rate_multiplier", 1.0)))
 	result["critical_chance"] = clampf(float(derived.get("critical_chance", CRIT_CHANCE)) + float(result["crit_add"]), 0.0, 0.5)
+	result["item_name"] = item_display_name(String(equipment.weapon.definition.id)) if equipment != null and equipment.weapon != null else "Desarmado"
 	return result
 
 

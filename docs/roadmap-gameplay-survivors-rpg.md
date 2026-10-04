@@ -16,6 +16,12 @@ resolve os achados de G0.
 
 ## G0: confiar no combate e no loot
 
+Polimento imediato em 2026-10-04: listas alfabeticas de gemas/suportes,
+descricao ao passar o cursor, custo de Folego/cargas e recarga ajustada por
+Sabedoria; suportes sem capacidade ficam desabilitados. Arma equipada tem
+nome e padrao/tipo de dano visiveis; trocar aba/reabrir menu retorna ao topo.
+Sem alteracao de balanceamento ou fechamento dos gates restantes.
+
 Entrega 2026-10-04: catalogo ampliado para 36 ativas + 20 suportes mecanicos
 + 20 buffs, novos icones, geometria e efeitos reais; quatro tipos de arma
 inicial com escalas e afinidades. Testes de catalogo, compatibilidade e

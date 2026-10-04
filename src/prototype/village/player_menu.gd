@@ -27,6 +27,7 @@ var _active_tab := "inventory"
 var _content: VBoxContainer
 var _title: Label
 var _tab_buttons: Dictionary = {}
+var _scroll: ScrollContainer
 
 
 func _ready() -> void:
@@ -40,6 +41,7 @@ func open(tab: String) -> void:
 	_active_tab = tab
 	show()
 	_rebuild()
+	_scroll.scroll_vertical = 0
 	(_tab_buttons[_active_tab] as Button).grab_focus()
 
 
@@ -103,6 +105,7 @@ func _build_shell() -> void:
 	var separator := HSeparator.new()
 	root_column.add_child(separator)
 	var scroll := ScrollContainer.new()
+	_scroll = scroll
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	root_column.add_child(scroll)
@@ -115,6 +118,7 @@ func _build_shell() -> void:
 func _select_tab(tab: String) -> void:
 	_active_tab = tab
 	_rebuild()
+	_scroll.scroll_vertical = 0
 
 
 func _rebuild() -> void:
@@ -219,9 +223,11 @@ func _build_character() -> void:
 	var chosen: Array = _model.get("chosen_milestones", []) as Array
 	var weapon := _model.get("weapon_attack", {}) as Dictionary
 	if not weapon.is_empty():
-		_section("ARMA: " + String(weapon.get("name", "")), "Afinidade %.0f%%" % float(weapon.get("affinity", 100.0)))
+		_section(String(weapon.get("item_name", weapon.get("name", ""))), "Afinidade %.0f%%" % float(weapon.get("affinity", 100.0)))
 		_add_text("DANO %.1f   ALCANCE %.0f   INTERVALO %.2fs   CRITICO %.1f%%" % [float(weapon["damage"]), float(weapon["range"]), float(weapon["interval"]), float(weapon["critical_chance"]) * 100.0], TEXT)
-		_add_text("TIPO: " + String(weapon["damage_type"]).to_upper(), MUTED)
+		var damage_label := "ARCANO" if String(weapon["damage_type"]) == "arcane" else "FISICO"
+		var pattern_label := String({"single":"ALVO UNICO", "line":"LINHA", "cone":"CONE"}.get(String(weapon["pattern"]), ""))
+		_add_text("%s   |   %s   |   %s" % [String(weapon["name"]).to_upper(), damage_label, pattern_label], MUTED)
 		for stat: String in weapon.get("scaling", {}) as Dictionary:
 			_add_text("%s: +%.1f%% por ponto" % [_stat_label(stat), float(weapon["scaling"][stat]) * 100.0], MUTED)
 		for type_id: String in weapon.get("affinities", {}) as Dictionary:
@@ -356,6 +362,7 @@ func _build_skill_card(skill: Dictionary, gem_options: Array, safe: bool) -> voi
 		var option := gem_options[index] as Dictionary
 		swap.add_item(String(option.get("name", "")))
 		swap.set_item_metadata(index, String(option.get("id", "")))
+		swap.get_popup().set_item_tooltip(index, String(option.get("description", "")))
 		if String(option.get("id", "")) == gem_id:
 			selected = index
 	swap.select(selected)
@@ -373,12 +380,22 @@ func _build_skill_card(skill: Dictionary, gem_options: Array, safe: bool) -> voi
 		column.add_child(description)
 
 	var stats := Label.new()
-	stats.text = "Potencia %.0f   Recarga %.1f s   Evolucoes: %s" % [
-		float(skill.get("power", 0.0)), float(skill.get("cooldown", 0.0)),
-		", ".join(PackedStringArray(skill.get("chosen", []) as Array)) if not (skill.get("chosen", []) as Array).is_empty() else "nenhuma",
-	]
+	var values := PackedStringArray()
+	for spec in [["power", "Potencia da gema"], ["barrier", "Barreira"], ["healing", "Cura por pulso"]]:
+		if float(skill.get(spec[0], 0.0)) > 0.0:
+			values.append("%s %.0f" % [spec[1], float(skill[spec[0]])])
+	values.append("Recarga %.1f s" % float(skill.get("cooldown", 0.0)))
+	values.append("Folego %.0f" % float(skill.get("breath_cost", 0.0)))
+	values.append("Cargas %d" % int(skill.get("charges", 1)))
+	stats.text = "   |   ".join(values)
+	stats.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	stats.add_theme_color_override("font_color", MUTED)
 	column.add_child(stats)
+	var evolutions := Label.new()
+	evolutions.text = "Evolucoes: " + (", ".join(PackedStringArray(skill.get("chosen", []) as Array)) if not (skill.get("chosen", []) as Array).is_empty() else "nenhuma")
+	evolutions.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	evolutions.add_theme_color_override("font_color", MUTED)
+	column.add_child(evolutions)
 
 	var supports_row := HBoxContainer.new()
 	supports_row.add_theme_constant_override("separation", 6)
@@ -405,7 +422,9 @@ func _build_skill_card(skill: Dictionary, gem_options: Array, safe: bool) -> voi
 			var support := available[index] as Dictionary
 			add.add_item("%s | %s (%d)" % ["Mecanica" if String(support.get("category", "")) == "mechanic" else "Buff", String(support.get("name", "")), int(support.get("drain", 0))])
 			add.set_item_metadata(index + 1, String(support.get("id", "")))
-			add.get_popup().set_item_tooltip(index + 1, String(support.get("description", "")))
+			var fits := int(support.get("drain", 0)) <= int(skill.get("capacity", 3)) - int(skill.get("capacity_used", 0))
+			add.set_item_disabled(index + 1, not fits)
+			add.get_popup().set_item_tooltip(index + 1, String(support.get("description", "")) + ("" if fits else "\nCapacidade insuficiente"))
 		add.item_selected.connect(func(index: int) -> void:
 			var support_id := String(add.get_item_metadata(index))
 			if not support_id.is_empty():
