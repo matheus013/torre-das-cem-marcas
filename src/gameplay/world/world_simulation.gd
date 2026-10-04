@@ -3052,6 +3052,7 @@ func view_snapshot() -> Dictionary:
 			"charge_caps": (state["charge_caps"] as Array[int]).duplicate(),
 			"max_cooldowns": _slot_cooldowns(peer_id),
 			"gem_ids": (_gem_state(peer_id).get("slots", GEM_IDS) as Array).duplicate(),
+			"skill_tooltips": skill_tooltips(peer_id),
 			"quick_items": state["quick_items"],
 			"carried_stone": state["carried_stone"],
 			"level": level,
@@ -3245,6 +3246,25 @@ func _skills_model(peer_id: int) -> Array[Dictionary]:
 	return result
 
 
+func skill_tooltips(peer_id: int) -> Array[String]:
+	var result: Array[String] = []
+	var slots := _gem_state(peer_id).get("slots", []) as Array
+	var recovery := maxf(0.01, float(derived_stats(peer_id).get("cooldown_recovery_multiplier", 1.0)))
+	for slot in range(slots.size()):
+		var definition := gem_definition(String(slots[slot]))
+		var model := resolve_slot(peer_id, slot).duplicate()
+		model["name"] = definition.get("name", "")
+		model["description"] = definition.get("description", "")
+		model["cooldown"] = float(model.get("cooldown", 0.0)) / recovery
+		model["charges"] = 1 + maxi(0, int(model.get("extra_charge", 0)))
+		var supports: Array[Dictionary] = []
+		for support_id: Variant in (_gem_state(peer_id)["supports"] as Array)[slot] as Array:
+			supports.append(support_definition(String(support_id)))
+		model["supports"] = supports
+		result.append(ContentDescriptions.skill(model))
+	return result
+
+
 func _gem_options(peer_id: int) -> Array[Dictionary]:
 	var result: Array[Dictionary] = []
 	var gems := _gem_state(peer_id)
@@ -3321,9 +3341,10 @@ func menu_model(peer_id: int) -> Dictionary:
 		"milestone_choices": milestone_choices,
 		"carried_loot": (state.get("carried_loot", {}) as Dictionary).duplicate(),
 		"banked_loot": banked_loot.duplicate(),
-		"inventory_equipment": _inventory_model(gear),
+		"inventory_equipment": _inventory_model(gear, peer_id),
 		"equipped_count": equipment.equipped_count() if equipment != null else 0,
-		"equipment_slots": _slots_model(equipment),
+		"equipment_slots": _slots_model(equipment, peer_id),
+		"item_tooltips": _item_tooltips(),
 		"derived_stats": derived_stats(peer_id),
 		"skills": skills,
 		"gem_options": _gem_options(peer_id),
@@ -3333,7 +3354,21 @@ func menu_model(peer_id: int) -> Dictionary:
 	}
 
 
-func _inventory_model(gear: Dictionary) -> Array[Dictionary]:
+func _item_tooltips() -> Dictionary:
+	var result := {}
+	for definition in _collection("items"):
+		result[String(definition["id"])] = ContentDescriptions.item(definition, String(definition.get("tier", "")))
+	return result
+
+
+func _equipment_tooltip(item: EquipmentItemInstance, peer_id: int) -> String:
+	var weapon := {}
+	if item.definition.slot == EquipmentItemDefinition.Slot.WEAPON:
+		weapon = WeaponCombat.resolve(String(item.definition.weapon_type), String(player(peer_id).get("character_id", "")), derived_stats(peer_id).get("effective_primaries", {}) as Dictionary, LootDifficultyScript.fabrication_factor(String(item.quality)))
+	return ContentDescriptions.item(_find(_collection("items"), String(item.definition.id)), ItemTier.label(item.tier), String(LootDifficultyScript.FABRICATION_LABELS.get(String(item.quality), "Regular")), weapon)
+
+
+func _inventory_model(gear: Dictionary, peer_id: int) -> Array[Dictionary]:
 	var result: Array[Dictionary] = []
 	if gear.is_empty():
 		return result
@@ -3345,6 +3380,7 @@ func _inventory_model(gear: Dictionary) -> Array[Dictionary]:
 			"tier": ItemTier.label(item.tier), "slot": LayoutScript.slot_label(item.definition.slot),
 			"fabrication": String(LootDifficultyScript.FABRICATION_LABELS.get(String(item.quality), "Regular")),
 			"slot_id": int(item.definition.slot), "score": _item_score(item),
+			"tooltip": _equipment_tooltip(item, peer_id),
 		})
 	result.sort_custom(func(left: Dictionary, right: Dictionary) -> bool: return String(left["name"]) < String(right["name"]))
 	return result
@@ -3355,7 +3391,7 @@ func _item_score(item: EquipmentItemInstance) -> float:
 	return float(int(item.tier)) * 10.0 + LootDifficultyScript.fabrication_factor(String(item.quality)) * 4.0
 
 
-func _slots_model(equipment: EquipmentLoadout) -> Array[Dictionary]:
+func _slots_model(equipment: EquipmentLoadout, peer_id: int) -> Array[Dictionary]:
 	var result: Array[Dictionary] = []
 	for spec: Array in LayoutScript.equipment_slot_specs():
 		var slot := spec[1] as EquipmentItemDefinition.Slot
@@ -3364,6 +3400,7 @@ func _slots_model(equipment: EquipmentLoadout) -> Array[Dictionary]:
 		result.append({
 			"slot": spec[0], "item": item_display_name(String(item.definition.id)) if item != null else "VAZIO",
 			"occupied": item != null, "slot_id": int(slot), "index": index, "score": _item_score(item) if item != null else -1.0,
+			"tooltip": _equipment_tooltip(item, peer_id) if item != null else "",
 		})
 	return result
 

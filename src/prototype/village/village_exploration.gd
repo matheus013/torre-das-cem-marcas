@@ -2079,6 +2079,7 @@ func _update_interface() -> void:
 	for value: Variant in local.get("charge_caps", [1, 1, 1, 1]) as Array:
 		charge_caps.append(int(value))
 	_combat_hud.call("set_skill_charges", charges, charge_caps)
+	_combat_hud.call("set_skill_tooltips", local.get("skill_tooltips", []) as Array)
 	_combat_hud.call("set_passive", local.get("passive_display", {}))
 	_combat_hud.call("configure",
 		float(local.get("health", 0.0)), float(local.get("max_health", 100.0)),

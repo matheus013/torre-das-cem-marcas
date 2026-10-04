@@ -26,13 +26,39 @@ var character_level := 1
 var experience := 0
 var experience_required := 100
 var milestone_pending := false
+var _skill_hover: Array[DescriptionHover] = []
+var _item_hover: DescriptionHover
 
 
 ## A cena define `size` em coordenadas de projeto (1280×720 escalado pela tela); a HUD
 ## desenha tudo nesse espaço e fica proporcional em qualquer janela.
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	for slot in range(4):
+		var region := DescriptionHover.new()
+		region.mouse_filter = Control.MOUSE_FILTER_STOP
+		region.size = Vector2(52.0, 52.0)
+		add_child(region)
+		_skill_hover.append(region)
+	_item_hover = DescriptionHover.new()
+	_item_hover.mouse_filter = Control.MOUSE_FILTER_STOP
+	_item_hover.size = Vector2(44.0, 44.0)
+	add_child(_item_hover)
+	resized.connect(_layout_skill_hover)
+	_layout_skill_hover()
 	queue_redraw()
+
+
+func _layout_skill_hover() -> void:
+	for slot in range(_skill_hover.size()):
+		_skill_hover[slot].position = Vector2(size.x * 0.5 - 160.0 + slot * 60.0, size.y - 65.0)
+	if _item_hover != null:
+		_item_hover.position = Vector2(size.x * 0.5 + 92.0, size.y - 61.0)
+
+
+func set_skill_tooltips(texts: Array) -> void:
+	for slot in range(_skill_hover.size()):
+		_skill_hover[slot].tooltip_text = String(texts[slot]) if slot < texts.size() else ""
 
 
 func set_passive(display: Dictionary) -> void:
@@ -78,6 +104,8 @@ func configure(
 	carried_stone = new_carried_stone
 	hostile_count = new_hostile_count
 	quick_item_count = new_quick_item_count
+	if _item_hover != null:
+		_item_hover.tooltip_text = "Consumivel rapido\nRecupera 35 Vida, sem ultrapassar a Vida maxima.\nRestantes: %d" % quick_item_count
 	player_position = new_player_position
 	enemy_positions = new_enemy_positions.duplicate()
 	map_size = new_map_size

@@ -16,6 +16,11 @@ resolve os achados de G0.
 
 ## G0: confiar no combate e no loot
 
+Descricoes por hover adicionadas em 2026-10-04 a itens/equipamentos nos menus
+e skills no menu/HUD. A descricao identifica bonus e efeitos ainda sem
+consumidor no beta. Isso melhora G3.4, mas nao fecha comparacao de atributos,
+filtros/favoritos nem a integracao de efeitos pendente em G0.3/G0.4.
+
 Polimento imediato em 2026-10-04: listas alfabeticas de gemas/suportes,
 descricao ao passar o cursor, custo de Folego/cargas e recarga ajustada por
 Sabedoria; suportes sem capacidade ficam desabilitados. Arma equipada tem

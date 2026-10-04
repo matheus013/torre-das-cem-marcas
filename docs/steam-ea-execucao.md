@@ -1,5 +1,18 @@
 # Registro de execucao: Steam Early Access
 
+## 2026-10-04: descricoes ao passar o mouse
+
+Descricoes de itens no inventario, equipamentos e listas de carga/armazem;
+skills nos icones/titulos do menu e slots da HUD. Caixa com largura limitada
+e quebra de linhas, atributos de itens e afinidade/escala de armas. Efeitos
+de item ainda inertes ficam identificados, sem prometer bonus funcionais.
+Suportes preservam suas descricoes; consumivel rapido informa cura de 35 Vida.
+Tooltips das skills sao enviados pelo host para clientes, com custo, cargas,
+recarga e suportes atuais. Teste verifica que hover nao bloqueia equipar e
+que as areas dos slots acompanham redimensionamento. Capturas nativas de
+tooltip de item e skill conferidas em 1280x720. Release nao regenerado.
+Suite local: 40 testes aprovados, zero falhas, incluindo rede e persistencia.
+
 ## 2026-10-04: polimento dos menus de preparacao
 
 Listas de gemas/suportes alfabeticas, descricoes nos seletores, detalhes de

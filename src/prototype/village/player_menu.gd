@@ -149,6 +149,7 @@ func _build_inventory() -> void:
 		equip_button.text = "%s   |   %s   |   %s   |   %s" % [String(entry.get("name", "")), String(entry.get("tier", "")).to_upper(), String(entry.get("fabrication", "Regular")), String(entry.get("slot", ""))]
 		equip_button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		equip_button.custom_minimum_size.y = 34.0
+		DescriptionHover.attach(equip_button, String(entry.get("tooltip", "")))
 		var instance_id := StringName(String(entry.get("instance_id", "")))
 		equip_button.pressed.connect(func() -> void: equip_requested.emit(instance_id))
 		_content.add_child(equip_button)
@@ -168,7 +169,7 @@ func _build_inventory() -> void:
 		if not row.disabled:
 			var slot_id := int(slot.get("slot_id", -1))
 			var slot_index := int(slot.get("index", 0))
-			row.tooltip_text = "Retirar equipamento"
+			DescriptionHover.attach(row, String(slot.get("tooltip", "")))
 			row.pressed.connect(func() -> void: unequip_requested.emit(slot_id, slot_index))
 		grid.add_child(row)
 
@@ -181,6 +182,7 @@ func _loot_rows(loot: Dictionary, empty_text: String) -> void:
 	ids.sort()
 	for item_id: Variant in ids:
 		_add_text("%s   x%d" % [_friendly(String(item_id)), int(loot[item_id])], TEXT)
+		DescriptionHover.attach(_content.get_child(-1) as Control, String((_model.get("item_tooltips", {}) as Dictionary).get(String(item_id), "Item de expedicao.")))
 
 
 func _build_character() -> void:
@@ -339,6 +341,7 @@ func _build_skill_card(skill: Dictionary, gem_options: Array, safe: bool) -> voi
 	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	header.add_child(icon)
+	DescriptionHover.attach(icon, ContentDescriptions.skill(skill))
 	var key_label := Label.new()
 	key_label.text = BindingsScript.label("skill_%d" % (slot + 1))
 	key_label.add_theme_font_size_override("font_size", 22)
@@ -353,6 +356,7 @@ func _build_skill_card(skill: Dictionary, gem_options: Array, safe: bool) -> voi
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title.add_theme_color_override("font_color", TEXT)
 	header.add_child(title)
+	DescriptionHover.attach(title, ContentDescriptions.skill(skill))
 	var swap := OptionButton.new()
 	swap.custom_minimum_size = Vector2(200.0, 32.0)
 	swap.tooltip_text = "Trocar a gema deste encaixe"
