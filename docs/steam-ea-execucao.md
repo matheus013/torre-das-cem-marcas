@@ -181,3 +181,35 @@ Validacao final: 35 testes aprovados, zero falhas, incluindo rede e controles.
 Build macOS de QA regenerada sem erros/avisos de export e autoteste release
 fora do checkout aprovado. Erros de parse nos testes de CFG sao esperados
 para fixtures corrompidas; nenhum SCRIPT ERROR foi aceito pela suite.
+
+## Gameplay: pausa e escolhas nos marcos (2026-10-04)
+
+Pedido do responsavel: ao atingir os niveis de marco, pausar e abrir as
+escolhas na tela, como no fluxo de evolucao de um survivors. Implementado
+para os marcos permanentes 10-100, usando as seis escolhas ja existentes.
+Niveis comuns continuam concedendo pontos sem interrupcao.
+
+A pausa e derivada das escolhas pendentes dos jogadores conectados no host;
+nao pausa a arvore de rede. Movimento, habilidades, consumiveis e timers da
+simulacao ficam congelados. Confirmacao passa pelo host; invalida nao retoma.
+Todos com marco pendente devem escolher; os demais veem espera. Desconectar
+retira o jogador da barreira, sem perder a escolha. Save/reentrada e XP
+acumulado retomam o fluxo correspondente, inclusive varios marcos seguidos.
+
+Tela em camada independente do HUD escalado, com duas colunas no desktop e
+uma coluna rolavel em janela estreita. Foco inicial, navegue/confirmacao pelos
+eventos normalizados de controle, sem cancelar uma escolha obrigatoria.
+O agente de teste escolhe marco antes de distribuir pontos, respeitando a
+nova barreira autoritativa.
+
+Validacao: suite completa com 36 testes aprovados, zero falhas, incluindo rede
+e vila online. Teste de marco ampliado e repetido isoladamente para espera e
+retomada dirigidas por snapshot sem simulador local. Cobertura de marcos ate
+100, perfil reservado/reconexao, save/reload, XP acumulado e eventos de D-pad/A.
+Capturas renderizadas locais em 1280x720 e 640x720 revisadas. Export macOS de
+QA e autoteste release fora do checkout aprovados; execucao fisica de controles
+e QA Windows/Linux permanecem pendentes. Este teste nao prova a nova pausa
+numa sessao remota real com latencia; os smokes de rede validam o fluxo geral.
+
+Roadmap e GDD atualizados. Marcas temporarias de Expedicao, itemizacao e
+correcoes G0 continuam separadas e pendentes.

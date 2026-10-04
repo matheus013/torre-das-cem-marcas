@@ -9,6 +9,9 @@
 - Vitalidade altera Vida; Agilidade altera movimento e cadência automática; Sorte altera chance e multiplicador crítico; Sabedoria altera recuperação de recarga. As escalas de Força e Inteligência nas gemas ainda precisam entrar no resolvedor de combate.
 - Progresso individual dos quatro personagens, EXP, pontos, atributos e escolhas integram o salvamento.
 - Desde a decisão 549, as quatro personagens vão até o nível 100, cada nível soma 5 de Vida e os dez marcos têm seis escolhas executáveis no combate (documento 74).
+- Ao alcançar um marco (10, 20, ..., 100), a simulação pausa e a tela de evolução abre automaticamente com as escolhas existentes. Níveis comuns não pausam.
+- No co-op, a pausa é autoritativa e compartilhada: cada participante escolhe sua evolução; o combate retoma quando não há escolhas pendentes de jogadores conectados. Quem já escolheu vê uma tela de espera.
+- Desconectar não prende o grupo; a evolução permanece pendente e volta ao reconectar. XP excedente pode alcançar outro marco, mantendo a pausa para a próxima escolha. Cancelar não dispensa a evolução obrigatória.
 
 ## Estado
 

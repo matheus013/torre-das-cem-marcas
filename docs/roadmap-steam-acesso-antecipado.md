@@ -181,6 +181,11 @@ devem ser integrados quando contribuem para as funcionalidades prometidas.
 
 ### Proximas entregas
 
+Entrega de gameplay em 2026-10-04: marcos 10-100 pausam o combate e abrem as
+opcoes automaticamente, com foco de teclado/controle e espera compartilhada
+no co-op. Testes cobrem pausa, retomada, desconexao, save e XP acumulado.
+Validacao fisica de controles e QA nativo das builds continuam pendentes.
+
 A revisao de 2026-10-03 identificou bonus de equipamento sem efeito, perda
 silenciosa por limite de drops e entradas nao finitas aceitas. Estes achados
 continuam abertos: completar o [gate G0 de gameplay](roadmap-gameplay-survivors-rpg.md)

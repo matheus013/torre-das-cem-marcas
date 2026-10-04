@@ -557,12 +557,16 @@ func refresh_charges(peer_id: int) -> void:
 # ---------------------------------------------------------------- intenções
 
 func set_move_target(peer_id: int, target: Vector2) -> void:
+	if is_milestone_paused():
+		return
 	var state := player(peer_id)
 	if not state.is_empty() and not bool(state.get("downed", false)):
 		state["target"] = target
 
 
 func use_skill(peer_id: int, slot: int, target: Vector2) -> bool:
+	if is_milestone_paused():
+		return false
 	var state := player(peer_id)
 	if state.is_empty() or state["zone"] not in ARENA_ZONES or bool(state.get("downed", false)):
 		return false
@@ -641,6 +645,8 @@ func _after_skill(peer_id: int, effect: Dictionary, target: Vector2, echo: float
 
 
 func use_quick_item(peer_id: int) -> void:
+	if is_milestone_paused():
+		return
 	var state := player(peer_id)
 	if state.is_empty() or bool(state.get("downed", false)):
 		return
@@ -689,7 +695,24 @@ func unequip_item(peer_id: int, slot: int, index: int) -> void:
 
 # ---------------------------------------------------------------- passo
 
+## Derived from connected players, so disconnect/reload cannot leave a stale pause flag.
+func pending_milestone_peers() -> Array[int]:
+	var result: Array[int] = []
+	for peer_id: int in players:
+		var build := character_build(peer_id)
+		if is_connected_player(peer_id) and build != null and build.has_pending_milestone() and not build.milestone_choices.get(build.level, []).is_empty():
+			result.append(peer_id)
+	result.sort()
+	return result
+
+
+func is_milestone_paused() -> bool:
+	return not pending_milestone_peers().is_empty()
+
+
 func step(delta: float) -> void:
+	if is_milestone_paused():
+		return
 	for floor_key: Variant in boss_cooldowns.keys():
 		boss_cooldowns[floor_key] = float(boss_cooldowns[floor_key]) - delta
 		if float(boss_cooldowns[floor_key]) <= 0.0:
@@ -698,17 +721,23 @@ func step(delta: float) -> void:
 		if not players.has(peer_id):
 			continue
 		_step_player(peer_id, delta)
+		if is_milestone_paused():
+			return
 	for enemy in enemies:
 		enemy["flash"] = maxf(0.0, float(enemy.get("flash", 0.0)) - delta)
 		enemy["slow_timer"] = maxf(0.0, float(enemy.get("slow_timer", 0.0)) - delta)
 		enemy["vulnerable_timer"] = maxf(0.0, float(enemy.get("vulnerable_timer", 0.0)) - delta)
 	_run_scheduled(delta)
+	if is_milestone_paused():
+		return
 	village_life.call("step", delta, _village_context())
 	if not _players_in_arena().is_empty():
 		_step_floor(delta)
 		_apply_party_scaling()
 		_update_enemy_projectiles(delta)
 		_update_enemies(delta)
+		if is_milestone_paused():
+			return
 		_update_persistent_effects(delta)
 		if is_explore_floor():
 			tick_respawns(delta)
@@ -726,6 +755,8 @@ func _run_scheduled(delta: float) -> void:
 		var peer_id := int(entry["peer"])
 		if players.has(peer_id) and player(peer_id)["zone"] in ARENA_ZONES:
 			execute_gem_effect(peer_id, entry["effect"] as Dictionary, entry["target"] as Vector2)
+			if is_milestone_paused():
+				return
 
 
 func _step_barrier(peer_id: int, delta: float) -> void:
@@ -804,7 +835,7 @@ func _step_player(peer_id: int, delta: float) -> void:
 	if not players.has(peer_id) or state["zone"] not in ARENA_ZONES:
 		return
 	_step_barrier(peer_id, delta)
-	if not players.has(peer_id) or state["zone"] not in ARENA_ZONES:
+	if is_milestone_paused() or not players.has(peer_id) or state["zone"] not in ARENA_ZONES:
 		return
 	_collect_ground_items(peer_id)
 	var passive := state["passive"] as RefCounted
@@ -2890,6 +2921,7 @@ func view_snapshot() -> Dictionary:
 			"experience": int(character_experience.get(String(state["character_id"]), 0)),
 			"experience_required": experience_required(level),
 			"pending_milestone": build.has_pending_milestone() if build != null else false,
+			"milestone_choices": _milestone_choices(peer_id),
 			"passive_display": passive.call("display"),
 			"passive_markers": passive.call("markers"),
 		}
@@ -2917,6 +2949,7 @@ func view_snapshot() -> Dictionary:
 		})
 	return {
 		"players": player_views,
+		"milestone_peers": pending_milestone_peers(),
 		"arena_zone": String(arena_zone()),
 		"party_size": party_size(),
 		"party_budget": float(party_scaling()["budget"]),
@@ -3078,21 +3111,24 @@ func _gem_options(peer_id: int) -> Array[Dictionary]:
 	return result
 
 
+func _milestone_choices(peer_id: int) -> Array[Dictionary]:
+	var choices: Array[Dictionary] = []
+	var build := character_build(peer_id)
+	if build != null and build.has_pending_milestone():
+		for value: Variant in build.milestone_choices.get(build.level, []):
+			var choice := value as EvolutionChoice
+			choices.append({"id": String(choice.id), "name": choice.display_name, "description": choice.description, "branch": String(choice.branch)})
+	return choices
+
+
 func menu_model(peer_id: int) -> Dictionary:
 	var state := player(peer_id)
 	var build := character_build(peer_id)
 	var stats: Dictionary = {}
-	var milestone_choices: Array[Dictionary] = []
+	var milestone_choices := _milestone_choices(peer_id)
 	if build != null:
 		for stat in CharacterBuild.PRIMARY_STATS:
 			stats[String(stat)] = int(build.base_stats.get(stat, 0))
-		if build.has_pending_milestone():
-			for choice_value: Variant in build.milestone_choices.get(build.level, []):
-				var choice := choice_value as EvolutionChoice
-				milestone_choices.append({
-					"id": String(choice.id), "name": choice.display_name,
-					"description": choice.description, "branch": String(choice.branch),
-				})
 	var skills := _skills_model(peer_id)
 	var definition := _find(_collection("playable_characters"), String(state.get("character_id", "")))
 	var chosen: Array[Dictionary] = []

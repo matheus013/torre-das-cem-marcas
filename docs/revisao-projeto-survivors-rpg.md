@@ -9,6 +9,11 @@ de prototipo/playtest. Nao houve rebalanceamento, alteracao de save ou mudanca
 do combate nesta entrega. Auditoria por subsistemas e caminhos criticos, nao
 prova de que cada linha, andar, asset ou combinacao esteja correta.
 
+Atualizacao 2026-10-04: pedido posterior implementou pausa e tela automatica
+nos marcos permanentes 10-100, inclusive pausa compartilhada no co-op.
+As Marcas de Expedicao temporarias abaixo continuam propostas separadas;
+suas escolhas em locais seguros nao substituem a pausa dos marcos de nivel.
+
 ## Diagnostico prioritario
 
 | Prioridade | Achado | Evidencia | Acao antes de ampliar conteudo |

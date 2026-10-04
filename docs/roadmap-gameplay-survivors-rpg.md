@@ -8,6 +8,12 @@ Status: diagnostico concluido; correcoes e prototipos abaixo ainda pendentes.
 Nao atribuir prazo antes de estimar cada ticket. Gates sao criterios de saida,
 nao promessa comercial. Mudancas de regras aprovadas exigem decisao registrada.
 
+Entrega adicional em 2026-10-04: marcos permanentes de nivel agora pausam a
+simulacao e abrem escolhas automaticamente, por solicitacao do responsavel.
+Solo/co-op compartilham a regra; desconectados nao bloqueiam a retomada.
+Isso nao implementa as Marcas de Expedicao temporarias propostas em G2 nem
+resolve os achados de G0.
+
 ## G0: confiar no combate e no loot
 
 - [ ] G0.1: validar referencias de atributos do catalogo/gerador; corrigir `luck` para `fortune` sem alterar IDs. Aceite: todas as escalas existem e Elo Residual responde a Fortune.

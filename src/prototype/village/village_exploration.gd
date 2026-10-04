@@ -5,6 +5,7 @@ extends Node2D
 
 const CombatHudScript := preload("res://src/prototype/village/combat_hud.gd")
 const PlayerMenuScript := preload("res://src/prototype/village/player_menu.gd")
+const MilestoneChoiceScript := preload("res://src/prototype/village/milestone_choice.gd")
 const SpriteLibraryScript := preload("res://src/presentation/art/sprite_library.gd")
 const VfxLayerScript := preload("res://src/presentation/vfx/vfx_layer.gd")
 const DevModeScript := preload("res://src/core/app/dev_mode.gd")
@@ -93,6 +94,7 @@ var _session_label: Label
 var _combat_label: Label
 var _combat_hud: Control
 var _player_menu: Control
+var _milestone_choice: Control
 var _character_panel: Control
 var _character_cards: Dictionary = {}
 var _character_hint: Label
@@ -385,6 +387,8 @@ func _apply_intent(peer_id: int, kind: String, args: Array) -> void:
 		return
 	if not bool(_sim.call("is_connected_player", peer_id)):
 		return
+	if bool(_sim.call("is_milestone_paused")) and kind not in ["milestone", "menu"]:
+		return
 	var refresh_menu := true
 	match kind:
 		"skill":
@@ -468,7 +472,8 @@ func _apply_events(events: Array) -> void:
 # ---------------------------------------------------------------- quadro
 
 func _physics_process(delta: float) -> void:
-	_anim_time += delta
+	if (_view.get("milestone_peers", []) as Array).is_empty():
+		_anim_time += delta
 	_gather_keyboard()
 	if _sim != null:
 		_sim.call("step", delta)
@@ -500,7 +505,17 @@ func _physics_process(delta: float) -> void:
 		var torch := light as PointLight2D
 		torch.energy = 0.8 + 0.12 * sin(_anim_time * 9.0 + torch.position.x) + 0.08 * sin(_anim_time * 23.0 + torch.position.y)
 	_update_interface()
+	_update_milestone_choice()
 	queue_redraw()
+
+
+func _update_milestone_choice() -> void:
+	var pending := _view.get("milestone_peers", []) as Array
+	if not pending.is_empty():
+		_player_menu.call("close")
+		_character_panel.hide()
+	_vfx.set_process(pending.is_empty())
+	_milestone_choice.call("refresh", _local(), pending)
 
 
 func _gather_keyboard() -> void:
@@ -531,7 +546,7 @@ func _on_pad_connection_changed(device: int, connected: bool) -> void:
 
 
 func _input_blocked() -> bool:
-	return (_player_menu != null and _player_menu.visible) or (_character_panel != null and _character_panel.visible) or (_settings_dialog != null and _settings_dialog.visible)
+	return (_milestone_choice != null and _milestone_choice.visible) or (_player_menu != null and _player_menu.visible) or (_character_panel != null and _character_panel.visible) or (_settings_dialog != null and _settings_dialog.visible)
 
 
 func _update_display(delta: float) -> void:
@@ -637,6 +652,8 @@ func _unhandled_input(event: InputEvent) -> void:
 	if command and BindingsScript.pressed(event, "auto_aim"):
 		_toggle_auto_aim()
 		get_viewport().set_input_as_handled()
+		return
+	if _milestone_choice != null and _milestone_choice.visible:
 		return
 	if command and _player_menu != null and _player_menu.visible:
 		if event.is_action_pressed("ui_cancel") or BindingsScript.pressed(event, "pause") or BindingsScript.pressed(event, "inventory") or BindingsScript.pressed(event, "character") or BindingsScript.pressed(event, "skills") or BindingsScript.pressed(event, "tower"):
@@ -956,14 +973,6 @@ func _agent_manage_build() -> void:
 	if model.is_empty():
 		return
 	var character := String(_local().get("character_id", "eloa"))
-	var points := int(model.get("unspent_stat_points", 0))
-	var plan := AGENT_STAT_PLAN.get(character, ["vitality", "strength"]) as Array
-	for index in range(mini(points, 5)):
-		var spent := 0
-		for value: Variant in (model.get("stats", {}) as Dictionary).values():
-			spent += int(value)
-		var stat := "vitality" if (spent + index) % 3 == 2 else String(plan[(spent + index) % 2])
-		_send_intent("stat", [stat])
 	var milestones := model.get("milestone_choices", []) as Array
 	if not milestones.is_empty():
 		var level := int(model.get("level", 10))
@@ -979,6 +988,14 @@ func _agent_manage_build() -> void:
 				seen += 1
 		_send_intent("milestone", [String(picked["id"])])
 		_agent_note("marco do nivel %d: %s" % [level, String(picked.get("name", ""))])
+	var points := int(model.get("unspent_stat_points", 0))
+	var plan := AGENT_STAT_PLAN.get(character, ["vitality", "strength"]) as Array
+	for index in range(mini(points, 5)):
+		var spent := 0
+		for value: Variant in (model.get("stats", {}) as Dictionary).values():
+			spent += int(value)
+		var stat := "vitality" if (spent + index) % 3 == 2 else String(plan[(spent + index) % 2])
+		_send_intent("stat", [stat])
 	if bool(model.get("in_safe_area", false)):
 		var used := {}
 		for skill: Dictionary in model.get("skills", []) as Array:
@@ -1808,6 +1825,15 @@ func _build_interface() -> void:
 	_player_menu.start_floor_requested.connect(func(floor_number: int) -> void: _send_intent("start_floor", [floor_number]))
 	_player_menu.gem_evolution_requested.connect(func(gem_id: String, choice_id: String) -> void: _send_intent("gem_evolution", [gem_id, choice_id]))
 	layer.add_child(_player_menu)
+	_milestone_choice = MilestoneChoiceScript.new() as Control
+	_milestone_choice.name = "MilestoneChoice"
+	_milestone_choice.choice_requested.connect(func(choice: StringName) -> void: _send_intent("milestone", [String(choice)]))
+	# The modal uses viewport coordinates, independent of the scaled combat HUD.
+	var milestone_layer := CanvasLayer.new()
+	milestone_layer.name = "MilestoneLayer"
+	milestone_layer.layer = 10
+	add_child(milestone_layer)
+	milestone_layer.add_child(_milestone_choice)
 
 
 func _build_character_panel(layer: CanvasLayer) -> void:
