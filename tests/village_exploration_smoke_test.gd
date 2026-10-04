@@ -262,7 +262,8 @@ func _run() -> void:
 		return _fail("Agent must spend stat points and choose the level 10 milestone")
 	if supports_after <= supports_before and pending_after > 0:
 		return _fail("Agent must attach supports or choose gem evolutions in Aresta")
-	DirAccess.remove_absolute(ProjectSettings.globalize_path(save_path))
+	for suffix in ["", ".bak", ".tmp", ".bak.tmp"]:
+		DirAccess.remove_absolute(save_path + suffix)
 	print("VILLAGE_EXPLORATION_OK: solo session on WorldSimulation, menus, combat, consequence and save cycle")
 	quit(0)
 

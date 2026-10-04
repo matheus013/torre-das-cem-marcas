@@ -11,6 +11,8 @@ const DevModeScript := preload("res://src/core/app/dev_mode.gd")
 const SettingsDialogScript := preload("res://src/game/settings_dialog.gd")
 const BindingsScript := preload("res://src/core/app/input_bindings.gd")
 const SettingsScript := preload("res://src/core/app/game_settings.gd")
+const JsonStoreScript := preload("res://src/core/persistence/json_store.gd")
+const SaveSchemaScript := preload("res://src/core/persistence/world_save_schema.gd")
 const SimulationScript := preload("res://src/gameplay/world/world_simulation.gd")
 const LayoutScript := preload("res://src/gameplay/world/world_layout.gd")
 const SessionLaunchScript := preload("res://src/core/net/session_launch.gd")
@@ -216,17 +218,17 @@ func _toggle_npc_mode() -> void:
 
 
 func _load_records() -> Dictionary:
-	if not FileAccess.file_exists(RECORDS_PATH):
-		return {}
-	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(RECORDS_PATH))
-	return parsed as Dictionary if parsed is Dictionary else {}
+	var result := JsonStoreScript.read(RECORDS_PATH, SaveSchemaScript.validate_records)
+	if result["recovered"]:
+		_status = "Recordes recuperados do backup."
+	elif result["error"] not in [OK, ERR_FILE_NOT_FOUND]:
+		_status = "Falha ao carregar recordes. Arquivos preservados."
+	return result["data"]
 
 
 func _save_records() -> void:
-	var file := FileAccess.open(RECORDS_PATH, FileAccess.WRITE)
-	if file != null:
-		file.store_string(JSON.stringify(_sim.get("records")))
-		file.close()
+	if JsonStoreScript.write(RECORDS_PATH, _sim.get("records"), SaveSchemaScript.validate_records) != OK:
+		_status = "Falha ao salvar recordes. O arquivo anterior foi preservado."
 
 
 func _start_authority() -> void:
@@ -298,7 +300,8 @@ func _on_connection_lost(message: String) -> void:
 
 func _leave_session() -> void:
 	if _sim != null and _mode != &"client":
-		_save_world()
+		if not _save_world():
+			return
 	if multiplayer.multiplayer_peer != null and not multiplayer.multiplayer_peer is OfflineMultiplayerPeer:
 		multiplayer.multiplayer_peer.close()
 	multiplayer.multiplayer_peer = OfflineMultiplayerPeer.new()
@@ -722,12 +725,10 @@ func _save_world(path: String = SAVE_PATH) -> bool:
 	if _sim == null:
 		_status = "Somente o host salva o mundo."
 		return false
-	var file := FileAccess.open(path, FileAccess.WRITE)
-	if file == null:
-		_status = "Falha ao salvar o mundo."
+	var error := JsonStoreScript.write(path, _sim.call("save_data", _local_peer), SimulationScript.validate_save)
+	if error != OK:
+		_status = "Falha ao salvar o mundo (%d). O arquivo anterior foi preservado." % error
 		return false
-	file.store_string(JSON.stringify(_sim.call("save_data", _local_peer)))
-	file.close()
 	_status = "Mundo salvo."
 	return true
 
@@ -736,16 +737,23 @@ func _load_world(path: String = SAVE_PATH) -> bool:
 	if _sim == null:
 		_status = "Somente o host carrega o mundo."
 		return false
-	if not FileAccess.file_exists(path):
-		_status = "Nenhum salvamento encontrado."
+	var result := JsonStoreScript.read(path, SimulationScript.validate_save)
+	if result["error"] != OK:
+		if result["error"] == ERR_FILE_NOT_FOUND:
+			_status = "Nenhum salvamento encontrado."
+		elif result["error"] == ERR_UNAVAILABLE:
+			_status = "Save de uma versao mais nova. Atualize o jogo para carregar."
+		else:
+			_status = "Falha ao carregar save (%d). Arquivos preservados." % result["error"]
 		return false
-	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
-	if not parsed is Dictionary or not bool(_sim.call("load_data", parsed, _local_peer)):
-		_status = "Salvamento invalido ou de versao nao suportada."
+	if not bool(_sim.call("load_data", result["data"], _local_peer)):
+		_status = "Salvamento invalido. Arquivos preservados."
 		return false
 	_vfx.call("clear")
 	_view = _sim.call("view_snapshot")
 	_apply_events(_sim.call("drain_events") as Array)
+	if result["recovered"]:
+		_status = "Mundo recuperado do backup; progresso da ultima gravacao pode faltar."
 	if _mode == &"host" and not multiplayer.get_peers().is_empty():
 		_send_snapshot()
 	return true

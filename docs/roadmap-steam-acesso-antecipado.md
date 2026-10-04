@@ -1,6 +1,6 @@
 # Roadmap: Steam em acesso antecipado
 
-Atualizado em 2026-10-02. Objetivo: uma build paga que entrega um ciclo de jogo
+Atualizado em 2026-10-03. Objetivo: uma build paga que entrega um ciclo de jogo
 estavel, tem escopo descrito com honestidade e passa pela revisao da Steam.
 Este plano complementa o roadmap de MVP; a quantidade de conteudo existente
 nao substitui os criterios de qualidade abaixo. Datas de lancamento dependem
@@ -11,7 +11,8 @@ de playtests e aprovacoes, nao de estimativas de porcentagem.
 Implementacao enviada para `origin/main` nos commits `04e03ae` (gameplay,
 opcoes, controles, mira e distribuicao) e `eda37f6` (documentacao e QA).
 
-- Suite local: 32 testes aprovados, zero falhas, incluindo rede e vila online.
+- Suite local: 34 testes aprovados, zero falhas, incluindo persistencia e rede.
+- Build macOS de QA regenerada e autoteste do runtime release aprovado nesta entrega.
 - Builds release Windows/Linux e macOS de QA geradas sem erros ou avisos.
 - Os tres pacotes PCK passaram no autoteste com runtime release macOS.
   Executaveis nativos Windows/Linux ainda nao foram validados em maquinas limpas.
@@ -19,8 +20,8 @@ opcoes, controles, mira e distribuicao) e `eda37f6` (documentacao e QA).
   Xbox/PS4/PS5 e mira automatica opcional implementados.
 - Capturas do titulo e opcoes/controles verificadas em 720p, 1080p e ultrawide.
   Isso ainda nao valida todos os menus e estados de combate nessas resolucoes.
-- [CI de testes do commit eda37f6](https://github.com/matheus013/torre-das-cem-marcas/actions/runs/37088880678):
-  em andamento na consulta desta atualizacao; resultado ainda nao confirmado.
+- [CI de testes do commit 2de4a01](https://github.com/matheus013/torre-das-cem-marcas/actions/runs/37088943958):
+  concluido com sucesso. Esta entrega de persistencia exige nova execucao.
 - Workflow de releases disponivel, mas execucao remota e artefatos baixados
   ainda pendentes. Atualmente dispara manualmente ou em pull requests.
 
@@ -46,7 +47,7 @@ nenhum marco de QA externo ou aprovacao da Valve foi concluido.
 | --- | --- | --- | --- |
 | EA1 | Build reproduzivel | Exports release Windows/Linux, pacote verificado e primeira execucao em Windows limpo | Faltam CI release, QA nativo e migracao do nome |
 | EA2 | Experiencia publica | Opcoes persistentes, controles configuraveis, audio essencial, pausa solo e menus legiveis | Faltam audio, acessibilidade e QA externo |
-| EA3 | Persistencia e estabilidade | Save atomico, backup, recuperacao, migracao e atualizacao sem perda de progresso | Pendente |
+| EA3 | Persistencia e estabilidade | Save atomico, backup, recuperacao, migracao e atualizacao sem perda de progresso | Mundo/recordes protegidos; migracao e QA de falhas pendentes |
 | EA4 | Solo e co-op confiaveis | Ciclo completo, desempenho medido, desconexoes tratadas e testes externos | Pendente |
 | EA5 | Produto e loja | Licencas, creditos, requisitos, midia, descricao e respostas de Early Access | Pendente |
 | EA6 | Candidato e Steam | Instalacao via Steam, revisoes aprovadas, prazos cumpridos e plano de suporte | Pendente |
@@ -67,7 +68,7 @@ qualquer lancamento.
 - [x] Workflow que testa, exporta, verifica o pacote release e guarda artefatos.
 - [x] Executar e registrar exports e verificacao do pacote localmente.
 - [x] Versionar e enviar a implementacao e o roadmap ao repositorio remoto.
-- [ ] Confirmar o resultado do CI de testes no GitHub.
+- [x] Confirmar o resultado do CI de testes no GitHub (2de4a01).
 - [ ] Executar workflow no GitHub e verificar os artefatos baixados.
 - [ ] Testar Windows limpo sem Godot, abertura pelo executavel e partida solo.
 - [ ] Definir nome final de application/config/name com migracao de user://.
@@ -108,13 +109,19 @@ quando nao ha inimigos. A escolha persiste e pode mudar durante a partida ou pau
 
 ## EA3: saves e diagnostico
 
-- [ ] Auditoria de todos os arquivos em user:// e politica de versao.
-- [ ] Escrita atomica com backup; falha de disco nao sobrescreve save valido.
-- [ ] Recuperacao de arquivo truncado/corrompido e aviso claro ao jogador.
+- [x] Auditoria dos arquivos em user:// e politica de versao documentadas.
+- [x] Mundo e recordes: escrita via temporario, validacao e backup.
+- [x] Recuperacao de arquivo truncado/corrompido e aviso ao jogador.
+- [ ] Proteger configuracoes/perfil; testar disco cheio, interrupcao e rename nativos.
 - [ ] Migracao de save anterior, sem duplicar itens, moeda ou progressao.
 - [ ] Fixture de save real de uma versao anterior para teste de atualizacao.
 - [ ] Logs com versao e instrucoes de coleta, sem chaves de API ou dados privados.
-- [ ] Definir propriedade do progresso no co-op e informar suas limitacoes.
+- [x] Documentar propriedade atual do progresso co-op e suas limitacoes.
+- [ ] Exibir essas limitacoes ao convidado antes de entrar na sessao.
+
+Detalhes, evidencias e riscos: [persistencia-e-recuperacao.md](persistencia-e-recuperacao.md).
+Sair pelo menu nao desconecta se o save falhar. Saves de versao futura nao sao
+sobrescritos nem substituidos silenciosamente por backup antigo.
 
 Saida: testes de salvar/carregar, interrupcao durante escrita, recuperacao e
 atualizacao passam; progresso real sobrevive a troca de build.
@@ -171,8 +178,9 @@ devem ser integrados quando contribuem para as funcionalidades prometidas.
 
 ### Proximas entregas
 
-1. EA3: auditar persistencia e implementar save atomico, backup e recuperacao;
-   usar essa base para migrar a pasta antes de alterar o nome tecnico.
+1. EA3: proteger configuracoes/perfil, obter fixture historica e validar
+   atualizacao; migrar a pasta antes de alterar o nome tecnico. Testar falhas
+   reais em Windows/Linux e informar propriedade do progresso no co-op.
 2. EA2: produzir/integrar audio com origem e licenca registradas, ligado aos
    buses e controles de volume ja implementados.
 3. EA2: acessibilidade dos sinais, intensidade de efeitos e revisao dos demais

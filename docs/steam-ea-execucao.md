@@ -137,7 +137,24 @@ Implementacao enviada a `origin/main`: `04e03ae`. Documentacao enviada:
 capturas verificadas e QA completo, limitacoes atuais de controle e proxima
 frente de persistencia segura, seguida por audio e acessibilidade.
 
-Na consulta desta atualizacao, o workflow Testes do commit `eda37f6` estava
-em andamento: https://github.com/matheus013/torre-das-cem-marcas/actions/runs/37088880678.
+O workflow Testes de `2de4a01` foi confirmado como concluido com sucesso:
+https://github.com/matheus013/torre-das-cem-marcas/actions/runs/37088943958.
 O workflow de releases ainda precisa de execucao remota e verificacao dos
 artefatos. Resultado local de 32 testes nao substitui confirmacao do CI.
+
+## EA3: primeira entrega de persistencia (2026-10-03)
+
+Mundo e recordes usam gravacao temporaria validada, backup e recuperacao.
+Estruturas conhecidas sao validadas antes de restaurar o mundo. Backup nao
+e carregado silenciosamente quando o principal tem versao futura; a build
+antiga tambem nao sobrescreve esse arquivo. Falha ao salvar no retorno ao menu
+mantem a sessao aberta. Clientes continuam sem acesso a save/load do host.
+
+Auditoria de user://, politica de versao, propriedade co-op, testes e limites
+registrados em `persistencia-e-recuperacao.md`. Configuracoes/perfil, fixture
+historica, migracao de pasta e QA nativo de falhas continuam pendentes.
+
+Validacao local desta entrega: 34 testes aprovados, zero falhas, incluindo
+rede/vila online e os dois novos testes de persistencia. Export macOS de QA
+regenerado e autoteste release executado fora do checkout aprovado. Nao foi
+repetido QA nativo Windows/Linux; o novo CI sera disparado pelo push.

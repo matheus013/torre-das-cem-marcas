@@ -3215,7 +3215,13 @@ func save_data(host_peer: int) -> Dictionary:
 	}
 
 
+static func validate_save(data: Dictionary) -> Error:
+	return preload("res://src/core/persistence/world_save_schema.gd").validate(data, SAVE_VERSION)
+
+
 func load_data(data: Dictionary, host_peer: int) -> bool:
+	if validate_save(data) != OK:
+		return false
 	var version := int(data.get("version", 0))
 	if version < 1 or version > SAVE_VERSION:
 		return false
