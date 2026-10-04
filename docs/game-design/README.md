@@ -103,6 +103,13 @@ A transição técnica só poderá começar após a frase:
 
 ## Identidade resumida
 
+### Revisões em proposta
+
+A [revisão de gameplay e engenharia](../revisao-projeto-survivors-rpg.md) e o
+[backlog de hordas e expedições](../roadmap-gameplay-survivors-rpg.md) registram
+achados e propostas. Não substituem automaticamente as regras aprovadas deste
+índice; alterações de economia, slots e duração dependem de validação.
+
 O jogo é um roguelike RPG geracional cooperativo online em pixel art para um a quatro jogadores. Um participante hospeda o mundo e os demais entram em sua sessão. Dez personagens autorais formam a primeira geração de uma pequena vila e exploram uma masmorra de cem andares. Mortes parciais permitem reencarnação; a morte de todo o grupo avança o mundo para uma nova geração. O progresso individual fortalece famílias; as famílias desenvolvem serviços; os serviços transformam a vila; e a vila preserva seu legado entre gerações.
 
 O contraste central é:

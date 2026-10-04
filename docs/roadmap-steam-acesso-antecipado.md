@@ -181,6 +181,13 @@ devem ser integrados quando contribuem para as funcionalidades prometidas.
 
 ### Proximas entregas
 
+A revisao de 2026-10-03 identificou bonus de equipamento sem efeito, perda
+silenciosa por limite de drops e entradas nao finitas aceitas. Estes achados
+continuam abertos: completar o [gate G0 de gameplay](roadmap-gameplay-survivors-rpg.md)
+antes de ampliar loot ou considerar EA4 concluido. O [diagnostico completo](revisao-projeto-survivors-rpg.md)
+separa correcoes necessarias de novas mecanicas ainda propostas. G0 pode
+avancar junto de EA3; nao substitui QA nativo, migracao ou revisao da Valve.
+
 1. EA3: obter fixture historica e validar
    atualizacao; migrar a pasta antes de alterar o nome tecnico. Testar falhas
    reais em Windows/Linux e informar propriedade do progresso no co-op.

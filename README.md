@@ -287,3 +287,5 @@ godot --headless --path . --import              # importa os PNGs
 - [Árvores de evolução 1 a 100](docs/game-design/74-arvores-de-evolucao-1-a-100.md)
 - [Arquitetura e ADRs](docs/architecture/README.md)
 - [Roadmap até o MVP](docs/roadmap-ate-mvp.md)
+- [Revisão: hordas, expedições e RPG](docs/revisao-projeto-survivors-rpg.md)
+- [Backlog de gameplay e itemização](docs/roadmap-gameplay-survivors-rpg.md)
