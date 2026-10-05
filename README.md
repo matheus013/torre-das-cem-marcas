@@ -6,6 +6,11 @@ RPG de ação roguelike em pixel art para **um a quatro jogadores**, solo ou em 
 
 > **Estado:** beta jogável em desenvolvimento (Godot 4.6.3, GDScript). Números de combate, saque e progressão são provisórios e servem para playtest.
 
+[Baixar playtest para Windows, Linux ou macOS](https://github.com/matheus013/torre-das-cem-marcas/releases)
+sem instalar Godot. Veja [instruções e limitações](docs/playtest-publico.md).
+Cada alteração de código na `main` gera um pré-release após testes e boot
+nativo nos três sistemas. Assinatura comercial e QA gráfico seguem pendentes.
+
 Preparação para distribuição: [roadmap Steam em acesso antecipado](docs/roadmap-steam-acesso-antecipado.md) e [registro de execução](docs/steam-ea-execucao.md). Builds release: `sh tools/release/build.sh all` (Windows e Linux; exige templates Godot 4.6.3). Artefatos em `builds/` ainda precisam de QA antes da publicação.
 
 ---

@@ -1,5 +1,13 @@
 # Registro de execucao: Steam Early Access
 
+## 2026-10-04: automacao de playtest publico
+
+Workflow ampliado para Windows/Linux/macOS, com empacotamento, SHA-256,
+boot nativo em tres runners e pre-release automatico da `main` apos sucesso.
+PRs nao publicam. Instrucoes de download/limitacoes acompanham os pacotes;
+sem certificados comerciais, notarizacao ou mudanca de licenca open-source.
+Ver `releases-github.md`. Primeira execucao remota em validacao nesta entrega.
+
 ## 2026-10-04: suportes no autoataque
 
 Novo encaixe logico 4 nos comandos de suporte, sem alterar Q/W/E/R.

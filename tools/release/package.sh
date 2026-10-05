@@ -1,0 +1,27 @@
+#!/bin/sh
+set -eu
+
+cd "$(dirname "$0")/../.."
+mkdir -p dist
+stage="$(mktemp -d)"
+trap 'rm -rf "$stage"' EXIT INT TERM
+for platform in windows linux; do
+    folder="aresta-${platform}-x86_64"
+    mkdir -p "$stage/$folder"
+    cp builds/"$platform"/* "$stage/$folder/"
+    cp docs/playtest-publico.md "$stage/$folder/LEIA-ME.md"
+done
+chmod +x "$stage/aresta-linux-x86_64/aresta.x86_64"
+root="$(pwd)"
+rm -f dist/aresta-windows-x86_64.zip dist/aresta-linux-x86_64.tar.gz dist/aresta-macos-universal.zip
+(cd "$stage" && zip -qr "$root/dist/aresta-windows-x86_64.zip" aresta-windows-x86_64)
+tar -czf dist/aresta-linux-x86_64.tar.gz -C "$stage" aresta-linux-x86_64
+cp builds/macos/aresta.zip dist/aresta-macos-universal.zip
+cp docs/playtest-publico.md "$stage/LEIA-ME.md"
+zip -qj dist/aresta-macos-universal.zip "$stage/LEIA-ME.md" builds/macos/source-commit.txt builds/macos/engine-version.txt
+cp docs/playtest-publico.md dist/LEIA-ME.md
+if command -v sha256sum >/dev/null 2>&1; then
+    (cd dist && sha256sum aresta-windows-x86_64.zip aresta-linux-x86_64.tar.gz aresta-macos-universal.zip LEIA-ME.md > SHA256SUMS.txt)
+else
+    (cd dist && shasum -a 256 aresta-windows-x86_64.zip aresta-linux-x86_64.tar.gz aresta-macos-universal.zip LEIA-ME.md > SHA256SUMS.txt)
+fi

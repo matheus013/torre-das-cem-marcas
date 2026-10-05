@@ -2,6 +2,17 @@ name: Builds de distribuicao
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'data/**'
+      - 'assets/**'
+      - 'project.godot'
+      - 'export_presets.cfg'
+      - 'tools/release/**'
+      - 'docs/playtest-publico.md'
+      - '.github/workflows/release-build.yml'
   pull_request:
     paths:
       - 'src/**'
@@ -11,6 +22,13 @@ on:
       - 'export_presets.cfg'
       - 'tools/release/**'
       - '.github/workflows/release-build.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   release:
@@ -29,7 +47,7 @@ jobs:
           chmod +x "$HOME/.local/bin/godot"
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
           curl -fL --retry 3 -o templates.tpz "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_export_templates.tpz"
-          unzip -q templates.tpz 'templates/linux_release.x86_64' 'templates/windows_release_x86_64.exe' -d /tmp/aresta-templates
+          unzip -q templates.tpz 'templates/linux_release.x86_64' 'templates/windows_release_x86_64.exe' 'templates/macos.zip' -d /tmp/aresta-templates
           mkdir -p "$HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable"
           mv /tmp/aresta-templates/templates/* "$HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable/"
           rm godot.zip templates.tpz
@@ -38,13 +56,81 @@ jobs:
           godot --headless --path . --import
           sh tests/run_all.sh
           sh tools/release/build.sh all
+          sh tools/release/build.sh macos
       - name: Validar pacote com runtime release
         run: |
           sh tools/release/check.sh "$GITHUB_WORKSPACE/builds/linux/aresta.x86_64"
           cd /tmp
           "$GITHUB_WORKSPACE/builds/linux/aresta.x86_64" --headless --quit-after 120 -- --dev --server
+      - name: Empacotar downloads
+        run: sh tools/release/package.sh
       - uses: actions/upload-artifact@v4
         with:
-          name: aresta-release-${{ github.sha }}
-          path: builds/
+          name: aresta-downloads
+          path: dist/
+          if-no-files-found: error
           retention-days: 14
+
+  native-check:
+    needs: release
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: aresta-downloads
+          path: dist
+      - name: Validar Linux fora do checkout
+        if: runner.os == 'Linux'
+        run: |
+          mkdir -p "$RUNNER_TEMP/aresta"
+          tar -xzf dist/aresta-linux-x86_64.tar.gz -C "$RUNNER_TEMP/aresta"
+          sh tools/release/check.sh "$RUNNER_TEMP/aresta/aresta-linux-x86_64/aresta.x86_64"
+      - name: Validar Windows fora do checkout
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          Expand-Archive dist/aresta-windows-x86_64.zip "$env:RUNNER_TEMP/aresta"
+          $binary = "$env:RUNNER_TEMP/aresta/aresta-windows-x86_64/aresta.exe"
+          Set-Location $env:RUNNER_TEMP
+          $output = & $binary --headless --quit-after 120 -- --release-check 2>&1 | Out-String
+          Write-Output $output
+          if ($LASTEXITCODE -ne 0 -or $output -notmatch 'RELEASE_PACK_OK:' -or $output -match 'ERROR:') { throw 'Release Windows invalido' }
+      - name: Validar macOS fora do checkout
+        if: runner.os == 'macOS'
+        run: |
+          mkdir -p "$RUNNER_TEMP/aresta"
+          unzip -q dist/aresta-macos-universal.zip -d "$RUNNER_TEMP/aresta"
+          binary="$RUNNER_TEMP/aresta/Aresta - Prova Tecnica.app/Contents/MacOS/Aresta - Prova Tecnica"
+          chmod +x "$binary"
+          sh tools/release/check.sh "$binary"
+
+  publish:
+    needs: [release, native-check]
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: aresta-downloads
+          path: dist
+      - name: Publicar pre-release de playtest
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: playtest-${{ github.run_number }}-${{ github.run_attempt }}
+          SOURCE_COMMIT: ${{ github.sha }}
+        run: |
+          cd dist
+          sha256sum --check SHA256SUMS.txt
+          cd ..
+          gh release create "$RELEASE_TAG" dist/* --target "$SOURCE_COMMIT" --prerelease \
+            --title "Aresta - Playtest $RELEASE_TAG" --notes-file docs/playtest-publico.md
