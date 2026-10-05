@@ -28,6 +28,7 @@ const SHAPE := {
 	"character_gear": {"*": {"items": [ITEM]}},
 	"equipment": {"instance_sequence": TYPE_FLOAT, "items": [ITEM]},
 	"character_gems": {"*": {
+		"auto_supports": [TYPE_STRING],
 		"slots": [TYPE_STRING], "supports": [[TYPE_STRING]],
 		"gems": {"*": {"level": TYPE_FLOAT, "experience": TYPE_FLOAT, "choices": {"*": TYPE_STRING}}},
 	}},

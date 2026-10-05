@@ -312,6 +312,13 @@ func _build_skills() -> void:
 	var gem_options: Array = _model.get("gem_options", []) as Array
 	for skill: Dictionary in _model.get("skills", []) as Array:
 		_build_skill_card(skill, gem_options, safe)
+	var auto := _model.get("auto_attack_supports", {}) as Dictionary
+	if not auto.is_empty():
+		_section("AUTOATAQUE", String(auto.get("weapon_name", "")))
+		_add_text("Dano %.1f   |   Intervalo %.2f s   |   Folego %.0f   |   Capacidade %d / %d" % [float(auto["damage"]), float(auto["interval"]), float(auto["breath_cost"]), int(auto["capacity_used"]), int(auto["capacity"])], TEXT)
+		var controls := VBoxContainer.new()
+		_content.add_child(controls)
+		_build_skill_controls(controls, auto, safe)
 	_section("PASSIVA AUTORAL", String(_model.get("passive_name", "")))
 	_add_text(String(_model.get("passive_description", "")), TEXT)
 
@@ -400,6 +407,12 @@ func _build_skill_card(skill: Dictionary, gem_options: Array, safe: bool) -> voi
 	evolutions.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	evolutions.add_theme_color_override("font_color", MUTED)
 	column.add_child(evolutions)
+	_build_skill_controls(column, skill, safe)
+
+
+func _build_skill_controls(column: VBoxContainer, skill: Dictionary, safe: bool) -> void:
+	var slot := int(skill.get("slot", 0))
+	var gem_id := String(skill.get("id", ""))
 
 	var supports_row := HBoxContainer.new()
 	supports_row.add_theme_constant_override("separation", 6)
@@ -411,6 +424,8 @@ func _build_skill_card(skill: Dictionary, gem_options: Array, safe: bool) -> voi
 	for support: Dictionary in skill.get("supports", []) as Array:
 		var chip := Button.new()
 		chip.text = "%s (%d)  x" % [String(support.get("name", "")), int(support.get("drain", 0))]
+		if not bool(support.get("active", true)):
+			chip.text = "%s (inativo)  x" % String(support.get("name", ""))
 		chip.tooltip_text = "%s\n%s\nRemover suporte" % ["Mecanica" if String(support.get("category", "")) == "mechanic" else "Buff", String(support.get("description", ""))]
 		chip.disabled = not safe
 		var support_id := String(support.get("id", ""))

@@ -17,7 +17,7 @@ com hordas, QA externo e validacao fisica de controles continuam pendentes.
 Base anterior enviada para `origin/main` nos commits `04e03ae` (gameplay,
 opcoes, controles, mira e distribuicao) e `eda37f6` (documentacao e QA).
 
-- Suite local atual: 42 testes aprovados, zero falhas, incluindo conservacao de loot, estados do HUD, descricoes por hover, menus, gemas, armas, CFG/perfil, saves e rede.
+- Suite local atual: 43 testes aprovados, zero falhas, incluindo suportes no autoataque, conservacao de loot, estados do HUD, descricoes por hover, menus, gemas, armas, CFG/perfil, saves e rede.
 - Seis melhorias do [HUD de combate](hud-combate.md) implementadas: efeitos,
   barreira, disponibilidade de skills, mira/alvo, grupo e avisos contextuais.
   Capturas controladas verificadas em 720p, 1080p e janela estreita; isso nao

@@ -8,6 +8,19 @@ Inspiracao estrutural, sem copiar nomes, arte ou valores de Path of Exile. Fonte
 
 Quatro ativas equipadas; troca e ligacao em Aresta. Ate dois suportes por ativa, capacidade 2 + nivel da gema (3-5 no beta).
 Categorias mecanica/buff compartilham slots e capacidade. Uma copia de cada suporte por personagem, sem equipar o mesmo suporte em dois slots.
+
+Autoataque (2026-10-04): dois suportes com capacidade fixa 6, na secao
+AUTOATAQUE da aba Skills. Compatibilidade depende da arma; Foco aceita
+multishot, perfuracao, ricochete, retorno, bifurcacao e impacto em area.
+Lanca/Bastao aceitam modificadores de area; Manoplas mantem acerto unico.
+Dano, alcance, cadencia, critico, repulsao, roubo de Vida, Folego e barreira
+por acerto seguem a compatibilidade do catalogo e consumidores existentes.
+Suportes de eco, teleguiado, duracao/invocacao e outros campos sem consumidor
+no autoataque nao sao ofertados. Custos adicionais de Folego sao pagos a cada
+ataque; sem recurso suficiente, espera regenerar. Trocas continuam em Aresta.
+Uma copia nao pode ficar ligada a skill e autoataque simultaneamente.
+Trocar arma preserva suportes incompativeis como inativos; reativam com arma
+compativel. Saves antigos iniciam sem suportes no autoataque, sem perder skills.
 36 ativas disponiveis no catalogo do beta; nao sao desbloqueios por loot. Saves antigos recebem novas entradas de progresso no carregamento.
 IDs anteriores e escolhas salvas preservados. Graus 1-3 oferecem duas evolucoes por grau; nao confundir com marcos permanentes de personagem.
 Valores sao ponto de partida de balanceamento, nao prova de viabilidade equivalente. Efeitos visuais/icone provisorios em pixel art; audio individual ainda pendente.

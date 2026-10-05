@@ -1,5 +1,28 @@
 # Registro de execucao: Steam Early Access
 
+## 2026-10-04: suportes no autoataque
+
+Novo encaixe logico 4 nos comandos de suporte, sem alterar Q/W/E/R.
+Dois suportes e capacidade fixa 6; mesmas validacoes autoritativas de area
+segura, unicidade e persistencia por personagem. Resolucao canonica por ID
+adapta potencia/recarga para dano/intervalo, respeitando geometria da arma.
+Campos sem consumidor sao recusados; custos de Folego realmente pagos.
+Suportes incompativeis ficam guardados/inativos ao trocar arma.
+
+Menu Skills oferece secao AUTOATAQUE, atributos finais, adicionar/remover e
+descricoes. JSON opcional `auto_supports` validado; saves anteriores mantem
+quatro skills e recebem lista vazia. Ricochete de projeteis nao revisita os
+alvos do impacto inicial, inclusive apos repulsao.
+Regressao cobre custos, limites, compatibilidade, dano/recuperacao,
+multishot/ricochete/perfuracao/retorno/bifurcacao/impacto, geometria melee,
+transferencia sem duplicacao, troca de arma, save antigo e sinais do menu.
+Suite local: 43 testes aprovados, zero falhas. Balanceamento e controle
+fisico continuam pendentes; nao fecha gate de publicacao.
+Capturas nativas da secao em 1280x720 e 640x720 conferidas sem sobreposicao
+(janela estreita ainda usa escala de menus existente). Export macOS sem
+erros/avisos; autoteste do pacote release aprovado (`RELEASE_PACK_OK`).
+Windows/Linux nao retestados nesta entrega.
+
 ## 2026-10-04: conservacao de loot (G0.5)
 
 Removida exclusao dos drops mais antigos ao ultrapassar 120 entradas.

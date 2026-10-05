@@ -97,6 +97,7 @@ const GEM_SCALING_WEIGHTS: Array[float] = [0.6, 0.4, 0.25]
 ## Saque físico (decisão 550): fica no chão até alguém passar por cima.
 const PICKUP_RADIUS := 34.0
 const MAX_GROUND_ITEM_VIEWS := 120
+const AutoSupports := preload("res://src/gameplay/equipment/auto_attack_supports.gd")
 const STACK_RADIUS := 18.0
 const GEM_SLOT_KEYS: Array[String] = ["Q", "W", "E", "R"]
 
@@ -349,7 +350,7 @@ func _new_gem_state() -> Dictionary:
 	var gems := {}
 	for definition in _collection("active_gems"):
 		gems[String(definition.get("id", ""))] = {"level": 1, "experience": 0, "choices": {}}
-	return {"slots": GEM_IDS.duplicate(), "supports": [[], [], [], []], "gems": gems}
+	return {"slots": GEM_IDS.duplicate(), "supports": [[], [], [], []], "auto_supports": [], "gems": gems}
 
 
 func _gem_state(peer_id: int) -> Dictionary:
@@ -404,6 +405,8 @@ func set_gem_slot(peer_id: int, slot: int, gem_id: String) -> bool:
 
 
 func attach_support(peer_id: int, slot: int, support_id: String) -> bool:
+	if slot == AutoSupports.SLOT:
+		return attach_auto_support(peer_id, support_id)
 	var gems := _gem_state(peer_id)
 	var support := support_definition(support_id)
 	if gems.is_empty() or support.is_empty() or slot < 0 or slot >= 4:
@@ -430,6 +433,7 @@ func attach_support(peer_id: int, slot: int, support_id: String) -> bool:
 		return false
 	for index in range(supports_list.size()):
 		(supports_list[index] as Array).erase(support_id)
+	(gems["auto_supports"] as Array).erase(support_id)
 	current.append(support_id)
 	_status(peer_id, "%s ligado a %s." % [support.get("name", support_id), gem_definition(gem_id).get("name", gem_id)])
 	return true
@@ -437,13 +441,29 @@ func attach_support(peer_id: int, slot: int, support_id: String) -> bool:
 
 func detach_support(peer_id: int, slot: int, support_id: String) -> bool:
 	var gems := _gem_state(peer_id)
-	if gems.is_empty() or slot < 0 or slot >= 4 or not _in_safe_area(peer_id, "Remover suportes"):
+	if gems.is_empty() or slot < 0 or slot > AutoSupports.SLOT or not _in_safe_area(peer_id, "Remover suportes"):
 		return false
-	var current := (gems["supports"] as Array)[slot] as Array
+	var current := gems["auto_supports"] as Array if slot == AutoSupports.SLOT else (gems["supports"] as Array)[slot] as Array
 	if not current.has(support_id):
 		return false
 	current.erase(support_id)
 	_status(peer_id, "%s removido." % support_definition(support_id).get("name", support_id))
+	return true
+
+
+func attach_auto_support(peer_id: int, support_id: String) -> bool:
+	var gems := _gem_state(peer_id)
+	var support := support_definition(support_id)
+	if gems.is_empty() or support.is_empty() or not _in_safe_area(peer_id, "Ligar suportes"):
+		return false
+	var current := gems["auto_supports"] as Array
+	if current.size() >= 2 or current.has(support_id) or _used_capacity(current) + int(support.get("drain", 0)) > AutoSupports.CAPACITY or not AutoSupports.supports(_base_weapon_attack_model(peer_id), support):
+		_status(peer_id, "Suporte incompativel ou capacidade do autoataque insuficiente.")
+		return false
+	for other: Array in gems["supports"]:
+		other.erase(support_id)
+	current.append(support_id)
+	_status(peer_id, "%s ligado ao autoataque." % support.get("name", support_id))
 	return true
 
 
@@ -849,11 +869,14 @@ func _step_player(peer_id: int, delta: float) -> void:
 	if float(state["attack_timer"]) <= 0.0:
 		var weapon := weapon_attack_model(peer_id)
 		var nearest := nearest_enemy_to(state["position"] as Vector2, float(weapon["range"]))
-		if nearest >= 0:
+		if nearest >= 0 and float(state["breath"]) >= float(weapon.get("breath_cost", 0.0)):
+			state["breath"] = float(state["breath"]) - float(weapon.get("breath_cost", 0.0))
 			var first := enemies[nearest]["position"] as Vector2
 			_vfx(state["zone"], "travel", ["vfx/bolt", (state["position"] as Vector2) - Vector2(0.0, 14.0), first, 0.07, 9.0])
 			var damage := float(weapon["damage"])
 			var imprint := {"crit_add": weapon["crit_add"], "damage_type": weapon["damage_type"], "knockback": weapon.get("knockback", 0.0), "vulnerable": weapon.get("vulnerable", 0.0), "vulnerable_duration": weapon.get("vulnerable_duration", 0.0)}
+			for key in ["life_steal", "breath_per_hit", "barrier_per_hit"]:
+				imprint[key] = weapon.get(key, 0.0)
 			for mechanic in _mechanics(peer_id, "auto_imprint"):
 				var last := state.get("last_hit", {}) as Dictionary
 				for key: String in ["slow", "slow_duration", "vulnerable", "vulnerable_duration", "life_steal"]:
@@ -878,7 +901,10 @@ func _step_player(peer_id: int, delta: float) -> void:
 						if index < enemies.size() and SkillGeometryScript.in_cone(enemies[index]["position"] as Vector2, origin, direction, float(weapon["range"]), float(weapon["angle"])):
 							damage_enemy(peer_id, index, damage, imprint)
 				_:
-					damage_enemy(peer_id, nearest, damage, imprint)
+					if int(weapon.get("projectile_count", 0)) > 0 or int(weapon.get("pierce", 0)) > 0 or int(weapon.get("ricochet", 0)) > 0 or bool(weapon.get("return_projectile", false)) or int(weapon.get("fork_count", 0)) > 0 or float(weapon.get("impact_area", 0.0)) > 0.0:
+						_cast_projectiles(peer_id, weapon, first, imprint)
+					else:
+						damage_enemy(peer_id, nearest, damage, imprint)
 			for spot in extra_targets:
 				var chained := nearest_enemy_to(spot, 4.0)
 				if chained >= 0:
@@ -2414,25 +2440,29 @@ func _cast_projectiles(peer_id: int, effect: Dictionary, target: Vector2, hit: D
 		var offset := (float(index) - float(count - 1) * 0.5) * 0.2
 		var end := origin + direction.rotated(offset) * distance
 		_vfx(zone, "travel", ["vfx/needle", origin, end, travel_time, radius])
+		var struck: Array[Dictionary] = []
+		for enemy in enemies:
+			var spot := enemy["position"] as Vector2
+			if spot.distance_to(end) <= radius:
+				struck.append(enemy)
 		if pierce > 0:
 			_damage_segment(peer_id, origin, end, 22.0, power * 0.8, pierce, hit)
 		damage_enemies(peer_id, end, radius, power, hit)
 		var last := end
-		var struck: Array[Vector2] = []
 		for _bounce in range(ricochets):
 			var next := -1
 			var best := 180.0
 			for candidate in range(enemies.size()):
 				var candidate_position := enemies[candidate]["position"] as Vector2
 				var candidate_distance := candidate_position.distance_to(last)
-				if candidate_distance < best and candidate_distance > 8.0 and not struck.has(candidate_position):
+				if candidate_distance < best and candidate_distance > 8.0 and not struck.has(enemies[candidate]):
 					best = candidate_distance
 					next = candidate
 			if next < 0:
 				break
 			var bounce_position := enemies[next]["position"] as Vector2
 			_vfx(zone, "chain", [[last, bounce_position]])
-			struck.append(bounce_position)
+			struck.append(enemies[next])
 			damage_enemy(peer_id, next, power * 0.7, hit)
 			last = bounce_position
 		if bool(effect.get("return_projectile", false)):
@@ -3263,7 +3293,7 @@ func _skills_model(peer_id: int) -> Array[Dictionary]:
 		var available: Array[Dictionary] = []
 		for support in _collection("support_gems"):
 			var support_id := String(support.get("id", ""))
-			var in_use := false
+			var in_use := (gems.get("auto_supports", []) as Array).has(support_id)
 			for other: Variant in gems["supports"]:
 				if (other as Array).has(support_id):
 					in_use = true
@@ -3377,7 +3407,7 @@ func _milestone_choices(peer_id: int) -> Array[Dictionary]:
 	return choices
 
 
-func weapon_attack_model(peer_id: int) -> Dictionary:
+func _base_weapon_attack_model(peer_id: int) -> Dictionary:
 	var state := player(peer_id)
 	var equipment: EquipmentLoadout = _gear(peer_id).get("equipment") as EquipmentLoadout
 	var type_id := "unarmed"
@@ -3387,11 +3417,45 @@ func weapon_attack_model(peer_id: int) -> Dictionary:
 		fabrication = LootDifficultyScript.fabrication_factor(String(equipment.weapon.quality))
 	var derived := derived_stats(peer_id)
 	var result := WeaponCombat.resolve(type_id, String(state.get("character_id", "")), derived.get("effective_primaries", {}) as Dictionary, fabrication)
+	result["weapon_type"] = type_id
 	result["damage"] = float(result["damage"]) * _mod(peer_id, "auto_damage_mult") * level_power(peer_id)
 	result["interval"] = float(result["interval"]) / maxf(0.01, float(derived.get("automatic_attack_rate_multiplier", 1.0)))
 	result["critical_chance"] = clampf(float(derived.get("critical_chance", CRIT_CHANCE)) + float(result["crit_add"]), 0.0, 0.5)
 	result["item_name"] = item_display_name(String(equipment.weapon.definition.id)) if equipment != null and equipment.weapon != null else "Desarmado"
 	return result
+
+
+func weapon_attack_model(peer_id: int) -> Dictionary:
+	var attached: Array[Dictionary] = []
+	var ids := (_gem_state(peer_id).get("auto_supports", []) as Array).duplicate()
+	ids.sort()
+	for id: String in ids:
+		attached.append(support_definition(id))
+	var result := AutoSupports.resolve(_base_weapon_attack_model(peer_id), attached)
+	result["critical_chance"] = clampf(float(derived_stats(peer_id).get("critical_chance", CRIT_CHANCE)) + float(result["crit_add"]), 0.0, 0.5)
+	return result
+
+
+func _auto_support_model(peer_id: int) -> Dictionary:
+	var weapon := _base_weapon_attack_model(peer_id)
+	var gems := _gem_state(peer_id)
+	var attached: Array[Dictionary] = []
+	for id: String in gems.get("auto_supports", []):
+		var support := support_definition(id).duplicate(true)
+		support["active"] = AutoSupports.supports(weapon, support)
+		if not bool(support["active"]):
+			support["description"] = "Inativo com esta arma. " + String(support.get("description", ""))
+		attached.append(support)
+	var available: Array[Dictionary] = []
+	for support in _collection("support_gems"):
+		var used := (gems["auto_supports"] as Array).has(support["id"])
+		for other: Array in gems["supports"]:
+			used = used or other.has(support["id"])
+		if not used and AutoSupports.supports(weapon, support):
+			available.append(support)
+	available.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return String(a["name"]).naturalnocasecmp_to(String(b["name"])) < 0)
+	var resolved := weapon_attack_model(peer_id)
+	return {"slot": AutoSupports.SLOT, "supports": attached, "available_supports": available, "capacity": AutoSupports.CAPACITY, "capacity_used": _used_capacity(gems["auto_supports"] as Array), "damage": resolved["damage"], "interval": resolved["interval"], "breath_cost": resolved.get("breath_cost", 0.0), "weapon_name": resolved["item_name"]}
 
 
 func menu_model(peer_id: int) -> Dictionary:
@@ -3419,6 +3483,7 @@ func menu_model(peer_id: int) -> Dictionary:
 	return {
 		"character_name": state.get("character_name", ""),
 		"weapon_attack": weapon_attack_model(peer_id),
+		"auto_attack_supports": _auto_support_model(peer_id),
 		"level": build.level if build != null else 1,
 		"max_level": build.max_level if build != null else CharacterBuild.MAX_LEVEL,
 		"records": records.duplicate(true),
@@ -3643,6 +3708,16 @@ func _restore_gems(raw: Variant) -> void:
 		if saved_supports is Array and (saved_supports as Array).size() == 4:
 			state["supports"] = (saved_supports as Array).duplicate(true)
 		_validate_supports(state)
+		var auto_ids: Variant = saved.get("auto_supports", [])
+		if auto_ids is Array:
+			for id: Variant in auto_ids:
+				var support := support_definition(String(id))
+				var used := false
+				for other: Array in state["supports"]:
+					used = used or other.has(id)
+				var current := state["auto_supports"] as Array
+				if not support.is_empty() and not used and not current.has(id) and current.size() < 2 and _used_capacity(current) + int(support.get("drain", 0)) <= AutoSupports.CAPACITY:
+					current.append(String(id))
 		character_gems[String(key)] = state
 
 

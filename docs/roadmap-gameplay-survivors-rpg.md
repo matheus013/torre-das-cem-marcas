@@ -16,6 +16,12 @@ resolve os achados de G0.
 
 ## G0: confiar no combate e no loot
 
+Autoataque em 2026-10-04: dois encaixes de suporte (capacidade 6),
+compatibilidade por arma e efeitos reais no ataque, sem duplicar a copia
+entre autoataque e skills. UI de adicionar/remover, snapshot do host e
+migracao de saves cobertos por regressao. Suporte incompativel fica inativo
+ao trocar arma. Balanceamento dessa nova combinacao continua pendente em G3.2.
+
 Loot em 2026-10-04: limite de 120 aplicado somente ao snapshot visual,
 com selecao por proximidade dividida entre aliados conectados. O estado
 autoritativo conserva os drops, inclusive reliquias e carga perdida.

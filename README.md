@@ -173,6 +173,7 @@ As quatro teclas **Q, W, E, R** usam **Gemas Ativas** (projétil, investida, exp
 ### Saque e equipamento
 
 - Catalogo atual: [36 skills e 40 suportes](docs/catalogo-gemas.md), incluindo multishot, ricochete, roubo de Vida e Folego.
+- O autoataque também aceita dois suportes, com capacidade 6 e compatibilidade por arma, na seção **AUTOATAQUE** da aba **Skills**. Trocas somente na vila.
 - Cada personagem inicia com um [tipo de arma distinto](docs/armas-e-afinidades.md), com escala por atributos e afinidades percentuais.
 
 - O saque **cai no chão**: passe por cima para recolher.
