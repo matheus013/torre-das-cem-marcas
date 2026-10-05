@@ -1,5 +1,19 @@
 # Registro de execucao: Steam Early Access
 
+## 2026-10-04: reforco de CI e Actions
+
+Actions oficiais atualizadas para runtime Node 24 e fixadas por SHA completo:
+checkout 7.0.1, setup-node 7.0.0, upload-artifact 7.0.1, download-artifact 8.0.1.
+Inputs conferidos com os action.yml oficiais. Download v8 reprova divergencia
+de digest por padrao. Nenhum PR de dependencia foi mesclado automaticamente.
+
+Removido `|| true` da importacao no CI. Script comum de importacao para testes
+e builds verifica codigo de saida e erros no log, inclusive retorno zero.
+Cinco testes adicionais simulam importacao limpa, aviso, erro de recurso,
+erro de parser e retorno nao zero. Suite de tooling: 16 testes aprovados;
+actionlint e diff-check sem erros. Validacao remota desta entrega pendente.
+CI de testes explicita contents: read e checkout sem credenciais persistentes.
+
 ## 2026-10-04: versoes e changelog automaticos
 
 Implementados semantic-release, Conventional Commits, `VERSION` unico no

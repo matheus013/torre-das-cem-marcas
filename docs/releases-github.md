@@ -45,6 +45,12 @@ uma previa e pode atualizar o changelog local; use em checkout descartavel.
 ## Dependencias e seguranca
 
 Dependabot acompanha npm e Actions semanalmente, sem merge automatico.
+Actions oficiais sao fixadas por SHA completo (checkout/setup-node/upload v7,
+download v8), com runtime Node 24. O download de artefatos reprova divergencia
+de digest. O CI de testes usa token somente leitura e nao conserva credenciais.
+Importacao e compartilhada entre testes e exports via `tools/release/import.sh`:
+saida diferente de zero ou `ERROR:`/`SCRIPT ERROR:` no log bloqueiam o pipeline,
+inclusive quando o Godot retorna zero. Avisos isolados nao sao tratados como erros.
 Em 2026-10-04, `npm audit` reportou 13 alertas transitivos nas ferramentas
 (12 altos, 1 moderado), incluindo [braces sem correcao publicada](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm).
 Nao foram ocultados nem considerados resolvidos. Padroes glob sao fixos,

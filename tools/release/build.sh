@@ -9,10 +9,7 @@ case "$target" in
     *) printf 'Uso: sh tools/release/build.sh [windows|linux|macos|all]\n' >&2; exit 2 ;;
 esac
 
-if [ -d node_modules ]; then
-    touch node_modules/.gdignore
-fi
-"$GODOT_BIN" --headless --path . --import
+GODOT_BIN="$GODOT_BIN" sh tools/release/import.sh
 if [ "${CI:-false}" = true ]; then
     "$GODOT_BIN" --headless --path . --script tools/release/stamp_export_version.gd
 fi
