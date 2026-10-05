@@ -86,7 +86,7 @@ jobs:
           cache: npm
       - run: npm ci --ignore-scripts
       - run: npm run test:release
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         if: github.event_name != 'pull_request'
         with:
           name: aresta-release-plan
@@ -144,7 +144,7 @@ jobs:
       RELEASE_VERSION: ${{ needs.release.outputs.version }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: aresta-downloads
           path: dist
@@ -191,11 +191,11 @@ jobs:
           node-version: '24'
           cache: npm
       - run: npm ci --ignore-scripts
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: aresta-release-plan
           path: .release
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: aresta-downloads
           path: dist
