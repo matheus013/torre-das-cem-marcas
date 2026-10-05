@@ -1,5 +1,23 @@
 # Registro de execucao: Steam Early Access
 
+## 2026-10-04: conservacao de loot (G0.5)
+
+Removida exclusao dos drops mais antigos ao ultrapassar 120 entradas.
+O limite agora se aplica somente ao snapshot visual, com selecao dos mais
+proximos por aliado conectado em rodizio e desempate por ID. O ledger
+autoritativo continua coletavel e salvo, sem mudar a partilha existente.
+Reload conserva sala de chefe, andar, qualidade e pilhas maiores que 9999,
+sem explodir uma quantidade alta em milhares de entradas adicionais.
+
+Regressao ultrapassa 120 entradas, conserva carga perdida e 181 reliquias,
+verifica proximidade para aliados separados, limite/determinismo do snapshot,
+JSON/save/reload, qualidade de fabricacao e coleta sem duplicacao.
+Consumo de memoria do ledger e custo de selecao em sessoes longas seguem
+pendentes de perfil release (G4.4); G0 completo e publicacao seguem abertos.
+Suite local: 42 testes aprovados, zero falhas; regressao de loot novamente
+aprovada apos o ajuste final. Export macOS sem erros/avisos e autoteste do
+pacote release aprovado (`RELEASE_PACK_OK`). Windows/Linux nao retestados.
+
 ## 2026-10-04: seis melhorias do HUD
 
 Skills distinguem pronta/recarga/sem Folego/caido; barreira quantificada e

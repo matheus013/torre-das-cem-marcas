@@ -17,7 +17,7 @@ com hordas, QA externo e validacao fisica de controles continuam pendentes.
 Base anterior enviada para `origin/main` nos commits `04e03ae` (gameplay,
 opcoes, controles, mira e distribuicao) e `eda37f6` (documentacao e QA).
 
-- Suite local atual: 41 testes aprovados, zero falhas, incluindo estados do HUD, descricoes por hover, menus, gemas, armas, CFG/perfil, saves e rede.
+- Suite local atual: 42 testes aprovados, zero falhas, incluindo conservacao de loot, estados do HUD, descricoes por hover, menus, gemas, armas, CFG/perfil, saves e rede.
 - Seis melhorias do [HUD de combate](hud-combate.md) implementadas: efeitos,
   barreira, disponibilidade de skills, mira/alvo, grupo e avisos contextuais.
   Capturas controladas verificadas em 720p, 1080p e janela estreita; isso nao
@@ -197,8 +197,10 @@ no co-op. Testes cobrem pausa, retomada, desconexao, save e XP acumulado.
 Validacao fisica de controles e QA nativo das builds continuam pendentes.
 
 A revisao de 2026-10-03 identificou bonus de equipamento sem efeito, perda
-silenciosa por limite de drops e entradas nao finitas aceitas. Estes achados
-continuam abertos: completar o [gate G0 de gameplay](roadmap-gameplay-survivors-rpg.md)
+silenciosa por limite de drops e entradas nao finitas aceitas. A perda por
+limite de drops foi corrigida em 2026-10-04 (G0.5), com regressao de
+recuperacao e JSON/save/reload. Os demais achados continuam abertos:
+completar o [gate G0 de gameplay](roadmap-gameplay-survivors-rpg.md)
 antes de ampliar loot ou considerar EA4 concluido. O [diagnostico completo](revisao-projeto-survivors-rpg.md)
 separa correcoes necessarias de novas mecanicas ainda propostas. G0 pode
 avancar junto de EA3; nao substitui QA nativo, migracao ou revisao da Valve.

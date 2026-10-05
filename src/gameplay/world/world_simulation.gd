@@ -96,7 +96,7 @@ const POWER_PER_LEVEL := 0.03
 const GEM_SCALING_WEIGHTS: Array[float] = [0.6, 0.4, 0.25]
 ## Saque físico (decisão 550): fica no chão até alguém passar por cima.
 const PICKUP_RADIUS := 34.0
-const MAX_GROUND_ITEMS := 120
+const MAX_GROUND_ITEM_VIEWS := 120
 const STACK_RADIUS := 18.0
 const GEM_SLOT_KEYS: Array[String] = ["Q", "W", "E", "R"]
 
@@ -2732,8 +2732,6 @@ func drop_item(zone: StringName, position: Vector2, item_id: String, quantity: i
 		"name": display, "equipment": equipment, "quality": quality,
 	})
 	_ground_sequence += 1
-	while ground_items.size() > MAX_GROUND_ITEMS:
-		ground_items.pop_front()
 
 
 func _is_equipment(item_id: String) -> bool:
@@ -3159,14 +3157,62 @@ func _hazard_views() -> Array:
 
 func _drop_views() -> Array:
 	var result: Array = []
-	for item in ground_items:
-		if int(item.get("floor", 0)) != current_floor:
-			continue
+	for item in _visible_ground_items():
 		result.append({
 			"zone": String(item["zone"]), "position": item["position"], "item_id": item["item_id"],
 			"quantity": item["quantity"], "tier": item["tier"], "name": item["name"], "equipment": item["equipment"],
 		})
 	return result
+
+
+func _visible_ground_items() -> Array[Dictionary]:
+	var candidates: Array[Dictionary] = []
+	for item in ground_items:
+		if int(item.get("floor", 0)) == current_floor:
+			candidates.append(item)
+	if candidates.size() <= MAX_GROUND_ITEM_VIEWS:
+		return candidates
+	# Round-robin nearest drops: one busy ally cannot consume the entire snapshot.
+	var rankings: Array = []
+	var peers := players.keys()
+	peers.sort()
+	for peer: int in peers:
+		var state := player(peer)
+		if not bool(state.get("connected", false)) or state["zone"] not in [&"tower", &"boss_room"]:
+			continue
+		var nearby: Array[Dictionary] = []
+		for item in candidates:
+			if item["zone"] == state["zone"]:
+				nearby.append(item)
+		var origin := state["position"] as Vector2
+		nearby.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+			var da := (a["position"] as Vector2).distance_squared_to(origin)
+			var db := (b["position"] as Vector2).distance_squared_to(origin)
+			return int(a["id"]) < int(b["id"]) if da == db else da < db)
+		rankings.append({"items": nearby, "index": 0})
+	if rankings.is_empty():
+		candidates.resize(MAX_GROUND_ITEM_VIEWS)
+		return candidates
+	var selected: Array[Dictionary] = []
+	var seen := {}
+	while selected.size() < MAX_GROUND_ITEM_VIEWS:
+		var added := false
+		for ranking: Dictionary in rankings:
+			var items := ranking["items"] as Array
+			var index := int(ranking["index"])
+			while index < items.size() and seen.has(items[index]["id"]):
+				index += 1
+			if index < items.size():
+				selected.append(items[index])
+				seen[items[index]["id"]] = true
+				added = true
+				index += 1
+			ranking["index"] = index
+			if selected.size() == MAX_GROUND_ITEM_VIEWS:
+				break
+		if not added:
+			break
+	return selected
 
 
 ## Lista dos andares já alcançados para o mapa da Torre: nome, bioma, tipo e recarga de chefe.
@@ -3704,7 +3750,10 @@ func _restore_ground_items(source: Variant) -> void:
 			continue
 		current_floor = item_floor
 		var quality := String(entry.get("quality", ""))
-		drop_item(&"tower", _array_vector(entry.get("position", []), Vector2(400.0, 360.0)), item_id, clampi(int(entry.get("quantity", 1)), 1, 9999), quality if quality in LootDifficultyScript.FABRICATION_FACTORS else "")
+		var zone := StringName(String(entry.get("zone", "tower")))
+		if zone not in [&"tower", &"boss_room"]:
+			zone = &"tower"
+		drop_item(zone, _array_vector(entry.get("position", []), Vector2(400.0, 360.0)), item_id, maxi(1, int(entry.get("quantity", 1))), quality if quality in LootDifficultyScript.FABRICATION_FACTORS else "")
 	current_floor = active
 
 

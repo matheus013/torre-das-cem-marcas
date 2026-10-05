@@ -16,6 +16,14 @@ resolve os achados de G0.
 
 ## G0: confiar no combate e no loot
 
+Loot em 2026-10-04: limite de 120 aplicado somente ao snapshot visual,
+com selecao por proximidade dividida entre aliados conectados. O estado
+autoritativo conserva os drops, inclusive reliquias e carga perdida.
+Reload preserva zona de chefe, andar, qualidade e pilhas acima de 9999.
+Regressao cobre JSON/save/reload e recuperacao de todos os itens omitidos
+da visualizacao. Memoria e custo de ordenacao sob sessoes longas ainda
+exigem medicao em G4.4; nao fecha os demais achados de G0.
+
 HUD em 2026-10-04: seis sugestoes implementadas (recursos das skills,
 barreira, efeitos com duracao, mira/alvo, grupo/resgate/reconexao e avisos).
 Ver [HUD de combate](hud-combate.md). Dados replicados pelo host; sem mudar
@@ -44,7 +52,7 @@ pendentes de suas evidencias de aceitacao, sem declarar G0 concluido.
 - [ ] G0.2: importar tags, incompatibilidades e `two_handed`. Aceite: teste via factory impede equipar combinacoes invalidas, sem apagar itens do inventario.
 - [ ] G0.3: registrar cada atributo equipado e seu consumidor. Aceite: cada bonus exibido altera uma medida observavel, ou fica explicitamente indisponivel no beta.
 - [ ] G0.4: conectar mecanicas de itens a eventos/resolvedores com limites de procs. Aceite: teste de comportamento por efeito habilitado, sem recursao, duplicacao de carga ou acumulo ao reequipar.
-- [ ] G0.5: proteger reliquias e carga perdida do limite de drops. Aceite: exceder 120 entradas preserva propriedade e recuperacao, inclusive apos save/reload; cap de representacao nao destroi estado.
+- [x] G0.5: proteger reliquias e carga perdida do limite de drops. Aceite: exceder 120 entradas preserva propriedade e recuperacao, inclusive apos save/reload; cap de representacao nao destroi estado. Evidencia: `ground_loot_preservation_test.gd`; partilha existente preservada, sem introduzir propriedade individual nova.
 - [ ] G0.6: validar vetores finitos, limites, IDs e frequencia de comandos no host. Aceite: entradas invalidas nao alteram estado; comandos legitimos seguem funcionando em solo/co-op.
 - [ ] G0.7: transformar probes confirmados em regressao no runner/CI. Aceite: suite e auditoria estrita passam; nao remover checks para fazer o gate ficar verde.
 
