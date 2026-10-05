@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.2.1](https://github.com/matheus013/torre-das-cem-marcas/compare/v0.2.0...v0.2.1) (2026-10-05)
+
+### Correcoes
+
+* detect colored Godot errors in import gate ([322c3a8](https://github.com/matheus013/torre-das-cem-marcas/commit/322c3a8c7f728133695981e073a121e9a997fa40))
+
+### Automacao
+
+* pin current actions and reject Godot import errors ([bf48f5b](https://github.com/matheus013/torre-das-cem-marcas/commit/bf48f5bddda6e58f2ccaf7473178a8cce9d0616b))
+
+### Documentacao
+
+* record verified semantic release 0.2.0 and roadmap milestone ([7bc478f](https://github.com/matheus013/torre-das-cem-marcas/commit/7bc478ff0374e78d831a1cff55298079b49ec7dd))
+
 ## [0.2.0](https://github.com/matheus013/torre-das-cem-marcas/compare/v0.1.0...v0.2.0) (2026-10-05)
 
 ### Novidades
