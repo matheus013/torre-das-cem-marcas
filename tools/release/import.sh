@@ -15,7 +15,7 @@ if [ "$status" -ne 0 ]; then
     exit "$status"
 fi
 # Godot can report parser/import failures without a nonzero exit status.
-if grep -Eq '(^|[[:space:]])(SCRIPT ERROR|ERROR):' "$log"; then
+if grep -Eq '(SCRIPT ERROR|ERROR):' "$log"; then
     printf 'Importacao reprovada: erros no log do Godot.\n' >&2
     exit 1
 fi

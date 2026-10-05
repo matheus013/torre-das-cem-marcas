@@ -9,8 +9,8 @@ de digest por padrao. Nenhum PR de dependencia foi mesclado automaticamente.
 
 Removido `|| true` da importacao no CI. Script comum de importacao para testes
 e builds verifica codigo de saida e erros no log, inclusive retorno zero.
-Cinco testes adicionais simulam importacao limpa, aviso, erro de recurso,
-erro de parser e retorno nao zero. Suite de tooling: 16 testes aprovados;
+Seis testes adicionais simulam importacao limpa, aviso, erro de recurso,
+erro de parser, log com cor ANSI e retorno nao zero. Suite de tooling: 17 testes aprovados;
 actionlint e diff-check sem erros. Validacao remota desta entrega pendente.
 CI de testes explicita contents: read e checkout sem credenciais persistentes.
 
