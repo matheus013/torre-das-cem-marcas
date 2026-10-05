@@ -60,6 +60,12 @@ Primeira evidencia em 2026-10-04: [playtest-2-1](https://github.com/matheus013/t
 do commit `fdc86a6`, com suite de 43 testes e boot nativo aprovado nos tres
 sistemas. Downloads publicos e SHA-256 conferidos apos a publicacao.
 
+Primeiro SemVer automatizado: [v0.2.0](https://github.com/matheus013/torre-das-cem-marcas/releases/tag/v0.2.0)
+do commit `9f9f8a8`, [execucao aprovada](https://github.com/matheus013/torre-das-cem-marcas/actions/runs/37251188513).
+44 testes do jogo, 11 da automacao e versao 0.2.0 confirmada no runtime dos
+tres sistemas. Commit documental/tag `dfd241d`, sete hashes conferidos e
+downloads publicos sem login verificados.
+
 Limites: boot headless nao certifica renderizacao, controles fisicos, co-op
 externo, saves historicos nem requisitos minimos. Builds nao sao assinadas
 com certificados comerciais ou notarizadas; continuam pre-releases gratuitos.

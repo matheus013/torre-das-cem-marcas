@@ -11,9 +11,20 @@ Dependabot configurado para npm e Actions, sem merge automatico.
 Validacao local: 44 testes Godot e 11 testes Node aprovados; actionlint e
 diff-check sem erros. Runtime release macOS fora do checkout confirmou
 `RELEASE_VERSION: 0.1.0` e `RELEASE_PACK_OK`. Dry-run confirmou que commits
-somente de documentacao nao criam versao. Primeira publicacao SemVer remota
-ainda aguardando execucao. Alertas transitivos de tooling documentados em
+somente de documentacao nao criam versao. Alertas transitivos de tooling documentados em
 `releases-github.md`; nao fazem parte dos jogos nem foram declarados corrigidos.
+
+Primeira publicacao SemVer concluida: [v0.2.0](https://github.com/matheus013/torre-das-cem-marcas/releases/tag/v0.2.0),
+[workflow aprovado](https://github.com/matheus013/torre-das-cem-marcas/actions/runs/37251188513).
+Corrigido uso do token temporario de instalacao (`GITHUB_TOKEN`) para Git.
+Origem dos pacotes: `9f9f8a8`; tag/commit documental automatico: `dfd241d`.
+Bot alterou somente VERSION/CHANGELOG. Suite remota: 44 testes Godot e
+11 testes Node; runtime confirmou 0.2.0 nos tres runners nativos. Os sete
+arquivos do release tiveram SHA-256 conferido; URLs dos tres pacotes
+responderam HTTP 200 sem login, manifesto e versao lidos anonimamente.
+Changelog usa data UTC do runner; este registro usa a data local do projeto.
+Dependabot abriu PRs; nova major do preset de changelog falhou nos testes
+e nao foi mesclada. Assinatura comercial e QA grafico/fisico continuam pendentes.
 
 ## 2026-10-04: automacao de playtest publico
 

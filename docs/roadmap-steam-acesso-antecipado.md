@@ -87,7 +87,7 @@ qualquer lancamento.
 - [x] Confirmar o resultado do CI de testes no GitHub (fdc86a6).
 - [x] Executar workflow no GitHub e verificar os artefatos baixados (playtest-2-1).
 - [x] Implementar SemVer, changelog automatico e versao unica no menu/pacotes.
-- [ ] Confirmar primeira publicacao SemVer automatica nos tres sistemas.
+- [x] Confirmar primeira publicacao SemVer automatica nos tres sistemas: [v0.2.0](https://github.com/matheus013/torre-das-cem-marcas/releases/tag/v0.2.0), 44 testes do jogo e 11 da automacao; versao do runtime conferida nos tres runners.
 - [ ] Testar Windows limpo sem Godot, abertura pelo executavel e partida solo.
 - [ ] Definir nome final de application/config/name com migracao de user://.
 
