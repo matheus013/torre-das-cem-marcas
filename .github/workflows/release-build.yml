@@ -62,7 +62,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: npm run release:plan
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: aresta-release-plan
           path: .release/
@@ -125,7 +125,7 @@ jobs:
           "$GITHUB_WORKSPACE/builds/linux/aresta.x86_64" --headless --quit-after 120 -- --dev --server
       - name: Empacotar downloads
         run: sh tools/release/package.sh
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: aresta-downloads
           path: dist/
