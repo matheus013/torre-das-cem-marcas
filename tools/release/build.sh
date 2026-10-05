@@ -9,7 +9,13 @@ case "$target" in
     *) printf 'Uso: sh tools/release/build.sh [windows|linux|macos|all]\n' >&2; exit 2 ;;
 esac
 
+if [ -d node_modules ]; then
+    touch node_modules/.gdignore
+fi
 "$GODOT_BIN" --headless --path . --import
+if [ "${CI:-false}" = true ]; then
+    "$GODOT_BIN" --headless --path . --script tools/release/stamp_export_version.gd
+fi
 build_target() {
     folder="$1"
     preset="$2"
@@ -23,6 +29,7 @@ build_target() {
     git rev-parse HEAD > "builds/$folder/source-commit.txt"
     git status --porcelain > "builds/$folder/source-changes.txt"
     "$GODOT_BIN" --version > "builds/$folder/engine-version.txt"
+    cp VERSION "builds/$folder/version.txt"
     printf 'Build release: builds/%s/%s\n' "$folder" "$filename"
 }
 

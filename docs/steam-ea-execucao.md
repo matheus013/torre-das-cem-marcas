@@ -1,5 +1,20 @@
 # Registro de execucao: Steam Early Access
 
+## 2026-10-04: versoes e changelog automaticos
+
+Implementados semantic-release, Conventional Commits, `VERSION` unico no
+menu/PCK/metadados nativos, changelog automatico e manifesto dos pacotes.
+Planejamento separado da publicacao; divergencia de commit/versao bloqueia
+o release. Bot altera somente VERSION/CHANGELOG e nao dispara novo ciclo.
+Dependabot configurado para npm e Actions, sem merge automatico.
+
+Validacao local: 44 testes Godot e 11 testes Node aprovados; actionlint e
+diff-check sem erros. Runtime release macOS fora do checkout confirmou
+`RELEASE_VERSION: 0.1.0` e `RELEASE_PACK_OK`. Dry-run confirmou que commits
+somente de documentacao nao criam versao. Primeira publicacao SemVer remota
+ainda aguardando execucao. Alertas transitivos de tooling documentados em
+`releases-github.md`; nao fazem parte dos jogos nem foram declarados corrigidos.
+
 ## 2026-10-04: automacao de playtest publico
 
 Workflow ampliado para Windows/Linux/macOS, com empacotamento, SHA-256,

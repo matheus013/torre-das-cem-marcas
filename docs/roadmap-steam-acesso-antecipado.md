@@ -17,7 +17,7 @@ com hordas, QA externo e validacao fisica de controles continuam pendentes.
 Base anterior enviada para `origin/main` nos commits `04e03ae` (gameplay,
 opcoes, controles, mira e distribuicao) e `eda37f6` (documentacao e QA).
 
-- Suite local atual: 43 testes aprovados, zero falhas, incluindo suportes no autoataque, conservacao de loot, estados do HUD, descricoes por hover, menus, gemas, armas, CFG/perfil, saves e rede.
+- Suite local atual: 44 testes aprovados, zero falhas, incluindo versao do pacote, suportes no autoataque, conservacao de loot, estados do HUD, descricoes por hover, menus, gemas, armas, CFG/perfil, saves e rede. Automacao de releases tem mais 11 testes Node separados.
 - Seis melhorias do [HUD de combate](hud-combate.md) implementadas: efeitos,
   barreira, disponibilidade de skills, mira/alvo, grupo e avisos contextuais.
   Capturas controladas verificadas em 720p, 1080p e janela estreita; isso nao
@@ -86,6 +86,8 @@ qualquer lancamento.
 - [x] Versionar e enviar a implementacao e o roadmap ao repositorio remoto.
 - [x] Confirmar o resultado do CI de testes no GitHub (fdc86a6).
 - [x] Executar workflow no GitHub e verificar os artefatos baixados (playtest-2-1).
+- [x] Implementar SemVer, changelog automatico e versao unica no menu/pacotes.
+- [ ] Confirmar primeira publicacao SemVer automatica nos tres sistemas.
 - [ ] Testar Windows limpo sem Godot, abertura pelo executavel e partida solo.
 - [ ] Definir nome final de application/config/name com migracao de user://.
 

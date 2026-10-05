@@ -9,7 +9,7 @@ body:
     id: build
     attributes:
       label: Tag do playtest ou commit
-      placeholder: playtest-N-T
+      placeholder: v0.2.0 ou commit
     validations:
       required: true
   - type: dropdown

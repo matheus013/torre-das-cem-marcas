@@ -14,7 +14,7 @@ var _embers: Array[Vector3] = []
 var _join_row: HBoxContainer
 var _address_input: LineEdit
 var _settings_dialog: ConfirmationDialog
-var _game_version := "Beta jogável " + str(ProjectSettings.get_setting("application/config/version", "0.1.0"))
+var _game_version := "Beta jogável " + preload("res://src/core/app/app_version.gd").current()
 
 
 func _ready() -> void:

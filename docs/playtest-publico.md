@@ -20,7 +20,8 @@ somente se confiar nesta origem; nao desative a protecao global do sistema.
 Notarizacao Apple e assinatura Windows continuam pendentes.
 
 Confira `SHA256SUMS.txt` para verificar integridade. Cada pacote identifica
-o commit e a versao da engine. A automacao testa conteudo/importacao e boot
+o commit, a versao do jogo (`version.txt`) e a engine. Releases versionados
+incluem `CHANGELOG.md` e `release-manifest.json`. A automacao testa conteudo/importacao e boot
 headless nos tres sistemas; isso nao substitui QA grafico ou de controles.
 
 ## Testar e reportar

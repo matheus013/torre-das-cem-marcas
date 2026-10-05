@@ -12,6 +12,9 @@ on:
       - 'export_presets.cfg'
       - 'tools/release/**'
       - 'docs/playtest-publico.md'
+      - 'VERSION'
+      - 'package*.json'
+      - 'release.config.mjs'
       - '.github/workflows/release-build.yml'
   pull_request:
     paths:
@@ -21,6 +24,9 @@ on:
       - 'project.godot'
       - 'export_presets.cfg'
       - 'tools/release/**'
+      - 'VERSION'
+      - 'package*.json'
+      - 'release.config.mjs'
       - '.github/workflows/release-build.yml'
 
 permissions:
@@ -31,13 +37,68 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  plan:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    outputs:
+      publish: ${{ steps.plan.outputs.publish }}
+      version: ${{ steps.plan.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npm run test:release
+      - name: Calcular versao e changelog sem publicar
+        id: plan
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: npm run release:plan
+      - uses: actions/upload-artifact@v4
+        with:
+          name: aresta-release-plan
+          path: .release/
+          include-hidden-files: true
+          if-no-files-found: error
+
   release:
+    needs: plan
+    if: always() && (github.event_name == 'pull_request' || needs.plan.result == 'success')
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
       GODOT_VERSION: 4.6.3
+    outputs:
+      version: ${{ steps.version.outputs.version }}
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npm run test:release
+      - uses: actions/download-artifact@v4
+        if: github.event_name != 'pull_request'
+        with:
+          name: aresta-release-plan
+          path: .release
+      - name: Aplicar versao planejada aos pacotes
+        id: version
+        run: |
+          if [ -f .release/VERSION ]; then
+            cp .release/VERSION VERSION
+            cp .release/CHANGELOG.md CHANGELOG.md
+          fi
+          printf 'version=%s\n' "$(cat VERSION)" >> "$GITHUB_OUTPUT"
       - name: Instalar engine e templates oficiais
         run: |
           curl -fL --retry 3 -o godot.zip "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
@@ -79,6 +140,8 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 10
+    env:
+      RELEASE_VERSION: ${{ needs.release.outputs.version }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
@@ -90,7 +153,7 @@ jobs:
         run: |
           mkdir -p "$RUNNER_TEMP/aresta"
           tar -xzf dist/aresta-linux-x86_64.tar.gz -C "$RUNNER_TEMP/aresta"
-          sh tools/release/check.sh "$RUNNER_TEMP/aresta/aresta-linux-x86_64/aresta.x86_64"
+          sh tools/release/check.sh "$RUNNER_TEMP/aresta/aresta-linux-x86_64/aresta.x86_64" "$RELEASE_VERSION"
       - name: Validar Windows fora do checkout
         if: runner.os == 'Windows'
         shell: pwsh
@@ -101,6 +164,7 @@ jobs:
           $output = & $binary --headless --quit-after 120 -- --release-check 2>&1 | Out-String
           Write-Output $output
           if ($LASTEXITCODE -ne 0 -or $output -notmatch 'RELEASE_PACK_OK:' -or $output -match 'ERROR:') { throw 'Release Windows invalido' }
+          if ($output -notmatch [regex]::Escape("RELEASE_VERSION: $env:RELEASE_VERSION")) { throw 'Versao Windows divergente' }
       - name: Validar macOS fora do checkout
         if: runner.os == 'macOS'
         run: |
@@ -108,29 +172,39 @@ jobs:
           unzip -q dist/aresta-macos-universal.zip -d "$RUNNER_TEMP/aresta"
           binary="$RUNNER_TEMP/aresta/Aresta - Prova Tecnica.app/Contents/MacOS/Aresta - Prova Tecnica"
           chmod +x "$binary"
-          sh tools/release/check.sh "$binary"
+          sh tools/release/check.sh "$binary" "$RELEASE_VERSION"
 
   publish:
-    needs: [release, native-check]
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: [plan, release, native-check]
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && needs.plan.outputs.publish == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
       contents: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - uses: actions/download-artifact@v4
+        with:
+          name: aresta-release-plan
+          path: .release
       - uses: actions/download-artifact@v4
         with:
           name: aresta-downloads
           path: dist
-      - name: Publicar pre-release de playtest
+      - name: Publicar versao, changelog e pre-release de playtest
         env:
           GH_TOKEN: ${{ github.token }}
-          RELEASE_TAG: playtest-${{ github.run_number }}-${{ github.run_attempt }}
-          SOURCE_COMMIT: ${{ github.sha }}
         run: |
           cd dist
           sha256sum --check SHA256SUMS.txt
           cd ..
-          gh release create "$RELEASE_TAG" dist/* --target "$SOURCE_COMMIT" --prerelease \
-            --title "Aresta - Playtest $RELEASE_TAG" --notes-file docs/playtest-publico.md
+          npm run release:publish
+          gh release view "$(node -p 'JSON.parse(require("fs").readFileSync(".release/plan.json", "utf8")).tag')" --json tagName

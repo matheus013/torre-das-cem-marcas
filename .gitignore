@@ -5,6 +5,8 @@
 # Builds
 builds/
 dist/
+node_modules/
+.release/
 
 # macOS
 .DS_Store

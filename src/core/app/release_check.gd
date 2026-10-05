@@ -8,6 +8,9 @@ static func run(tree: SceneTree) -> void:
 	if OS.is_debug_build():
 		_fail(tree, "Run this check with an exported release executable")
 		return
+	if not FileAccess.file_exists("res://VERSION"):
+		_fail(tree, "Missing packaged VERSION")
+		return
 	for args in [PackedStringArray(), PackedStringArray(["--dev"]), PackedStringArray(["--server"]), PackedStringArray(["--client=127.0.0.1"])]:
 		if DevModeScript.enabled() or DevModeScript.boot_scene(args) != DevModeScript.PUBLIC_HOME:
 			_fail(tree, "Release exposes development home")
@@ -16,7 +19,7 @@ static func run(tree: SceneTree) -> void:
 		if not FileAccess.file_exists(path) or JSON.parse_string(FileAccess.get_file_as_string(path)) == null:
 			_fail(tree, "Missing or invalid packaged content: " + path)
 			return
-	for folder in ["res://tests", "res://tools", "res://art", "res://docs"]:
+	for folder in ["res://tests", "res://tools", "res://art", "res://docs", "res://node_modules"]:
 		if DirAccess.dir_exists_absolute(folder):
 			_fail(tree, "Development files included: " + folder)
 			return
@@ -38,6 +41,11 @@ static func run(tree: SceneTree) -> void:
 	if instance.get_node_or_null("Menu/Play") == null or instance.get_node_or_null("Menu/Settings") == null or instance.get_node_or_null("SettingsDialog") == null:
 		_fail(tree, "Public title did not initialize")
 		return
+	var version := preload("res://src/core/app/app_version.gd").current()
+	if not str(instance.get("_game_version")).ends_with(version):
+		_fail(tree, "Title version differs from packaged VERSION")
+		return
+	print("RELEASE_VERSION: " + version)
 	print("RELEASE_PACK_OK: public boot, content, sprites and title")
 	tree.quit(0)
 
