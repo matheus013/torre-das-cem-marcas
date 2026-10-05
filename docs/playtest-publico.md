@@ -25,7 +25,7 @@ headless nos tres sistemas; isso nao substitui QA grafico ou de controles.
 
 ## Testar e reportar
 
-Comece em **Novo jogo**, prepare sua build em Aresta e entre na Torre.
+Comece em **JOGAR**, prepare sua build em Aresta e entre na Torre.
 Teclado/mouse e mapeamento de Xbox/PS4/PS5 estao implementados; controles
 fisicos USB/Bluetooth e Steam Input ainda precisam de validacao externa.
 Co-op e experimental: host e clientes precisam da mesma build; acesso pela

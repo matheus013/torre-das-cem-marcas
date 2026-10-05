@@ -1,0 +1,42 @@
+name: Problema no playtest
+description: Reportar falha, travamento ou problema de gameplay.
+title: "[Playtest] "
+body:
+  - type: markdown
+    attributes:
+      value: "Nao inclua chaves de API, credenciais ou dados pessoais nos logs."
+  - type: input
+    id: build
+    attributes:
+      label: Tag do playtest ou commit
+      placeholder: playtest-N-T
+    validations:
+      required: true
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Sistema
+      options:
+        - Windows
+        - Linux
+        - macOS Intel
+        - macOS Apple Silicon
+    validations:
+      required: true
+  - type: input
+    id: hardware
+    attributes:
+      label: Versao do sistema e hardware
+      description: CPU, GPU e memoria; modelo do controle, se aplicavel.
+  - type: textarea
+    id: steps
+    attributes:
+      label: Como reproduzir
+      description: Passos, resultado esperado e o que aconteceu; solo ou co-op.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Imagens e logs
+      description: Anexe evidencias sem dados pessoais ou credenciais.
