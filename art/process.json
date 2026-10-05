@@ -34,28 +34,32 @@
   {
    "key": "eloa",
    "group": "characters",
-   "source": "raw/eloa_s15.png",
+   "source": "raw/animations/eloa_walk_v2.png",
+   "mode": "animation",
    "output": "res://assets/sprites/characters/eloa.png",
    "block": 12
   },
   {
    "key": "sena",
    "group": "characters",
-   "source": "raw/sena_s51.png",
+   "source": "raw/animations/sena_walk_v2.png",
+   "mode": "animation",
    "output": "res://assets/sprites/characters/sena.png",
    "block": 12
   },
   {
    "key": "cira",
    "group": "characters",
-   "source": "raw/cira_s62.png",
+   "source": "raw/animations/cira_walk_v2.png",
+   "mode": "animation",
    "output": "res://assets/sprites/characters/cira.png",
    "block": 12
   },
   {
    "key": "rui",
    "group": "characters",
-   "source": "raw/rui_s72.png",
+   "source": "raw/animations/rui_walk_v2.png",
+   "mode": "animation",
    "output": "res://assets/sprites/characters/rui.png",
    "block": 12
   },

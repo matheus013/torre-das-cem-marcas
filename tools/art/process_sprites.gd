@@ -1,6 +1,6 @@
 extends SceneTree
 
-## Converte imagens brutas do PixelForge (art/raw) em sprites limpos do jogo.
+## Converte imagens brutas (art/raw) em sprites limpos do jogo.
 ## Uso: godot --headless --path . --script tools/art/process_sprites.gd [-- chave ...]
 
 const CONFIG_PATH := "res://art/process.json"
@@ -26,6 +26,13 @@ func _init() -> void:
 	for raw_entry: Variant in config.get("sprites", []):
 		var entry := raw_entry as Dictionary
 		if not filter.is_empty() and String(entry.get("key", "")) not in filter:
+			continue
+		if String(entry.get("mode", "")) == "animation":
+			var portrait := Image.load_from_file(ProjectSettings.globalize_path(String(entry["output"])))
+			if portrait == null:
+				failures += 1
+			else:
+				previews.append(portrait)
 			continue
 		if String(entry.get("mode", "")) == "split":
 			var pieces := _split_entry(entry)

@@ -1446,7 +1446,12 @@ func _draw_player(state: Dictionary, peer_id: Variant) -> void:
 		tint = Color(1.0, 0.45, 0.42)
 	elif bool(state.get("invulnerable", false)):
 		tint = Color(0.8, 1.0, 1.0, 0.55)
-	if not _draw_sprite("characters/" + String(state.get("character_id", "eloa")), feet, bool(state.get("facing_left", false)), tint, lift):
+	var character_id := String(state.get("character_id", "eloa"))
+	var direction := state.get("facing_direction", Vector2.LEFT if bool(state.get("facing_left", false)) else Vector2.DOWN) as Vector2
+	var frame := SpriteLibraryScript.character_frame(character_id, direction, bool(state.get("moving", false)), _anim_time)
+	if frame != null:
+		draw_texture(frame, (feet - SpriteLibraryScript.CHARACTER_FOOT_ANCHOR).round(), tint)
+	elif not _draw_sprite("characters/" + character_id, feet, bool(state.get("facing_left", false)), tint, lift):
 		draw_circle(position, PLAYER_RADIUS, Color("eeeeee"))
 	if players_online and not is_local:
 		draw_string(ThemeDB.fallback_font, feet + Vector2(-60.0, -58.0), String(state.get("character_name", "")), HORIZONTAL_ALIGNMENT_CENTER, 120.0, 12, color)

@@ -1,6 +1,8 @@
 #!/bin/bash
 # Processa sprites de art/process.json. Uso: tools/art/process.sh [grupo|chave ...]
+set -e
 cd "$(dirname "$0")/../.."
+godot --headless --path . --script tools/art/import_character_animations.gd
 KEYS=$(python3 - "$@" <<'PY'
 import json, sys
 wanted = set(sys.argv[1:])

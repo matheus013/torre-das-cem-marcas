@@ -1,5 +1,23 @@
 # Registro de execucao: Steam Early Access
 
+## 2026-10-05: backup, revisao de arte e caminhada
+
+Backup completo criado fora do repositorio antes de qualquer substituicao,
+com gzip e SHA-256 validados. Alteracao local preexistente de project.godot
+preservada. Inspecionadas folhas de todos os 255 PNGs; prioridades e limites
+registrados em `revisao-sprites.md`, com relatorios antes/depois em art/reviews.
+
+Quatro personagens refeitas sem Forge; 64 quadros reais de caminhada nas
+quatro direcoes, atlas fixos, pes alinhados, cache e direcao em snapshots co-op.
+Retratos atualizados e pipeline antigo adaptado para preservar essa arte.
+Duplicata Aegis/Estabilidade removida com icones de significado diferente.
+Teste de pacote release exige os quatro atlas. Captura grafica das quatro
+fases confirmou mais de 106 mil pixels alterados entre fases; capturas reais
+da vila, interiores, menus e combate inspecionadas. NPCs/chefes/cenario nao
+foram regenerados em massa; pendencias artisticas permanecem explicitas.
+Suite local: 46 testes Godot e 17 testes Node aprovados. Export macOS
+regenerado e `RELEASE_PACK_OK` aprovado fora do checkout, exigindo os atlas.
+
 ## 2026-10-04: reforco de CI e Actions
 
 Actions oficiais atualizadas para runtime Node 24 e fixadas por SHA completo:

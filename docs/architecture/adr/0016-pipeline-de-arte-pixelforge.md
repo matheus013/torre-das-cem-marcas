@@ -2,6 +2,11 @@
 
 ## Estado
 
+Atualizacao em 2026-10-05: personagens jogaveis usam fontes geradas fora do
+PixelForge e atlas de animacao v2. Ver [revisao](../../revisao-sprites.md) e
+`art/animations.json`. A decisao abaixo registra a origem da arte anterior;
+nao obriga novas geracoes a usar o Forge.
+
 Aceita em 2 de outubro de 2026. Substitui a parte da ADR 0012 e da decisão 496 que mantinha o protótipo somente em blockout geométrico.
 
 ## Contexto

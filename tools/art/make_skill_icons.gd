@@ -26,6 +26,10 @@ var _image: Image
 
 func _init() -> void:
 	var force := "--force" in OS.get_cmdline_user_args()
+	var only := PackedStringArray()
+	for argument in OS.get_cmdline_user_args():
+		if argument.begins_with("--only="):
+			only = argument.trim_prefix("--only=").split(",", false)
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT))
 	var made := 0
 	var painters := _painters()
@@ -38,7 +42,14 @@ func _init() -> void:
 				active_ids.append(id)
 			if not painters.has(id):
 				painters[id] = _catalog_icon.bind(id, definition)
+	for requested in only:
+		if not painters.has(requested):
+			push_error("Unknown icon: " + requested)
+			quit(1)
+			return
 	for id: String in painters:
+		if not only.is_empty() and id not in only:
+			continue
 		var path := ProjectSettings.globalize_path(OUTPUT + id + ".png")
 		if FileAccess.file_exists(path) and not force:
 			continue
@@ -116,6 +127,20 @@ func _catalog_icon(id: String, definition: Dictionary) -> void:
 
 func _painters() -> Dictionary:
 	return {
+		"aegis_por_acerto": func() -> void:
+			_line(Vector2i(8, 7), Vector2i(20, 7), CYAN, 2)
+			_line(Vector2i(8, 7), Vector2i(9, 17), CYAN, 2)
+			_line(Vector2i(20, 7), Vector2i(19, 17), CYAN, 2)
+			_line(Vector2i(9, 17), Vector2i(14, 22), PALE, 2)
+			_line(Vector2i(19, 17), Vector2i(14, 22), PALE, 2)
+			_line(Vector2i(6, 14), Vector2i(22, 14), GOLD, 1)
+			_rect(Rect2i(12, 12, 5, 5), LIGHT),
+		"estabilidade_solida": func() -> void:
+			_rect(Rect2i(7, 19, 15, 3), STONE)
+			_rect(Rect2i(10, 11, 9, 8), GREY)
+			_rect(Rect2i(12, 6, 5, 5), LIGHT)
+			_line(Vector2i(5, 18), Vector2i(9, 14), GREEN, 2)
+			_line(Vector2i(23, 18), Vector2i(19, 14), GREEN, 2),
 		"agulha_lastro": func() -> void:
 			_line(Vector2i(6, 21), Vector2i(20, 7), GREY, 2)
 			_line(Vector2i(19, 8), Vector2i(21, 6), PALE, 1)

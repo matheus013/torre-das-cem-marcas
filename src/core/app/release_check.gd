@@ -30,6 +30,11 @@ static func run(tree: SceneTree) -> void:
 		if load("res://assets/sprites/" + key + ".png") == null:
 			_fail(tree, "Missing packaged sprite: " + key)
 			return
+	for character_id in ["eloa", "sena", "cira", "rui"]:
+		var frame := preload("res://src/presentation/art/sprite_library.gd").character_frame(character_id, Vector2.DOWN, true, 0.0)
+		if frame == null:
+			_fail(tree, "Missing packaged animation: " + character_id)
+			return
 	var title := load(DevModeScript.PUBLIC_HOME) as PackedScene
 	if title == null:
 		_fail(tree, "Missing public title scene")

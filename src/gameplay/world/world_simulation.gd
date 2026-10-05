@@ -193,6 +193,7 @@ func add_player(peer_id: int, character_id: StringName = &"", profile_id: String
 		"carried_loot": {},
 		"passive": passive,
 		"facing_left": false,
+		"facing_direction": Vector2.DOWN,
 		"moving": false,
 		"hurt_flash": 0.0,
 		"downed": false,
@@ -853,6 +854,8 @@ func _step_player(peer_id: int, delta: float) -> void:
 		move_player(peer_id, offset.normalized() * minf(speed * delta, offset.length()))
 	var moved := (state["position"] as Vector2) - previous
 	state["moving"] = moved.length() > 0.1
+	if bool(state["moving"]):
+		state["facing_direction"] = moved.normalized()
 	if absf(moved.x) > 0.1:
 		state["facing_left"] = moved.x < 0.0
 	_check_transition(peer_id)
@@ -3063,6 +3066,7 @@ func view_snapshot() -> Dictionary:
 			"zone": String(state["zone"]),
 			"position": state["position"],
 			"facing_left": state["facing_left"],
+			"facing_direction": state.get("facing_direction", Vector2.DOWN),
 			"moving": state["moving"],
 			"health": state["health"],
 			"max_health": max_health(peer_id),
