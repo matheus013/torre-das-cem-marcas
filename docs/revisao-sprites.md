@@ -25,6 +25,12 @@ quatro atlas novos. Integridade tecnica nao significa aprovacao artistica.
 | Icones | 76 | Muitos suportes diferem so por pequenos sigilos; duplicata exata corrigida nesta entrega |
 | Tiles | 13 | Opacos e validos; grama ruidosa e repeticao visivel precisam de passe de legibilidade |
 
+Tambem nao ha PNGs em `assets/sprites/vfx/`. Referencias a impacto, onda,
+faisca, pedra, agulha, santuario e gravidade usam fallbacks procedurais no
+runtime. Os testes de cobertura validam os sprites obrigatorios dos catalogos,
+nao consideram esses efeitos opcionais como arte concluida. Geracao/animacao
+dedicada de VFX continua pendente.
+
 ## Entrega de personagens
 
 ![Quatro direcoes das personagens](images/animations/characters-walk-v2.gif)
