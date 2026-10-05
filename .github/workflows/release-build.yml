@@ -60,7 +60,7 @@ jobs:
       - name: Calcular versao e changelog sem publicar
         id: plan
         env:
-          GH_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ github.token }}
         run: npm run release:plan
       - uses: actions/upload-artifact@v4
         with:
@@ -202,6 +202,7 @@ jobs:
       - name: Publicar versao, changelog e pre-release de playtest
         env:
           GH_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           cd dist
           sha256sum --check SHA256SUMS.txt
