@@ -6,7 +6,17 @@ Workflow ampliado para Windows/Linux/macOS, com empacotamento, SHA-256,
 boot nativo em tres runners e pre-release automatico da `main` apos sucesso.
 PRs nao publicam. Instrucoes de download/limitacoes acompanham os pacotes;
 sem certificados comerciais, notarizacao ou mudanca de licenca open-source.
-Ver `releases-github.md`. Primeira execucao remota em validacao nesta entrega.
+Ver `releases-github.md`. Repositorio tornado publico; Issues, secret scanning
+e push protection ativados. Gitleaks 8.30.1 nao encontrou credenciais nos 14
+commits anteriores pelos padroes do scanner; nao e garantia de auditoria total.
+
+Primeira publicacao concluida: [playtest-2-1](https://github.com/matheus013/torre-das-cem-marcas/releases/tag/playtest-2-1),
+commit `fdc86a6`, [workflow aprovado](https://github.com/matheus013/torre-das-cem-marcas/actions/runs/37249912168).
+43 testes aprovados e `RELEASE_PACK_OK` nos tres runners nativos.
+Artefatos baixados; todos os hashes conferidos contra o checksum obtido
+anonimamente do release. URLs dos tres pacotes responderam HTTP 200 sem
+autenticacao. macOS baixado passou no autoteste local fora do checkout.
+QA grafico, controles fisicos, saves historicos e Steam continuam pendentes.
 
 ## 2026-10-04: suportes no autoataque
 

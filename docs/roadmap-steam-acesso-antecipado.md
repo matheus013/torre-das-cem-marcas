@@ -24,17 +24,22 @@ opcoes, controles, mira e distribuicao) e `eda37f6` (documentacao e QA).
   encerra a validacao de todos os menus nem o QA com controles fisicos.
 - Build macOS de QA regenerada e autoteste do runtime release aprovado nesta entrega.
 - Builds release Windows/Linux e macOS de QA geradas sem erros ou avisos.
-- Os tres pacotes PCK passaram no autoteste com runtime release macOS.
-  Executaveis nativos Windows/Linux ainda nao foram validados em maquinas limpas.
+- Boot headless dos executaveis passou nos runners nativos Windows, Linux e
+  macOS. Pacotes baixados e hashes verificados; macOS baixado tambem passou
+  localmente fora do checkout. QA grafico em maquinas de jogadores segue pendente.
 - Opcoes persistentes, pausa solo, remapeamento de teclado, mapeamento inicial
   Xbox/PS4/PS5 e mira automatica opcional implementados.
 - Opcoes/controles, perfil e IA com backup e recuperacao; CFG anterior preservado.
 - Capturas do titulo e opcoes/controles verificadas em 720p, 1080p e ultrawide.
   Isso ainda nao valida todos os menus e estados de combate nessas resolucoes.
-- [CI de testes do commit 7ead65f](https://github.com/matheus013/torre-das-cem-marcas/actions/runs/37171840741):
-  concluido com sucesso. Protecao de configuracoes/perfil exige nova execucao.
-- Workflow de releases disponivel, mas execucao remota e artefatos baixados
-  ainda pendentes. Atualmente dispara manualmente ou em pull requests.
+- [CI de testes do commit fdc86a6](https://github.com/matheus013/torre-das-cem-marcas/actions/runs/37249912088):
+  concluido com sucesso, incluindo configuracoes/perfil, loot e autoataque.
+- Repositorio publico, Issues e protecao de segredos ativados em 2026-10-04.
+  [Releases de playtest](releases-github.md) automaticos na `main`, com
+  Windows/Linux/macOS e hashes. PRs apenas testam; publicacao exige sucesso
+  da suite e boot nativo nos tres runners.
+  [Execucao validada](https://github.com/matheus013/torre-das-cem-marcas/actions/runs/37249912168)
+  e [primeiro playtest](https://github.com/matheus013/torre-das-cem-marcas/releases/tag/playtest-2-1).
 
 EA1 e EA2 permanecem abertos. Nenhuma build foi enviada para a Steam, e
 nenhum marco de QA externo ou aprovacao da Valve foi concluido.
@@ -56,7 +61,7 @@ nenhum marco de QA externo ou aprovacao da Valve foi concluido.
 
 | Marco | Entrega | Criterio de saida | Estado |
 | --- | --- | --- | --- |
-| EA1 | Build reproduzivel | Exports release Windows/Linux, pacote verificado e primeira execucao em Windows limpo | Faltam CI release, QA nativo e migracao do nome |
+| EA1 | Build reproduzivel | Exports release Windows/Linux, pacote verificado e primeira execucao em Windows limpo | CI release e boot nativo aprovados; faltam QA grafico/solo e migracao do nome |
 | EA2 | Experiencia publica | Opcoes persistentes, controles configuraveis, audio essencial, pausa solo e menus legiveis | Faltam audio, acessibilidade e QA externo |
 | EA3 | Persistencia e estabilidade | Save atomico, backup, recuperacao, migracao e atualizacao sem perda de progresso | Mundo/recordes/CFG/perfil protegidos; migracao e QA de falhas pendentes |
 | EA4 | Solo e co-op confiaveis | Ciclo completo, desempenho medido, desconexoes tratadas e testes externos | Pendente |
@@ -72,15 +77,15 @@ qualquer lancamento.
 ## EA1: distribuicao reproduzivel
 
 - [x] Presets release Windows/Linux com JSON e sprites incluidos.
-- [x] Preset macOS exclusivo para QA local.
+- [x] Preset macOS para QA e playtest publico, sem promessa comercial de suporte.
 - [x] Script de build com identificacao do commit, engine e alteracoes locais.
 - [x] Fechar acesso a cena dev via argumentos de rede em release.
 - [x] Versao central no projeto e exibida no menu.
 - [x] Workflow que testa, exporta, verifica o pacote release e guarda artefatos.
 - [x] Executar e registrar exports e verificacao do pacote localmente.
 - [x] Versionar e enviar a implementacao e o roadmap ao repositorio remoto.
-- [x] Confirmar o resultado do CI de testes no GitHub (7ead65f).
-- [ ] Executar workflow no GitHub e verificar os artefatos baixados.
+- [x] Confirmar o resultado do CI de testes no GitHub (fdc86a6).
+- [x] Executar workflow no GitHub e verificar os artefatos baixados (playtest-2-1).
 - [ ] Testar Windows limpo sem Godot, abertura pelo executavel e partida solo.
 - [ ] Definir nome final de application/config/name com migracao de user://.
 
@@ -212,8 +217,8 @@ avancar junto de EA3; nao substitui QA nativo, migracao ou revisao da Valve.
    buses e controles de volume ja implementados.
 3. EA2: acessibilidade dos sinais, intensidade de efeitos e revisao dos demais
    menus/HUD; validar primeira sessao sem orientacao verbal.
-4. EA1/EA2: executar CI release, baixar artefatos e testar Windows/Linux limpos
-   e Xbox/DualShock 4/DualSense por USB/Bluetooth e com Steam Input.
+4. EA1/EA2: ampliar boot headless aprovado para QA grafico/solo em Windows/Linux
+   limpos e Xbox/DualShock 4/DualSense por USB/Bluetooth e com Steam Input.
 5. EA4: desempenho, estabilidade prolongada e playtests externos solo/co-op.
 6. EA5/EA6: loja, licencas, conta Steamworks, depots e revisoes de publicacao.
 

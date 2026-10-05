@@ -21,6 +21,10 @@ Links: [downloads](https://github.com/matheus013/torre-das-cem-marcas/releases),
 [workflow](https://github.com/matheus013/torre-das-cem-marcas/actions/workflows/release-build.yml)
 e [instrucoes de teste](playtest-publico.md).
 
+Primeira evidencia em 2026-10-04: [playtest-2-1](https://github.com/matheus013/torre-das-cem-marcas/releases/tag/playtest-2-1)
+do commit `fdc86a6`, com suite de 43 testes e boot nativo aprovado nos tres
+sistemas. Downloads publicos e SHA-256 conferidos apos a publicacao.
+
 Limites: boot headless nao certifica renderizacao, controles fisicos, co-op
 externo, saves historicos nem requisitos minimos. Builds nao sao assinadas
 com certificados comerciais ou notarizadas; continuam pre-releases gratuitos.
