@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.0](https://github.com/matheus013/torre-das-cem-marcas/compare/v0.6.0...v0.7.0) (2026-10-06)
+
+### Novidades
+
+* inventario no estilo Hero Siege, afixos por raridade e lendarios raros ([ac1c53a](https://github.com/matheus013/torre-das-cem-marcas/commit/ac1c53a9511db5ce9710375d62d4fa66b46b4e97))
+* salvamento automatico e botao CONTINUAR ([3b47a78](https://github.com/matheus013/torre-das-cem-marcas/commit/3b47a788852bf216f165e108bf3f9180a2d71204))
+
 ## [0.6.0](https://github.com/matheus013/torre-das-cem-marcas/compare/v0.5.0...v0.6.0) (2026-10-06)
 
 ### Novidades
