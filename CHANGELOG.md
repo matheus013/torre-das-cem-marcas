@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0](https://github.com/matheus013/torre-das-cem-marcas/compare/v0.4.0...v0.5.0) (2026-10-06)
+
+### Novidades
+
+* gemas conquistadas em chefes, Saraivada de Flechas e economia de saque ([c689865](https://github.com/matheus013/torre-das-cem-marcas/commit/c689865ce0869f801a74593fde0aa9afe4ac05e9))
+* importa efeitos, sons e icones de pacotes de terceiros ([144c9da](https://github.com/matheus013/torre-das-cem-marcas/commit/144c9da3fb8d03cf8adc8da12876d0e8ad0d1240))
+
 ## [0.4.0](https://github.com/matheus013/torre-das-cem-marcas/compare/v0.3.0...v0.4.0) (2026-10-06)
 
 ### Novidades
