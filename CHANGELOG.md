@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.6.0](https://github.com/matheus013/torre-das-cem-marcas/compare/v0.5.0...v0.6.0) (2026-10-06)
+
+### Novidades
+
+* economia e servicos da vila, navegacao dos moradores e mapas conectados ([ca9b86c](https://github.com/matheus013/torre-das-cem-marcas/commit/ca9b86cad7948ddfd04a7f4eb670113eef856ef7))
+* passivas exclusivas de lendarios e unicos e icones de efeitos na HUD ([bc0f45f](https://github.com/matheus013/torre-das-cem-marcas/commit/bc0f45fd1cf14a986f4cba4b7bd20c1abb4d4fcc))
+
+### Correcoes
+
+* personagem presa ao sair da Torre ([a25b741](https://github.com/matheus013/torre-das-cem-marcas/commit/a25b741c73fdfe22ac18211ea00f3ec9fa90f606))
+
 ## [0.5.0](https://github.com/matheus013/torre-das-cem-marcas/compare/v0.4.0...v0.5.0) (2026-10-06)
 
 ### Novidades
