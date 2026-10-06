@@ -1,6 +1,6 @@
 # Roadmap: Steam em acesso antecipado
 
-Atualizado em 2026-10-05. Objetivo: uma build paga que entrega um ciclo de jogo
+Atualizado em 2026-10-06. Objetivo: uma build paga que entrega um ciclo de jogo
 estavel, tem escopo descrito com honestidade e passa pela revisao da Steam.
 Este plano complementa o roadmap de MVP; a quantidade de conteudo existente
 nao substitui os criterios de qualidade abaixo. Datas de lancamento dependem
@@ -14,15 +14,16 @@ Ver [catalogo](catalogo-gemas.md) e [armas](armas-e-afinidades.md).
 Isso amplia conteudo testavel, mas nao fecha EA4: balanceamento, desempenho
 com hordas, QA externo e validacao fisica de controles continuam pendentes.
 
-Arte em 2026-10-05: [revisao dos 255 sprites](revisao-sprites.md), backup
-completo, personagens v2 com 64 quadros de caminhada e icones duplicados
-de barreira/estabilidade diferenciados. NPCs, chefes, props e demais icones
-ainda precisam de curadoria; ataque/morte quadro a quadro seguem pendentes.
+Arte em 2026-10-06: backup completo e visual, personagens com 64 quadros,
+[17 NPCs e 55 inimigos/chefes](animacoes-npcs-monstros.md) com 1152 poses de
+caminhada e [104 assets de cenarios remodelados](remodelagem-cenarios.md).
+Pranchas renderizadas e capturas reais da vila/Torre inspecionadas.
+Ataque/morte quadro a quadro, transicoes de terreno e QA de hordas seguem pendentes.
 
 Base anterior enviada para `origin/main` nos commits `04e03ae` (gameplay,
 opcoes, controles, mira e distribuicao) e `eda37f6` (documentacao e QA).
 
-- Suite local atual: 46 testes aprovados, zero falhas, incluindo animacoes/cobertura de sprites, versao do pacote, suportes no autoataque, conservacao de loot, estados do HUD, descricoes por hover, menus, gemas, armas, CFG/perfil, saves e rede. Automacao de releases tem mais 17 testes Node separados, incluindo falhas de importacao e logs coloridos.
+- Suite da entrega de arte: 48 testes aprovados em copia isolada, zero falhas, incluindo animacoes/cobertura de sprites, versao do pacote, suportes no autoataque, conservacao de loot, estados do HUD, descricoes por hover, menus, gemas, armas, CFG/perfil, saves e rede. O checkout compartilhado tem gameplay em alteracao e precisa de validacao separada. Automacao de releases tem mais 17 testes Node aprovados, incluindo falhas de importacao e logs coloridos.
 - Seis melhorias do [HUD de combate](hud-combate.md) implementadas: efeitos,
   barreira, disponibilidade de skills, mira/alvo, grupo e avisos contextuais.
   Capturas controladas verificadas em 720p, 1080p e janela estreita; isso nao

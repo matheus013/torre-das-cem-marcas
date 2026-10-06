@@ -36,6 +36,16 @@ static func run(tree: SceneTree) -> void:
 			_fail(tree, "Missing packaged animation: " + character_id)
 			return
 	var title := load(DevModeScript.PUBLIC_HOME) as PackedScene
+	var village := JSON.parse_string(FileAccess.get_file_as_string("res://data/village/village_content.json")) as Dictionary
+	for npc: Dictionary in village["npcs"]:
+		if preload("res://src/presentation/art/sprite_library.gd").actor_frame(String(npc["sprite"]), Vector2.DOWN, true, 0.0) == null:
+			_fail(tree, "Missing packaged NPC animation: " + String(npc["id"]))
+			return
+	for collection in ["enemies", "bosses"]:
+		for enemy: Dictionary in TowerContentScript.collection(collection):
+			if preload("res://src/presentation/art/sprite_library.gd").actor_frame("enemies/" + String(enemy["id"]), Vector2.DOWN, true, 0.0) == null:
+				_fail(tree, "Missing packaged enemy animation: " + String(enemy["id"]))
+				return
 	if title == null:
 		_fail(tree, "Missing public title scene")
 		return

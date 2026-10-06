@@ -22,12 +22,19 @@ static func texture(key: String) -> Texture2D:
 
 
 static func character_frame(character_id: String, direction: Vector2, moving: bool, elapsed: float) -> Texture2D:
-	var atlas := texture("characters/animations/" + character_id + "_walk")
+	return actor_frame("characters/" + character_id, direction, moving, elapsed)
+
+
+static func actor_frame(actor_key: String, direction: Vector2, moving: bool, elapsed: float) -> Texture2D:
+	var parts := actor_key.split("/")
+	if parts.size() != 2 or parts[0] not in ["characters", "npcs", "enemies"]:
+		return null
+	var atlas := texture(parts[0] + "/animations/" + parts[1] + "_walk")
 	if atlas == null or atlas.get_size() != Vector2(256.0, 256.0):
 		return null
 	var row := direction_row(direction)
 	var column := posmod(int(floor(elapsed * WALK_FPS)), 4) if moving else 1
-	var key := "%s:%d:%d" % [character_id, row, column]
+	var key := "%s:%d:%d" % [actor_key, row, column]
 	if not _frame_cache.has(key):
 		var frame := AtlasTexture.new()
 		frame.atlas = atlas

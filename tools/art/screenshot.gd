@@ -74,6 +74,17 @@ func _init() -> void:
 	for _frame in range(5):
 		await process_frame
 	await _capture("damage_numbers")
+	sim.call("choose_milestone", 1, ((build.milestone_choices[30] as Array)[0] as EvolutionChoice).id)
+	vfx.call("clear")
+	(instance.get("_player_menu") as Control).call("close")
+	instance.call("_show_character_panel", false)
+	for number in [1, 11, 21, 31, 41, 51, 61, 71, 81, 91]:
+		sim.call("start_floor", number)
+		var layout: Dictionary = sim.get("floor_layout")
+		await _settle(instance, layout.get("spawn", Vector2(560.0, 380.0)) as Vector2)
+		await _capture("environment_floor_%d" % number)
+	instance.queue_free()
+	await process_frame
 	quit(0)
 
 

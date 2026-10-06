@@ -1585,6 +1585,7 @@ func _update_enemies(delta: float) -> void:
 		if enemy_index >= enemies.size():
 			continue
 		var enemy := enemies[enemy_index]
+		enemy["moving"] = false
 		if bool(enemy.get("floor_boss", false)):
 			_step_boss(enemy, delta)
 			continue
@@ -1692,12 +1693,21 @@ func _move_enemy(enemy: Dictionary, motion: Vector2) -> bool:
 	var position := enemy["position"] as Vector2
 	if floor_layout.is_empty() or FloorLayoutScript.can_stand(floor_layout, position + motion, 12.0):
 		enemy["position"] = position + motion
+		if not motion.is_zero_approx():
+			enemy["facing_direction"] = motion.normalized()
+			enemy["moving"] = true
 		return true
 	if FloorLayoutScript.can_stand(floor_layout, position + Vector2(motion.x, 0.0), 12.0):
 		enemy["position"] = position + Vector2(motion.x, 0.0)
+		if not is_zero_approx(motion.x):
+			enemy["facing_direction"] = Vector2(signf(motion.x), 0.0)
+			enemy["moving"] = true
 		return true
 	if FloorLayoutScript.can_stand(floor_layout, position + Vector2(0.0, motion.y), 12.0):
 		enemy["position"] = position + Vector2(0.0, motion.y)
+		if not is_zero_approx(motion.y):
+			enemy["facing_direction"] = Vector2(0.0, signf(motion.y))
+			enemy["moving"] = true
 		return true
 	return false
 
@@ -3102,6 +3112,7 @@ func view_snapshot() -> Dictionary:
 	for enemy in enemies:
 		enemy_views.append({
 			"definition_id": enemy["definition_id"], "position": enemy["position"],
+			"facing_direction": enemy.get("facing_direction", Vector2.DOWN),
 			"health": enemy["health"], "max_health": enemy["max_health"],
 			"prefix_id": enemy["prefix_id"], "suffix_id": enemy["suffix_id"],
 			"shield_hits": enemy["shield_hits"], "flash": enemy.get("flash", 0.0),
@@ -3111,7 +3122,7 @@ func view_snapshot() -> Dictionary:
 			"vulnerable": float(enemy.get("vulnerable_amount", 0.0)), "vulnerable_timer": float(enemy.get("vulnerable_timer", 0.0)),
 			"boss": bool(enemy.get("floor_boss", false)) or bool(enemy.get("champion", false)),
 			"name": String(enemy.get("display_name", "")), "chasing": bool(enemy.get("chasing", false)),
-			"moving": (enemy.get("wander_target", enemy["position"]) as Vector2).distance_to(enemy["position"] as Vector2) > 6.0 or bool(enemy.get("chasing", false)),
+			"moving": bool(enemy.get("moving", false)),
 		})
 	var projectile_views: Array[Dictionary] = []
 	for projectile in enemy_projectiles:
@@ -3802,6 +3813,7 @@ func _serialize_enemies(source: Array[Dictionary]) -> Array[Dictionary]:
 		var serialized := enemy.duplicate(true) as Dictionary
 		for key: String in ["position", "home", "wander_target"]:
 			serialized[key] = _vector_array(enemy.get(key, enemy.get("position", Vector2.ZERO)) as Vector2)
+		serialized["facing_direction"] = _vector_array(enemy.get("facing_direction", Vector2.DOWN) as Vector2)
 		serialized.erase("flash")
 		result.append(serialized)
 	return result
@@ -3847,6 +3859,7 @@ func _deserialize_enemies(source: Variant) -> Array[Dictionary]:
 		enemy["position"] = _array_vector(enemy.get("position", []), Vector2.ZERO)
 		enemy["home"] = _array_vector(enemy.get("home", []), enemy["position"] as Vector2)
 		enemy["wander_target"] = _array_vector(enemy.get("wander_target", []), enemy["position"] as Vector2)
+		enemy["facing_direction"] = _array_vector(enemy.get("facing_direction", []), Vector2.DOWN)
 		enemy["health"] = maxf(0.001, float(enemy.get("health", 60.0)))
 		enemy["max_health"] = maxf(1.0, float(enemy.get("max_health", 60.0)))
 		enemy["shield_hits"] = maxi(0, int(enemy.get("shield_hits", 0)))

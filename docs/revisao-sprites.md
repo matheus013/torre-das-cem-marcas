@@ -1,5 +1,10 @@
 # Revisao de sprites e animacao
 
+Atualizacao em 2026-10-06: os problemas de NPCs, inimigos e cenarios descritos
+na revisao historica abaixo foram tratados nas entregas de
+[animacoes](animacoes-npcs-monstros.md) e [104 cenarios](remodelagem-cenarios.md).
+Ataque/morte e QA artistico com hordas permanecem pendentes.
+
 Revisao em 2026-10-05. Backup completo do checkout anterior criado fora do
 repositorio: `game-dev-2026-10-05-before-sprite-review-322c3a8.tar.gz`,
 com .git, alteracoes locais, arte bruta, caches e builds. Arquivo gzip

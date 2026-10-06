@@ -336,9 +336,11 @@ func _move(npc: Dictionary, delta: float) -> void:
 	var blocked := _spots.get("blocked", []) as Array
 	for rect: Rect2 in blocked:
 		if rect.has_point(next):
+			npc["moving"] = false
 			npc["target"] = position + Vector2(_random.randf_range(-60.0, 60.0), _random.randf_range(-60.0, 60.0))
 			return
 	npc["position"] = next
+	npc["facing_direction"] = step.normalized()
 	if absf(step.x) > 0.05:
 		npc["facing_left"] = step.x < 0.0
 
@@ -476,6 +478,7 @@ func view() -> Array:
 		result.append({
 			"id": npc["id"], "name": npc["name"], "title": npc["title"], "named": npc["named"], "sprite": npc["sprite"],
 			"position": npc["position"], "facing_left": npc["facing_left"], "moving": npc["moving"],
+			"facing_direction": npc.get("facing_direction", Vector2.DOWN),
 			"speech": npc["speech"], "label": npc["action_label"], "thinking": int(npc["pending"]) > 0,
 		})
 	return result

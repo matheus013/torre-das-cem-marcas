@@ -3,6 +3,9 @@
 set -e
 cd "$(dirname "$0")/../.."
 godot --headless --path . --script tools/art/import_character_animations.gd
+if [ -f art/environment-remodel.json ]; then
+  godot --headless --path . --script tools/art/import_environment_remodel.gd
+fi
 KEYS=$(python3 - "$@" <<'PY'
 import json, sys
 wanted = set(sys.argv[1:])

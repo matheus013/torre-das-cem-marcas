@@ -1,0 +1,666 @@
+{
+  "provider": "OpenAI image generation, no PixelForge",
+  "revision": 2,
+  "reference": "art/raw/animations/eloa_walk_v2.png",
+  "directions": [
+    "down",
+    "left",
+    "right",
+    "up"
+  ],
+  "columns": 4,
+  "frame_size": 64,
+  "content_height": 48,
+  "foot_baseline": 60,
+  "frames_per_second": 8,
+  "actors": [
+    {
+      "id": "larva_de_junta",
+      "group": "enemies",
+      "identity": "tiny pale stone larva, segmented grey body, small mandibles",
+      "motion": "four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs",
+      "source": "raw/animations/enemies/larva_de_junta_walk_v2.png",
+      "output": "assets/sprites/enemies/animations/larva_de_junta_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Larva de Junta. Subject identity: tiny pale stone larva, segmented grey body, small mandibles. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "raspador_de_junta",
+      "group": "enemies",
+      "identity": "small stone crawler monster, grey rock carapace with cracks, many little legs, scraping claws",
+      "motion": "four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs",
+      "source": "raw/animations/enemies/raspador_de_junta_walk_v2.png",
+      "output": "assets/sprites/enemies/animations/raspador_de_junta_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Raspador de Junta. Subject identity: small stone crawler monster, grey rock carapace with cracks, many little legs, scraping claws. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "sentinela_de_cal",
+      "group": "enemies",
+      "identity": "short squat limestone turret creature with a single glowing eye, white chalky stone body",
+      "motion": "four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs",
+      "source": "raw/animations/enemies/sentinela_de_cal_walk_v2.png",
+      "output": "assets/sprites/enemies/animations/sentinela_de_cal_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Sentinela de Cal. Subject identity: short squat limestone turret creature with a single glowing eye, white chalky stone body. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "emboscado_de_reboco",
+      "group": "enemies",
+      "identity": "lean predator made of cracked plaster, long claws, crouching, beige plaster skin",
+      "motion": "four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs",
+      "source": "raw/animations/enemies/emboscado_de_reboco_walk_v2.png",
+      "output": "assets/sprites/enemies/animations/emboscado_de_reboco_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Emboscado de Reboco. Subject identity: lean predator made of cracked plaster, long claws, crouching, beige plaster skin. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "molde_de_ferramenta",
+      "group": "enemies",
+      "identity": "mimic monster shaped like a toolbox with teeth and small legs, rusty metal",
+      "motion": "four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs",
+      "source": "raw/animations/enemies/molde_de_ferramenta_walk_v2.png",
+      "output": "assets/sprites/enemies/animations/molde_de_ferramenta_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Molde de Ferramenta. Subject identity: mimic monster shaped like a toolbox with teeth and small legs, rusty metal. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "escora_hostil",
+      "group": "enemies",
+      "identity": "bulky stone golem holding a wooden support beam, grey limestone body",
+      "motion": "four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs",
+      "source": "raw/animations/enemies/escora_hostil_walk_v2.png",
+      "output": "assets/sprites/enemies/animations/escora_hostil_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Escora Hostil. Subject identity: bulky stone golem holding a wooden support beam, grey limestone body. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "vigia_moldado",
+      "group": "enemies",
+      "identity": "floating clay mask with one large eye and small clay arms, ochre clay",
+      "motion": "four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs",
+      "source": "raw/animations/enemies/vigia_moldado_walk_v2.png",
+      "output": "assets/sprites/enemies/animations/vigia_moldado_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Vigia Moldado. Subject identity: floating clay mask with one large eye and small clay arms, ochre clay. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "molde_vigilante",
+      "group": "enemies",
+      "identity": "small friendly stone sentinel construct on a pedestal with a glowing cyan eye",
+      "motion": "four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs",
+      "source": "raw/animations/enemies/molde_vigilante_walk_v2.png",
+      "output": "assets/sprites/enemies/animations/molde_vigilante_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Molde Vigilante. Subject identity: small friendly stone sentinel construct on a pedestal with a glowing cyan eye. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "guardiao_de_enxerto",
+      "group": "enemies",
+      "identity": "large boss monster made of grafted stone, metal tools and roots fused together, glowing cyan core in its chest, imposing",
+      "motion": "four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs",
+      "source": "raw/animations/enemies/guardiao_de_enxerto_walk_v2.png",
+      "output": "assets/sprites/enemies/animations/guardiao_de_enxerto_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Guardiao de Enxerto. Subject identity: large boss monster made of grafted stone, metal tools and roots fused together, glowing cyan core in its chest, imposing. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "semeador_de_juncos",
+      "group": "enemies",
+      "identity": "small hopping seed creature made of reeds and pale leaves, tiny legs",
+      "motion": "four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs",
+      "source": "raw/animations/enemies/semeador_de_juncos_walk_v2.png",
+      "output": "assets/sprites/enemies/animations/semeador_de_juncos_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Semeador de Juncos. Subject identity: small hopping seed creature made of reeds and pale leaves, tiny legs. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "planador_de_rajada",
+      "group": "enemies",
+      "identity": "gliding membrane flying creature with long thin wings, pale green, gust spines",
+      "motion": "four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs",
+      "source": "raw/animations/enemies/planador_de_rajada_walk_v2.png",
+      "output": "assets/sprites/enemies/animations/planador_de_rajada_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Planador de Rajada. Subject identity: gliding membrane flying creature with long thin wings, pale green, gust spines. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "casca_de_pressao",
+      "group": "enemies",
+      "identity": "round armored seed pod beast swollen with pressure, cracked shell leaking air",
+      "motion": "four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs",
+      "source": "raw/animations/enemies/casca_de_pressao_walk_v2.png",
+      "output": "assets/sprites/enemies/animations/casca_de_pressao_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Casca de Pressao. Subject identity: round armored seed pod beast swollen with pressure, cracked shell leaking air. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "predador_da_calmaria",
+      "group": "enemies",
+      "identity": "sleek grey feline predator with mineral plates, glowing green eyes, lurking",
+      "motion": "four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs",
+      "source": "raw/animations/enemies/predador_da_calmaria_walk_v2.png",
+      "output": "assets/sprites/enemies/animations/predador_da_calmaria_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Predador da Calmaria. Subject identity: sleek grey feline predator with mineral plates, glowing green eyes, lurking. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "esporinho",
+      "group": "enemies",
+      "identity": "tiny walking mushroom creature puffing spores",
+      "motion": "four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs",
+      "source": "raw/animations/enemies/esporinho_walk_v2.png",
+      "output": "assets/sprites/enemies/animations/esporinho_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Esporinho. Subject identity: tiny walking mushroom creature puffing spores. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "tecelao_micelial",
+      "group": "enemies",
+      "identity": "spider like fungus creature weaving glowing mycelium threads",
+      "motion": "four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs",
+      "source": "raw/animations/enemies/tecelao_micelial_walk_v2.png",
+      "output": "assets/sprites/enemies/animations/tecelao_micelial_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Tecelao Micelial. Subject identity: spider like fungus creature weaving glowing mycelium threads. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "sentinela_de_chapeu",
+      "group": "enemies",
+      "identity": "stout mushroom guardian with thick shield-like cap",
+      "motion": "four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs",
+      "source": "raw/animations/enemies/sentinela_de_chapeu_walk_v2.png",
+      "output": "assets/sprites/enemies/animations/sentinela_de_chapeu_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Sentinela de Chapeu. Subject identity: stout mushroom guardian with thick shield-like cap. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "devorador_branco",
+      "group": "enemies",
+      "identity": "pale white sterile beast without decay, smooth bone-like skin, hollow eyes",
+      "motion": "four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs",
+      "source": "raw/animations/enemies/devorador_branco_walk_v2.png",
+      "output": "assets/sprites/enemies/animations/devorador_branco_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Devorador Branco. Subject identity: pale white sterile beast without decay, smooth bone-like skin, hollow eyes. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "filtrador",
+      "group": "enemies",
+      "identity": "small amphibian filter feeder with wide mouth and blue skin",
+      "motion": "four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs",
+      "source": "raw/animations/enemies/filtrador_walk_v2.png",
+      "output": "assets/sprites/enemies/animations/filtrador_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Filtrador. Subject identity: small amphibian filter feeder with wide mouth and blue skin. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "anfibio_de_canal",
+      "group": "enemies",
+      "identity": "frog like amphibian spitting water, teal skin with orange spots",
+      "motion": "four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs",
+      "source": "raw/animations/enemies/anfibio_de_canal_walk_v2.png",
+      "output": "assets/sprites/enemies/animations/anfibio_de_canal_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Anfibio de Canal. Subject identity: frog like amphibian spitting water, teal skin with orange spots. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "predador_de_lama",
+      "group": "enemies",
+      "identity": "mud covered crocodile like predator, brown and grey",
+      "motion": "four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs",
+      "source": "raw/animations/enemies/predador_de_lama_walk_v2.png",
+      "output": "assets/sprites/enemies/animations/predador_de_lama_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Predador de Lama. Subject identity: mud covered crocodile like predator, brown and grey. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "colosso_de_conchas",
+      "group": "enemies",
+      "identity": "large crab like creature carrying a colony of shells on its back",
+      "motion": "four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs",
+      "source": "raw/animations/enemies/colosso_de_conchas_walk_v2.png",
+      "output": "assets/sprites/enemies/animations/colosso_de_conchas_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Colosso de Conchas. Subject identity: large crab like creature carrying a colony of shells on its back. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "escavador_vitreo",
+      "group": "enemies",
+      "identity": "small burrowing beetle with black glass shell",
+      "motion": "four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs",
+      "source": "raw/animations/enemies/escavador_vitreo_walk_v2.png",
+      "output": "assets/sprites/enemies/animations/escavador_vitreo_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Escavador Vitreo. Subject identity: small burrowing beetle with black glass shell. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "carapaca_carregada",
+      "group": "enemies",
+      "identity": "armored beast with crystal spikes glowing violet electricity",
+      "motion": "four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs",
+      "source": "raw/animations/enemies/carapaca_carregada_walk_v2.png",
+      "output": "assets/sprites/enemies/animations/carapaca_carregada_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Carapaca Carregada. Subject identity: armored beast with crystal spikes glowing violet electricity. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "cacador_de_metal",
+      "group": "enemies",
+      "identity": "lean predator with copper antennae shooting sparks",
+      "motion": "four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs",
+      "source": "raw/animations/enemies/cacador_de_metal_walk_v2.png",
+      "output": "assets/sprites/enemies/animations/cacador_de_metal_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Cacador de Metal. Subject identity: lean predator with copper antennae shooting sparks. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "ninho_de_descarga",
+      "group": "enemies",
+      "identity": "living crystal nest creature pulsing with lightning",
+      "motion": "four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs",
+      "source": "raw/animations/enemies/ninho_de_descarga_walk_v2.png",
+      "output": "assets/sprites/enemies/animations/ninho_de_descarga_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Ninho de Descarga. Subject identity: living crystal nest creature pulsing with lightning. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "tracador",
+      "group": "enemies",
+      "identity": "small lizard leaving glowing mineral lines behind its tail",
+      "motion": "four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs",
+      "source": "raw/animations/enemies/tracador_walk_v2.png",
+      "output": "assets/sprites/enemies/animations/tracador_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Tracador. Subject identity: small lizard leaving glowing mineral lines behind its tail. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "devorador_de_tinta",
+      "group": "enemies",
+      "identity": "ink black slug creature eating paper scraps",
+      "motion": "four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs",
+      "source": "raw/animations/enemies/devorador_de_tinta_walk_v2.png",
+      "output": "assets/sprites/enemies/animations/devorador_de_tinta_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Devorador de Tinta. Subject identity: ink black slug creature eating paper scraps. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "sinaleiro_falso",
+      "group": "enemies",
+      "identity": "creature disguised as a signpost with a hidden eye",
+      "motion": "four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs",
+      "source": "raw/animations/enemies/sinaleiro_falso_walk_v2.png",
+      "output": "assets/sprites/enemies/animations/sinaleiro_falso_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Sinaleiro Falso. Subject identity: creature disguised as a signpost with a hidden eye. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "cartografo_oco",
+      "group": "enemies",
+      "identity": "hollow robed figure made of maps and measuring rods",
+      "motion": "four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs",
+      "source": "raw/animations/enemies/cartografo_oco_walk_v2.png",
+      "output": "assets/sprites/enemies/animations/cartografo_oco_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Cartografo Oco. Subject identity: hollow robed figure made of maps and measuring rods. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "limpador",
+      "group": "enemies",
+      "identity": "small cleaner bird like creature with long beak",
+      "motion": "four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs",
+      "source": "raw/animations/enemies/limpador_walk_v2.png",
+      "output": "assets/sprites/enemies/animations/limpador_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Limpador. Subject identity: small cleaner bird like creature with long beak. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "predador_de_dobra",
+      "group": "enemies",
+      "identity": "flat predator hiding in skin folds, wide jaws",
+      "motion": "four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs",
+      "source": "raw/animations/enemies/predador_de_dobra_walk_v2.png",
+      "output": "assets/sprites/enemies/animations/predador_de_dobra_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Predador de Dobra. Subject identity: flat predator hiding in skin folds, wide jaws. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "migrante",
+      "group": "enemies",
+      "identity": "six legged migrating herd beast with mossy back",
+      "motion": "four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs",
+      "source": "raw/animations/enemies/migrante_walk_v2.png",
+      "output": "assets/sprites/enemies/animations/migrante_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Migrante. Subject identity: six legged migrating herd beast with mossy back. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "colosso_menor",
+      "group": "enemies",
+      "identity": "small colossus creature with rocky body and moss, sleepy eyes",
+      "motion": "four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs",
+      "source": "raw/animations/enemies/colosso_menor_walk_v2.png",
+      "output": "assets/sprites/enemies/animations/colosso_menor_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Colosso Menor. Subject identity: small colossus creature with rocky body and moss, sleepy eyes. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "aderente_menor",
+      "group": "enemies",
+      "identity": "suction cup creature clinging with many small arms",
+      "motion": "four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs",
+      "source": "raw/animations/enemies/aderente_menor_walk_v2.png",
+      "output": "assets/sprites/enemies/animations/aderente_menor_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Aderente Menor. Subject identity: suction cup creature clinging with many small arms. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "planador_de_eixo",
+      "group": "enemies",
+      "identity": "flat gliding creature with metallic fins",
+      "motion": "four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs",
+      "source": "raw/animations/enemies/planador_de_eixo_walk_v2.png",
+      "output": "assets/sprites/enemies/animations/planador_de_eixo_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Planador de Eixo. Subject identity: flat gliding creature with metallic fins. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "ilha_pesada",
+      "group": "enemies",
+      "identity": "heavy floating rock creature with tiny legs underneath",
+      "motion": "four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs",
+      "source": "raw/animations/enemies/ilha_pesada_walk_v2.png",
+      "output": "assets/sprites/enemies/animations/ilha_pesada_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Ilha Pesada. Subject identity: heavy floating rock creature with tiny legs underneath. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "cortador_de_ancoras",
+      "group": "enemies",
+      "identity": "mantis like predator with blade arms cutting cables",
+      "motion": "four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs",
+      "source": "raw/animations/enemies/cortador_de_ancoras_walk_v2.png",
+      "output": "assets/sprites/enemies/animations/cortador_de_ancoras_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Cortador de Ancoras. Subject identity: mantis like predator with blade arms cutting cables. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "eco_de_presa",
+      "group": "enemies",
+      "identity": "translucent echo of a small deer creature, ghostly",
+      "motion": "four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs",
+      "source": "raw/animations/enemies/eco_de_presa_walk_v2.png",
+      "output": "assets/sprites/enemies/animations/eco_de_presa_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Eco de Presa. Subject identity: translucent echo of a small deer creature, ghostly. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "flor_de_escolha",
+      "group": "enemies",
+      "identity": "carnivorous flower with two different heads",
+      "motion": "four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs",
+      "source": "raw/animations/enemies/flor_de_escolha_walk_v2.png",
+      "output": "assets/sprites/enemies/animations/flor_de_escolha_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Flor de Escolha. Subject identity: carnivorous flower with two different heads. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "cacador_de_versoes",
+      "group": "enemies",
+      "identity": "hound with flickering doubled outline",
+      "motion": "four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs",
+      "source": "raw/animations/enemies/cacador_de_versoes_walk_v2.png",
+      "output": "assets/sprites/enemies/animations/cacador_de_versoes_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Cacador de Versoes. Subject identity: hound with flickering doubled outline. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "fixador_vivo",
+      "group": "enemies",
+      "identity": "crystalline organism that solidifies reality around it",
+      "motion": "four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs",
+      "source": "raw/animations/enemies/fixador_vivo_walk_v2.png",
+      "output": "assets/sprites/enemies/animations/fixador_vivo_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Fixador Vivo. Subject identity: crystalline organism that solidifies reality around it. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "operario_sem_autor",
+      "group": "enemies",
+      "identity": "faceless worker figure made of bricks and rope",
+      "motion": "four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs",
+      "source": "raw/animations/enemies/operario_sem_autor_walk_v2.png",
+      "output": "assets/sprites/enemies/animations/operario_sem_autor_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Operario Sem Autor. Subject identity: faceless worker figure made of bricks and rope. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "molde_vivo",
+      "group": "enemies",
+      "identity": "living plaster mold creature copying shapes",
+      "motion": "four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs",
+      "source": "raw/animations/enemies/molde_vivo_walk_v2.png",
+      "output": "assets/sprites/enemies/animations/molde_vivo_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Molde Vivo. Subject identity: living plaster mold creature copying shapes. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "marca_numerada",
+      "group": "enemies",
+      "identity": "floating stone tablet with glowing number carved",
+      "motion": "four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs",
+      "source": "raw/animations/enemies/marca_numerada_walk_v2.png",
+      "output": "assets/sprites/enemies/animations/marca_numerada_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Marca Numerada. Subject identity: floating stone tablet with glowing number carved. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "eco_regional",
+      "group": "enemies",
+      "identity": "patchwork beast made of pieces of all previous biomes",
+      "motion": "four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs",
+      "source": "raw/animations/enemies/eco_regional_walk_v2.png",
+      "output": "assets/sprites/enemies/animations/eco_regional_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Eco Regional. Subject identity: patchwork beast made of pieces of all previous biomes. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "refeitor",
+      "group": "enemies",
+      "identity": "large boss monster, reconstruction golem made of moving stone frames and arches, glowing cyan seams, seven floating stone frames around it, imposing",
+      "motion": "four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs",
+      "source": "raw/animations/enemies/refeitor_walk_v2.png",
+      "output": "assets/sprites/enemies/animations/refeitor_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for O Refeitor. Subject identity: large boss monster, reconstruction golem made of moving stone frames and arches, glowing cyan seams, seven floating stone frames around it, imposing. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "pastor_das_correntes",
+      "group": "enemies",
+      "identity": "large boss monster, huge migratory sky whale like creature trapped by mineral membranes, pale green and grey, wind swirling, imposing",
+      "motion": "four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs",
+      "source": "raw/animations/enemies/pastor_das_correntes_walk_v2.png",
+      "output": "assets/sprites/enemies/animations/pastor_das_correntes_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Pastor das Correntes. Subject identity: large boss monster, huge migratory sky whale like creature trapped by mineral membranes, pale green and grey, wind swirling, imposing. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "guardia_do_no_mae",
+      "group": "enemies",
+      "identity": "large boss monster, giant fungal queen creature rooted in mycelium web, glowing amber nodes, half covered with sterile white crust, imposing",
+      "motion": "four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs",
+      "source": "raw/animations/enemies/guardia_do_no_mae_walk_v2.png",
+      "output": "assets/sprites/enemies/animations/guardia_do_no_mae_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Guardia do No-Mae. Subject identity: large boss monster, giant fungal queen creature rooted in mycelium web, glowing amber nodes, half covered with sterile white crust, imposing. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "guardiao_da_comporta",
+      "group": "enemies",
+      "identity": "large boss monster, ancient leviathan amphibian guarding a stone sluice gate, blue scales, shell armor, water dripping, imposing",
+      "motion": "four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs",
+      "source": "raw/animations/enemies/guardiao_da_comporta_walk_v2.png",
+      "output": "assets/sprites/enemies/animations/guardiao_da_comporta_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Guardiao da Comporta. Subject identity: large boss monster, ancient leviathan amphibian guarding a stone sluice gate, blue scales, shell armor, water dripping, imposing. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "coroa_dos_condutores",
+      "group": "enemies",
+      "identity": "large boss monster, floating crown shaped storm entity made of copper rods and violet crystals, lightning arcs, imposing",
+      "motion": "four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs",
+      "source": "raw/animations/enemies/coroa_dos_condutores_walk_v2.png",
+      "output": "assets/sprites/enemies/animations/coroa_dos_condutores_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Coroa dos Condutores. Subject identity: large boss monster, floating crown shaped storm entity made of copper rods and violet crystals, lightning arcs, imposing. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "guardiao_do_marco_cego",
+      "group": "enemies",
+      "identity": "large boss monster, giant stone milestone golem covered with engraved routes and arrows pointing nowhere, beige stone, ink veins, imposing",
+      "motion": "four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs",
+      "source": "raw/animations/enemies/guardiao_do_marco_cego_walk_v2.png",
+      "output": "assets/sprites/enemies/animations/guardiao_do_marco_cego_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Guardiao do Marco Cego. Subject identity: large boss monster, giant stone milestone golem covered with engraved routes and arrows pointing nowhere, beige stone, ink veins, imposing. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "palpebra_do_horizonte",
+      "group": "enemies",
+      "identity": "large boss monster, enormous half asleep eye creature embedded in rocky mountain skin, heavy eyelid, moss and roots, imposing",
+      "motion": "four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs",
+      "source": "raw/animations/enemies/palpebra_do_horizonte_walk_v2.png",
+      "output": "assets/sprites/enemies/animations/palpebra_do_horizonte_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Palpebra do Horizonte. Subject identity: large boss monster, enormous half asleep eye creature embedded in rocky mountain skin, heavy eyelid, moss and roots, imposing. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "guardiao_do_eixo_zero",
+      "group": "enemies",
+      "identity": "large boss monster, gyroscope shaped metal guardian with rotating rings and broken anchors, blue steel, gravity distortion, imposing",
+      "motion": "four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs",
+      "source": "raw/animations/enemies/guardiao_do_eixo_zero_walk_v2.png",
+      "output": "assets/sprites/enemies/animations/guardiao_do_eixo_zero_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Guardiao do Eixo Zero. Subject identity: large boss monster, gyroscope shaped metal guardian with rotating rings and broken anchors, blue steel, gravity distortion, imposing. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "guardiao_da_ultima_escolha",
+      "group": "enemies",
+      "identity": "large boss monster, three headed guardian made of overlapping translucent versions of itself, pale garden colors, flowers, imposing",
+      "motion": "four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs",
+      "source": "raw/animations/enemies/guardiao_da_ultima_escolha_walk_v2.png",
+      "output": "assets/sprites/enemies/animations/guardiao_da_ultima_escolha_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Guardiao da Ultima Escolha. Subject identity: large boss monster, three headed guardian made of overlapping translucent versions of itself, pale garden colors, flowers, imposing. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "regente_centesimo",
+      "group": "enemies",
+      "identity": "large boss monster, regal construct of numbered stone tablets and unfinished architecture, crown of one hundred marks, gold and stone, imposing",
+      "motion": "four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs",
+      "source": "raw/animations/enemies/regente_centesimo_walk_v2.png",
+      "output": "assets/sprites/enemies/animations/regente_centesimo_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Regente Centesimo. Subject identity: large boss monster, regal construct of numbered stone tablets and unfinished architecture, crown of one hundred marks, gold and stone, imposing. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct cyclic locomotion phases appropriate to its anatomy: crawl, stride, glide or hover; rooted creatures gently flex or pulse instead of growing human legs. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "alda_serrin",
+      "group": "npcs",
+      "identity": "elegant middle aged woman with long silver hair, pale blue robe with gold trim, holding a sealed scroll",
+      "motion": "four distinct walking phases: contact, passing, opposite contact, opposite passing",
+      "source": "raw/animations/npcs/alda_serrin_walk_v2.png",
+      "output": "assets/sprites/npcs/animations/alda_serrin_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Alda Serrin. Subject identity: elegant middle aged woman with long silver hair, pale blue robe with gold trim, holding a sealed scroll. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct walking phases: contact, passing, opposite contact, opposite passing. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "nara_quiral",
+      "group": "npcs",
+      "identity": "athletic woman with short copper hair and scarred arm, leather explorer coat, map case on her hip",
+      "motion": "four distinct walking phases: contact, passing, opposite contact, opposite passing",
+      "source": "raw/animations/npcs/nara_quiral_walk_v2.png",
+      "output": "assets/sprites/npcs/animations/nara_quiral_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Nara Quiral. Subject identity: athletic woman with short copper hair and scarred arm, leather explorer coat, map case on her hip. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct walking phases: contact, passing, opposite contact, opposite passing. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "dalia_ferral",
+      "group": "npcs",
+      "identity": "stern older woman blacksmith with grey braid, heavy leather apron, soot on her face, holding a hammer",
+      "motion": "four distinct walking phases: contact, passing, opposite contact, opposite passing",
+      "source": "raw/animations/npcs/dalia_ferral_walk_v2.png",
+      "output": "assets/sprites/npcs/animations/dalia_ferral_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Dalia Ferral. Subject identity: stern older woman blacksmith with grey braid, heavy leather apron, soot on her face, holding a hammer. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct walking phases: contact, passing, opposite contact, opposite passing. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "cassio_rotavela",
+      "group": "npcs",
+      "identity": "well dressed merchant man with neat beard, burgundy coat with gold buttons, ledger book under arm",
+      "motion": "four distinct walking phases: contact, passing, opposite contact, opposite passing",
+      "source": "raw/animations/npcs/cassio_rotavela_walk_v2.png",
+      "output": "assets/sprites/npcs/animations/cassio_rotavela_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Cassio Rotavela. Subject identity: well dressed merchant man with neat beard, burgundy coat with gold buttons, ledger book under arm. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct walking phases: contact, passing, opposite contact, opposite passing. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "tamar_vardal",
+      "group": "npcs",
+      "identity": "tall androgynous person in dark blue guard robe with silver crest, two toned hair half black half white",
+      "motion": "four distinct walking phases: contact, passing, opposite contact, opposite passing",
+      "source": "raw/animations/npcs/tamar_vardal_walk_v2.png",
+      "output": "assets/sprites/npcs/animations/tamar_vardal_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Tamar Vardal. Subject identity: tall androgynous person in dark blue guard robe with silver crest, two toned hair half black half white. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct walking phases: contact, passing, opposite contact, opposite passing. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "ivo_cerne",
+      "group": "npcs",
+      "identity": "muscular guard commander in steel breastplate and red cape, short black hair, spear in hand",
+      "motion": "four distinct walking phases: contact, passing, opposite contact, opposite passing",
+      "source": "raw/animations/npcs/ivo_cerne_walk_v2.png",
+      "output": "assets/sprites/npcs/animations/ivo_cerne_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Ivo Cerne. Subject identity: muscular guard commander in steel breastplate and red cape, short black hair, spear in hand. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct walking phases: contact, passing, opposite contact, opposite passing. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "maura_salvedra",
+      "group": "npcs",
+      "identity": "kind healer woman with dark curly hair tied up, white and green robe, satchel of herbs",
+      "motion": "four distinct walking phases: contact, passing, opposite contact, opposite passing",
+      "source": "raw/animations/npcs/maura_salvedra_walk_v2.png",
+      "output": "assets/sprites/npcs/animations/maura_salvedra_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Maura Salvedra. Subject identity: kind healer woman with dark curly hair tied up, white and green robe, satchel of herbs. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct walking phases: contact, passing, opposite contact, opposite passing. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "lior_campelo",
+      "group": "npcs",
+      "identity": "farmer man with straw hat, light brown skin, simple green tunic, farmer man with straw hat, light brown skin, simple green tunic, holding a hoe",
+      "motion": "four distinct walking phases: contact, passing, opposite contact, opposite passing",
+      "source": "raw/animations/npcs/lior_campelo_walk_v2.png",
+      "output": "assets/sprites/npcs/animations/lior_campelo_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Lior Campelo. Subject identity: farmer man with straw hat, light brown skin, simple green tunic, farmer man with straw hat, light brown skin, simple green tunic, holding a hoe. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct walking phases: contact, passing, opposite contact, opposite passing. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "brina_pedralva",
+      "group": "npcs",
+      "identity": "sturdy builder woman with rolled sleeves, orange headscarf, tool belt, carrying a wooden beam",
+      "motion": "four distinct walking phases: contact, passing, opposite contact, opposite passing",
+      "source": "raw/animations/npcs/brina_pedralva_walk_v2.png",
+      "output": "assets/sprites/npcs/animations/brina_pedralva_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Brina Pedralva. Subject identity: sturdy builder woman with rolled sleeves, orange headscarf, tool belt, carrying a wooden beam. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct walking phases: contact, passing, opposite contact, opposite passing. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "oren_lumeiro",
+      "group": "npcs",
+      "identity": "old scholar man with long white beard, round spectacles, dark purple robe, stack of books",
+      "motion": "four distinct walking phases: contact, passing, opposite contact, opposite passing",
+      "source": "raw/animations/npcs/oren_lumeiro_walk_v2.png",
+      "output": "assets/sprites/npcs/animations/oren_lumeiro_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Oren Lumeiro. Subject identity: old scholar man with long white beard, round spectacles, dark purple robe, stack of books. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct walking phases: contact, passing, opposite contact, opposite passing. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "elen",
+      "group": "npcs",
+      "identity": "young woman with long brown hair in a ponytail, simple beige dress with red shawl, holding a basket",
+      "motion": "four distinct walking phases: contact, passing, opposite contact, opposite passing",
+      "source": "raw/animations/npcs/elen_walk_v2.png",
+      "output": "assets/sprites/npcs/animations/elen_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Elen. Subject identity: young woman with long brown hair in a ponytail, simple beige dress with red shawl, holding a basket. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct walking phases: contact, passing, opposite contact, opposite passing. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "comum_guarda",
+      "group": "npcs",
+      "identity": "town guard soldier with leather armor and spear, blue tabard",
+      "motion": "four distinct walking phases: contact, passing, opposite contact, opposite passing",
+      "source": "raw/animations/npcs/comum_guarda_walk_v2.png",
+      "output": "assets/sprites/npcs/animations/comum_guarda_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Guarda. Subject identity: town guard soldier with leather armor and spear, blue tabard. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct walking phases: contact, passing, opposite contact, opposite passing. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "comum_feirante",
+      "group": "npcs",
+      "identity": "market vendor with apron and headscarf, market vendor woman with apron and headscarf, holding one apple",
+      "motion": "four distinct walking phases: contact, passing, opposite contact, opposite passing",
+      "source": "raw/animations/npcs/comum_feirante_walk_v2.png",
+      "output": "assets/sprites/npcs/animations/comum_feirante_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Feirante. Subject identity: market vendor with apron and headscarf, market vendor woman with apron and headscarf, holding one apple. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct walking phases: contact, passing, opposite contact, opposite passing. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "comum_trabalhador",
+      "group": "npcs",
+      "identity": "construction worker with simple clothes and a pickaxe",
+      "motion": "four distinct walking phases: contact, passing, opposite contact, opposite passing",
+      "source": "raw/animations/npcs/comum_trabalhador_walk_v2.png",
+      "output": "assets/sprites/npcs/animations/comum_trabalhador_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Trabalhador. Subject identity: construction worker with simple clothes and a pickaxe. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct walking phases: contact, passing, opposite contact, opposite passing. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "comum_lavrador",
+      "group": "npcs",
+      "identity": "peasant farmer man with straw hat and a hoe on his shoulder",
+      "motion": "four distinct walking phases: contact, passing, opposite contact, opposite passing",
+      "source": "raw/animations/npcs/comum_lavrador_walk_v2.png",
+      "output": "assets/sprites/npcs/animations/comum_lavrador_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Lavrador. Subject identity: peasant farmer man with straw hat and a hoe on his shoulder. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct walking phases: contact, passing, opposite contact, opposite passing. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "comum_aventureiro",
+      "group": "npcs",
+      "identity": "young adventurer with backpack, sword and travel cloak",
+      "motion": "four distinct walking phases: contact, passing, opposite contact, opposite passing",
+      "source": "raw/animations/npcs/comum_aventureiro_walk_v2.png",
+      "output": "assets/sprites/npcs/animations/comum_aventureiro_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Aventureiro. Subject identity: young adventurer with backpack, sword and travel cloak. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct walking phases: contact, passing, opposite contact, opposite passing. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    },
+    {
+      "id": "comum_crianca",
+      "group": "npcs",
+      "identity": "small child with messy hair running, simple tunic, holding a wooden toy",
+      "motion": "four distinct walking phases: contact, passing, opposite contact, opposite passing",
+      "source": "raw/animations/npcs/comum_crianca_walk_v2.png",
+      "output": "assets/sprites/npcs/animations/comum_crianca_walk.png",
+      "prompt": "Use case: stylized-concept. Production pixel-art RPG animation spritesheet for Crianca. Subject identity: small child with messy hair running, simple tunic, holding a wooden toy. Reference is STYLE AND GRID ONLY, not character identity. Match its detailed chibi pixel art, crisp dark outlines, readable materials, 3/4 top-down camera. Exactly 4 columns x 4 rows, 16 equally spaced full-body poses on transparent background. Rows in order: front/down, profile LEFT, profile RIGHT, back/up. Each row shows four distinct walking phases: contact, passing, opposite contact, opposite passing. Keep identical anatomy, outfit, accessories, size and palette across all cells. Center each complete silhouette on a common baseline with generous transparent gutters. Square sheet 1024x1024. No room, landscape, ground plate, floor, background, grid lines, text, labels, shadows or extra actors. Scene references in the subject description are thematic only: depict the creature itself, not its habitat or buildings. Attached components such as shells, roots, rings and tools belong to the ONE coherent actor. Do not copy Eloa. No clipped bodies, wings, weapons or feet."
+    }
+  ]
+}

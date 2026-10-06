@@ -1351,7 +1351,10 @@ func _draw_npc(npc: Dictionary) -> void:
 	var feet := position + Vector2(0.0, 12.0)
 	_draw_shadow(feet, Vector2(11.0, 4.0))
 	var lift := absf(sin(_anim_time * 12.0 + position.x)) * 2.0 if bool(npc.get("moving", false)) else (sin(_anim_time * 2.0 + position.y) + 1.0) * 0.4
-	if not _draw_sprite(String(npc.get("sprite", "")), feet, bool(npc.get("facing_left", false)), Color.WHITE, lift):
+	var frame := SpriteLibraryScript.actor_frame(String(npc.get("sprite", "")), npc.get("facing_direction", Vector2.DOWN) as Vector2, bool(npc.get("moving", false)), _anim_time + position.x * 0.01)
+	if frame != null:
+		draw_texture(frame, (feet - SpriteLibraryScript.CHARACTER_FOOT_ANCHOR).round())
+	elif not _draw_sprite(String(npc.get("sprite", "")), feet, bool(npc.get("facing_left", false)), Color.WHITE, lift):
 		draw_circle(position, 10.0, Color("d9c2a0"))
 	var near := position.distance_to(_display_position(_local_peer)) <= 160.0
 	var named := bool(npc.get("named", false))
@@ -1582,7 +1585,10 @@ func _draw_enemy(enemy: Dictionary) -> void:
 	var mechanic := String(enemy.get("base_mechanic", ""))
 	var distance := position.distance_to(_display_position(_local_peer))
 	var texture := SpriteLibraryScript.texture("enemies/" + String(enemy.get("definition_id", "")))
+	var frame := SpriteLibraryScript.actor_frame("enemies/" + String(enemy.get("definition_id", "")), enemy.get("facing_direction", Vector2.DOWN) as Vector2, bool(enemy.get("moving", false)), _anim_time + position.x * 0.01)
+	var visual_scale := 1.75 if frame != null and bool(enemy.get("boss", false)) else 1.0
 	var height := texture.get_size().y if texture != null else 26.0
+	height *= visual_scale
 	var feet := position + Vector2(0.0, height * 0.5 - 4.0)
 	if mechanic == "loot_mimic" and not bool(enemy.get("awakened", false)):
 		_draw_sprite("props/crates", feet, false, Color.WHITE)
@@ -1595,7 +1601,11 @@ func _draw_enemy(enemy: Dictionary) -> void:
 	var tint := Color(1.0, 1.0, 1.0, alpha)
 	if float(enemy.get("flash", 0.0)) > 0.0:
 		tint = Color(1.0, 0.55, 0.5, alpha)
-	if not _draw_sprite("enemies/" + String(enemy.get("definition_id", "")), feet, _display_position(_local_peer).x < position.x, tint, lift):
+	if frame != null:
+		draw_set_transform(feet.round(), 0.0, Vector2.ONE * visual_scale)
+		draw_texture(frame, -SpriteLibraryScript.CHARACTER_FOOT_ANCHOR, tint)
+		draw_set_transform(Vector2.ZERO)
+	elif not _draw_sprite("enemies/" + String(enemy.get("definition_id", "")), feet, _display_position(_local_peer).x < position.x, tint, lift):
 		draw_circle(position, {"nascente": 10.0, "maduro": 13.0, "evoluido": 16.0, "alfa": 19.0, "apice": 24.0}.get(String(enemy.get("rank_id", "maduro")), 13.0) as float, Color("9b9b9b"))
 	var top := feet - Vector2(0.0, height + 8.0)
 	if not String(enemy.get("prefix_id", "")).is_empty():

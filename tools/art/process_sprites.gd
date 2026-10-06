@@ -27,7 +27,7 @@ func _init() -> void:
 		var entry := raw_entry as Dictionary
 		if not filter.is_empty() and String(entry.get("key", "")) not in filter:
 			continue
-		if String(entry.get("mode", "")) == "animation":
+		if String(entry.get("mode", "")) in ["animation", "remodel"]:
 			var portrait := Image.load_from_file(ProjectSettings.globalize_path(String(entry["output"])))
 			if portrait == null:
 				failures += 1
