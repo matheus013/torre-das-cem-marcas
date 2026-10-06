@@ -14,6 +14,7 @@ var _embers: Array[Vector3] = []
 var _join_row: HBoxContainer
 var _address_input: LineEdit
 var _settings_dialog: ConfirmationDialog
+var _new_game_dialog: ConfirmationDialog
 var _game_version := "Beta jogável " + preload("res://src/core/app/app_version.gd").current()
 
 
@@ -32,10 +33,21 @@ func _ready() -> void:
 	menu.position = Vector2(110.0, 304.0)
 	menu.custom_minimum_size = Vector2(260.0, 0.0)
 	add_child(menu)
-	for spec: Array in [["Play", "JOGAR", _play], ["CoopHost", "HOSPEDAR CO-OP", _host], ["CoopJoin", "ENTRAR EM CO-OP", _toggle_join], ["Villagers", "MORADORES (IA)", _toggle_npc_panel], ["Settings", "OPÇÕES", _open_settings], ["Quit", "SAIR", _quit]]:
+	# Com save, CONTINUAR vem primeiro e JOGAR vira NOVO JOGO com confirmação (decisão 582).
+	var has_save := SaveSlot.exists()
+	var specs: Array = [["Continue", "CONTINUAR", _continue]] if has_save else []
+	specs.append_array([["Play", "NOVO JOGO" if has_save else "JOGAR", _play], ["CoopHost", "HOSPEDAR CO-OP", _host], ["CoopJoin", "ENTRAR EM CO-OP", _toggle_join], ["Villagers", "MORADORES (IA)", _toggle_npc_panel], ["Settings", "OPÇÕES", _open_settings], ["Quit", "SAIR", _quit]])
+	for spec: Array in specs:
 		var button := _make_button(String(spec[0]), String(spec[1]), Vector2(260.0, 48.0), 20)
 		button.pressed.connect(spec[2])
 		menu.add_child(button)
+		if spec[0] == "Continue":
+			var details := Label.new()
+			details.name = "SaveSummary"
+			details.text = save_summary_text(SaveSlot.summary())
+			details.add_theme_color_override("font_color", Color("8f7a6a"))
+			details.add_theme_font_size_override("font_size", 13)
+			menu.add_child(details)
 		if spec[0] == "CoopJoin":
 			_join_row = HBoxContainer.new()
 			_join_row.name = "JoinRow"
@@ -55,6 +67,14 @@ func _ready() -> void:
 	(menu.get_child(0) as Button).grab_focus()
 	_settings_dialog = SettingsDialogScript.new()
 	add_child(_settings_dialog)
+	_new_game_dialog = ConfirmationDialog.new()
+	_new_game_dialog.name = "NewGameDialog"
+	_new_game_dialog.title = "Novo jogo"
+	_new_game_dialog.dialog_text = "Comecar um novo jogo?\nO progresso salvo sera substituido no proximo salvamento automatico."
+	_new_game_dialog.ok_button_text = "Comecar do zero"
+	_new_game_dialog.cancel_button_text = "Voltar"
+	_new_game_dialog.confirmed.connect(_start_new_game)
+	add_child(_new_game_dialog)
 
 
 func _open_settings() -> void:
@@ -153,13 +173,37 @@ func _toggle_npc_panel() -> void:
 	panel.visible = not panel.visible
 
 
+## Linha embaixo do CONTINUAR: personagem, nível, andar mais fundo e data do salvamento.
+static func save_summary_text(summary: Dictionary) -> String:
+	if summary.is_empty():
+		return "Salvamento encontrado"
+	var when := Time.get_datetime_dict_from_unix_time(int(summary["saved_at"]) + int(Time.get_time_zone_from_system().get("bias", 0)) * 60)
+	return "%s  |  nivel %d  |  andar %d  |  %02d/%02d %02d:%02d" % [String(summary["character_id"]).capitalize(), int(summary["level"]),
+		int(summary["deepest_floor"]), int(when["day"]), int(when["month"]), int(when["hour"]), int(when["minute"])]
+
+
+func _continue() -> void:
+	SessionLaunch.request(&"solo", "127.0.0.1", SessionLaunch.DEFAULT_PORT, true)
+	get_tree().change_scene_to_file(VILLAGE_SCENE)
+
+
+## Sem save começa direto; com save pede confirmação, porque o salvamento automático
+## gravaria o mundo novo por cima do progresso.
 func _play() -> void:
+	if SaveSlot.exists():
+		_new_game_dialog.popup_centered()
+		return
+	_start_new_game()
+
+
+func _start_new_game() -> void:
 	SessionLaunch.request(&"solo")
 	get_tree().change_scene_to_file(VILLAGE_SCENE)
 
 
+## Hospedar continua o mundo salvo quando houver um.
 func _host() -> void:
-	SessionLaunch.request(&"host")
+	SessionLaunch.request(&"host", "127.0.0.1", SessionLaunch.DEFAULT_PORT, SaveSlot.exists())
 	get_tree().change_scene_to_file(VILLAGE_SCENE)
 
 

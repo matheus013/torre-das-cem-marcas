@@ -32,7 +32,16 @@ const PERIOD_AMBIENT := {
 }
 const PERIOD_NAMES := {"manha": "MANHA", "tarde": "TARDE", "entardecer": "ENTARDECER", "noite": "NOITE"}
 
-const SAVE_PATH := "user://aresta_prototype_save.json"
+const SAVE_PATH := SaveSlot.DEFAULT_PATH
+## Salvamento automático (decisão 582): a cada minuto, ao entrar ou sair da Torre, ao trocar de
+## andar e ao fechar a janela. Desligado em cliente de co-op e em execução sem janela (testes),
+## salvo quando um teste liga `autosave_forced`.
+const AUTOSAVE_INTERVAL := 60.0
+var autosave_forced := false
+var _autosave_timer := 0.0
+var _autosave_key := ""
+var _autosave_flash := 0.0
+var _autosave_label: Label
 const SNAPSHOT_INTERVAL := 0.05
 const SNAPSHOT_MAX_BYTES := 1 << 20
 const PLAYER_RADIUS := 14.0
@@ -179,6 +188,10 @@ func _start_session(session: Dictionary) -> void:
 			_connect_client()
 		_:
 			_start_authority()
+	if _mode != &"client" and bool(session.get("resume", false)) and SaveSlot.exists():
+		if _load_world():
+			_show_character_panel(false)
+			_status = "Jogo continuado do ultimo salvamento."
 
 
 func _connect_client() -> void:
@@ -513,6 +526,7 @@ func _physics_process(delta: float) -> void:
 				_send_snapshot()
 	_update_display(delta)
 	_sync_floor()
+	_step_autosave(delta)
 	_run_test_hooks(delta)
 	var local := _local()
 	var zone := _local_zone()
@@ -785,7 +799,8 @@ func _screen_to_world(screen_position: Vector2) -> Vector2:
 
 # ---------------------------------------------------------------- salvamento
 
-func _save_world(path: String = SAVE_PATH) -> bool:
+func _save_world(path: String = "") -> bool:
+	path = SaveSlot.path if path.is_empty() else path
 	if _sim == null:
 		_status = "Somente o host salva o mundo."
 		return false
@@ -797,7 +812,8 @@ func _save_world(path: String = SAVE_PATH) -> bool:
 	return true
 
 
-func _load_world(path: String = SAVE_PATH) -> bool:
+func _load_world(path: String = "") -> bool:
+	path = SaveSlot.path if path.is_empty() else path
 	if _sim == null:
 		_status = "Somente o host carrega o mundo."
 		return false
@@ -821,6 +837,46 @@ func _load_world(path: String = SAVE_PATH) -> bool:
 	if _mode == &"host" and not multiplayer.get_peers().is_empty():
 		_send_snapshot()
 	return true
+
+
+func autosave_enabled() -> bool:
+	if _sim == null or _mode == &"client":
+		return false
+	return autosave_forced or (DisplayServer.get_name() != "headless" and _test_duration <= 0.0 and not _autopilot)
+
+
+## Chamado a cada quadro: grava ao trocar de zona ou andar e a cada AUTOSAVE_INTERVAL.
+func _step_autosave(delta: float) -> void:
+	_autosave_flash = maxf(0.0, _autosave_flash - delta)
+	if _autosave_label != null:
+		_autosave_label.visible = _autosave_flash > 0.0
+		_autosave_label.modulate.a = clampf(_autosave_flash, 0.0, 1.0)
+	if not autosave_enabled():
+		return
+	var local := (_view.get("players", {}) as Dictionary).get(_local_peer, {}) as Dictionary
+	var key := "%s:%d" % [local.get("zone", ""), int((_view.get("floor", {}) as Dictionary).get("number", 0))]
+	_autosave_timer += delta
+	if _autosave_key.is_empty():
+		_autosave_key = key
+	elif key != _autosave_key or _autosave_timer >= AUTOSAVE_INTERVAL:
+		_autosave_key = key
+		autosave()
+
+
+## Grava sem trocar a mensagem de status do jogador; mostra "Salvo" no canto por 2 s.
+func autosave() -> bool:
+	var previous := _status
+	var saved := _save_world()
+	if saved:
+		_status = previous
+		_autosave_flash = 2.0
+	_autosave_timer = 0.0
+	return saved
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_WM_CLOSE_REQUEST and autosave_enabled():
+		_save_world()
 
 
 # ---------------------------------------------------------------- testes automatizados
@@ -1874,6 +1930,20 @@ func _build_interface() -> void:
 	layer.name = "Interface"
 	layer.layer = 2
 	add_child(layer)
+	_autosave_label = Label.new()
+	_autosave_label.name = "AutosaveLabel"
+	_autosave_label.text = "Jogo salvo"
+	_autosave_label.add_theme_color_override("font_color", Color("e8b84a"))
+	_autosave_label.add_theme_color_override("font_outline_color", Color("12111a"))
+	_autosave_label.add_theme_constant_override("outline_size", 4)
+	_autosave_label.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
+	_autosave_label.offset_left = 20.0
+	_autosave_label.offset_top = -44.0
+	_autosave_label.offset_right = 220.0
+	_autosave_label.offset_bottom = -20.0
+	_autosave_label.visible = false
+	_autosave_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	layer.add_child(_autosave_label)
 	var bar := Panel.new()
 	bar.name = "TopBar"
 	bar.position = Vector2(18.0, 18.0)
