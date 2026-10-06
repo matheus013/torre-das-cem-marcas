@@ -13,6 +13,12 @@ func _run() -> void:
 	sim.add_player(1, &"eloa")
 	sim.unlock_all_gems(1, true)
 	sim.set_gem_slot(1, 0, "pulso_cicatriz")
+	# Afixos do equipamento inicial (decisão 583) também escalam a gema; aqui só os atributos contam.
+	for item: EquipmentItemInstance in (sim._gear(1)["inventory"] as ItemInventory).items.values():
+		item.affixes.clear()
+	for item: EquipmentItemInstance in (sim._gear(1)["equipment"] as EquipmentLoadout)._all_items():
+		item.affixes.clear()
+	sim._passive_cache.clear()
 	var build := sim.character_build(1)
 	for stat in CharacterBuild.PRIMARY_STATS:
 		build.base_stats[stat] = 0.0

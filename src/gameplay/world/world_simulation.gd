@@ -21,6 +21,7 @@ const MilestoneEffectsScript := preload("res://src/gameplay/progression/mileston
 const SkillGeometryScript := preload("res://src/gameplay/skills/skill_geometry.gd")
 const LootDifficultyScript := preload("res://src/gameplay/loot/loot_difficulty.gd")
 const ItemPassivesScript := preload("res://src/gameplay/items/item_passives.gd")
+const ItemAffixesScript := preload("res://src/gameplay/items/item_affixes.gd")
 
 const MAX_PLAYERS := 4
 const PLAYER_RADIUS := 14.0
@@ -43,7 +44,12 @@ const VOLLEY_ELEMENTS := [
 	{"id": "lightning", "vulnerable": 0.1, "vulnerable_duration": 2.0},
 ]
 ## Chance de arma única por baixa, sempre de uma gema que quem abateu está usando.
-const UNIQUE_WEAPON_CHANCE := {"common": 0.01, "elite": 0.05, "boss": 1.0, "raid": 1.0}
+## Armas únicas são lendárias e decisivas (decisão 580): raras de verdade (decisão 585). Antes
+## 1%/5%/100% faziam cair mais lendários que raros (1 a 2 por 100 abates).
+const UNIQUE_WEAPON_CHANCE := {"common": 0.0005, "elite": 0.005, "boss": 0.1, "raid": 0.25}
+## Gema de chefe (decisão 585): cada vitória dá uma gema do conjunto ou nenhuma; depois de uma
+## vitória sem gema, a próxima garante uma (o chefe só volta após BOSS_COOLDOWN).
+const BOSS_GEM_CHANCE := 0.5
 ## Tetos de redução de recarga (60%) e de área (+100%): acima disso as gemas viram spam contínuo.
 const COOLDOWN_RECOVERY_CAP := 2.5
 const AREA_MULTIPLIER_CAP := 2.0
@@ -165,6 +171,9 @@ var threat: RefCounted
 
 var _loot_resolver: RefCounted = EnemyLootResolverScript.new()
 var _crit_random := RandomNumberGenerator.new()
+## Sorteio de afixos de equipamento (decisão 583), semeado pelo mundo para ser reproduzível.
+var _affix_random := RandomNumberGenerator.new()
+var _gem_random := RandomNumberGenerator.new()
 var _next_summon_sequence := 1
 var _events: Array[Dictionary] = []
 var _collections: Dictionary = {}
@@ -185,6 +194,8 @@ var _ground_sequence := 1
 
 func setup(seed: int = 7301) -> void:
 	encounter_seed = seed
+	_affix_random.seed = seed * 92821 + 583
+	_gem_random.seed = seed * 7727 + 585
 	_configure_directors()
 	_load_gems()
 	village_life = VillageLifeScript.new()
@@ -438,21 +449,32 @@ static func boss_gem_set(floor_number: int) -> Array[String]:
 	return result
 
 
-## Chefe vencido: cada jogador na arena recebe as gemas do conjunto que ainda não tinha.
+## Chefe vencido: cada jogador na arena sorteia no máximo uma gema do conjunto que ainda não tem
+## (BOSS_GEM_CHANCE); quem saiu sem gema na vitória anterior sobre esse chefe ganha uma garantida.
 func _grant_boss_gems(floor_number: int) -> void:
 	var gem_set := boss_gem_set(floor_number)
 	if gem_set.is_empty():
 		return
 	for member in _players_in_arena():
-		var names: Array[String] = []
-		for gem_id in gem_set:
-			if grant_gem(member, gem_id):
-				names.append(String(gem_definition(gem_id).get("name", gem_id)))
-		if names.is_empty():
+		var gems := _gem_state(member)
+		var missing := gem_set.filter(func(gem_id: String) -> bool: return not owns_gem(member, gem_id))
+		if gems.is_empty() or missing.is_empty():
 			continue
+		var misses := gems.get("boss_misses", {}) as Dictionary
+		var key := str(floor_number)
 		var state := player(member)
-		_vfx(state["zone"] as StringName, "label", [state["position"] as Vector2 + Vector2(0.0, -46.0), "+%d GEMAS" % names.size(), Color("f2d16a"), "levelup"])
-		_status(member, "Novas gemas: %s. Equipe em Aresta (SKILLS)." % ", ".join(names))
+		if int(misses.get(key, 0)) == 0 and _gem_random.randf() >= BOSS_GEM_CHANCE:
+			misses[key] = 1
+			gems["boss_misses"] = misses
+			_status(member, "O guardiao nao deixou gema desta vez. A proxima vitoria sobre ele garante uma.")
+			continue
+		misses.erase(key)
+		gems["boss_misses"] = misses
+		var gem_id := String(missing[_gem_random.randi_range(0, missing.size() - 1)])
+		grant_gem(member, gem_id)
+		var name := String(gem_definition(gem_id).get("name", gem_id))
+		_vfx(state["zone"] as StringName, "label", [state["position"] as Vector2 + Vector2(0.0, -46.0), "NOVA GEMA: %s" % name.to_upper(), Color("f2d16a"), "levelup"])
+		_status(member, "Nova gema: %s (%d de %d deste guardiao). Equipe em Aresta (SKILLS)." % [name, gem_set.size() - missing.size() + 1, gem_set.size()])
 
 
 func _gem_state(peer_id: int) -> Dictionary:
@@ -3168,7 +3190,7 @@ func _receive_item(peer_id: int, item_id: String, quantity: int, quality: String
 		state["carried_stone"] = int(state["carried_stone"]) + quantity
 	if _is_equipment(item_id):
 		for _copy in range(quantity):
-			_add_equipment_instance(state["character_id"] as StringName, item_id, quality)
+			_add_equipment_instance(state["character_id"] as StringName, item_id, quality, maxi(1, current_floor))
 		_status(peer_id, "%s recolhido." % item_display_name(item_id))
 	else:
 		_status(peer_id, "Saque recolhido. Pedra Regenerativa: %d" % int(state["carried_stone"]))
@@ -3349,7 +3371,7 @@ func max_breath(peer_id: int) -> float:
 
 # ---------------------------------------------------------------- equipamento
 
-func _add_equipment_instance(character_id: StringName, item_id: String, quality: String = "") -> StringName:
+func _add_equipment_instance(character_id: StringName, item_id: String, quality: String = "", item_level: int = 1) -> StringName:
 	var gear := character_gear.get(String(character_id), {}) as Dictionary
 	var definition := _find(_collection("items"), item_id)
 	if gear.is_empty() or definition.is_empty() or String(definition.get("slot", "none")) == "none":
@@ -3360,6 +3382,9 @@ func _add_equipment_instance(character_id: StringName, item_id: String, quality:
 	var item: EquipmentItemInstance = factory.call("instance_from_data", definition, instance_id, character_id)
 	if item != null and not quality.is_empty():
 		item.quality = StringName(quality)
+	if item != null:
+		item.item_level = clampi(item_level, 1, ItemAffixesScript.MAX_ITEM_LEVEL)
+		item.affixes = ItemAffixesScript.roll(ItemTier.key(item.tier), _affix_random, item.item_level)
 	if item == null or not (gear["inventory"] as ItemInventory).add(item):
 		return &""
 	return instance_id
@@ -3924,7 +3949,7 @@ func menu_model(peer_id: int) -> Dictionary:
 	var gear := _gear(peer_id)
 	var equipment: EquipmentLoadout = gear.get("equipment") as EquipmentLoadout
 	return {
-		"character_name": state.get("character_name", ""),
+		"character_name": state.get("character_name", ""), "character_id": String(state.get("character_id", "")),
 		"weapon_attack": weapon_attack_model(peer_id),
 		"auto_attack_supports": _auto_support_model(peer_id),
 		"level": build.level if build != null else 1,
@@ -3984,7 +4009,21 @@ func _equipment_tooltip(item: EquipmentItemInstance, peer_id: int) -> String:
 	var weapon := {}
 	if item.definition.slot == EquipmentItemDefinition.Slot.WEAPON:
 		weapon = WeaponCombat.resolve(weapon_type_for(peer_id, item), String(player(peer_id).get("character_id", "")), derived_stats(peer_id).get("effective_primaries", {}) as Dictionary, LootDifficultyScript.fabrication_factor(String(item.quality)))
-	return ContentDescriptions.item(_find(_collection("items"), String(item.definition.id)), ItemTier.label(item.tier), String(LootDifficultyScript.FABRICATION_LABELS.get(String(item.quality), "Regular")), weapon)
+	return ContentDescriptions.item(_find(_collection("items"), String(item.definition.id)), ItemTier.label(item.tier), String(LootDifficultyScript.FABRICATION_LABELS.get(String(item.quality), "Regular")), weapon, item.affixes, item.item_level, _stat_factor(item))
+
+
+## Fator real dos atributos-base da peça: fabricação x nível do item.
+func _stat_factor(item: EquipmentItemInstance) -> float:
+	return LootDifficultyScript.fabrication_factor(String(item.quality)) * ItemAffixesScript.level_factor(item.item_level)
+
+
+## Dica colorida do inventário (decisão 584), com a ação do clique.
+func _equipment_rich_tooltip(item: EquipmentItemInstance, peer_id: int, hint: String) -> String:
+	var weapon := {}
+	if item.definition.slot == EquipmentItemDefinition.Slot.WEAPON:
+		weapon = WeaponCombat.resolve(weapon_type_for(peer_id, item), String(player(peer_id).get("character_id", "")), derived_stats(peer_id).get("effective_primaries", {}) as Dictionary, LootDifficultyScript.fabrication_factor(String(item.quality)))
+	return ContentDescriptions.item_rich(item_data(String(item.definition.id)), ItemTier.key(item.tier), LayoutScript.slot_label(item.definition.slot),
+		String(LootDifficultyScript.FABRICATION_LABELS.get(String(item.quality), "Regular")), weapon, item.affixes, hint, item.item_level, _stat_factor(item))
 
 
 func _inventory_model(gear: Dictionary, peer_id: int) -> Array[Dictionary]:
@@ -4000,7 +4039,8 @@ func _inventory_model(gear: Dictionary, peer_id: int) -> Array[Dictionary]:
 			"sell_price": item_sell_price(item),
 			"fabrication": String(LootDifficultyScript.FABRICATION_LABELS.get(String(item.quality), "Regular")),
 			"slot_id": int(item.definition.slot), "score": _item_score(item),
-			"tooltip": _equipment_tooltip(item, peer_id),
+			"tooltip": _equipment_tooltip(item, peer_id), "affix_count": item.affixes.size(),
+			"rich_tooltip": _equipment_rich_tooltip(item, peer_id, "Clique: equipar  |  Botao direito: vender por %d P" % item_sell_price(item)),
 		})
 	result.sort_custom(func(left: Dictionary, right: Dictionary) -> bool: return String(left["name"]) < String(right["name"]))
 	return result
@@ -4023,6 +4063,7 @@ func _slots_model(equipment: EquipmentLoadout, peer_id: int) -> Array[Dictionary
 			"tier_id": ItemTier.key(item.tier) if item != null else "",
 			"occupied": item != null, "slot_id": int(slot), "index": index, "score": _item_score(item) if item != null else -1.0,
 			"tooltip": _equipment_tooltip(item, peer_id) if item != null else "",
+			"rich_tooltip": _equipment_rich_tooltip(item, peer_id, "Clique: desequipar") if item != null else "",
 		})
 	return result
 
@@ -4199,6 +4240,11 @@ func _restore_gems(raw: Variant, version: int = SAVE_VERSION) -> void:
 				var current := state["auto_supports"] as Array
 				if not support.is_empty() and not used and not current.has(id) and current.size() < 2 and _used_capacity(current) + int(support.get("drain", 0)) <= AutoSupports.CAPACITY:
 					current.append(String(id))
+		var saved_misses: Variant = saved.get("boss_misses", {})
+		if saved_misses is Dictionary:
+			for floor_key: Variant in saved_misses:
+				if int(saved_misses[floor_key]) > 0:
+					(state.get_or_add("boss_misses", {}) as Dictionary)[str(int(String(floor_key)))] = 1
 		character_gems[String(key)] = state
 
 
@@ -4248,6 +4294,9 @@ func _restore_gear(data: Dictionary, saved_character: StringName) -> void:
 			item.tier = int(entry.get("tier", int(item.tier))) as ItemTier.Value
 			item.quality = StringName(String(entry.get("quality", "common")))
 			item.integrity = clampf(float(entry.get("integrity", 1.0)), 0.0, 1.0)
+			item.item_level = clampi(int(entry.get("item_level", 1)), 1, ItemAffixesScript.MAX_ITEM_LEVEL)
+			# Peças de saves anteriores aos afixos (decisão 583) sorteiam os seus ao carregar.
+			item.affixes = ItemAffixesScript.sanitize(entry["affixes"]) if entry.has("affixes") else ItemAffixesScript.roll(ItemTier.key(item.tier), _affix_random, item.item_level)
 			if not (gear["inventory"] as ItemInventory).add(item):
 				continue
 			if String(entry.get("location", "inventory")) == "equipped":
@@ -4353,7 +4402,7 @@ func _item_snapshot(item: EquipmentItemInstance, location: String, slot: int, in
 	return {
 		"instance_id": String(item.instance_id), "definition_id": String(item.definition.id),
 		"tier": int(item.tier), "quality": String(item.quality), "integrity": item.integrity,
-		"location": location, "slot": slot, "index": index,
+		"location": location, "slot": slot, "index": index, "affixes": item.affixes.duplicate(true), "item_level": item.item_level,
 	}
 
 

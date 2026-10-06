@@ -26,6 +26,7 @@ const MOD_KEYS: Array[String] = [
 	"power_lightning_mult", "power_acid_mult", "power_nature_mult", "power_dark_mult",
 	"power_holy_mult", "power_earth_mult", "power_arcane_mult", "power_summon_mult",
 ]
+const ItemAffixesScript := preload("res://src/gameplay/items/item_affixes.gd")
 const BURN_TICK := 0.5
 ## Chefes sentem metade do congelamento: controle total trivializaria as lutas.
 const BOSS_CONTROL := 0.5
@@ -47,6 +48,12 @@ static func active(sim: RefCounted, peer_id: int) -> Array[Dictionary]:
 	var cached := cache.get(peer_id, {}) as Dictionary
 	if String(cached.get("key", "-")) == key:
 		return cached["passives"] as Array[Dictionary]
+	# Afixos de modificador (decisão 583) entram junto, no mesmo cache por peças equipadas.
+	var affix_mods := {}
+	for item in items:
+		var mods := ItemAffixesScript.mods(item.affixes)
+		for mod_key: String in mods:
+			affix_mods[mod_key] = float(affix_mods.get(mod_key, 1.0)) * float(mods[mod_key]) if mod_key.ends_with("_mult") else float(affix_mods.get(mod_key, 0.0)) + float(mods[mod_key])
 	for item in items:
 		var data := sim.call("item_data", String(item.definition.id)) as Dictionary
 		var passive := data.get("passive", {}) as Dictionary
@@ -56,7 +63,7 @@ static func active(sim: RefCounted, peer_id: int) -> Array[Dictionary]:
 		entry["item_id"] = String(item.definition.id)
 		entry["unique_gem"] = String(data.get("unique_gem", ""))
 		result.append(entry)
-	cache[peer_id] = {"key": key, "passives": result}
+	cache[peer_id] = {"key": key, "passives": result, "affix_mods": affix_mods}
 	return result
 
 
@@ -64,7 +71,11 @@ static func active(sim: RefCounted, peer_id: int) -> Array[Dictionary]:
 static func modifier(sim: RefCounted, peer_id: int, key: String) -> float:
 	var multiply := key.ends_with("_mult")
 	var value := 1.0 if multiply else 0.0
-	for passive in active(sim, peer_id):
+	var passives := active(sim, peer_id)
+	var affix_mods := ((sim.get("_passive_cache") as Dictionary).get(peer_id, {}) as Dictionary).get("affix_mods", {}) as Dictionary
+	if affix_mods.has(key):
+		value = value * float(affix_mods[key]) if multiply else value + float(affix_mods[key])
+	for passive in passives:
 		var mods := passive.get("mods", {}) as Dictionary
 		if mods.has(key):
 			value = value * float(mods[key]) if multiply else value + float(mods[key])

@@ -31,6 +31,8 @@ var _content: VBoxContainer
 var _title: Label
 var _tab_buttons: Dictionary = {}
 var _scroll: ScrollContainer
+var _sell_dialog: ConfirmationDialog
+var _pending_sell: StringName = &""
 
 
 func _ready() -> void:
@@ -142,90 +144,164 @@ const LOOT_FILTER_OPTIONS := [["common", "Recolher tudo"], ["uncommon", "Incomum
 const AUTO_SELL_OPTIONS := [["", "Desligada"], ["uncommon", "Vender comuns"], ["rare", "Abaixo de raro"], ["epic", "Abaixo de epico"]]
 
 
+## Inventário no estilo de Hero Siege (decisão 584): boneco da personagem com os encaixes em volta,
+## mochila em grade de ícones com a cor da raridade e saque como ícones com quantidade.
+## Clique na mochila equipa; botão direito vende (com confirmação); clique no boneco desequipa.
+const DOLL_SIZE := Vector2(380.0, 420.0)
+const DOLL_SLOTS := {
+	"AMULETO": Vector2(164, 0), "ARMA": Vector2(20, 64), "OFFHAND": Vector2(308, 64),
+	"ARMADURA": Vector2(20, 126), "CALCA": Vector2(308, 126), "LUVAS": Vector2(20, 188), "BOTAS": Vector2(308, 188),
+}
+const BACKPACK_COLUMNS := 7
+const BACKPACK_MIN_CELLS := 42
+
+
 func _build_inventory() -> void:
-	_section("BOLSA", "%d P" % int(_model.get("silver", 0)))
+	var top := HBoxContainer.new()
+	top.add_theme_constant_override("separation", 18)
+	_content.add_child(top)
+	var left := VBoxContainer.new()
+	top.add_child(left)
+	left.add_child(_header_label("EQUIPAMENTO", "%d / 21" % int(_model.get("equipped_count", 0))))
+	left.add_child(_build_doll())
+	var right := VBoxContainer.new()
+	right.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	top.add_child(right)
+	var available: Array = _model.get("inventory_equipment", []) as Array
+	right.add_child(_header_label("MOCHILA", "%d pecas  |  %d P" % [available.size(), int(_model.get("silver", 0))]))
+	var grid := GridContainer.new()
+	grid.name = "Backpack"
+	grid.columns = BACKPACK_COLUMNS
+	grid.add_theme_constant_override("h_separation", 4)
+	grid.add_theme_constant_override("v_separation", 4)
+	right.add_child(grid)
+	var cells := maxi(BACKPACK_MIN_CELLS, int(ceil(available.size() / float(BACKPACK_COLUMNS))) * BACKPACK_COLUMNS)
+	for index in range(cells):
+		var cell := ItemCell.new()
+		grid.add_child(cell)
+		if index >= available.size():
+			continue
+		var entry := available[index] as Dictionary
+		cell.setup(item_icon(String(entry.get("item_id", ""))), String(entry.get("tier_id", "common")), 0, "", int(entry.get("affix_count", 0)))
+		cell.name = "Item_%s" % String(entry.get("instance_id", ""))
+		DescriptionHover.attach(cell, String(entry.get("rich_tooltip", entry.get("tooltip", ""))))
+		var instance_id := StringName(String(entry.get("instance_id", "")))
+		cell.pressed.connect(func() -> void: equip_requested.emit(instance_id))
+		cell.secondary_pressed.connect(_confirm_sell.bind(entry))
 	var filters := HBoxContainer.new()
 	filters.add_theme_constant_override("separation", 12)
-	_content.add_child(filters)
+	right.add_child(filters)
 	_add_choice(filters, "Filtro de saque", LOOT_FILTER_OPTIONS, String(_model.get("loot_filter", "common")), func(tier: String) -> void: loot_filter_requested.emit(tier),
 		"Equipamentos abaixo desta raridade ficam no chao, apagados. Materiais sempre sao recolhidos.")
 	_add_choice(filters, "Autovenda", AUTO_SELL_OPTIONS, String(_model.get("auto_sell", "")), func(tier: String) -> void: auto_sell_requested.emit(tier),
 		"Ao voltar a vila, vende as pecas do inventario abaixo desta raridade. Pecas equipadas e armas unicas nunca sao vendidas.")
-	_section("CARGA DA EXPEDICAO", "%d tipos carregados" % (_model.get("carried_loot", {}) as Dictionary).size())
+	_content.add_child(_header_label("CARGA DA EXPEDICAO", "%d tipos" % (_model.get("carried_loot", {}) as Dictionary).size()))
 	_loot_rows(_model.get("carried_loot", {}) as Dictionary, "Nenhum saque carregado")
-	_section("ARMAZEM DA VILA", "%d tipos armazenados" % (_model.get("banked_loot", {}) as Dictionary).size())
+	_content.add_child(_header_label("ARMAZEM DA VILA", "%d tipos" % (_model.get("banked_loot", {}) as Dictionary).size()))
 	_loot_rows(_model.get("banked_loot", {}) as Dictionary, "Armazem vazio")
-	_section("EQUIPAMENTOS DISPONIVEIS", "%d no inventario" % (_model.get("inventory_equipment", []) as Array).size())
-	var available: Array = _model.get("inventory_equipment", []) as Array
-	if available.is_empty():
-		_add_text("Nenhum equipamento disponivel", MUTED)
-	for entry: Dictionary in available:
-		var line := HBoxContainer.new()
-		line.add_theme_constant_override("separation", 6)
-		_content.add_child(line)
-		var equip_button := Button.new()
-		equip_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		equip_button.text = "%s   |   %s   |   %s   |   %s" % [String(entry.get("name", "")), String(entry.get("tier", "")).to_upper(), String(entry.get("fabrication", "Regular")), String(entry.get("slot", ""))]
-		equip_button.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		equip_button.custom_minimum_size.y = 34.0
-		_set_item_icon(equip_button, String(entry.get("item_id", "")))
-		_tint_by_tier(equip_button, String(entry.get("tier_id", "common")))
-		DescriptionHover.attach(equip_button, String(entry.get("tooltip", "")))
-		var instance_id := StringName(String(entry.get("instance_id", "")))
-		equip_button.pressed.connect(func() -> void: equip_requested.emit(instance_id))
-		line.add_child(equip_button)
-		var sell_button := Button.new()
-		sell_button.text = "Vender %d P" % int(entry.get("sell_price", 0))
-		sell_button.custom_minimum_size = Vector2(112.0, 34.0)
-		sell_button.add_theme_color_override("font_color", GOLD)
-		sell_button.pressed.connect(func() -> void: sell_requested.emit(instance_id))
-		line.add_child(sell_button)
-	_section("EQUIPAMENTO", "%d / 21 ocupados" % int(_model.get("equipped_count", 0)))
-	var slots: Array = _model.get("equipment_slots", []) as Array
-	var grid := GridContainer.new()
-	grid.columns = 3
-	grid.add_theme_constant_override("h_separation", 8)
-	grid.add_theme_constant_override("v_separation", 6)
-	_content.add_child(grid)
-	for slot: Dictionary in slots:
-		var row := Button.new()
-		row.text = "%s   %s" % [String(slot.get("slot", "")), String(slot.get("item", "VAZIO"))]
-		row.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		row.custom_minimum_size = Vector2(260.0, 32.0)
-		_set_item_icon(row, String(slot.get("item_id", "")))
-		if bool(slot.get("occupied", false)):
-			_tint_by_tier(row, String(slot.get("tier_id", "common")))
-		row.disabled = not bool(slot.get("occupied", false))
-		if not row.disabled:
-			var slot_id := int(slot.get("slot_id", -1))
-			var slot_index := int(slot.get("index", 0))
-			DescriptionHover.attach(row, String(slot.get("tooltip", "")))
-			row.pressed.connect(func() -> void: unequip_requested.emit(slot_id, slot_index))
-		grid.add_child(row)
+
+
+## Boneco: retrato ampliado no centro, sete encaixes em volta e anéis e relíquias embaixo.
+func _build_doll() -> Control:
+	var doll := Control.new()
+	doll.name = "Doll"
+	doll.custom_minimum_size = DOLL_SIZE
+	var backdrop := Panel.new()
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color("16151c")
+	style.border_color = Color("3a3542")
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(6)
+	backdrop.add_theme_stylebox_override("panel", style)
+	backdrop.position = Vector2(84, 56)
+	backdrop.size = Vector2(212, 186)
+	doll.add_child(backdrop)
+	var portrait := TextureRect.new()
+	portrait.texture = SpriteLibraryScript.texture("characters/" + String(_model.get("character_id", "")))
+	portrait.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	portrait.position = Vector2(110, 64)
+	portrait.size = Vector2(160, 170)
+	portrait.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	doll.add_child(portrait)
+	var rings := 0
+	var relics := 0
+	for slot: Dictionary in _model.get("equipment_slots", []) as Array:
+		var label := String(slot.get("slot", ""))
+		var position := Vector2.ZERO
+		var caption := label
+		if DOLL_SLOTS.has(label):
+			position = DOLL_SLOTS[label] as Vector2
+		elif label.begins_with("ANEL"):
+			position = Vector2(50 + (rings % 5) * 56, 252 + (rings / 5) * 56)
+			caption = "ANEL"
+			rings += 1
+		else:
+			position = Vector2(78 + relics * 56, 364)
+			caption = "RELIQ."
+			relics += 1
+		var cell := ItemCell.new()
+		cell.name = "Slot_%s" % label.replace(" ", "_")
+		cell.position = position
+		doll.add_child(cell)
+		if not bool(slot.get("occupied", false)):
+			cell.setup(null, "", 0, caption)
+			continue
+		cell.setup(item_icon(String(slot.get("item_id", ""))), String(slot.get("tier_id", "common")))
+		DescriptionHover.attach(cell, String(slot.get("rich_tooltip", slot.get("tooltip", ""))))
+		var slot_id := int(slot.get("slot_id", -1))
+		var slot_index := int(slot.get("index", 0))
+		cell.pressed.connect(func() -> void: unequip_requested.emit(slot_id, slot_index))
+	return doll
+
+
+func _header_label(title: String, detail: String) -> Control:
+	var row := HBoxContainer.new()
+	var label := Label.new()
+	label.text = title
+	label.add_theme_color_override("font_color", GOLD)
+	label.add_theme_font_size_override("font_size", 15)
+	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(label)
+	var info := Label.new()
+	info.text = detail
+	info.add_theme_color_override("font_color", MUTED)
+	row.add_child(info)
+	return row
+
+
+## Botão direito na mochila: vender pede confirmação, para um clique errado não custar uma peça boa.
+func _confirm_sell(entry: Dictionary) -> void:
+	if _sell_dialog == null:
+		_sell_dialog = ConfirmationDialog.new()
+		_sell_dialog.name = "SellDialog"
+		_sell_dialog.title = "Vender"
+		_sell_dialog.ok_button_text = "Vender"
+		_sell_dialog.cancel_button_text = "Manter"
+		_sell_dialog.confirmed.connect(func() -> void: sell_requested.emit(_pending_sell))
+		add_child(_sell_dialog)
+	_pending_sell = StringName(String(entry.get("instance_id", "")))
+	_sell_dialog.dialog_text = "Vender %s (%s) por %d P?" % [String(entry.get("name", "")), String(entry.get("tier", "")), int(entry.get("sell_price", 0))]
+	_sell_dialog.popup_centered()
 
 
 func _loot_rows(loot: Dictionary, empty_text: String) -> void:
 	if loot.is_empty():
 		_add_text(empty_text, MUTED)
 		return
+	var grid := GridContainer.new()
+	grid.columns = 15
+	grid.add_theme_constant_override("h_separation", 4)
+	grid.add_theme_constant_override("v_separation", 4)
+	_content.add_child(grid)
 	var ids := loot.keys()
 	ids.sort()
 	for item_id: Variant in ids:
-		var line := HBoxContainer.new()
-		line.add_theme_constant_override("separation", 8)
-		var icon := TextureRect.new()
-		icon.texture = item_icon(String(item_id))
-		icon.custom_minimum_size = Vector2(24.0, 24.0)
-		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		line.add_child(icon)
-		var label := Label.new()
-		label.text = "%s   x%d" % [_friendly(String(item_id)), int(loot[item_id])]
-		label.add_theme_color_override("font_color", ItemTier.color(String((_model.get("item_tiers", {}) as Dictionary).get(String(item_id), "common"))))
-		label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		line.add_child(label)
-		_content.add_child(line)
-		DescriptionHover.attach(label, String((_model.get("item_tooltips", {}) as Dictionary).get(String(item_id), "Item de expedicao.")))
+		var tier := String((_model.get("item_tiers", {}) as Dictionary).get(String(item_id), "common"))
+		var cell := ItemCell.new().setup(item_icon(String(item_id)), tier, int(loot[item_id]))
+		grid.add_child(cell)
+		DescriptionHover.attach(cell, "%s  x%d\n%s" % [_friendly(String(item_id)), int(loot[item_id]), String((_model.get("item_tooltips", {}) as Dictionary).get(String(item_id), "Item de expedicao."))])
 
 
 func _build_character() -> void:
@@ -629,21 +705,6 @@ static func item_icon(item_id: String) -> Texture2D:
 
 
 ## Texto do botão na cor da raridade, mantida também ao passar o mouse e ao focar.
-func _tint_by_tier(button: Button, tier_id: String) -> void:
-	var color := ItemTier.color(tier_id)
-	for state in ["font_color", "font_hover_color", "font_focus_color", "font_pressed_color"]:
-		button.add_theme_color_override(state, color)
-
-
-func _set_item_icon(button: Button, item_id: String) -> void:
-	var texture := item_icon(item_id)
-	if texture == null:
-		return
-	button.icon = texture
-	button.expand_icon = true
-	button.add_theme_constant_override("icon_max_width", 26)
-
-
 func _add_text(value: String, color: Color) -> void:
 	var label := Label.new()
 	label.text = value

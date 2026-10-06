@@ -67,7 +67,8 @@ func _run() -> void:
 	if sim.set_gem_slot(1, 1, "bola_de_fogo"):
 		return _fail("A gem the character does not own cannot be slotted")
 
-	# Chefe do andar 4: quem está na arena recebe o conjunto (Eloa já tinha o Elo Residual).
+	# Chefe do andar 4 (decisão 585): cada vitória dá uma gema do conjunto ou nenhuma; depois de
+	# uma vitória sem gema, a próxima garante. Eloa já tinha o Elo Residual.
 	sim.set("deepest_floor", 4)
 	sim.set("tower_start_floor", 4)
 	sim.enter_tower(1)
@@ -77,15 +78,33 @@ func _run() -> void:
 			boss_index = index
 	if boss_index < 0:
 		return _fail("Floor 4 must spawn its boss")
-	sim.damage_enemy(1, boss_index, 1.0e9)
 	var owned := sim._gem_state(1)["gems"] as Dictionary
+	sim.damage_enemy(1, boss_index, 1.0e9)
+	if owned.size() > 2:
+		return _fail("A boss victory grants at most one gem, owned %d" % owned.size())
+	var last := owned.size()
+	var empty_streak := 1 if last == 1 else 0
+	var victories := 1
+	while last < 6 and victories < 40:
+		sim._grant_boss_gems(4)
+		victories += 1
+		var gained := owned.size() - last
+		if gained > 1:
+			return _fail("A boss victory grants at most one gem")
+		empty_streak = empty_streak + 1 if gained == 0 else 0
+		if empty_streak > 1:
+			return _fail("After a victory without gem the next one must grant one")
+		last = owned.size()
 	for gem_id in Simulation.boss_gem_set(4):
 		if not owned.has(gem_id):
-			return _fail("Boss of floor 4 must grant %s" % gem_id)
-	if owned.size() != 6 or sim._gem_state(1)["slots"] != ["elo_residual", "agulha_lastro", "passo_vetorial", "estilhacos_lunares"]:
-		return _fail("New gems fill the empty slots in order, got %s" % [sim._gem_state(1)["slots"]])
+			return _fail("Repeated victories must complete the set of floor 4: missing %s" % gem_id)
+	if victories > 11:
+		return _fail("Completing 5 gems took %d victories; pity must cap it at 10" % victories)
 	if owned.has("bola_de_fogo"):
 		return _fail("Gems of later bosses stay locked")
+	var slots := sim._gem_state(1)["slots"] as Array
+	if slots[0] != "elo_residual" or slots.has(""):
+		return _fail("New gems fill the empty slots, got %s" % [slots])
 
 	if int(progress["level"]) != 1:
 		return _fail("Starter gem must still be level 1 before enough use")
@@ -121,7 +140,7 @@ func _run() -> void:
 	if not restored.load_data(saved, 1):
 		return _fail("Save with owned gems must load")
 	var restored_state := restored._gem_state(1)
-	if restored_state["slots"] != ["elo_residual", "agulha_lastro", "passo_vetorial", ""] or (restored_state["gems"] as Dictionary).size() != 6 or int(restored_state["gems"]["elo_residual"]["level"]) != 4:
+	if restored_state["slots"] != (sim._gem_state(1)["slots"] as Array) or (restored_state["gems"] as Dictionary).size() != 6 or int(restored_state["gems"]["elo_residual"]["level"]) != 4:
 		return _fail("Owned gems, levels and empty slots must survive save/load, got %s" % [restored_state["slots"]])
 
 	# Save antigo (versão 7, todas as gemas): fica com a inicial, as gemas com progresso e os

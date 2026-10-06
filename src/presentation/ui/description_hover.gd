@@ -19,6 +19,17 @@ func _make_custom_tooltip(for_text: String) -> Object:
 	style.set_border_width_all(1)
 	style.set_content_margin_all(12)
 	panel.add_theme_stylebox_override("panel", style)
+	# Texto com BBCode (dicas de item do inventário) usa RichText: cores por raridade e afixo.
+	if for_text.contains("[color="):
+		var rich := RichTextLabel.new()
+		rich.bbcode_enabled = true
+		rich.fit_content = true
+		rich.scroll_active = false
+		rich.text = for_text
+		rich.custom_minimum_size.x = minf(320.0, maxf(120.0, get_viewport_rect().size.x - 48.0))
+		rich.add_theme_color_override("default_color", Color("f2e6c9"))
+		panel.add_child(rich)
+		return panel
 	var label := Label.new()
 	label.text = for_text
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART

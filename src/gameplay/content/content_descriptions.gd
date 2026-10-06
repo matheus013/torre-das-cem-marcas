@@ -1,6 +1,8 @@
 class_name ContentDescriptions
 extends RefCounted
 
+const ItemAffixesScript := preload("res://src/gameplay/items/item_affixes.gd")
+
 const ITEM_TEXT := {
 	"filamentos_de_forja":"Filamentos que canalizam energia arcana a distancia.",
 	"lanca_de_duas_rotas":"Haste longa que atravessa inimigos alinhados.",
@@ -45,10 +47,11 @@ const STAT_NAMES := {
 const FUNCTIONAL_STATS := ["health", "breath", "strength", "intelligence", "agility", "vitality", "wisdom", "fortune", "movement_speed", "attack_speed", "critical_chance", "cooldown_recovery", "area", "defense"]
 
 
-static func item(definition: Dictionary, tier: String, fabrication: String = "", weapon: Dictionary = {}) -> String:
+## `stat_factor` (fabricação x nível) mostra os atributos-base como valem de fato na peça.
+static func item(definition: Dictionary, tier: String, fabrication: String = "", weapon: Dictionary = {}, affixes: Array = [], item_level: int = 0, stat_factor: float = 1.0) -> String:
 	var id := String(definition.get("id", ""))
 	var tier_label := String({"common":"Comum", "uncommon":"Incomum", "rare":"Raro", "epic":"Epico", "legendary":"Lendario"}.get(tier, tier))
-	var lines := PackedStringArray([String(definition.get("name", id)), tier_label + (" | " + fabrication if not fabrication.is_empty() else "")])
+	var lines := PackedStringArray([String(definition.get("name", id)), tier_label + (" | " + fabrication if not fabrication.is_empty() else "") + (" | Nivel %d" % item_level if item_level > 0 else "")])
 	var fallback := "Material de coleta da regiao: %s." % String(definition["biome"]).replace("_", " ").capitalize() if definition.has("biome") else "Item de expedicao."
 	lines.append(String(definition.get("description", ITEM_TEXT.get(id.replace("couraça", "couraca"), fallback))))
 	if not weapon.is_empty():
@@ -61,13 +64,56 @@ static func item(definition: Dictionary, tier: String, fabrication: String = "",
 	var stats := definition.get("stats", {}) as Dictionary
 	for stat: String in stats:
 		var unit := "%" if stat in ["movement_speed", "attack_speed", "critical_chance", "cooldown_recovery", "area"] else ""
-		lines.append("%s: +%.1f%s%s" % [STAT_NAMES.get(stat, stat.replace("_", " ")), float(stats[stat]), unit, " (sem efeito no beta)" if stat not in FUNCTIONAL_STATS else ""])
+		lines.append("%s: +%.1f%s%s" % [STAT_NAMES.get(stat, stat.replace("_", " ")), float(stats[stat]) * stat_factor, unit, " (sem efeito no beta)" if stat not in FUNCTIONAL_STATS else ""])
+	for affix: Dictionary in affixes:
+		lines.append(ItemAffixesScript.describe(affix))
 	var passive := definition.get("passive", {}) as Dictionary
 	if not passive.is_empty():
 		lines.append("PASSIVA %s: %s" % [String(passive.get("name", "")).to_upper(), String(passive.get("description", ""))])
 	if not (definition.get("mechanics", []) as Array).is_empty():
 		lines.append("Efeitos especiais deste item: integracao pendente no beta.")
 	return "\n".join(lines)
+
+
+## Dica colorida do inventário, no estilo de Hero Siege (decisão 584): nome na cor da raridade,
+## tipo e fabricação, atributos-base, afixos em azul, passiva em laranja e ambientação no fim.
+static func item_rich(definition: Dictionary, tier_id: String, slot: String, fabrication: String, weapon: Dictionary, affixes: Array, hint: String = "", item_level: int = 1, stat_factor: float = 1.0) -> String:
+	var id := String(definition.get("id", ""))
+	var tier_color := ItemTier.color(tier_id).to_html(false)
+	var tier_label := String({"common":"Comum", "uncommon":"Incomum", "rare":"Raro", "epic":"Epico", "legendary":"Lendario"}.get(tier_id, tier_id))
+	var out := PackedStringArray()
+	out.append("[font_size=17][color=#%s][b]%s[/b][/color][/font_size]" % [tier_color, String(definition.get("name", id))])
+	var kind := "Arma unica" if not String(definition.get("unique_gem", "")).is_empty() else slot.capitalize()
+	out.append("[color=#%s]%s %s[/color][color=#8f7a6a]  |  %s  |  Nivel %d[/color]" % [tier_color, tier_label, kind, fabrication, item_level])
+	if not weapon.is_empty():
+		out.append("[color=#f2e6c9]Dano %.1f  |  Alcance %.0f  |  Intervalo %.2fs[/color]" % [float(weapon["damage"]), float(weapon["range"]), float(weapon["interval"])])
+		if float(weapon.get("guard", 0.0)) > 0.0 or float(weapon.get("life_steal", 0.0)) > 0.0:
+			out.append("[color=#f2e6c9]Guarda -%.0f%%  |  Roubo de Vida %.0f%%[/color]" % [float(weapon.get("guard", 0.0)) * 100.0, float(weapon.get("life_steal", 0.0)) * 100.0])
+	var stats := definition.get("stats", {}) as Dictionary
+	for stat: String in stats:
+		var unit := "%" if stat in ["movement_speed", "attack_speed", "critical_chance", "cooldown_recovery", "area"] else ""
+		out.append("[color=#f2e6c9]+%s%s %s[/color]" % [_number(float(stats[stat]) * stat_factor), unit, STAT_NAMES.get(stat, stat)])
+	if not affixes.is_empty():
+		out.append("")
+		for affix: Dictionary in affixes:
+			out.append("[color=#7fb0ff]%s[/color]" % ItemAffixesScript.describe(affix))
+	var passive := definition.get("passive", {}) as Dictionary
+	if not passive.is_empty():
+		out.append("")
+		out.append("[color=#f08a3c][b]%s[/b][/color]" % String(passive.get("name", "")).to_upper())
+		out.append("[color=#f0b07a]%s[/color]" % String(passive.get("description", "")))
+	var flavor := String(definition.get("description", ITEM_TEXT.get(id.replace("couraça", "couraca"), "")))
+	if not flavor.is_empty():
+		out.append("")
+		out.append("[i][color=#8f7a6a]%s[/color][/i]" % flavor)
+	if not hint.is_empty():
+		out.append("")
+		out.append("[color=#aaa59a]%s[/color]" % hint)
+	return "\n".join(out)
+
+
+static func _number(value: float) -> String:
+	return str(int(value)) if is_equal_approx(value, roundf(value)) else "%.1f" % value
 
 
 static func skill(model: Dictionary) -> String:

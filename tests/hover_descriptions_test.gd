@@ -48,7 +48,7 @@ func _run() -> void:
 	var regions := menu.find_children("*", "Control", true, false).filter(func(node: Node) -> bool: return node is DescriptionHover)
 	var region: DescriptionHover
 	for node in regions:
-		if node.get_parent() is Button and node.tooltip_text.begins_with(String(model["inventory_equipment"][0]["name"])):
+		if node.get_parent() is ItemCell and node.tooltip_text.contains(String(model["inventory_equipment"][0]["name"])):
 			region = node
 			break
 	if region == null:

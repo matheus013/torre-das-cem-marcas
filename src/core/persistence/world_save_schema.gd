@@ -3,6 +3,7 @@ extends RefCounted
 const ITEM := {
 	"definition_id": TYPE_STRING, "instance_id": TYPE_STRING, "location": TYPE_STRING,
 	"tier": TYPE_FLOAT, "quality": TYPE_STRING, "integrity": TYPE_FLOAT, "index": TYPE_FLOAT,
+	"affixes": [{"id": TYPE_STRING, "value": TYPE_FLOAT}], "item_level": TYPE_FLOAT,
 }
 const SHAPE := {
 	"version": TYPE_FLOAT, "zone": TYPE_STRING, "character_id": TYPE_STRING,
@@ -28,7 +29,7 @@ const SHAPE := {
 	"character_gear": {"*": {"items": [ITEM]}},
 	"equipment": {"instance_sequence": TYPE_FLOAT, "items": [ITEM]},
 	"character_gems": {"*": {
-		"auto_supports": [TYPE_STRING],
+		"auto_supports": [TYPE_STRING], "boss_misses": {"*": TYPE_FLOAT},
 		"slots": [TYPE_STRING], "supports": [[TYPE_STRING]],
 		"gems": {"*": {"level": TYPE_FLOAT, "experience": TYPE_FLOAT, "choices": {"*": TYPE_STRING}}},
 	}},

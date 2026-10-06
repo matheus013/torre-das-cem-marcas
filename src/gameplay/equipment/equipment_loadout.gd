@@ -2,6 +2,7 @@ class_name EquipmentLoadout
 extends RefCounted
 
 const LootDifficultyScript := preload("res://src/gameplay/loot/loot_difficulty.gd")
+const ItemAffixesScript := preload("res://src/gameplay/items/item_affixes.gd")
 
 const RING_SLOT_COUNT := 10
 const RELIC_SLOT_COUNT := 4
@@ -135,9 +136,12 @@ func equipped_count() -> int:
 func combined_stat_modifiers() -> Dictionary:
 	var result: Dictionary = {}
 	for item in _all_items():
-		var factor: float = LootDifficultyScript.fabrication_factor(String(item.quality))
+		var factor: float = LootDifficultyScript.fabrication_factor(String(item.quality)) * ItemAffixesScript.level_factor(item.item_level)
 		for stat: Variant in item.definition.stat_modifiers.keys():
 			result[stat] = float(result.get(stat, 0.0)) + float(item.definition.stat_modifiers[stat]) * factor
+		var affix_stats := ItemAffixesScript.stats(item.affixes)
+		for stat: Variant in affix_stats:
+			result[stat] = float(result.get(stat, 0.0)) + float(affix_stats[stat])
 	return result
 
 

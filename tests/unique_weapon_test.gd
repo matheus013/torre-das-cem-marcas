@@ -44,20 +44,23 @@ func _run() -> void:
 	if not String(card["unique_weapon"]).begins_with("Arma unica de Agulha de Lastro"):
 		return _fail("Gem card must announce its active unique weapon")
 
-	# Chefe garante uma arma única de uma das gemas de quem abateu.
+	# Chefe solta arma única com 10% (decisão 585), sempre de uma das gemas de quem abateu.
 	sim.enter_tower(1)
 	var boss := {"encounter_class": "boss", "rank_id": "alfa", "loot_table_id": "", "position": Vector2(400.0, 400.0), "loot_value": 1}
-	(sim.get("ground_items") as Array).clear()
-	sim._grant_loot(1, boss)
 	var slots := sim._gem_state(1)["slots"] as Array
-	var dropped := false
-	for item: Dictionary in sim.get("ground_items") as Array:
-		var item_id := String(item["item_id"])
-		if item_id.begins_with("unica_") and slots.has(item_id.trim_prefix("unica_")):
-			dropped = true
-	if not dropped:
-		return _fail("Boss must drop a unique weapon for one of the killer's gems")
-	print("UNIQUE_WEAPON_OK: %d unique weapons, gem-only buff, boss drop targeted" % uniques.size())
+	var drops := 0
+	for victory in range(200):
+		(sim.get("ground_items") as Array).clear()
+		sim._grant_loot(1, boss)
+		for item: Dictionary in sim.get("ground_items") as Array:
+			var item_id := String(item["item_id"])
+			if item_id.begins_with("unica_"):
+				if not slots.has(item_id.trim_prefix("unica_")):
+					return _fail("Boss unique weapon must match one of the killer's gems")
+				drops += 1
+	if drops < 8 or drops > 40:
+		return _fail("Boss unique weapon chance must be ~10%%, got %d in 200" % drops)
+	print("UNIQUE_WEAPON_OK: %d unique weapons, gem-only buff, boss drop ~10%% and targeted" % uniques.size())
 	quit(0)
 
 

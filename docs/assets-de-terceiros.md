@@ -44,8 +44,9 @@ Entram no jogo 49 animações (13 de combate, 23 de elementos e 13 folhas de 9 c
 - **Interface**: clique em qualquer botão (`UiSounds`, instalado pelo boot) e
   aviso sonoro de fôlego insuficiente.
 
-**Sem arte nos pacotes:** armaduras, luvas, botas, calças e manoplas. Esses
-itens aparecem sem ícone no menu e como losango colorido no chão.
+**Todos os itens têm ícone** (teste `tests/item_affixes_test.gd`). Armaduras, luvas, botas,
+calças, manoplas e amuletos vêm das folhas `boots.png`, `gloves.png` e `ammies.png` e do
+Idylwild's Armory, adicionados em 2026-10-06.
 `tools/art/make_skill_icons.gd` não sobrescreve ícones existentes (só com
 `--force`), então não apaga os novos.
 
@@ -87,12 +88,14 @@ fora do jogo. **Não torne o repositório público com estes assets.**
 | Séries Acid, Dark, Holy, Wood, Fire e Earth VFX | projéteis, impactos e explosões por elemento (`el_*`) | sem arquivo de licença nem autor no pacote; identificar a origem |
 | Animation Pack | gelo e energia (`el_ice_*`, `el_energy_*`) | sem arquivo de licença nem autor no pacote; identificar a origem |
 | RPG Effect All Free e Effect and FX Pixel All Free | folhas de 9 cores (`sh_*`) | sem arquivo de licença nem autor no pacote; identificar a origem |
+| Folhas `boots.png`, `gloves.png`, `ammies.png` (e `bracers`, `belts`, `potions` ainda sem uso) | botas, luvas, manoplas e amuletos em `items/` | arquivos soltos, sem autor nem licença; identificar a origem |
+| Idylwild's Armory | peitorais e calças em `items/` | sem arquivo de licença no pacote; confirmar na página do autor |
 
 Pendente para a Steam:
 
 - uma tela de créditos no jogo com, no mínimo, "Super Pixel Effects Gigapack -
   Will Tice / unTied Games", "TTRPG Legacy - Ddant1100" e "Pixel Combat - Helton Yan";
-- confirmar as licenças ausentes acima (Batareya, FantasyInventory, Helton Yan, séries de elementos, Animation Pack, RPG Effect e Effect and FX Pixel);
+- confirmar as licenças ausentes acima (Batareya, FantasyInventory, Helton Yan, séries de elementos, Animation Pack, RPG Effect, Effect and FX Pixel, folhas de botas/luvas/amuletos e Idylwild's Armory);
 - avaliar a cláusula da Ddant1100 sobre "IA Picture Generator": o jogo usa arte
   de personagens gerada por IA. A leitura provável é que a cláusula vete usar
   os anéis em geradores de imagem, não em jogos, mas vale confirmar com o autor.

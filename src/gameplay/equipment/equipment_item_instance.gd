@@ -8,6 +8,10 @@ var tier: ItemTier.Value = ItemTier.Value.COMMON
 var quality: StringName = &"common"
 var integrity := 1.0
 var provenance: Array[Dictionary] = []
+## Afixos sorteados na criação da peça (decisão 583): [{"id", "value"}].
+var affixes: Array[Dictionary] = []
+## Nível do item: andar onde a peça foi obtida (1 na vila). Escala atributos-base e afixos.
+var item_level := 1
 
 
 func _init(
