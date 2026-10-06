@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.3.0](https://github.com/matheus013/torre-das-cem-marcas/compare/v0.2.1...v0.3.0) (2026-10-05)
+
+### Novidades
+
+* melhora sprites das personagens e adiciona caminhada em quatro direcoes ([8b8828d](https://github.com/matheus013/torre-das-cem-marcas/commit/8b8828d930832ad983134a0f01486d2ca988c9e4))
+
 ## [0.2.1](https://github.com/matheus013/torre-das-cem-marcas/compare/v0.2.0...v0.2.1) (2026-10-05)
 
 ### Correcoes
