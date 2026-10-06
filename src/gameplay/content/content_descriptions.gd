@@ -62,6 +62,9 @@ static func item(definition: Dictionary, tier: String, fabrication: String = "",
 	for stat: String in stats:
 		var unit := "%" if stat in ["movement_speed", "attack_speed", "critical_chance", "cooldown_recovery", "area"] else ""
 		lines.append("%s: +%.1f%s%s" % [STAT_NAMES.get(stat, stat.replace("_", " ")), float(stats[stat]), unit, " (sem efeito no beta)" if stat not in FUNCTIONAL_STATS else ""])
+	var passive := definition.get("passive", {}) as Dictionary
+	if not passive.is_empty():
+		lines.append("PASSIVA %s: %s" % [String(passive.get("name", "")).to_upper(), String(passive.get("description", ""))])
 	if not (definition.get("mechanics", []) as Array).is_empty():
 		lines.append("Efeitos especiais deste item: integracao pendente no beta.")
 	return "\n".join(lines)

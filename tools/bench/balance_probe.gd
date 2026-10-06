@@ -17,6 +17,9 @@ const PLAN := {"eloa": ["intelligence", "wisdom"], "sena": ["strength", "agility
 
 
 var characters: Array[String] = ["eloa", "sena", "cira", "rui"]
+## Item lendário ou arma única equipado em todas as personagens (`--item=`; `starter` usa a arma
+## única da gema inicial de cada uma). A gema da arma única entra sempre no loadout.
+var item := ""
 ## Alvo atual por jogador e alvos abandonados: inimigo que não perde vida em 4 s está
 ## inalcançável (atrás de obstáculos, como no andar 9) e o piloto passa ao próximo.
 var _focus := {}
@@ -43,7 +46,9 @@ func _init() -> void:
 				floors.append(int(value))
 		elif arg.begins_with("--seeds="):
 			seeds = maxi(1, int(arg.trim_prefix("--seeds=")))
-	print("BALANCE party=%d characters=%s seeds=%d" % [party, ",".join(characters.slice(0, party)), seeds])
+		elif arg.begins_with("--item="):
+			item = arg.trim_prefix("--item=")
+	print("BALANCE party=%d characters=%s seeds=%d item=%s" % [party, ",".join(characters.slice(0, party)), seeds, item])
 	for number in floors:
 		for seed_index in range(seeds):
 			var result := _run(number, party, seed_index)
@@ -59,7 +64,11 @@ func _run(number: int, party: int, seed_index: int = 0) -> Dictionary:
 	for peer_id in range(1, party + 1):
 		sim.call("add_player", peer_id, StringName(characters[peer_id - 1]))
 		_grow(sim, peer_id, level, characters[peer_id - 1])
-		_equip_owned_gems(sim, peer_id, number, characters[peer_id - 1])
+		var item_id := ("unica_" + String(SimulationScript.STARTER_GEMS[StringName(characters[peer_id - 1])])) if item == "starter" else item
+		var forced := String((sim.call("item_data", item_id) as Dictionary).get("unique_gem", "")) if not item_id.is_empty() else ""
+		_equip_owned_gems(sim, peer_id, number, characters[peer_id - 1], forced)
+		if not item_id.is_empty():
+			sim.call("equip_item", peer_id, sim.call("_add_equipment_instance", StringName(characters[peer_id - 1]), item_id, "regular"))
 	sim.set("deepest_floor", number)
 	sim.set("tower_start_floor", number)
 	for peer_id in range(1, party + 1):
@@ -113,7 +122,7 @@ func _run(number: int, party: int, seed_index: int = 0) -> Dictionary:
 ## Gemas que a personagem teria (decisão 579): a inicial e os conjuntos dos chefes abaixo deste
 ## andar. Encaixa as quatro que um jogador escolheria: de dano, escalando com os atributos do
 ## plano da personagem, uma por mecânica; no empate, a mais recente.
-func _equip_owned_gems(sim: RefCounted, peer_id: int, floor_number: int, character: String) -> void:
+func _equip_owned_gems(sim: RefCounted, peer_id: int, floor_number: int, character: String, forced: String = "") -> void:
 	var owned: Array[String] = [String(SimulationScript.STARTER_GEMS[StringName(character)])]
 	var obtained := {owned[0]: 1}
 	for boss_floor in range(1, floor_number):
@@ -130,7 +139,7 @@ func _equip_owned_gems(sim: RefCounted, peer_id: int, floor_number: int, charact
 		for rank in range(scaling.size()):
 			if String(scaling[rank]) in plan:
 				score += 2.0 if rank == 0 else 1.0
-		scored.append({"id": owned[index], "score": score + index * 0.001})
+		scored.append({"id": owned[index], "score": score + index * 0.001 + (100.0 if owned[index] == forced else 0.0)})
 	scored.sort_custom(func(left: Dictionary, right: Dictionary) -> bool: return float(left["score"]) > float(right["score"]))
 	# Uma gema por mecânica, como um jogador montaria (quatro meteoros não fecham uma build).
 	var picked: Array[String] = []

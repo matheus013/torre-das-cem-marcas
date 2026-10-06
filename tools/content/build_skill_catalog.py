@@ -154,6 +154,22 @@ def new_supports():
     ]
 
 
+# Elemento de cada gema (decisao 580): define cor e animacao (SkillThemes) e os bonus de itens
+# por elemento. Gemas fisicas e a Saraivada, que alterna fogo, gelo e raio, ficam sem elemento.
+ELEMENTS = {
+    "dark": ["pulso_cicatriz", "prisao_gravitica", "dreno_em_rede", "fio_desintegrador", "cometa_sombrio"],
+    "fire": ["brasa_persistente", "mina_de_lastro", "semente_explosiva", "chuva_ferral", "bola_de_fogo"],
+    "ice": ["anel_de_geada", "sopro_criogenico", "satelites_de_geada", "cometa_de_vidro", "esfera_de_gelo"],
+    "lightning": ["elo_residual", "arco_voltaico", "trovao_descendente"],
+    "acid": ["pantano_acido", "bolha_corrosiva"],
+    "holy": ["circulo_de_reparo", "enxame_luminar", "raio_prismatico", "pilar_sagrado"],
+    "nature": ["semeadura_vital", "abrigo_de_escora", "raizes_presas"],
+    "earth": ["muralha_refeita", "ruptura_sismica", "casca_reativa", "guardiao_de_lastro", "molde_vigilante"],
+    "arcane": ["estilhacos_lunares", "orbe_de_ruptura", "sentinela_ferral"],
+}
+GEM_ELEMENT = {gem: element for element, ids in ELEMENTS.items() for gem in ids}
+
+
 def update_existing(gems, supports):
     descriptions = {
         "agulha_lastro": "Projetil de precisao que acerta no destino da mira.",
@@ -257,6 +273,8 @@ def main():
     supports = [entry for entry in data["support_gems"] if entry["id"] not in new_support_ids]
     update_existing(base, supports)
     gems = base + additions
+    for gem in gems:
+        gem["element"] = GEM_ELEMENT.get(gem["id"], "")
     supports += support_additions
     summons = [entry for entry in data["summons"] if entry["id"] not in {v["id"] for v in new_summons()}] + new_summons()
     assert len(gems) == ACTIVE_COUNT and len(supports) == 40

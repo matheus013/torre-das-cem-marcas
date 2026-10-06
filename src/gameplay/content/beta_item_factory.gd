@@ -43,6 +43,9 @@ func definition_from_data(data: Dictionary) -> EquipmentItemDefinition:
 	if raw_mechanics is Array:
 		for mechanic: Variant in raw_mechanics:
 			definition.mechanic_changes.append(StringName(String(mechanic)))
+	# Passiva exclusiva (decisão 580) conta como a mudança mecânica do item.
+	if data.get("passive", {}) is Dictionary and not (data.get("passive", {}) as Dictionary).is_empty():
+		definition.mechanic_changes.append(StringName("passive:" + String(data.get("id", ""))))
 	return definition
 
 

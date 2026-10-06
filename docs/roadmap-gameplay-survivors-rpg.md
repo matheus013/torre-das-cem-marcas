@@ -109,6 +109,37 @@ Aceite: jogador identifica um item desejado, onde encontra e como ele muda sua
 build. Equipar/desequipar/reabrir nao duplica efeitos. Adiar sets, multiplos
 novos sockets, corrupcao e reroll amplo ate provar a economia reduzida.
 
+## G6: pos-jogo, dificuldades e itens divinos (backlog, pedido de 2026-10-06)
+
+Base pronta: decisao 580 (todo lendario e arma unica tem passiva exclusiva, forte o bastante
+para uma unica peca levar a personagem ate o fim da historia). Ainda nao implementado:
+
+- [ ] G6.1: cinco dificuldades da campanha. A 1 e a historia; as seguintes reescalam Vida, dano, populacao e tabelas de saque, com registro proprio de recordes e regra de desbloqueio (concluir a anterior). Definir se cada dificuldade e por mundo ou por personagem e como o co-op mistura dificuldades.
+- [ ] G6.2: armas unicas so caem da dificuldade 3 em diante. Hoje (beta, sem dificuldades) chefes garantem uma unica de uma gema equipada, elites tem 5% e comuns 1% (decisao 574); ao entrar G6.1, essa regra passa a valer so na 3+.
+- [ ] G6.3: itens divinos (nova raridade acima de lendario, cor e som proprios) so na dificuldade 5. Extremamente fortes: duas passivas, ou uma passiva que muda regras (ex.: gema sem recarga, todos os elementos ao mesmo tempo, Saraivada permanente). Definir quantidade, slots, fonte (chefes do pos-jogo, receitas) e regra de partilha no co-op.
+- [ ] G6.4: balancear as dificuldades 3 a 5 assumindo pelo menos um lendario ou unico equipado, com a sonda `tools/bench/balance_probe.gd --item=` como base.
+- [ ] G6.5: UI de colecao de lendarios, unicos e divinos (encontrados e faltantes, de onde vem cada um).
+
+Aceite: cada dificuldade tem saque e desafio distintos medidos pela sonda; um jogador
+sem lendarios conclui a historia e um jogador com um lendario sente que ele e essencial
+nas dificuldades 3 a 5.
+
+## G7: dia e noite, horarios especiais e evolucao da vila (backlog, pedido de 2026-10-06)
+
+Hoje o periodo do dia so avanca a cada retorno de expedicao e muda luz e rotina da vila
+(decisao 561). Ainda nao implementado:
+
+- [ ] G7.1: ciclo de dia e noite com relogio proprio (duracao a definir) que vale na vila e na Torre, sincronizado no co-op e salvo no mundo. Indicador de hora na HUD e no mapa.
+- [ ] G7.2: a noite deixa monstros mais fortes (Vida e dano) e paga mais EXP e saque; os multiplicadores entram na sonda de balanceamento e nos recordes por andar (registrar o periodo da corrida).
+- [ ] G7.3: itens que so caem em certos horarios (ex.: materiais noturnos, de amanhecer, de lua cheia), com origem visivel na descricao.
+- [ ] G7.4: monstros especiais que so nascem em certos horarios, com aviso legivel e saque proprio.
+- [ ] G7.5: qualidade e nivel de tudo produzido na vila (forja, cozinha, oficinas, servicos) dependem do nivel da vila e do nivel de vida dos moradores envolvidos.
+- [ ] G7.6: o nivel da vila evolui pela riqueza acumulada; cada nivel aumenta a capacidade maxima do armazem e libera producao melhor.
+- [ ] G7.7: cada expedicao traz itens exclusivos da viagem (ex.: reliquias de andar, registros, sementes) que alimentam a evolucao da vila; definir taxa por andar e dificuldade para nao virar farm de um andar so.
+
+Aceite: o jogador percebe a hora do dia e decide quando descer; a vila sobe de nivel por
+escolhas visiveis de investimento; nenhum horario bloqueia a historia, so o saque especial.
+
 ## G4: ritmo, legibilidade e co-op
 
 - [ ] G4.1: prototipar diretor de preparar/pressionar/pico/relaxar em uma rota; ajustar populacao, nao dano oculto. Boss e records competitivos usam regras registradas separadas.

@@ -288,3 +288,14 @@ vfx	sh_cast	dev/RPG Effect All Free.zip::Free/Part 32/1572.png
 vfx	sh_pulse	dev/RPG Effect All Free.zip::Free/Part 32/1582.png	
 vfx	sh_vortex	dev/RPG Effect All Free.zip::Free/Part 33/1627.png	
 vfx	sh_star	dev/RPG Effect All Free.zip::Free/Part 33/1637.png	
+# Lendarios genericos (decisao 580): celulas livres do FantasyInventory e aneis dourados do TTRPG.
+item	lendario_coroa_de_brasa	dev 2/FantasyInventory.zip::FantasyInventory/FantasyInventorySpritesheet.png	crop=32:32:192:128
+item	lendario_lente_arcana	dev 2/FantasyInventory.zip::FantasyInventory/FantasyInventorySpritesheet.png	crop=32:32:96:96
+item	lendario_tomo_do_erudito	dev 2/FantasyInventory.zip::FantasyInventory/FantasyInventorySpritesheet.png	crop=32:32:128:0
+item	lendario_coracao_imortal	dev 2/FantasyInventory.zip::FantasyInventory/FantasyInventorySpritesheet.png	crop=32:32:64:0
+item	lendario_ampulheta_partida	dev 2/FantasyInventory.zip::FantasyInventory/FantasyInventorySpritesheet.png	crop=32:32:32:32
+item	lendario_folego_primordial	dev 2/FantasyInventory.zip::FantasyInventory/FantasyInventorySpritesheet.png	crop=32:32:192:64
+item	lendario_veu_do_eclipse	dev 2/FantasyInventory.zip::FantasyInventory/FantasyInventorySpritesheet.png	crop=32:32:160:96
+item	lendario_gatilho_ancestral	dev/ttrpg_legacy_rings_1.0.zip::Gold base/gold_ring_base_02.png	scale=32:32:flags=lanczos
+item	lendario_anel_do_sol_partido	dev/ttrpg_legacy_rings_1.0.zip::Gold base/gold_ring_base_04.png	scale=32:32:flags=lanczos
+item	lendario_anel_da_terra_viva	dev/ttrpg_legacy_rings_1.0.zip::Gold base/gold_ring_base_08.png	scale=32:32:flags=lanczos

@@ -66,6 +66,23 @@ Andares iniciais ficam mais lentos (só uma gema até o andar 4), e a Cira passo
 final em 2 de 3 sementes. **Pendente:** o andar 75 (exploração, cota 75) segue o mais apertado:
 Rui 0/3 e as demais 2/3 dentro do limite de 300 s da sonda.
 
+## Uma peça lendária basta (decisão 580)
+
+Meta: com um único lendário ou arma única, qualquer personagem conclui a história. Medido com
+`balance_probe.gd --item=` (12 andares de 1 a 100, 3 sementes, solo):
+
+| Personagem | Sem item | Com a arma única da gema inicial |
+| --- | --- | --- |
+| Eloa (Corrente Remanescente) | 97% | 100% |
+| Sena (Fio do Primeiro Lastro) | 97% | 100% |
+| Cira (Batimento da Cicatriz) | 94% | 100% |
+| Rui (Detonador de Lastro) | 92% | 100% |
+
+Genéricos nos andares mais duros: Cira com a Couraça do Colosso (75, 93 e 100) e Rui com o
+Coração Imortal (75 e 100) passaram 3/3. A primeira medição deu Cira 64%: a arma única tinha tipo
+fixo (foco) e tirava dela as manoplas, a guarda e o roubo de Vida. Arma única agora assume a forma
+da arma inicial de quem a empunha.
+
 ## Gemas (potência)
 
 | Gema | Antes | Depois | Motivo (índice) |

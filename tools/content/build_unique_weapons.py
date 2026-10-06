@@ -1,7 +1,8 @@
 """Gera uma arma única lendária por gema ativa em data/beta/beta_content.json.
 
 Cada arma fortalece muito a sua gema quando equipada: potência principal +50%,
-recarga -25% e uma assinatura da mecânica. Só as linhas `unica_*` de `items` são
+recarga -25%, uma assinatura da mecânica e uma passiva exclusiva focada na gema
+(tools/content/legendary_passives.py, decisão 580). Só as linhas `unica_*` de `items` são
 reescritas; o resto do catálogo fica intacto. Idempotente.
 Uso: python3 tools/content/build_unique_weapons.py [--check]
 """
@@ -10,6 +11,9 @@ import argparse
 import json
 import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from legendary_passives import unique_passives  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
 CONTENT = ROOT / "data/beta/beta_content.json"
@@ -111,6 +115,9 @@ def weapon_type(gem, profiles):
     return best
 
 
+PASSIVES = unique_passives()
+
+
 def unique_for(gem, profiles):
     field, field_label = primary_field(gem)
     signature, signature_text = SIGNATURES[gem["mechanic"]]
@@ -125,7 +132,8 @@ def unique_for(gem, profiles):
         "power": WEAPON_POWER,
         "unique_gem": gem["id"],
         "gem_modifiers": modifiers,
-        "description": "Arma unica de %s: %s +%d%%, recarga -%d%%, %s." % (
+        "passive": PASSIVES[gem["id"]],
+        "description": "Arma unica de %s: %s +%d%%, recarga -%d%%, %s. Assume a forma da arma de quem a empunha." % (
             gem["name"], field_label, round((POWER_MULTIPLIER - 1) * 100), round((1 - COOLDOWN_MULTIPLIER) * 100), signature_text),
     }
 
@@ -148,7 +156,7 @@ def main():
     content = json.loads(text)
     profiles = json.loads(WEAPONS.read_text())["types"]
     gems = content["active_gems"]
-    missing = [gem["id"] for gem in gems if gem["id"] not in NAMES or gem["mechanic"] not in SIGNATURES]
+    missing = [gem["id"] for gem in gems if gem["id"] not in NAMES or gem["mechanic"] not in SIGNATURES or gem["id"] not in PASSIVES]
     if missing:
         sys.exit("Gemas sem nome ou assinatura de arma unica: " + ", ".join(missing))
     updated = render(text, [unique_for(gem, profiles) for gem in gems])

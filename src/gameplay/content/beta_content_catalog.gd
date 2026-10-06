@@ -2,6 +2,7 @@ class_name BetaContentCatalog
 extends RefCounted
 
 const MajorEncounterDefinitionScript := preload("res://src/gameplay/encounters/major_encounter_definition.gd")
+const ItemPassivesScript := preload("res://src/gameplay/items/item_passives.gd")
 const DEFAULT_PATH := "res://data/beta/beta_content.json"
 const ACTIVE_MECHANICS: Array[String] = [
 	"projectile", "dash", "nova", "field", "barrier", "chain", "summon", "sanctuary",
@@ -80,6 +81,13 @@ func validation_errors() -> Array[String]:
 	_validate_unique_ids("items", errors)
 	for character in collection("playable_characters"):
 		_validate_playable_character(character, errors)
+	for item in collection("items"):
+		var passive := item.get("passive", {}) as Dictionary
+		if String(item.get("tier", "")) == "legendary" and passive.is_empty():
+			errors.append("Legendary item without exclusive passive: %s" % item.get("id", ""))
+		if not passive.is_empty():
+			for problem in ItemPassivesScript.validate(passive):
+				errors.append("%s: %s" % [item.get("id", ""), problem])
 	for gem in collection("active_gems"):
 		for stat: Variant in gem.get("scaling", []):
 			if not CharacterBuild.PRIMARY_STATS.has(StringName(String(stat))):

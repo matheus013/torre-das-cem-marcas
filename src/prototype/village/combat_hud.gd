@@ -40,6 +40,10 @@ var rescue_progress := 0.0
 var auto_aim := false
 var selected_target: Dictionary = {}
 var effects: Array = []
+## Ícones de efeito na faixa acima da barra (decisão 581): bônus, penalidades e recargas de passivas.
+const MAX_EFFECTS := 8
+const BUFF_BORDER := Color("e8b84a")
+const DEBUFF_BORDER := Color("e87a6a")
 var party: Array[Dictionary] = []
 var _effect_hover: Array[DescriptionHover] = []
 var _notice := ""
@@ -63,7 +67,7 @@ func _ready() -> void:
 	_item_hover.mouse_filter = Control.MOUSE_FILTER_STOP
 	_item_hover.size = Vector2(44.0, 44.0)
 	add_child(_item_hover)
-	for index in range(6):
+	for index in range(MAX_EFFECTS):
 		var region := DescriptionHover.new()
 		region.mouse_filter = Control.MOUSE_FILTER_STOP
 		region.hide()
@@ -86,7 +90,7 @@ func _layout_skill_hover() -> void:
 
 
 func effect_rect(index: int) -> Rect2:
-	return Rect2(Vector2(size.x * 0.5 - mini(6, effects.size()) * 20.0 + index * 40.0, size.y - 156.0), Vector2(32, 44))
+	return Rect2(Vector2(size.x * 0.5 - mini(MAX_EFFECTS, effects.size()) * 20.0 + index * 40.0, size.y - 236.0), Vector2(32, 44))
 
 
 func set_context(local: Dictionary, players: Dictionary, local_peer: int, aim_enabled: bool, target: Dictionary, floor_state: Dictionary) -> void:
@@ -109,7 +113,7 @@ func set_context(local: Dictionary, players: Dictionary, local_peer: int, aim_en
 		_effect_hover[index].visible = index < effects.size()
 		if index < effects.size():
 			var effect := effects[index] as Dictionary
-			_effect_hover[index].tooltip_text = "%s\n%s\n%s" % [effect.get("name", ""), effect.get("description", ""), "Ate retornar a vila" if float(effect.get("remaining", 0.0)) < 0.0 else "Zona expira em %.1fs" % float(effect.get("remaining", 0.0)) if effect.get("id") in ["healing", "stability", "slow"] else "Restam %.1fs" % float(effect.get("remaining", 0.0))]
+			_effect_hover[index].tooltip_text = effect_tooltip(effect)
 	_layout_skill_hover()
 	var number := int(floor_state.get("number", -1))
 	if number != _floor_number:
@@ -357,6 +361,38 @@ func _fit_text(text: String, width: float, font_size := 12) -> String:
 	return value if value == text else value.left(maxi(0, value.length() - 3)) + "..."
 
 
+## Ícone com borda pelo tipo, varredura da duração restante, selo de acúmulos e tempo embaixo.
+func _draw_effect(effect: Dictionary, rect: Rect2) -> void:
+	var font := ThemeDB.fallback_font
+	var kind := String(effect.get("kind", "buff"))
+	var border := DEBUFF_BORDER if kind == "debuff" else HAIRLINE if kind == "cooldown" else BUFF_BORDER
+	_panel(rect, FRAME_DARK, border, 6, 1, 4)
+	var icon_rect := Rect2(rect.position + Vector2(2, 2), Vector2(28, 28))
+	var key := String(effect.get("texture", "icons/" + String(effect.get("icon", ""))))
+	var texture := Sprites.texture(key)
+	if texture != null:
+		draw_texture_rect(texture, icon_rect, false, Color(0.55, 0.55, 0.6) if kind == "cooldown" else Color.WHITE)
+	var seconds := float(effect.get("remaining", 0.0))
+	var total := float(effect.get("duration", 0.0))
+	if seconds > 0.0 and total > 0.0:
+		# Recarga escurece o que falta; bônus escurece o que já passou.
+		_draw_sweep(icon_rect, clampf(seconds / total if kind == "cooldown" else 1.0 - seconds / total, 0.0, 1.0))
+	var stacks := int(effect.get("stacks", 1))
+	if stacks > 1:
+		var badge := Rect2(rect.position + Vector2(rect.size.x - 15.0, -5.0), Vector2(18.0, 13.0))
+		_panel(badge, FRAME_DARK, border, 4, 1, 0)
+		draw_string(font, badge.position + Vector2(0.0, 10.5), str(stacks), HORIZONTAL_ALIGNMENT_CENTER, badge.size.x, 10, BUFF_BORDER if stacks >= int(effect.get("max_stacks", stacks)) else TEXT)
+	draw_string(font, rect.position + Vector2(0, 41), "VILA" if seconds < 0.0 else "%.1f" % seconds, HORIZONTAL_ALIGNMENT_CENTER, rect.size.x, 10, MUTED_COLOR if kind == "cooldown" else TEXT)
+
+
+static func effect_tooltip(effect: Dictionary) -> String:
+	var seconds := float(effect.get("remaining", 0.0))
+	var timing := "Ate retornar a vila" if seconds < 0.0 else "Zona expira em %.1fs" % seconds if effect.get("id") in ["healing", "stability", "slow"] else "Pronta em %.1fs" % seconds if String(effect.get("kind", "")) == "cooldown" else "Restam %.1fs" % seconds
+	var stacks := int(effect.get("stacks", 1))
+	var count := "\nAcumulos: %d de %d" % [stacks, int(effect.get("max_stacks", stacks))] if int(effect.get("max_stacks", 1)) > 1 else ""
+	return "%s\n%s\n%s%s" % [effect.get("name", ""), effect.get("description", ""), timing, count]
+
+
 func _draw_context() -> void:
 	var font := ThemeDB.fallback_font
 	var center := size.x * 0.5
@@ -364,15 +400,8 @@ func _draw_context() -> void:
 		var rect := Rect2(center - 140, size.y - 183, 280, 20)
 		_panel(rect, FRAME_DARK, Color(BREATH, 0.6), 10, 1, 4)
 		draw_string(font, rect.position + Vector2(0, 14.5), "BARREIRA %.0f   |   %.1fs" % [barrier, barrier_seconds], HORIZONTAL_ALIGNMENT_CENTER, rect.size.x, 12, BREATH)
-	for index in range(mini(6, effects.size())):
-		var effect := effects[index] as Dictionary
-		var rect := effect_rect(index)
-		_panel(rect, FRAME_DARK, HAIRLINE, 6, 1, 4)
-		var texture := Sprites.texture("icons/" + String(effect.get("icon", "")))
-		if texture != null:
-			draw_texture_rect(texture, Rect2(rect.position + Vector2(2, 2), Vector2(28, 28)), false)
-		var seconds := float(effect.get("remaining", 0.0))
-		draw_string(font, rect.position + Vector2(0, 41), "VILA" if seconds < 0.0 else "%.1f" % seconds, HORIZONTAL_ALIGNMENT_CENTER, rect.size.x, 10, TEXT)
+	for index in range(mini(MAX_EFFECTS, effects.size())):
+		_draw_effect(effects[index] as Dictionary, effect_rect(index))
 	var aim_x := size.x - 196.0
 	draw_string(font, Vector2(aim_x, 220), "MIRA AUTO: " + ("LIGADA" if auto_aim else "DESLIGADA"), HORIZONTAL_ALIGNMENT_CENTER, 180, 12, GOLD if auto_aim else MUTED_COLOR)
 	if auto_aim and not selected_target.is_empty():

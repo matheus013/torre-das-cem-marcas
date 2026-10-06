@@ -20,6 +20,7 @@ const LayoutScript := preload("res://src/gameplay/world/world_layout.gd")
 const MilestoneEffectsScript := preload("res://src/gameplay/progression/milestone_effects.gd")
 const SkillGeometryScript := preload("res://src/gameplay/skills/skill_geometry.gd")
 const LootDifficultyScript := preload("res://src/gameplay/loot/loot_difficulty.gd")
+const ItemPassivesScript := preload("res://src/gameplay/items/item_passives.gd")
 
 const MAX_PLAYERS := 4
 const PLAYER_RADIUS := 14.0
@@ -171,6 +172,11 @@ var _scheduled: Array[Dictionary] = []
 var _reinforcement_timer := REINFORCEMENT_INTERVAL
 var _reinforcement_sequence := 0
 var _milestone_cache: Dictionary = {}
+## Passivas de itens (decisão 580): cache por jogador e acertos/abates enfileirados até o golpe
+## atual terminar, para que ações como executar não mexam na lista de inimigos no meio do dano.
+var _passive_cache: Dictionary = {}
+var _passive_events: Array[Dictionary] = []
+var _damage_depth := 0
 var _mechanic_random := RandomNumberGenerator.new()
 var _kill_burst_depth := 0
 var ground_items: Array[Dictionary] = []
@@ -769,6 +775,7 @@ func use_skill(peer_id: int, slot: int, target: Vector2) -> bool:
 	execute_gem_effect(peer_id, effect, target)
 	_after_skill(peer_id, effect, target, float(cast.get("echo", 0.0)))
 	gain_gem_experience(peer_id, String(effect.get("gem_id", "")), GEM_CAST_EXPERIENCE)
+	ItemPassivesScript.on_cast(self, peer_id, effect, target, slot)
 	return true
 
 
@@ -784,6 +791,9 @@ func _skill_power_multiplier(peer_id: int, effect: Dictionary) -> float:
 	multiplier *= scaling
 	for tag: Variant in effect.get("tags", []) as Array:
 		multiplier *= _mod(peer_id, "power_%s_mult" % String(tag))
+	var element := String(gem.get("element", ""))
+	if not element.is_empty():
+		multiplier *= _mod(peer_id, "power_%s_mult" % element)
 	return multiplier
 
 
@@ -914,6 +924,7 @@ func step(delta: float) -> void:
 		if is_milestone_paused():
 			return
 		_update_persistent_effects(delta)
+		ItemPassivesScript.step_burns(self, delta)
 		if is_explore_floor():
 			tick_respawns(delta)
 			_update_reinforcements(delta)
@@ -1018,6 +1029,7 @@ func _step_player(peer_id: int, delta: float) -> void:
 	if not players.has(peer_id) or state["zone"] not in ARENA_ZONES:
 		return
 	_step_barrier(peer_id, delta)
+	ItemPassivesScript.tick(self, peer_id, delta)
 	if is_milestone_paused() or not players.has(peer_id) or state["zone"] not in ARENA_ZONES:
 		return
 	_collect_ground_items(peer_id)
@@ -2106,6 +2118,20 @@ func damage_enemies(peer_id: int, center: Vector2, radius: float, damage: float,
 
 
 func damage_enemy(peer_id: int, index: int, damage: float, hit: Dictionary = {}) -> void:
+	_damage_depth += 1
+	_damage_enemy(peer_id, index, damage, hit)
+	_damage_depth -= 1
+	while _damage_depth == 0 and not _passive_events.is_empty():
+		var event: Dictionary = _passive_events.pop_front()
+		if not players.has(int(event["peer"])):
+			continue
+		if String(event["kind"]) == "kill":
+			ItemPassivesScript.on_kill(self, int(event["peer"]), event["enemy"] as Dictionary, float(event["damage"]), event["hit"] as Dictionary)
+		else:
+			ItemPassivesScript.on_hit(self, int(event["peer"]), event["enemy"] as Dictionary, float(event["damage"]), event["hit"] as Dictionary, bool(event["critical"]))
+
+
+func _damage_enemy(peer_id: int, index: int, damage: float, hit: Dictionary) -> void:
 	if index < 0 or index >= enemies.size():
 		return
 	var zone := arena_zone()
@@ -2138,6 +2164,8 @@ func damage_enemy(peer_id: int, index: int, damage: float, hit: Dictionary = {})
 	_vfx(zone, "number", [enemy_position, damage, critical])
 	_vfx(zone, "spark", [enemy_position])
 	enemy["health"] = float(enemy["health"]) - damage
+	if not bool(hit.get("passive", false)) and players.has(peer_id):
+		_passive_events.append({"kind": "hit", "peer": peer_id, "enemy": enemy, "damage": damage, "hit": hit, "critical": critical})
 	enemy["flash"] = 0.12
 	if float(enemy.get("provoked", 0.0)) <= 0.0:
 		for neighbor in enemies:
@@ -2189,6 +2217,8 @@ func damage_enemy(peer_id: int, index: int, damage: float, hit: Dictionary = {})
 		for member in _players_in_arena():
 			_grant_experience(member, defeated)
 		_on_kill(peer_id, enemy_position)
+		if not bool(hit.get("passive", false)) and players.has(peer_id):
+			_passive_events.append({"kind": "kill", "peer": peer_id, "enemy": defeated, "damage": damage, "hit": hit, "critical": false})
 		if not String(hit.get("gem_id", "")).is_empty() and players.has(peer_id):
 			gain_gem_experience(peer_id, String(hit["gem_id"]), int(EXPERIENCE_REWARDS.get(String(defeated.get("encounter_class", "common")), 12)))
 		if float(hit.get("breath_on_kill", 0.0)) > 0.0 and players.has(peer_id):
@@ -2243,9 +2273,12 @@ func take_damage(peer_id: int, amount: float) -> void:
 	state["hurt_flash"] = 0.15
 	state["since_damage"] = 0.0
 	_status(peer_id, "Dano recebido. Vida restante: %d" % int(state["health"]))
+	if float(state["health"]) <= 0.0 and ItemPassivesScript.on_lethal(self, peer_id):
+		return
 	if float(state["health"]) <= 0.0:
 		_fall(peer_id)
 	else:
+		ItemPassivesScript.on_hurt(self, peer_id, amount)
 		_apply_passive_requests(peer_id, reaction["requests"] as Array)
 		_check_low_health(peer_id)
 
@@ -2538,6 +2571,7 @@ func _hit_context(effect: Dictionary) -> Dictionary:
 		"breath_on_kill": float(effect.get("breath_on_kill", 0.0)),
 		"gem": true,
 		"gem_id": String(effect.get("gem_id", "")),
+		"passive": bool(effect.get("passive_cast", false)),
 	}
 
 
@@ -2778,7 +2812,7 @@ func _toggle_volley(peer_id: int, effect: Dictionary, hit: Dictionary) -> void:
 			return
 	persistent_effects.append({
 		"mechanic": "volley", "gem_id": gem_id, "owner_peer": peer_id, "position": player(peer_id)["position"],
-		"follows": true, "duration": float(effect.get("duration", 8.0)), "radius": float(effect.get("range", 300.0)),
+		"follows": true, "duration": float(effect.get("duration", 8.0)), "max_duration": float(effect.get("duration", 8.0)), "radius": float(effect.get("range", 300.0)),
 		"power": float(effect.get("power", 0.0)), "range": float(effect.get("range", 300.0)),
 		"tick_interval": float(effect.get("tick_interval", 0.4)), "tick_timer": 0.0,
 		"arrow_count": clampi(int(effect.get("arrow_count", 24)), 1, 48),
@@ -3151,8 +3185,16 @@ func milestone_effects(peer_id: int) -> Dictionary:
 	return _milestone_cache[key] as Dictionary
 
 
+## Marcos de evolução combinados com passivas de itens: `_mult` multiplica, o resto soma.
 func _mod(peer_id: int, key: String) -> float:
-	return MilestoneEffectsScript.modifier(milestone_effects(peer_id), key)
+	var milestone := MilestoneEffectsScript.modifier(milestone_effects(peer_id), key)
+	var item := ItemPassivesScript.modifier(self, peer_id, key)
+	return milestone * item if key.ends_with("_mult") else milestone + item
+
+
+## Linha do catálogo de itens (vazia se o id não existir).
+func item_data(item_id: String) -> Dictionary:
+	return _find(_collection("items"), item_id)
 
 
 func _mechanics(peer_id: int, mechanic_id: String) -> Array[Dictionary]:
@@ -3653,10 +3695,14 @@ func player_status_effects(peer_id: int) -> Array[Dictionary]:
 				slow = float(hazard["slow"])
 				slow_time = float(hazard["remaining"])
 		if slow > 0.0:
-			result.append({"id":"slow", "name":"Lentidao", "icon":"anel_de_geada", "remaining":slow_time, "description":"Movimento reduzido em %.0f%% enquanto estiver na zona." % (slow * 100.0)})
+			result.append({"id":"slow", "kind":"debuff", "name":"Lentidao", "icon":"anel_de_geada", "remaining":slow_time, "description":"Movimento reduzido em %.0f%% enquanto estiver na zona." % (slow * 100.0)})
+	for effect in persistent_effects:
+		if String(effect.get("mechanic", "")) == "volley" and int(effect.get("owner_peer", 0)) == peer_id:
+			result.append({"id":"volley", "kind":"buff", "name":"Saraivada", "icon":"saraivada_de_flechas", "remaining":float(effect.get("duration", 0.0)), "duration":float(effect.get("max_duration", effect.get("duration", 0.0))), "description":"Disparando flechas e consumindo Folego. Lance de novo para encerrar."})
+	result.append_array(ItemPassivesScript.status_effects(self, peer_id))
 	var wounds := int(state.get("wounds", 0))
 	if wounds > 0:
-		result.append({"id":"wound", "name":"Ferimento x%d" % wounds, "icon":"drenagem_vital", "remaining":-1.0, "description":"Vida maxima reduzida em %.0f%% ate retornar a vila." % (minf(0.5, wounds * WOUND_PENALTY) * 100.0)})
+		result.append({"id":"wound", "kind":"debuff", "name":"Ferimento x%d" % wounds, "icon":"drenagem_vital", "remaining":-1.0, "stacks":wounds, "description":"Vida maxima reduzida em %.0f%% ate retornar a vila." % (minf(0.5, wounds * WOUND_PENALTY) * 100.0)})
 	return result
 
 
@@ -3738,7 +3784,7 @@ func _base_weapon_attack_model(peer_id: int) -> Dictionary:
 	var type_id := "unarmed"
 	var fabrication := 1.0
 	if equipment != null and equipment.weapon != null:
-		type_id = String(equipment.weapon.definition.weapon_type)
+		type_id = weapon_type_for(peer_id, equipment.weapon)
 		fabrication = LootDifficultyScript.fabrication_factor(String(equipment.weapon.quality))
 	var derived := derived_stats(peer_id)
 	var result := WeaponCombat.resolve(type_id, String(state.get("character_id", "")), derived.get("effective_primaries", {}) as Dictionary, fabrication)
@@ -3853,10 +3899,19 @@ func _item_tooltips() -> Dictionary:
 	return result
 
 
+## Tipo de ataque da arma. Arma única assume a forma da arma inicial de quem a empunha
+## (decisão 580): manoplas continuam manoplas, então qualquer personagem aproveita a peça.
+func weapon_type_for(peer_id: int, weapon: EquipmentItemInstance) -> String:
+	if String(item_data(String(weapon.definition.id)).get("unique_gem", "")).is_empty():
+		return String(weapon.definition.weapon_type)
+	var starter := item_data(String(STARTER_WEAPONS.get(StringName(String(player(peer_id).get("character_id", ""))), "")))
+	return String(starter.get("weapon_type", weapon.definition.weapon_type))
+
+
 func _equipment_tooltip(item: EquipmentItemInstance, peer_id: int) -> String:
 	var weapon := {}
 	if item.definition.slot == EquipmentItemDefinition.Slot.WEAPON:
-		weapon = WeaponCombat.resolve(String(item.definition.weapon_type), String(player(peer_id).get("character_id", "")), derived_stats(peer_id).get("effective_primaries", {}) as Dictionary, LootDifficultyScript.fabrication_factor(String(item.quality)))
+		weapon = WeaponCombat.resolve(weapon_type_for(peer_id, item), String(player(peer_id).get("character_id", "")), derived_stats(peer_id).get("effective_primaries", {}) as Dictionary, LootDifficultyScript.fabrication_factor(String(item.quality)))
 	return ContentDescriptions.item(_find(_collection("items"), String(item.definition.id)), ItemTier.label(item.tier), String(LootDifficultyScript.FABRICATION_LABELS.get(String(item.quality), "Regular")), weapon)
 
 
