@@ -5,7 +5,7 @@ const MajorEncounterDefinitionScript := preload("res://src/gameplay/encounters/m
 const DEFAULT_PATH := "res://data/beta/beta_content.json"
 const ACTIVE_MECHANICS: Array[String] = [
 	"projectile", "dash", "nova", "field", "barrier", "chain", "summon", "sanctuary",
-	"cone", "beam", "orbit", "mine", "meteor", "boomerang",
+	"cone", "beam", "orbit", "mine", "meteor", "boomerang", "volley",
 ]
 const ENEMY_MECHANICS: Array[String] = [
 	"swarm", "erode_cover", "telegraphed_shot", "wall_ambush", "loot_mimic",

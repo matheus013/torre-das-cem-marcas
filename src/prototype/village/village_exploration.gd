@@ -8,6 +8,8 @@ const PlayerMenuScript := preload("res://src/prototype/village/player_menu.gd")
 const MilestoneChoiceScript := preload("res://src/prototype/village/milestone_choice.gd")
 const SpriteLibraryScript := preload("res://src/presentation/art/sprite_library.gd")
 const VfxLayerScript := preload("res://src/presentation/vfx/vfx_layer.gd")
+const SkillThemesScript := preload("res://src/presentation/vfx/skill_themes.gd")
+const CombatAudioScript := preload("res://src/presentation/audio/combat_audio.gd")
 const DevModeScript := preload("res://src/core/app/dev_mode.gd")
 const SettingsDialogScript := preload("res://src/game/settings_dialog.gd")
 const BindingsScript := preload("res://src/core/app/input_bindings.gd")
@@ -36,10 +38,6 @@ const SNAPSHOT_MAX_BYTES := 1 << 20
 const PLAYER_RADIUS := 14.0
 const PLAYER_COLORS: Array[Color] = [Color("e8b84a"), Color("7fd6e0"), Color("93a75a"), Color("d9824a")]
 const CHARACTER_IDS: Array[String] = ["eloa", "sena", "cira", "rui"]
-const TIER_COLORS := {
-	"common": Color("c9c2b4"), "uncommon": Color("93c25a"), "rare": Color("6fa8dc"),
-	"epic": Color("b07ad9"), "legendary": Color("e8b84a"),
-}
 
 var _sim: RefCounted
 var _mode: StringName = &"solo"
@@ -80,7 +78,7 @@ var _village_lights: Node2D
 var _talk_hint: Label
 var _village_log_label: Label
 var _interface_layer: CanvasLayer
-var _top_bar: ColorRect
+var _top_bar: Panel
 var _settings_dialog: ConfirmationDialog
 
 var _camera: Camera2D
@@ -88,6 +86,7 @@ var _ambient: CanvasModulate
 var _player_light: PointLight2D
 var _tower_lights: Node2D
 var _vfx: Node2D
+var _audio: Node2D
 var _location_label: Label
 var _status_label: Label
 var _session_label: Label
@@ -119,6 +118,10 @@ func _ready() -> void:
 	_vfx = VfxLayerScript.new() as Node2D
 	_vfx.name = "Vfx"
 	vfx_canvas.add_child(_vfx)
+	_audio = CombatAudioScript.new() as Node2D
+	_audio.name = "CombatAudio"
+	add_child(_audio)
+	_vfx.set("audio", _audio)
 	_build_road_edges()
 	_camera = Camera2D.new()
 	_camera.name = "PlayerCamera"
@@ -413,6 +416,15 @@ func _apply_intent(peer_id: int, kind: String, args: Array) -> void:
 		"unequip":
 			if args.size() == 2 and args[0] is int and args[1] is int:
 				_sim.call("unequip_item", peer_id, int(args[0]), int(args[1]))
+		"sell":
+			if args.size() == 1 and args[0] is String:
+				_sim.call("sell_item", peer_id, StringName(String(args[0])))
+		"loot_filter":
+			if args.size() == 1 and args[0] is String:
+				_sim.call("set_loot_filter", peer_id, String(args[0]))
+		"auto_sell":
+			if args.size() == 1 and args[0] is String:
+				_sim.call("set_auto_sell", peer_id, String(args[0]))
 		"gem_slot":
 			if args.size() == 2 and args[0] is int and args[1] is String:
 				_sim.call("set_gem_slot", peer_id, int(args[0]), String(args[1]))
@@ -457,12 +469,15 @@ func _apply_events(events: Array) -> void:
 		match String(entry.get("type", "")):
 			"vfx":
 				if String(entry.get("zone", "")) == zone and entry.get("args") is Array:
+					_vfx.set("theme", String(entry.get("theme", "")))
 					_vfx.callv(String(entry.get("call", "")), entry["args"] as Array)
+					_vfx.set("theme", "")
 			"status":
 				if int(entry.get("peer", 0)) in [0, _local_peer]:
 					_status = String(entry.get("text", ""))
 					if _status == "Folego insuficiente." and _combat_hud != null:
 						_combat_hud.call("announce", "FOLEGO INSUFICIENTE", "breath")
+						_audio.call("play", "denied")
 			"clear_vfx":
 				if int(entry.get("peer", 0)) == _local_peer:
 					_vfx.call("clear")
@@ -684,6 +699,9 @@ func _unhandled_input(event: InputEvent) -> void:
 			var build := _sim.call("character_build", _local_peer) as CharacterBuild
 			if build != null:
 				_sim.call("add_experience", _local_peer, int(_sim.call("experience_required", build.level)))
+			get_viewport().set_input_as_handled()
+		elif event is InputEventKey and event.keycode == KEY_F8 and _sim != null and DevModeScript.enabled():
+			_sim.call("unlock_all_gems", _local_peer)
 			get_viewport().set_input_as_handled()
 		elif BindingsScript.pressed(event, "inventory"):
 			_open_player_menu("inventory")
@@ -936,6 +954,8 @@ func _drive_autopilot(delta: float) -> void:
 		if float(cooldowns[slot]) > 0.0:
 			continue
 		var gem_id := String(gem_ids[slot])
+		if gem_id.is_empty():
+			continue
 		if gem_id in AGENT_DASH_GEMS:
 			if distance < 80.0:
 				_send_intent("skill", [slot, position + away * 140.0])
@@ -1000,8 +1020,18 @@ func _agent_manage_build() -> void:
 		_send_intent("stat", [stat])
 	if bool(model.get("in_safe_area", false)):
 		var used := {}
+		var unslotted: Array[String] = []
+		for option: Dictionary in model.get("gem_options", []) as Array:
+			if not bool(option.get("equipped", false)):
+				unslotted.append(String(option["id"]))
 		for skill: Dictionary in model.get("skills", []) as Array:
 			var slot := int(skill.get("slot", 0))
+			if bool(skill.get("empty", false)):
+				if not unslotted.is_empty():
+					var gem_id: String = unslotted.pop_front()
+					_send_intent("gem_slot", [slot, gem_id])
+					_agent_note("gema %s em %s" % [gem_id, String(skill.get("key", ""))])
+				continue
 			var pending := skill.get("pending_choices", []) as Array
 			if not pending.is_empty():
 				var option := pending[(int(skill.get("level", 1)) + slot) % pending.size()] as Dictionary
@@ -1521,11 +1551,22 @@ func _draw_passive_markers(markers: Array) -> void:
 func _draw_drop(drop: Dictionary) -> void:
 	var position := drop["position"] as Vector2
 	var tier := String(drop.get("tier", "common"))
-	var color := TIER_COLORS.get(tier, Color.WHITE) as Color
+	var color := ItemTier.color(tier)
 	var pulse := 0.5 + 0.5 * sin(_anim_time * 4.0 + position.x * 0.07)
 	var bob := sin(_anim_time * 3.0 + position.x * 0.05) * 2.0
 	var notable := bool(drop.get("equipment", false)) or tier in ["rare", "epic", "legendary"]
 	var stone_drop := String(drop.get("item_id", "")) == "pedra_regenerativa"
+	var filter := String((_local() as Dictionary).get("loot_filter", "common"))
+	if bool(drop.get("equipment", false)) and ItemTier.TIER_KEYS_ORDER.find(tier) < ItemTier.TIER_KEYS_ORDER.find(filter):
+		# Abaixo do filtro: fica no chão, apagado e sem nome, para não disputar atenção.
+		var faded := SpriteLibraryScript.texture("items/" + String(drop.get("item_id", "")))
+		if faded != null:
+			var fit := 16.0 / maxf(faded.get_width(), faded.get_height())
+			var extent := faded.get_size() * fit
+			draw_texture_rect(faded, Rect2((position - extent * 0.5).round(), extent.round()), false, Color(1.0, 1.0, 1.0, 0.3))
+		else:
+			draw_circle(position, 4.0, Color(color, 0.3))
+		return
 	if stone_drop:
 		color = Color("7fd6e0")
 	_draw_shadow(position + Vector2(0.0, 7.0), Vector2(10.0, 4.0))
@@ -1534,6 +1575,13 @@ func _draw_drop(drop: Dictionary) -> void:
 		draw_rect(Rect2(position + Vector2(-2.0, -54.0), Vector2(4.0, 54.0)), Color(color, 0.25 + 0.15 * pulse))
 	var size := 9.0 if notable else 7.0
 	var center := position + Vector2(0.0, bob - 5.0)
+	var icon := SpriteLibraryScript.texture("items/" + String(drop.get("item_id", "")))
+	if icon != null:
+		var fit := (26.0 if notable else 22.0) / maxf(icon.get_width(), icon.get_height())
+		var extent := icon.get_size() * fit
+		draw_texture_rect(icon, Rect2((center - extent * 0.5).round(), extent.round()), false)
+		_draw_drop_label(drop, position, color, notable)
+		return
 	var outline := PackedVector2Array([
 		center + Vector2(0.0, -size - 2.0), center + Vector2(size + 2.0, 0.0), center + Vector2(0.0, size + 2.0), center + Vector2(-size - 2.0, 0.0),
 	])
@@ -1544,40 +1592,77 @@ func _draw_drop(drop: Dictionary) -> void:
 	draw_colored_polygon(PackedVector2Array([
 		center + Vector2(0.0, -size), center + Vector2(size * 0.5, -size * 0.5), center + Vector2(0.0, 0.0), center + Vector2(-size * 0.5, -size * 0.5),
 	]), Color(1.0, 1.0, 1.0, 0.35))
+	_draw_drop_label(drop, position, color, notable)
+
+
+func _draw_drop_label(drop: Dictionary, position: Vector2, color: Color, notable: bool) -> void:
 	var quantity := int(drop.get("quantity", 1))
 	var near := position.distance_to(_display_position(_local_peer)) <= 180.0
 	if notable or near or quantity > 1:
 		var text := String(drop.get("name", "")) if notable or near else ""
 		if quantity > 1:
 			text = ("%s x%d" % [text, quantity]).strip_edges()
-		draw_string(ThemeDB.fallback_font, position + Vector2(-80.0, -18.0), text, HORIZONTAL_ALIGNMENT_CENTER, 160.0, 12, color)
+		draw_string(ThemeDB.fallback_font, position + Vector2(-80.0, -24.0), text, HORIZONTAL_ALIGNMENT_CENTER, 160.0, 12, color)
 
 
 func _draw_ground_effect(effect: Dictionary) -> void:
 	var position := effect.get("position", Vector2.ZERO) as Vector2
 	var radius := float(effect.get("radius", 40.0))
+	var gem_id := String(effect.get("gem_id", ""))
 	if String(effect.get("mechanic", "")) == "orbit":
+		# Lâminas como estrelas girando, na cor do elemento da gema.
+		var star := VfxLayerScript.sheet_frame("sh_star", gem_id, _anim_time)
 		for point: Vector2 in effect.get("points", []) as Array:
-			_draw_sprite("vfx/needle", point, false, Color("c8f2f0"))
-			draw_arc(point, float(effect.get("collision_radius", 20.0)), 0, TAU, 16, Color("7fd6e0"), 1.5)
+			if star.is_empty():
+				_draw_sprite("vfx/needle", point, false, Color("c8f2f0"))
+				continue
+			var extent := float(effect.get("collision_radius", 20.0)) * 2.4
+			draw_set_transform(point.round(), _anim_time * 9.0, Vector2.ONE * extent / 64.0)
+			draw_texture_rect_region(star["texture"] as Texture2D, Rect2(Vector2(-32.0, -32.0), Vector2(64.0, 64.0)), star["region"] as Rect2, star["tint"] as Color)
+			draw_set_transform(Vector2.ZERO)
+		return
+	if String(effect.get("mechanic", "")) == "volley":
+		# Saraivada: runa girando nos pés, trocando de elemento como as flechas, e o alcance tênue.
+		var element := "element:" + String(["fire", "ice", "lightning"][int(_anim_time * 2.5) % 3])
+		var rune := VfxLayerScript.sheet_frame("sh_rune", element, _anim_time)
+		if not rune.is_empty():
+			draw_set_transform(position.round() + Vector2(0.0, 10.0), _anim_time * 1.5, Vector2(1.1, 0.55))
+			draw_texture_rect_region(rune["texture"] as Texture2D, Rect2(Vector2(-32.0, -32.0), Vector2(64.0, 64.0)), rune["region"] as Rect2, Color(rune["tint"] as Color, 0.85))
+			draw_set_transform(Vector2.ZERO)
+		draw_arc(position, radius, 0.0, TAU, 48, Color(SkillThemesScript.tint(element, Color("e8e070")), 0.18), 1.0)
 		return
 	if String(effect.get("mechanic", "")) == "mine":
 		var armed := bool(effect.get("armed", false))
-		_draw_sprite("vfx/impact", position, false, Color("e8b84a") if armed else Color("aaa59a"))
-		draw_arc(position, radius, 0, TAU, 32, Color("e8b84a") if armed else Color("aaa59a"), 1.5)
-		draw_line(position + Vector2(-8, 0), position + Vector2(8, 0), Color("f2e6c9"), 2)
+		var pulse := VfxLayerScript.sheet_frame("sh_pulse", gem_id, _anim_time)
+		if pulse.is_empty():
+			_draw_sprite("vfx/impact", position, false, Color("e8b84a") if armed else Color("aaa59a"))
+		else:
+			# Núcleo pulsante: apagado enquanto arma, aceso quando pronto para detonar.
+			draw_set_transform(position.round(), 0.0, Vector2.ONE * 0.8)
+			draw_texture_rect_region(pulse["texture"] as Texture2D, Rect2(Vector2(-32.0, -32.0), Vector2(64.0, 64.0)), pulse["region"] as Rect2, Color(pulse["tint"] as Color, 1.0 if armed else 0.45))
+			draw_set_transform(Vector2.ZERO)
+		draw_arc(position, radius, 0, TAU, 32, Color(SkillThemesScript.tint(gem_id, Color("e8b84a")), 0.6 if armed else 0.25), 1.5)
 		return
 	var sanctuary := String(effect.get("mechanic", "")) == "sanctuary"
 	var remaining := clampf(float(effect.get("duration", 1.0)), 0.0, 1.0)
+	var tint := SkillThemesScript.tint(String(effect.get("gem_id", "")), Color("93c25a") if sanctuary else Color("b05ad9"))
+	var circle := SpriteLibraryScript.texture("vfx/anim/el_magic_circle")
 	var texture := SpriteLibraryScript.texture("vfx/sanctuary" if sanctuary else "vfx/gravity")
-	if texture != null:
+	if circle != null:
+		# Círculo mágico animado, girando devagar, na cor do elemento da gema.
+		var side := float(circle.get_height())
+		var frame := int(_anim_time * 10.0) % maxi(1, int(circle.get_width() / side))
+		draw_set_transform(position.round(), _anim_time * (0.4 if sanctuary else -0.6), Vector2.ONE * radius * 2.0 / (side * 0.9))
+		draw_texture_rect_region(circle, Rect2(Vector2.ONE * -side * 0.5, Vector2(side, side)), Rect2(frame * side, 0.0, side, side), Color(tint, 0.9 * remaining))
+		draw_set_transform(Vector2.ZERO)
+		draw_circle(position, radius, Color(tint, 0.08 * remaining))
+	elif texture != null:
 		draw_set_transform(position.round(), _anim_time * (0.6 if sanctuary else -2.4), Vector2.ONE * radius * 2.0 / texture.get_size().x)
 		draw_texture(texture, -texture.get_size() * 0.5, Color(1.0, 1.0, 1.0, 0.85 * remaining))
 		draw_set_transform(Vector2.ZERO)
 	else:
 		draw_circle(position, radius, Color(0.5, 0.84, 0.88, 0.14 * remaining))
-	var edge := Color("93a75a") if sanctuary else Color("8a5f9e")
-	draw_arc(position, radius, 0.0, TAU, 40, Color(edge, 0.8 * remaining), 2.0)
+	draw_arc(position, radius, 0.0, TAU, 40, Color(tint, 0.8 * remaining), 2.0)
 
 
 func _draw_enemy(enemy: Dictionary) -> void:
@@ -1733,15 +1818,27 @@ func _build_interface() -> void:
 	layer.name = "Interface"
 	layer.layer = 2
 	add_child(layer)
-	var bar := ColorRect.new()
+	var bar := Panel.new()
 	bar.name = "TopBar"
 	bar.position = Vector2(18.0, 18.0)
 	bar.size = Vector2(420.0, 58.0)
+	bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_top_bar = bar
-	bar.color = Color("1b1a1fe0")
+	# Mesmo acabamento da HUD de combate: painel escuro arredondado, sombra e fio dourado.
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color("12111aee")
+	style.border_color = Color(0.79, 0.66, 0.42, 0.55)
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(10)
+	style.shadow_color = Color(0.0, 0.0, 0.0, 0.45)
+	style.shadow_size = 8
+	style.anti_aliasing = true
+	bar.add_theme_stylebox_override("panel", style)
 	var accent := ColorRect.new()
-	accent.size = Vector2(4.0, 58.0)
-	accent.color = Color("e8b84a")
+	accent.position = Vector2(7.0, 11.0)
+	accent.size = Vector2(2.0, 36.0)
+	accent.color = Color("e8c27a")
+	accent.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	bar.add_child(accent)
 	layer.add_child(bar)
 	var settings_button := Button.new()
@@ -1849,6 +1946,9 @@ func _build_interface() -> void:
 	_player_menu.milestone_requested.connect(func(choice: StringName) -> void: _send_intent("milestone", [String(choice)]))
 	_player_menu.equip_requested.connect(func(instance_id: StringName) -> void: _send_intent("equip", [String(instance_id)]))
 	_player_menu.unequip_requested.connect(func(slot: int, index: int) -> void: _send_intent("unequip", [slot, index]))
+	_player_menu.sell_requested.connect(func(instance_id: StringName) -> void: _send_intent("sell", [String(instance_id)]))
+	_player_menu.loot_filter_requested.connect(func(tier: String) -> void: _send_intent("loot_filter", [tier]))
+	_player_menu.auto_sell_requested.connect(func(tier: String) -> void: _send_intent("auto_sell", [tier]))
 	_player_menu.gem_slot_requested.connect(func(slot: int, gem_id: String) -> void: _send_intent("gem_slot", [slot, gem_id]))
 	_player_menu.support_attach_requested.connect(func(slot: int, support_id: String) -> void: _send_intent("support_add", [slot, support_id]))
 	_player_menu.support_detach_requested.connect(func(slot: int, support_id: String) -> void: _send_intent("support_remove", [slot, support_id]))
@@ -2085,9 +2185,11 @@ func _update_interface() -> void:
 	if gem_key != _last_gem_key:
 		_last_gem_key = gem_key
 		var icons: Array[Texture2D] = []
+		var empty: Array[bool] = []
 		for gem_id: Variant in gem_ids:
-			icons.append(SpriteLibraryScript.texture("icons/" + String(gem_id)))
-		_combat_hud.call("set_skill_icons", icons)
+			icons.append(null if String(gem_id).is_empty() else SpriteLibraryScript.texture("icons/" + String(gem_id)))
+			empty.append(String(gem_id).is_empty())
+		_combat_hud.call("set_skill_icons", icons, empty)
 	var cooldowns: Array[float] = []
 	for value: Variant in local.get("cooldowns", []) as Array:
 		cooldowns.append(float(value))

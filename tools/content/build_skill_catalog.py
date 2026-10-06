@@ -10,6 +10,7 @@ from pathlib import Path
 
 CONTENT = Path(__file__).resolve().parents[2] / "data/beta/beta_content.json"
 MANUAL = CONTENT.parents[2] / "docs/catalogo-gemas.md"
+ACTIVE_COUNT = 44
 
 
 def evolutions(gem):
@@ -17,7 +18,7 @@ def evolutions(gem):
     primary = "barrier" if mechanic == "barrier" else "healing" if mechanic == "sanctuary" else "power"
     if mechanic == "dash":
         primary = "trail_damage" if gem.get("trail_damage", 0) > 0 else "arrival_barrier"
-    shape = "distance" if mechanic == "dash" else "range" if mechanic in ("projectile", "boomerang", "chain", "beam", "summon") else "radius"
+    shape = "distance" if mechanic == "dash" else "range" if mechanic in ("projectile", "boomerang", "chain", "beam", "summon", "volley") else "radius"
     choices = [
         [("Potencia Lapidada", {primary + "_multiplier": 1.25, "cooldown_multiplier": 1.1}),
          ("Forma Ampla", {shape + "_multiplier": 1.25, "breath_cost_add": 3})],
@@ -39,6 +40,7 @@ def evolutions(gem):
         "orbit": [("Orbita Dupla", {"orbit_count_add": 1, "power_multiplier": 0.8}), ("Orbita Celere", {"angular_speed_multiplier": 1.5})],
         "mine": [("Preparacao Rapida", {"arm_delay_multiplier": 0.5}), ("Carga Ampla", {"radius_multiplier": 1.3, "power_multiplier": 0.9})],
         "meteor": [("Chuva Dupla", {"meteor_count_add": 1, "power_multiplier": 0.7}), ("Impacto Denso", {"power_multiplier": 1.4, "delay_multiplier": 1.25})],
+        "volley": [("Folego Predador", {"breath_on_kill": 3}), ("Aljava Dupla", {"arrow_count_add": 12, "power_multiplier": 0.75})],
     }
     choices.append(finals[mechanic])
     return {str(level): [{"id": f"{gem['id']}_e{level}_{index}", "name": name, "modifiers": modifiers}
@@ -55,6 +57,7 @@ def active(identifier, name, mechanic, description, **values):
         "sanctuary": ["area", "life", "healing", "duration"], "cone": ["area", "physical", "control"],
         "beam": ["precision", "magic"], "orbit": ["area", "physical", "duration"],
         "mine": ["area", "magic", "duration"], "meteor": ["area", "magic"],
+        "volley": ["projectile", "magic", "duration"],
     }[mechanic]
     scaling = ["strength", "agility"] if "physical" in tags else ["intelligence", "wisdom"]
     gem = dict(id=identifier, name=name, description=description, mechanic=mechanic, tags=tags,
@@ -71,7 +74,7 @@ def active(identifier, name, mechanic, description, **values):
 def new_actives():
     return [
         active("estilhacos_lunares", "Estilhacos Lunares", "projectile", "Leque de tres impactos curtos para espalhar dano.", projectile_count=2, power=18, range=330, radius=24),
-        active("lanca_ferral", "Lanca Ferral", "projectile", "Linha longa que atravessa tres alvos antes do impacto.", pierce=3, power=42, range=600, radius=26, cooldown=3),
+        active("lanca_ferral", "Lanca Ferral", "projectile", "Linha longa que atravessa tres alvos antes do impacto.", pierce=3, power=25, range=600, radius=26, cooldown=3),
         active("orbe_de_ruptura", "Orbe de Ruptura", "projectile", "Impacto largo e lento que rompe grupos compactos.", power=48, impact_area=60, radius=20, speed=0.65, cooldown=6),
         active("corte_vetorial", "Corte Vetorial", "dash", "Avanco ofensivo que corta os inimigos no trajeto.", distance=150, trail_damage=35, invulnerability=0.15, cooldown=4, breath_cost=24),
         active("salto_de_guarda", "Salto de Guarda", "dash", "Retirada longa com barreira na chegada, sem dano direto.", power=0, distance=175, arrival_barrier=32, invulnerability=0.35, cooldown=6, breath_cost=30),
@@ -81,23 +84,32 @@ def new_actives():
         active("pantano_acido", "Pantano Acido", "field", "Zona que combina lentidao e vulnerabilidade.", power=6, radius=145, duration=5, tick_interval=0.8, slow=0.3, damage_taken=0.12, cooldown=10),
         active("casca_reativa", "Casca Reativa", "barrier", "Barreira que pune contato e explode ao expirar.", power=0, barrier=35, contact_damage=12, expire_nova_damage=40, duration=4, radius=90, cooldown=9),
         active("arco_voltaico", "Arco Voltaico", "chain", "Seis saltos de alcance curto aplicam vulnerabilidade leve.", power=19, chain_count=6, chain_range=110, range=380, damage_taken=0.08, status_duration=2, cooldown=5),
-        active("dreno_em_rede", "Dreno em Rede", "chain", "Tres saltos que devolvem Vida ao portador.", power=22, chain_count=3, chain_range=180, heal_per_chain=5, life_steal=0.04, cooldown=7),
-        active("sentinela_ferral", "Sentinela Ferral", "summon", "Sentinela fixa de longo alcance prioriza o inimigo com menos Vida.", summon_definition_id="sentinela_ferral", summon_count=1, power=34, duration=12, attack_interval=1.4, range=460, cooldown=12),
-        active("enxame_luminar", "Enxame Luminar", "summon", "Tres criaturas leves perseguem o alvo mais proximo.", summon_definition_id="enxame_luminar", summon_count=3, power=7, duration=8, attack_interval=0.5, range=85, cooldown=11),
-        active("guardiao_de_lastro", "Guardiao de Lastro", "summon", "Guardiao resistente acompanha o portador e repele inimigos.", summon_definition_id="guardiao_de_lastro", summon_count=1, power=20, duration=14, attack_interval=1, range=140, knockback=35, cooldown=14),
+        active("dreno_em_rede", "Dreno em Rede", "chain", "Tres saltos que devolvem Vida ao portador.", power=29, chain_count=3, chain_range=180, heal_per_chain=5, life_steal=0.04, cooldown=7),
+        active("sentinela_ferral", "Sentinela Ferral", "summon", "Sentinela fixa de longo alcance prioriza o inimigo com menos Vida.", summon_definition_id="sentinela_ferral", summon_count=1, power=20, duration=12, attack_interval=1.4, range=460, cooldown=12),
+        active("enxame_luminar", "Enxame Luminar", "summon", "Tres criaturas leves perseguem o alvo mais proximo.", summon_definition_id="enxame_luminar", summon_count=3, power=4.2, duration=8, attack_interval=0.5, range=85, cooldown=11),
+        active("guardiao_de_lastro", "Guardiao de Lastro", "summon", "Guardiao resistente acompanha o portador e repele inimigos.", summon_definition_id="guardiao_de_lastro", summon_count=1, power=16, duration=14, attack_interval=1, range=140, knockback=35, cooldown=14),
         active("circulo_de_reparo", "Circulo de Reparo", "sanctuary", "Cultivo curto com cura forte; excesso vira barreira.", power=0, healing=16, overheal_barrier=True, radius=95, duration=4, tick_interval=1, cooldown=10),
         active("abrigo_de_escora", "Abrigo de Escora", "sanctuary", "Zona ampla de cura leve que prolonga a estabilidade de aliados caidos.", power=0, healing=6, stability=0.3, radius=160, duration=6, tick_interval=1, cooldown=12),
         active("ceifa_ampla", "Ceifa Ampla", "cone", "Corte em cone frontal; nao atinge inimigos atras do portador.", power=40, radius=175, angle=1.7, knockback=30, cooldown=3),
-        active("sopro_criogenico", "Sopro Criogenico", "cone", "Cone estreito e longo de lentidao intensa.", power=18, radius=240, angle=0.8, slow=0.55, status_duration=3, cooldown=6),
+        active("sopro_criogenico", "Sopro Criogenico", "cone", "Cone estreito e longo de lentidao intensa.", power=25, radius=240, angle=0.8, slow=0.55, status_duration=3, cooldown=6),
         active("raio_prismatico", "Raio Prismatico", "beam", "Feixe estreito que atinge todos os inimigos alinhados.", power=38, range=560, width=16, cooldown=4),
-        active("fio_desintegrador", "Fio Desintegrador", "beam", "Feixe largo e curto que aplica vulnerabilidade.", power=26, range=320, width=38, damage_taken=0.18, status_duration=3, cooldown=6),
-        active("laminas_orbitais", "Laminas Orbitais", "orbit", "Tres laminas giram ao redor do portador e acertam por contato.", power=14, radius=100, orbit_count=3, angular_speed=2.8, collision_radius=22, duration=6, tick_interval=0.35, cooldown=10),
-        active("satelites_de_geada", "Satelites de Geada", "orbit", "Duas orbitas externas lentas controlam a aproximacao.", power=10, radius=145, orbit_count=2, angular_speed=1.5, collision_radius=28, slow=0.35, duration=7, tick_interval=0.5, cooldown=12),
-        active("mina_de_lastro", "Mina de Lastro", "mine", "Arma apos um segundo e detona quando um inimigo se aproxima, ou ao expirar.", power=65, radius=105, trigger_radius=65, arm_delay=1, duration=8, cooldown=5),
+        active("fio_desintegrador", "Fio Desintegrador", "beam", "Feixe largo e curto que aplica vulnerabilidade.", power=32, range=320, width=38, damage_taken=0.18, status_duration=3, cooldown=6),
+        active("laminas_orbitais", "Laminas Orbitais", "orbit", "Tres laminas giram ao redor do portador e acertam por contato.", power=22, radius=100, orbit_count=3, angular_speed=2.8, collision_radius=22, duration=6, tick_interval=0.35, cooldown=10),
+        active("satelites_de_geada", "Satelites de Geada", "orbit", "Duas orbitas externas lentas controlam a aproximacao.", power=16, radius=145, orbit_count=2, angular_speed=1.5, collision_radius=28, slow=0.35, duration=7, tick_interval=0.5, cooldown=12),
+        active("mina_de_lastro", "Mina de Lastro", "mine", "Arma apos um segundo e detona quando um inimigo se aproxima, ou ao expirar.", power=48, radius=105, trigger_radius=65, arm_delay=1, duration=8, cooldown=5),
         active("semente_explosiva", "Semente Explosiva", "mine", "Armadilha rapida de explosao ampla e repulsao.", power=35, radius=145, trigger_radius=90, arm_delay=0.35, duration=6, knockback=60, cooldown=7),
-        active("chuva_ferral", "Chuva Ferral", "meteor", "Tres impactos atrasados cobrem pontos diferentes ao redor da mira.", power=28, radius=65, meteor_count=3, spread=85, delay=0.65, cooldown=8),
+        active("chuva_ferral", "Chuva Ferral", "meteor", "Tres impactos atrasados cobrem pontos diferentes ao redor da mira.", power=45, radius=65, meteor_count=3, spread=85, delay=0.65, cooldown=8),
         active("cometa_de_vidro", "Cometa de Vidro", "meteor", "Um impacto grande e lento; exige antecipar o movimento da horda.", power=90, radius=125, meteor_count=1, spread=0, delay=1.2, cooldown=11),
         active("disco_de_retorno", "Disco de Retorno", "boomerang", "Disco corta a linha de ida e retorna pela mesma rota.", power=28, pierce=8, return_projectile=True, radius=24, range=350, cooldown=5),
+        # Gemas elementais: cada uma estreia a animacao de um elemento (src/presentation/vfx/skill_themes.gd).
+        active("bola_de_fogo", "Bola de Fogo", "projectile", "Projetil flamejante que explode em area no impacto.", tags=["projectile", "magic", "precision"], scaling=["intelligence", "wisdom"], power=34, impact_area=70, radius=22, cooldown=4.5),
+        active("bolha_corrosiva", "Bolha Corrosiva", "projectile", "Bolha lenta de acido; o impacto deixa os inimigos vulneraveis.", tags=["projectile", "magic", "precision"], scaling=["intelligence", "vitality"], power=20, impact_area=55, damage_taken=0.15, status_duration=3, speed=0.7, radius=22, cooldown=5),
+        active("cometa_sombrio", "Cometa Sombrio", "projectile", "Cometa de sombra que atravessa dois alvos e desacelera.", tags=["projectile", "magic", "precision"], scaling=["intelligence", "fortune"], power=31, pierce=2, slow=0.25, status_duration=2, radius=24, range=520, cooldown=5),
+        active("raizes_presas", "Raizes Presas", "field", "Raizes brotam na mira e prendem a horda com lentidao forte.", scaling=["vitality", "wisdom"], power=8.4, radius=130, duration=4, tick_interval=0.6, slow=0.55, status_duration=1.5, cooldown=9),
+        active("pilar_sagrado", "Pilar Sagrado", "meteor", "Coluna de luz cai na mira apos breve aviso.", scaling=["wisdom", "intelligence"], power=70, radius=90, meteor_count=1, spread=0, delay=0.8, cooldown=8),
+        active("esfera_de_gelo", "Esfera de Gelo", "projectile", "Esfera gelada que estilhaca no impacto e desacelera em area.", tags=["projectile", "magic", "precision"], scaling=["intelligence", "wisdom"], power=24, impact_area=55, slow=0.4, status_duration=2.5, radius=22, cooldown=4),
+        active("saraivada_de_flechas", "Saraivada de Flechas", "volley", "Enquanto ativa, dispara flechas que atravessam um inimigo para todos os lados enquanto voce anda; fogo, gelo e raio se alternam a cada rajada. Consome Folego por segundo e segura a regeneracao; usar de novo encerra.", tags=["projectile", "magic", "duration"], scaling=["agility", "intelligence"], power=4, pierce=1, arrow_count=24, tick_interval=0.4, range=300, radius=16, duration=8, breath_cost=6, breath_per_second=9, cooldown=1.5),
+        active("trovao_descendente", "Trovao Descendente", "meteor", "Dois raios caem rapido ao redor da mira.", scaling=["intelligence", "agility"], power=36, radius=70, meteor_count=2, spread=60, delay=0.45, damage_taken=0.06, status_duration=2, cooldown=6),
     ]
 
 
@@ -109,7 +121,7 @@ def support(identifier, name, category, mechanics, description, drain=2, **modif
 
 def new_supports():
     projectile = ["projectile", "boomerang"]
-    damaging = ["projectile", "boomerang", "nova", "field", "chain", "summon", "sanctuary", "cone", "beam", "orbit", "mine", "meteor"]
+    damaging = ["projectile", "boomerang", "nova", "field", "chain", "summon", "sanctuary", "cone", "beam", "orbit", "mine", "meteor", "volley"]
     return [
         support("retorno_vetorial", "Retorno Vetorial", "mechanic", projectile, "Projeteis retornam pela linha de ida; -15% de potencia.", return_projectile=True, power_multiplier=0.85),
         support("bifurcacao_residual", "Bifurcacao Residual", "mechanic", projectile, "Do impacto saem duas linhas divergentes; -20% de potencia.", fork_count=2, power_multiplier=0.8, drain=3),
@@ -127,7 +139,7 @@ def new_supports():
         support("salto_explosivo", "Salto Explosivo", "mechanic", ["dash"], "Chegada causa 25 de dano em raio 80; custo +8 Folego.", arrival_area=80, arrival_damage=25, breath_cost_add=8),
         support("potencia_bruta", "Potencia Bruta", "buff", damaging, "Potencia +22%; recarga +10%.", power_multiplier=1.22, cooldown_multiplier=1.1),
         support("precisao_lapidada", "Precisao Lapidada", "buff", damaging, "Chance critica +12 pontos percentuais; potencia -10%.", critical_chance_add=0.12, power_multiplier=0.9),
-        support("alcance_treinado", "Alcance Treinado", "buff", ["projectile", "boomerang", "chain", "beam", "summon", "field", "mine", "meteor"], "Alcance +35%; recarga +8%.", range_multiplier=1.35, cooldown_multiplier=1.08),
+        support("alcance_treinado", "Alcance Treinado", "buff", ["projectile", "boomerang", "chain", "beam", "summon", "field", "mine", "meteor", "volley"], "Alcance +35%; recarga +8%.", range_multiplier=1.35, cooldown_multiplier=1.08),
         support("barreira_densa", "Barreira Densa", "buff", ["barrier"], "Barreira +35%; duracao -15%.", barrier_multiplier=1.35, duration_multiplier=0.85),
         support("cura_reforcada", "Cura Reforcada", "buff", ["sanctuary"], "Cura por pulso +35%; intervalo +20%.", healing_multiplier=1.35, tick_interval_multiplier=1.2),
         support("ritmo_de_cultivo", "Ritmo de Cultivo", "buff", ["field", "sanctuary", "orbit"], "Intervalo dos pulsos -25%; potencia, cura e duracao -15%.", tick_interval_multiplier=0.75, power_multiplier=0.85, healing_multiplier=0.85, duration_multiplier=0.85),
@@ -159,7 +171,7 @@ def update_existing(gems, supports):
         if gem.get("power", 0) > 0 and "damage" not in gem["tags"]:
             gem["tags"].append("damage")
     mechanic_ids = {"projeteis_gemeos", "perfuracao_refeita", "ricochete_de_junta", "eco_atrasado", "impulso_de_impacto", "busca_residual"}
-    damaging = ["projectile", "boomerang", "nova", "field", "chain", "summon", "sanctuary", "cone", "beam", "orbit", "mine", "meteor"]
+    damaging = ["projectile", "boomerang", "nova", "field", "chain", "summon", "sanctuary", "cone", "beam", "orbit", "mine", "meteor", "volley"]
     descriptions = {
         "projeteis_gemeos": "Projeteis +1; potencia -22%.", "perfuracao_refeita": "Atravessa mais dois alvos; potencia -10%.",
         "ricochete_de_junta": "Salta para mais dois alvos; alcance -15%.", "area_expandida": "Raio +30%; potencia -10%.",
@@ -247,7 +259,7 @@ def main():
     gems = base + additions
     supports += support_additions
     summons = [entry for entry in data["summons"] if entry["id"] not in {v["id"] for v in new_summons()}] + new_summons()
-    assert len(gems) == 36 and len(supports) == 40
+    assert len(gems) == ACTIVE_COUNT and len(supports) == 40
     assert sum(entry["category"] == "mechanic" for entry in supports) == 20
     assert sum(entry["category"] == "buff" for entry in supports) == 20
     result = replace_collections(source, dict(active_gems=gems, support_gems=supports, summons=summons))
@@ -258,18 +270,31 @@ def main():
     else:
         CONTENT.write_text(result, encoding="utf-8")
         MANUAL.write_text(manual, encoding="utf-8")
-    print("SKILL_CATALOG_OK: 36 active, 20 mechanic supports, 20 buff supports")
+    print("SKILL_CATALOG_OK: %d active, 20 mechanic supports, 20 buff supports" % ACTIVE_COUNT)
 
 
 def catalog_manual(gems, supports):
-    lines = ["# Catalogo de gemas: 36 ativas + 40 suportes", "",
+    lines = ["# Catalogo de gemas: %d ativas + 40 suportes" % len(gems), "",
              "Gerado por `python3 tools/content/build_skill_catalog.py`; confirme com `--check`.",
              "Referencia de design: [GGG: suporte, especializacao e contrapartidas](https://www.pathofexile.com/forum/view-thread/3147753).",
              "Inspiracao estrutural, sem copiar nomes, arte ou valores de Path of Exile. Fonte historica, nao guia de patch atual.", "",
              "## Regras atuais", "",
              "Quatro ativas equipadas; troca e ligacao em Aresta. Ate dois suportes por ativa, capacidade 2 + nivel da gema (3-5 no beta).",
              "Categorias mecanica/buff compartilham slots e capacidade. Uma copia de cada suporte por personagem, sem equipar o mesmo suporte em dois slots.",
-             "36 ativas disponiveis no catalogo do beta; nao sao desbloqueios por loot. Saves antigos recebem novas entradas de progresso no carregamento.",
+             "",
+             "Autoataque (2026-10-04): dois suportes com capacidade fixa 6, na secao",
+             "AUTOATAQUE da aba Skills. Compatibilidade depende da arma; Foco aceita",
+             "multishot, perfuracao, ricochete, retorno, bifurcacao e impacto em area.",
+             "Lanca/Bastao aceitam modificadores de area; Manoplas mantem acerto unico.",
+             "Dano, alcance, cadencia, critico, repulsao, roubo de Vida, Folego e barreira",
+             "por acerto seguem a compatibilidade do catalogo e consumidores existentes.",
+             "Suportes de eco, teleguiado, duracao/invocacao e outros campos sem consumidor",
+             "no autoataque nao sao ofertados. Custos adicionais de Folego sao pagos a cada",
+             "ataque; sem recurso suficiente, espera regenerar. Trocas continuam em Aresta.",
+             "Uma copia nao pode ficar ligada a skill e autoataque simultaneamente.",
+             "Trocar arma preserva suportes incompativeis como inativos; reativam com arma",
+             "compativel. Saves antigos iniciam sem suportes no autoataque, sem perder skills.",
+             f"{len(gems)} ativas disponiveis no catalogo do beta; nao sao desbloqueios por loot. Saves antigos recebem novas entradas de progresso no carregamento.",
              "IDs anteriores e escolhas salvas preservados. Graus 1-3 oferecem duas evolucoes por grau; nao confundir com marcos permanentes de personagem.",
              "Valores sao ponto de partida de balanceamento, nao prova de viabilidade equivalente. Efeitos visuais/icone provisorios em pixel art; audio individual ainda pendente.", "",
              "## Ativas", "", "| Gema | Familia | Comportamento |", "| --- | --- | --- |"]

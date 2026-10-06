@@ -65,7 +65,7 @@ func _init() -> void:
 	instance.call("_show_mode", &"active_gem")
 	await process_frame
 	var active_gems := instance.get("_active_gems") as Array
-	if active_gems.size() != 36 or instance.get_node_or_null("RootColumn/Body/EditorScroll/Editor/Form/Evolutions") == null:
+	if active_gems.size() != 44 or instance.get_node_or_null("RootColumn/Body/EditorScroll/Editor/Form/Evolutions") == null:
 		push_error("Active gem editor did not load the beta catalog")
 		quit(1)
 		return

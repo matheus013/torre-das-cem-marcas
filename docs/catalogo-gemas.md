@@ -1,4 +1,4 @@
-# Catalogo de gemas: 36 ativas + 40 suportes
+# Catalogo de gemas: 44 ativas + 40 suportes
 
 Gerado por `python3 tools/content/build_skill_catalog.py`; confirme com `--check`.
 Referencia de design: [GGG: suporte, especializacao e contrapartidas](https://www.pathofexile.com/forum/view-thread/3147753).
@@ -21,7 +21,7 @@ ataque; sem recurso suficiente, espera regenerar. Trocas continuam em Aresta.
 Uma copia nao pode ficar ligada a skill e autoataque simultaneamente.
 Trocar arma preserva suportes incompativeis como inativos; reativam com arma
 compativel. Saves antigos iniciam sem suportes no autoataque, sem perder skills.
-36 ativas disponiveis no catalogo do beta; nao sao desbloqueios por loot. Saves antigos recebem novas entradas de progresso no carregamento.
+44 ativas disponiveis no catalogo do beta; nao sao desbloqueios por loot. Saves antigos recebem novas entradas de progresso no carregamento.
 IDs anteriores e escolhas salvas preservados. Graus 1-3 oferecem duas evolucoes por grau; nao confundir com marcos permanentes de personagem.
 Valores sao ponto de partida de balanceamento, nao prova de viabilidade equivalente. Efeitos visuais/icone provisorios em pixel art; audio individual ainda pendente.
 
@@ -65,6 +65,14 @@ Valores sao ponto de partida de balanceamento, nao prova de viabilidade equivale
 | Chuva Ferral | `meteor` | Tres impactos atrasados cobrem pontos diferentes ao redor da mira. |
 | Cometa de Vidro | `meteor` | Um impacto grande e lento; exige antecipar o movimento da horda. |
 | Disco de Retorno | `boomerang` | Disco corta a linha de ida e retorna pela mesma rota. |
+| Bola de Fogo | `projectile` | Projetil flamejante que explode em area no impacto. |
+| Bolha Corrosiva | `projectile` | Bolha lenta de acido; o impacto deixa os inimigos vulneraveis. |
+| Cometa Sombrio | `projectile` | Cometa de sombra que atravessa dois alvos e desacelera. |
+| Raizes Presas | `field` | Raizes brotam na mira e prendem a horda com lentidao forte. |
+| Pilar Sagrado | `meteor` | Coluna de luz cai na mira apos breve aviso. |
+| Esfera de Gelo | `projectile` | Esfera gelada que estilhaca no impacto e desacelera em area. |
+| Saraivada de Flechas | `volley` | Enquanto ativa, dispara flechas que atravessam um inimigo para todos os lados enquanto voce anda; fogo, gelo e raio se alternam a cada rajada. Consome Folego por segundo e segura a regeneracao; usar de novo encerra. |
+| Trovao Descendente | `meteor` | Dois raios caem rapido ao redor da mira. |
 
 ## 20 suportes mecanicos
 

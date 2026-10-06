@@ -317,7 +317,7 @@ BOSSES = [
 # Calibragem de Vida dos chefes pela sonda tools/bench/balance_probe.gd (decisao 566): alvo de
 # cerca de 75 s em solo no nivel do andar.
 BOSS_HEALTH_CALIBRATION = {
-    "guardiao_de_enxerto": 2.5,
+    "guardiao_de_enxerto": 1.4,  # decisao 579: enfrentado so com a gema inicial
     "refeitor": 2.5,
     "pastor_das_correntes": 2.5,
     "guardia_do_no_mae": 2.0,
@@ -331,6 +331,20 @@ BOSS_HEALTH_CALIBRATION = {
 }
 # O Regente recebe golpes menores: a sonda mostrou o andar 100 intransponivel.
 REGENTE_DAMAGE_SCALE = 0.6
+
+# Conjuntos de gemas por chefe, ate o andar 72 (decisao 579). Cada personagem comeca so com a
+# sua gema inicial (STARTER_GEMS em world_simulation.gd); as quatro iniciais saem nos dois
+# primeiros chefes para as outras personagens. Todas as 44 gemas ativas aparecem uma vez.
+BOSS_GEM_SETS = {
+    "guardiao_de_enxerto": ["agulha_lastro", "elo_residual", "passo_vetorial", "estilhacos_lunares", "anel_de_geada", "circulo_de_reparo"],
+    "refeitor": ["pulso_cicatriz", "mina_de_lastro", "lanca_ferral", "bola_de_fogo", "muralha_refeita", "ceifa_ampla"],
+    "pastor_das_correntes": ["arco_voltaico", "corte_vetorial", "prisao_gravitica", "esfera_de_gelo", "semeadura_vital", "laminas_orbitais"],
+    "guardia_do_no_mae": ["raizes_presas", "bolha_corrosiva", "pantano_acido", "sopro_criogenico", "salto_de_guarda", "saraivada_de_flechas"],
+    "guardiao_da_comporta": ["satelites_de_geada", "disco_de_retorno", "brasa_persistente", "raio_prismatico", "casca_reativa"],
+    "coroa_dos_condutores": ["trovao_descendente", "dreno_em_rede", "sentinela_ferral", "chuva_ferral", "semente_explosiva"],
+    "guardiao_do_marco_cego": ["molde_vigilante", "orbe_de_ruptura", "fio_desintegrador", "enxame_luminar", "abrigo_de_escora"],
+    "palpebra_do_horizonte": ["cometa_de_vidro", "cometa_sombrio", "pilar_sagrado", "ruptura_sismica", "guardiao_de_lastro"],
+}
 
 PARTY_ABILITIES = {
     "2": [A("slam", targets=2, radius=80, delay=1.2, damage_ratio=0.8, cooldown=8.0)],
@@ -431,6 +445,7 @@ def build():
             record["damage"] = int(round(boss["damage"] * REGENTE_DAMAGE_SCALE))
             record["abilities"] = [dict(a, damage=int(round(a["damage"] * REGENTE_DAMAGE_SCALE))) if "damage" in a else a for a in boss["abilities"]]
         record["loot_table_id"] = "saque_%s" % boss["id"]
+        record["gem_set"] = BOSS_GEM_SETS.get(boss["id"], [])
         bosses.append(record)
         if boss.get("existing"):
             continue
@@ -475,6 +490,7 @@ def write_doc(content):
     beta = json.loads((ROOT / "data" / "beta" / "beta_content.json").read_text(encoding="utf-8"))
     for enemy in beta["enemies"]:
         enemy_names.setdefault(enemy["id"], enemy["name"])
+    gem_names = {g["id"]: g["name"] for g in beta["active_gems"]}
     out = ["# Torre: Andares, Biomas e Chefes", "", "## Estado", "",
            "**Implementado no jogo (decisoes 553 a 559 e 566).** Gerado a partir de `data/tower/tower_content.json` por "
            "`tools/content/build_tower.py`; edite o gerador e rode-o de novo. Valores calibrados pela sonda "
@@ -503,10 +519,11 @@ def write_doc(content):
     out += ["", "## Chefes", "",
             "Todo chefe muda de fase pela Vida, entra em furia apos o tempo indicado (dano x1,5 e recargas x0,6) e ganha "
             "combinacoes extras com dois, tres e quatro jogadores. Toda habilidade de area e anunciada no chao antes do golpe.", "",
-            "| Andar | Chefe | Vida | Dano | Fases (Vida) | Furia | Habilidades |", "|---|---|---|---|---|---|---|"]
+            "| Andar | Chefe | Vida | Dano | Fases (Vida) | Furia | Habilidades | Gemas que entrega |", "|---|---|---|---|---|---|---|---|"]
     for boss in content["bosses"]:
         abilities = "; ".join(ABILITY_LABELS.get(a["type"], a["type"]) + (" (fase %d)" % a["phase"] if a.get("phase") else "") for a in boss["abilities"])
-        out.append("| %d | %s | %d | %d | %s | %d s | %s |" % (boss["floor"], boss["name"], boss["health"], boss["damage"], ", ".join("%d%%" % int(p * 100) for p in boss["phases"]), boss["enrage"], abilities))
+        gems = ", ".join(gem_names.get(g, g) for g in boss.get("gem_set", [])) or "-"
+        out.append("| %d | %s | %d | %d | %s | %d s | %s | %s |" % (boss["floor"], boss["name"], boss["health"], boss["damage"], ", ".join("%d%%" % int(p * 100) for p in boss["phases"]), boss["enrage"], abilities, gems))
     biome_names = {b["id"]: b["name"] for b in content["biomes"]}
     out += ["", "## Andares", "", "| Andar | Nome | Bioma | Tipo | Cota | Tamanho |", "|---|---|---|---|---|---|"]
     for floor in content["floors"]:

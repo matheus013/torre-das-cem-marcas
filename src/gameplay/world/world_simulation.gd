@@ -30,8 +30,26 @@ const AUTO_ATTACK_INTERVAL := 0.65
 const PLAYER_MAX_HEALTH := 100.0
 const PLAYER_MAX_BREATH := 100.0
 const CRIT_CHANCE := 0.12
+## Prata de Ordel (documento 58): bolsa inicial e preço de venda de equipamento por raridade,
+## multiplicado pela fabricação. Filtro e autovenda usam a ordem das raridades.
+const STARTING_SILVER := 120
+const SELL_PRICES := {"common": 8, "uncommon": 20, "rare": 45, "epic": 90, "legendary": 180}
+const TIER_ORDER: Array[String] = ["common", "uncommon", "rare", "epic", "legendary"]
+## Elementos alternados da Saraivada de Flechas, uma rajada de cada.
+const VOLLEY_ELEMENTS := [
+	{"id": "fire", "power_multiplier": 1.3},
+	{"id": "ice", "slow": 0.3, "slow_duration": 1.5},
+	{"id": "lightning", "vulnerable": 0.1, "vulnerable_duration": 2.0},
+]
+## Chance de arma única por baixa, sempre de uma gema que quem abateu está usando.
+const UNIQUE_WEAPON_CHANCE := {"common": 0.01, "elite": 0.05, "boss": 1.0, "raid": 1.0}
+## Tetos de redução de recarga (60%) e de área (+100%): acima disso as gemas viram spam contínuo.
+const COOLDOWN_RECOVERY_CAP := 2.5
+const AREA_MULTIPLIER_CAP := 2.0
+## Campos de tamanho de efeito que a Área amplia; alcance é distância, não área, e fica de fora.
+const AREA_KEYS: Array[String] = ["radius", "impact_area", "collision_radius", "width", "arrival_area"]
 const CRIT_MULTIPLIER := 1.75
-const SAVE_VERSION := 7
+const SAVE_VERSION := 8
 const CONTENT_PATH := "res://data/generated/dev_content.json"
 const BETA_PATH := "res://data/beta/beta_content.json"
 const CHARACTER_IDS: Array[StringName] = [&"eloa", &"sena", &"cira", &"rui"]
@@ -42,9 +60,16 @@ const STARTER_WEAPONS := {
 const STARTER_GEAR: Array[String] = ["protecao_de_trabalho", "botas_de_rota_antiga", "anel_de_folego"]
 const EXPERIENCE_REWARDS := {"common": 12, "elite": 30, "boss": 120, "raid": 400}
 const GEM_IDS: Array[String] = ["agulha_lastro", "passo_vetorial", "pulso_cicatriz", "prisao_gravitica"]
+## Cada personagem começa só com o autoataque e esta gema em Q; as demais vêm dos chefes (`gem_set`).
+const STARTER_GEMS := {
+	&"eloa": "elo_residual", &"sena": "agulha_lastro", &"cira": "pulso_cicatriz", &"rui": "mina_de_lastro",
+}
+## EXP de gema vem do uso: cada lançamento e cada abate feito pela própria gema.
+const GEM_CAST_EXPERIENCE := 6
 ## "tower" é sempre o andar ativo da Torre (`current_floor`); o grupo atravessa os andares junto.
 const ARENA_ZONES: Array[StringName] = [&"tower"]
-const GEM_MAX_LEVEL_BETA := 3
+## Nível 1 é a gema-base; os níveis 2, 3 e 4 liberam a escolha das evoluções 1, 2 e 3.
+const GEM_MAX_LEVEL_BETA := 4
 const STABILITY_LIMIT := 0.6
 const RECONNECT_GRACE := 60.0
 ## Escalonamento cooperativo do documento 58: orçamento do encontro, Vida de elite e Vida de chefe
@@ -106,6 +131,8 @@ var players: Dictionary = {}
 var enemies: Array[Dictionary] = []
 var enemy_projectiles: Array[Dictionary] = []
 var persistent_effects: Array[Dictionary] = []
+## Gema cujo efeito está sendo resolvido; vai nos eventos visuais para a apresentação escolher o tema.
+var _vfx_theme := ""
 ## Andares (decisão 553): andar ativo, layout, corrida atual, telegrafias, zonas de perigo,
 ## recargas de chefes derrotados, andar de partida, andar mais fundo e recordes de tempo.
 var current_floor := 0
@@ -332,9 +359,9 @@ func _ensure_character(character_id: StringName, definition: Dictionary) -> void
 		character_builds[key] = factory.call("create_build", definition)
 		character_experience[key] = 0
 	if not character_gems.has(key):
-		character_gems[key] = _new_gem_state()
+		character_gems[key] = _new_gem_state(key)
 	if not character_gear.has(key):
-		character_gear[key] = {"inventory": ItemInventory.new(StringName(key)), "equipment": EquipmentLoadout.new()}
+		character_gear[key] = _new_gear(key)
 		var weapon := String(STARTER_WEAPONS.get(character_id, "filamentos_de_forja"))
 		var weapon_id := _add_equipment_instance(character_id, weapon)
 		var armor_id := _add_equipment_instance(character_id, STARTER_GEAR[0])
@@ -346,12 +373,80 @@ func _ensure_character(character_id: StringName, definition: Dictionary) -> void
 
 # ---------------------------------------------------------------- gemas por personagem
 
-## Gemas pertencem à personagem: quatro ativas em Q/W/E/R, suportes por encaixe e progresso por gema.
-func _new_gem_state() -> Dictionary:
+## Gemas pertencem à personagem: até quatro ativas em Q/W/E/R (encaixe vazio é ""), suportes por
+## encaixe e progresso só das gemas possuídas. Começa com a gema inicial da personagem em Q.
+func _new_gem_state(character_id: String = "") -> Dictionary:
 	var gems := {}
+	var slots: Array = ["", "", "", ""]
+	var starter := String(STARTER_GEMS.get(StringName(character_id), ""))
+	if not gem_definition(starter).is_empty():
+		gems[starter] = _new_gem_progress()
+		slots[0] = starter
+	return {"slots": slots, "supports": [[], [], [], []], "auto_supports": [], "gems": gems}
+
+
+func _new_gem_progress() -> Dictionary:
+	return {"level": 1, "experience": 0, "choices": {}}
+
+
+func owns_gem(peer_id: int, gem_id: String) -> bool:
+	return (_gem_state(peer_id).get("gems", {}) as Dictionary).has(gem_id)
+
+
+## Entrega uma gema à personagem (queda de chefe, ferramentas e testes). Falso se já tinha.
+func grant_gem(peer_id: int, gem_id: String) -> bool:
+	var gems := _gem_state(peer_id)
+	if gems.is_empty() or gem_definition(gem_id).is_empty() or (gems["gems"] as Dictionary).has(gem_id):
+		return false
+	(gems["gems"] as Dictionary)[gem_id] = _new_gem_progress()
+	var slots := gems["slots"] as Array
+	var empty := slots.find("")
+	if empty >= 0:
+		slots[empty] = gem_id
+	return true
+
+
+## Atalho de desenvolvimento (F8 no modo dev, ferramentas e testes): todas as gemas ativas.
+## Com `legacy_loadout`, Q/W/E/R voltam à formação clássica de GEM_IDS.
+func unlock_all_gems(peer_id: int, legacy_loadout: bool = false) -> void:
+	var gems := _gem_state(peer_id)
+	if gems.is_empty():
+		return
 	for definition in _collection("active_gems"):
-		gems[String(definition.get("id", ""))] = {"level": 1, "experience": 0, "choices": {}}
-	return {"slots": GEM_IDS.duplicate(), "supports": [[], [], [], []], "auto_supports": [], "gems": gems}
+		var gem_id := String(definition.get("id", ""))
+		if not (gems["gems"] as Dictionary).has(gem_id):
+			(gems["gems"] as Dictionary)[gem_id] = _new_gem_progress()
+	if legacy_loadout:
+		gems["slots"] = GEM_IDS.duplicate()
+		gems["supports"] = [[], [], [], []]
+	_status(peer_id, "Todas as gemas liberadas (desenvolvimento).")
+
+
+## Conjunto de gemas que o chefe do andar entrega; vazio em andares sem chefe ou sem conjunto.
+static func boss_gem_set(floor_number: int) -> Array[String]:
+	var result: Array[String] = []
+	for boss in TowerContentScript.collection("bosses"):
+		if int(boss.get("floor", 0)) == floor_number:
+			for gem_id: Variant in boss.get("gem_set", []) as Array:
+				result.append(String(gem_id))
+	return result
+
+
+## Chefe vencido: cada jogador na arena recebe as gemas do conjunto que ainda não tinha.
+func _grant_boss_gems(floor_number: int) -> void:
+	var gem_set := boss_gem_set(floor_number)
+	if gem_set.is_empty():
+		return
+	for member in _players_in_arena():
+		var names: Array[String] = []
+		for gem_id in gem_set:
+			if grant_gem(member, gem_id):
+				names.append(String(gem_definition(gem_id).get("name", gem_id)))
+		if names.is_empty():
+			continue
+		var state := player(member)
+		_vfx(state["zone"] as StringName, "label", [state["position"] as Vector2 + Vector2(0.0, -46.0), "+%d GEMAS" % names.size(), Color("f2d16a"), "levelup"])
+		_status(member, "Novas gemas: %s. Equipe em Aresta (SKILLS)." % ", ".join(names))
 
 
 func _gem_state(peer_id: int) -> Dictionary:
@@ -386,11 +481,16 @@ func _in_safe_area(peer_id: int, action: String) -> bool:
 
 func set_gem_slot(peer_id: int, slot: int, gem_id: String) -> bool:
 	var gems := _gem_state(peer_id)
-	if gems.is_empty() or slot < 0 or slot >= 4 or not (gems["gems"] as Dictionary).has(gem_id):
+	if gems.is_empty() or slot < 0 or slot >= 4 or not (gem_id.is_empty() or (gems["gems"] as Dictionary).has(gem_id)):
 		return false
 	if not _in_safe_area(peer_id, "Trocar gemas"):
 		return false
 	var slots := gems["slots"] as Array
+	if gem_id.is_empty():
+		slots[slot] = ""
+		(gems["supports"] as Array)[slot] = []
+		_status(peer_id, "%s ficou vazio." % GEM_SLOT_KEYS[slot])
+		return true
 	var previous := String(slots[slot])
 	var other := slots.find(gem_id)
 	if other >= 0 and other != slot:
@@ -418,6 +518,8 @@ func attach_support(peer_id: int, slot: int, support_id: String) -> bool:
 	var supports_list := gems["supports"] as Array
 	var current := supports_list[slot] as Array
 	var gem_id := String(slots[slot])
+	if gem_id.is_empty():
+		return false
 	var level := int(((gems["gems"] as Dictionary)[gem_id] as Dictionary)["level"])
 	var resolver: RefCounted = SkillResolverScript.new()
 	var message := ""
@@ -475,17 +577,23 @@ func choose_gem_evolution(peer_id: int, gem_id: String, choice_id: String) -> bo
 	if not _in_safe_area(peer_id, "Escolher evolucoes"):
 		return false
 	var progress := (gems["gems"] as Dictionary)[gem_id] as Dictionary
-	var level := int(progress["level"])
-	var choices := progress["choices"] as Dictionary
-	if choices.has(str(level)):
+	var tier := pending_evolution_tier(progress)
+	if tier <= 0:
 		return false
-	for option: Dictionary in _evolution_options(gem_id, level):
+	for option: Dictionary in _evolution_options(gem_id, tier):
 		if String(option.get("id", "")) == choice_id:
-			choices[str(level)] = choice_id
+			(progress["choices"] as Dictionary)[str(tier)] = choice_id
 			_status(peer_id, "%s: %s." % [gem_definition(gem_id).get("name", gem_id), option.get("name", choice_id)])
-			_advance_gem(peer_id, gem_id)
 			return true
 	return false
+
+
+## Primeira evolução liberada pelo nível (tier = nível - 1) e ainda sem escolha; 0 se nenhuma.
+static func pending_evolution_tier(progress: Dictionary) -> int:
+	for tier in range(1, int(progress.get("level", 1))):
+		if not (progress.get("choices", {}) as Dictionary).has(str(tier)):
+			return tier
+	return 0
 
 
 func _evolution_options(gem_id: String, level: int) -> Array[Dictionary]:
@@ -498,28 +606,35 @@ func _evolution_options(gem_id: String, level: int) -> Array[Dictionary]:
 
 
 func gem_experience_required(level: int) -> int:
-	return 80 * level
+	return 150 * level
 
 
-func _grant_gem_experience(peer_id: int, amount: int) -> void:
+## EXP de uso: só a gema que foi lançada ou que abateu o inimigo cresce.
+func gain_gem_experience(peer_id: int, gem_id: String, amount: int) -> void:
 	var gems := _gem_state(peer_id)
-	if gems.is_empty():
+	if gems.is_empty() or amount <= 0 or not (gems["gems"] as Dictionary).has(gem_id):
 		return
-	for gem_id: Variant in gems["slots"]:
-		var progress := (gems["gems"] as Dictionary)[String(gem_id)] as Dictionary
-		progress["experience"] = int(progress["experience"]) + amount
-		_advance_gem(peer_id, String(gem_id))
+	var progress := (gems["gems"] as Dictionary)[gem_id] as Dictionary
+	if int(progress["level"]) >= GEM_MAX_LEVEL_BETA:
+		return
+	progress["experience"] = int(progress["experience"]) + amount
+	_advance_gem(peer_id, gem_id)
 
 
-## Uma gema só sobe depois de escolher a evolução do nível atual (doc 65).
+## Sobe de nível ao completar a EXP; cada nível libera a escolha de uma evolução em Aresta.
 func _advance_gem(peer_id: int, gem_id: String) -> void:
 	var progress := (_gem_state(peer_id)["gems"] as Dictionary)[gem_id] as Dictionary
-	while int(progress["level"]) < GEM_MAX_LEVEL_BETA and (progress["choices"] as Dictionary).has(str(int(progress["level"]))):
+	while int(progress["level"]) < GEM_MAX_LEVEL_BETA:
 		var required := gem_experience_required(int(progress["level"]))
 		if int(progress["experience"]) < required:
 			break
 		progress["experience"] = int(progress["experience"]) - required
 		progress["level"] = int(progress["level"]) + 1
+		if int(progress["level"]) >= GEM_MAX_LEVEL_BETA:
+			progress["experience"] = 0
+		var state := player(peer_id)
+		if not state.is_empty():
+			_vfx(state["zone"] as StringName, "label", [state["position"] as Vector2 + Vector2(0.0, -30.0), "%s NV %d" % [String(gem_definition(gem_id).get("name", gem_id)).to_upper(), progress["level"]], Color("9fd8ff"), "levelup"])
 		_status(peer_id, "%s alcancou o nivel %d. Escolha a evolucao em Aresta." % [gem_definition(gem_id).get("name", gem_id), progress["level"]])
 
 
@@ -527,6 +642,9 @@ func _validate_supports(gems: Dictionary) -> void:
 	var resolver: RefCounted = SkillResolverScript.new()
 	for slot in range(4):
 		var gem_id := String((gems["slots"] as Array)[slot])
+		if not (gems["gems"] as Dictionary).has(gem_id):
+			(gems["supports"] as Array)[slot] = []
+			continue
 		var level := int(((gems["gems"] as Dictionary)[gem_id] as Dictionary)["level"])
 		var kept: Array = []
 		for support_id: Variant in (gems["supports"] as Array)[slot]:
@@ -541,11 +659,15 @@ func resolve_slot(peer_id: int, slot: int) -> Dictionary:
 	var gems := _gem_state(peer_id)
 	if gems.is_empty():
 		return {}
+	if slot < 0 or slot >= 4:
+		return {}
 	var gem_id := String((gems["slots"] as Array)[slot])
+	if not (gems["gems"] as Dictionary).has(gem_id):
+		return {}
 	var definition := gem_definition(gem_id)
 	var progress := (gems["gems"] as Dictionary)[gem_id] as Dictionary
 	var evolution_modifiers: Array[Dictionary] = []
-	for level in range(1, int(progress["level"]) + 1):
+	for level in range(1, int(progress["level"])):
 		var choice_id := String((progress["choices"] as Dictionary).get(str(level), ""))
 		for option in _evolution_options(gem_id, level):
 			if String(option.get("id", "")) == choice_id:
@@ -558,8 +680,25 @@ func resolve_slot(peer_id: int, slot: int) -> Dictionary:
 	var resolver: RefCounted = SkillResolverScript.new()
 	var base: Dictionary = resolver.call("resolve", definition, [] as Array[Dictionary], evolution_modifiers)
 	var resolved: Dictionary = resolver.call("resolve", base, supports)
+	var unique := unique_weapon_for(peer_id, gem_id)
+	if not unique.is_empty():
+		var unique_modifiers: Array[Dictionary] = [unique["gem_modifiers"] as Dictionary]
+		resolved = resolver.call("resolve", resolved, [] as Array[Dictionary], unique_modifiers)
+		resolved["unique_weapon"] = String(unique["id"])
 	resolved["gem_id"] = gem_id
 	return resolved
+
+
+## Arma única equipada que pertence a esta gema; vazio se a arma não for a dela.
+func unique_weapon_for(peer_id: int, gem_id: String) -> Dictionary:
+	var gear := _gear(peer_id)
+	if gear.is_empty():
+		return {}
+	var weapon: EquipmentItemInstance = (gear["equipment"] as EquipmentLoadout).get_equipped(EquipmentItemDefinition.Slot.WEAPON, 0)
+	if weapon == null:
+		return {}
+	var data := _find(_collection("items"), String(weapon.definition.id))
+	return data if String(data.get("unique_gem", "")) == gem_id else {}
 
 
 ## Cargas por slot: `extra_charge` permite usos seguidos; a recarga devolve uma carga por vez.
@@ -611,8 +750,10 @@ func use_skill(peer_id: int, slot: int, target: Vector2) -> bool:
 	for key: String in ["power", "barrier", "healing", "trail_damage", "arrival_damage", "expire_damage"]:
 		if effect.has(key):
 			effect[key] = float(effect[key]) * power_multiplier
-	if effect.has("radius"):
-		effect["radius"] = float(effect["radius"]) * _mod(peer_id, "radius_mult")
+	var area := float(derived_stats(peer_id).get("area_multiplier", 1.0))
+	for key in AREA_KEYS:
+		if effect.has(key):
+			effect[key] = float(effect[key]) * area
 	if effect.has("duration"):
 		effect["duration"] = float(effect["duration"]) * _mod(peer_id, "duration_mult")
 	if not free:
@@ -627,6 +768,7 @@ func use_skill(peer_id: int, slot: int, target: Vector2) -> bool:
 	state["last_hit"] = _hit_context(effect)
 	execute_gem_effect(peer_id, effect, target)
 	_after_skill(peer_id, effect, target, float(cast.get("echo", 0.0)))
+	gain_gem_experience(peer_id, String(effect.get("gem_id", "")), GEM_CAST_EXPERIENCE)
 	return true
 
 
@@ -643,6 +785,17 @@ func _skill_power_multiplier(peer_id: int, effect: Dictionary) -> float:
 	for tag: Variant in effect.get("tags", []) as Array:
 		multiplier *= _mod(peer_id, "power_%s_mult" % String(tag))
 	return multiplier
+
+
+## Atributos que fortalecem a gema, com o ganho por ponto efetivo e os pontos atuais.
+func gem_scaling_view(peer_id: int, gem_id: String) -> Array[Dictionary]:
+	var effective := derived_stats(peer_id).get("effective_primaries", {}) as Dictionary
+	var stats := gem_definition(gem_id).get("scaling", []) as Array
+	var result: Array[Dictionary] = []
+	for index in range(mini(stats.size(), GEM_SCALING_WEIGHTS.size())):
+		var stat := String(stats[index])
+		result.append({"stat": stat, "per_point": GEM_SCALING_WEIGHTS[index] / 100.0, "points": float(effective.get(StringName(stat), 0.0))})
+	return result
 
 
 ## Eco (passiva ou `skill_echo`) e onda de chegada do dash (`dash_nova`) depois de uma gema.
@@ -823,6 +976,9 @@ func _step_player(peer_id: int, delta: float) -> void:
 	if float(state["since_damage"]) >= OUT_OF_COMBAT_DELAY and state["zone"] in ARENA_ZONES:
 		state["health"] = minf(max_health(peer_id), float(state["health"]) + max_health(peer_id) * OUT_OF_COMBAT_REGEN * delta)
 	var regen := 18.0 * delta * _mod(peer_id, "breath_regen_mult")
+	# Canalizar a Saraivada segura o fôlego: sem regenerar, o custo por segundo vale de verdade.
+	if persistent_effects.any(func(effect: Dictionary) -> bool: return effect["mechanic"] == "volley" and int(effect["owner_peer"]) == peer_id):
+		regen = 0.0
 	var overflow := float(state["breath"]) + regen - max_breath(peer_id)
 	state["breath"] = minf(max_breath(peer_id), float(state["breath"]) + regen)
 	if overflow > 0.0 and state["zone"] in ARENA_ZONES:
@@ -1017,6 +1173,7 @@ func leave_tower(peer_id: int) -> void:
 	_merge_loot(banked_loot, state["carried_loot"] as Dictionary)
 	(state["carried_loot"] as Dictionary).clear()
 	state["carried_stone"] = 0
+	var sale := _auto_sell(peer_id)
 	_clear_owned_effects(peer_id)
 	if _players_in_arena().is_empty():
 		enemy_projectiles.clear()
@@ -1027,9 +1184,9 @@ func leave_tower(peer_id: int) -> void:
 	if banked_stone >= 3 and village_progress == 0:
 		village_progress = 1
 		village_life.call("remember_event", "reforco", "um reforco foi erguido em Aresta com a pedra trazida da Torre", 0.6)
-		_status(peer_id, "Relatorio: %d pedras entregues. Um reforco foi construido." % delivered)
+		_status(peer_id, "Relatorio: %d pedras entregues. Um reforco foi construido.%s" % [delivered, sale])
 	else:
-		_status(peer_id, "Relatorio: %d pedras entregues. Total armazenado: %d." % [delivered, banked_stone])
+		_status(peer_id, "Relatorio: %d pedras entregues. Total armazenado: %d.%s" % [delivered, banked_stone, sale])
 
 
 ## Fatos verdadeiros e jogadores visíveis entregues aos moradores.
@@ -1208,13 +1365,16 @@ func _register_floor_kill(enemy: Dictionary) -> void:
 		return
 	if bool(enemy.get("floor_boss", false)):
 		boss_cooldowns[current_floor] = BOSS_COOLDOWN
+		_grant_boss_gems(current_floor)
 		_finish_floor_run()
 		floor_run["stairs_open"] = true
+		_announce_stairs()
 		_status(0, "Guardiao vencido em %s. A passagem se abriu." % format_time(float(floor_run["time"])))
 		return
 	floor_run["kills"] = int(floor_run["kills"]) + 1
 	if is_explore_floor() and not bool(floor_run["stairs_open"]) and int(floor_run["kills"]) >= int(floor_run["quota"]):
 		floor_run["stairs_open"] = true
+		_announce_stairs()
 		_status(0, "Cota do andar cumprida. A escada para o andar %d se abriu." % mini(current_floor + 1, TowerContentScript.MAX_FLOOR))
 
 
@@ -1953,7 +2113,7 @@ func damage_enemy(peer_id: int, index: int, damage: float, hit: Dictionary = {})
 	var enemy_position := enemy["position"] as Vector2
 	if int(enemy.get("shield_hits", 0)) > 0:
 		enemy["shield_hits"] = int(enemy["shield_hits"]) - 1
-		_vfx(zone, "label", [enemy_position, "BLOQUEIO", Color("c9d4d6")])
+		_vfx(zone, "label", [enemy_position, "BLOQUEIO", Color("c9d4d6"), "block"])
 		return
 	var derived := derived_stats(peer_id)
 	var conditioned := float(enemy.get("vulnerable_timer", 0.0)) > 0.0 or float(enemy.get("slow_timer", 0.0)) > 0.0
@@ -2019,6 +2179,8 @@ func damage_enemy(peer_id: int, index: int, damage: float, hit: Dictionary = {})
 	var defeated := enemy.duplicate(true) as Dictionary
 	var mechanics: Array = defeated.get("modifier_mechanics", []) as Array
 	enemies.remove_at(index)
+	var major := bool(defeated.get("floor_boss", false)) or String(defeated.get("encounter_class", "")) in ["boss", "raid"]
+	_vfx(zone, "play", ["explosion" if major else "poof", enemy_position])
 	if not bool(defeated.get("fragment", false)):
 		var encounter_class := StringName(String(defeated.get("encounter_class", "common")))
 		respawn.call("register_defeat", StringName(String(defeated.get("definition_id", ""))), encounter_class, enemy_position)
@@ -2027,6 +2189,10 @@ func damage_enemy(peer_id: int, index: int, damage: float, hit: Dictionary = {})
 		for member in _players_in_arena():
 			_grant_experience(member, defeated)
 		_on_kill(peer_id, enemy_position)
+		if not String(hit.get("gem_id", "")).is_empty() and players.has(peer_id):
+			gain_gem_experience(peer_id, String(hit["gem_id"]), int(EXPERIENCE_REWARDS.get(String(defeated.get("encounter_class", "common")), 12)))
+		if float(hit.get("breath_on_kill", 0.0)) > 0.0 and players.has(peer_id):
+			player(peer_id)["breath"] = minf(max_breath(peer_id), float(player(peer_id)["breath"]) + float(hit["breath_on_kill"]))
 		_register_floor_kill(defeated)
 	if "death_burst" in mechanics:
 		for member in _players_in_arena():
@@ -2059,7 +2225,7 @@ func take_damage(peer_id: int, amount: float) -> void:
 		var absorbed := minf(float(state["barrier"]), amount)
 		state["barrier"] = float(state["barrier"]) - absorbed
 		amount -= absorbed
-		_vfx(zone, "label", [position, "ABSORVIDO", Color("7fd6e0")])
+		_vfx(zone, "label", [position, "ABSORVIDO", Color("7fd6e0"), "shield"])
 		if amount <= 0.0:
 			_status(peer_id, "Barreira absorveu o impacto.")
 			return
@@ -2067,6 +2233,9 @@ func take_damage(peer_id: int, amount: float) -> void:
 	if stability > 0.0:
 		amount *= 1.0 - stability
 	amount *= _mod(peer_id, "damage_taken_mult") * (1.0 - _ally_aura(peer_id, "ally_damage_reduction_add"))
+	# Guarda da arma: quem luta colado (manoplas, bastão) recebe menos dano para compensar o risco.
+	amount *= 1.0 - clampf(float(weapon_attack_model(peer_id).get("guard", 0.0)), 0.0, 0.5)
+	amount *= 1.0 - float(derived_stats(peer_id).get("damage_reduction", 0.0))
 	var reaction: Dictionary = (state["passive"] as RefCounted).call("on_damage_taken", amount, float(state["health"]) / max_health(peer_id))
 	amount = float(reaction["amount"])
 	_vfx(zone, "number", [position, amount, false, "player"])
@@ -2097,7 +2266,7 @@ func _fall(peer_id: int) -> void:
 	state["barrier"] = 0.0
 	state["target"] = state["position"]
 	state["moving"] = false
-	_vfx(state["zone"], "label", [state["position"], "CAIU", Color("e87a6a")])
+	_vfx(state["zone"], "label", [state["position"], "CAIU", Color("e87a6a"), "downed"])
 	_status(0, "%s caiu! Fique ao lado por %d s para estabilizar (%d s restantes)." % [String(state["character_name"]), int(STABILIZE_SECONDS), int(DOWNED_WINDOWS[falls])])
 	_check_party_collapse()
 
@@ -2143,7 +2312,7 @@ func _step_downed(peer_id: int, delta: float) -> void:
 		state["health"] = max_health(peer_id) * STABILIZED_HEALTH
 		state["invulnerable"] = 1.5
 		state["stabilize_progress"] = 0.0
-		_vfx(state["zone"], "label", [state["position"], "ESTABILIZADO", Color("93c25a")])
+		_vfx(state["zone"], "label", [state["position"], "ESTABILIZADO", Color("93c25a"), "heal"])
 		_status(0, "%s foi estabilizado com um Ferimento de Expedicao." % String(state["character_name"]))
 	elif float(state["downed_timer"]) <= 0.0:
 		state["downed"] = false
@@ -2197,6 +2366,16 @@ func _clear_owned_effects(peer_id: int) -> void:
 # ---------------------------------------------------------------- gemas e efeitos
 
 func execute_gem_effect(peer_id: int, effect: Dictionary, target: Vector2) -> void:
+	var previous_theme := _vfx_theme
+	_vfx_theme = String(effect.get("gem_id", ""))
+	var caster := player(peer_id)
+	if not caster.is_empty() and String(effect.get("mechanic", "")) != "impact":
+		_vfx(caster["zone"], "cast", [caster["position"]])
+	_execute_gem_effect(peer_id, effect, target)
+	_vfx_theme = previous_theme
+
+
+func _execute_gem_effect(peer_id: int, effect: Dictionary, target: Vector2) -> void:
 	var state := player(peer_id)
 	if state.is_empty():
 		return
@@ -2209,6 +2388,8 @@ func execute_gem_effect(peer_id: int, effect: Dictionary, target: Vector2) -> vo
 	match mechanic:
 		"projectile", "boomerang":
 			_cast_projectiles(peer_id, effect, target, hit)
+		"volley":
+			_toggle_volley(peer_id, effect, hit)
 		"cone":
 			var direction := (target - position).normalized()
 			if direction == Vector2.ZERO:
@@ -2223,7 +2404,7 @@ func execute_gem_effect(peer_id: int, effect: Dictionary, target: Vector2) -> vo
 			if direction == Vector2.ZERO:
 				direction = Vector2.RIGHT
 			var end := position + direction * float(effect.get("range", 450.0))
-			_vfx(zone, "chain", [[position, end]])
+			_vfx(zone, "beam", [position, end, float(effect.get("width", 18.0))])
 			_damage_segment(peer_id, position, end, float(effect.get("width", 18.0)), power, enemies.size(), hit)
 		"meteor":
 			var center := _ranged_skill_target(peer_id, target, effect)
@@ -2238,7 +2419,7 @@ func execute_gem_effect(peer_id: int, effect: Dictionary, target: Vector2) -> vo
 				impact["repeat_count"] = 0
 				_scheduled.append({"time": delay, "peer": peer_id, "effect": impact, "target": landing, "zone": zone, "floor": current_floor})
 		"impact":
-			_vfx(zone, "burst", [target, radius])
+			_vfx(zone, "strike", [target, radius])
 			damage_enemies(peer_id, target, radius, power, hit)
 		"dash":
 			var direction := (target - position).normalized()
@@ -2303,7 +2484,7 @@ func execute_gem_effect(peer_id: int, effect: Dictionary, target: Vector2) -> vo
 			_vfx(zone, "burst", [effect_position, radius * 0.6])
 		"summon":
 			_spawn_summons(peer_id, effect, target)
-			_vfx(zone, "burst", [target, 28.0])
+			_vfx(zone, "summon", [target])
 		"barrier":
 			var amount := float(effect.get("barrier", 0.0))
 			_add_barrier(peer_id, amount, float(effect.get("duration", 3.5)))
@@ -2354,7 +2535,9 @@ func _hit_context(effect: Dictionary) -> Dictionary:
 		"vulnerable_duration": float(effect.get("status_duration", effect.get("duration", 3.0))),
 		"barrier_per_hit": float(effect.get("barrier_per_hit", 0.0)),
 		"breath_per_hit": float(effect.get("breath_per_hit", 0.0)),
+		"breath_on_kill": float(effect.get("breath_on_kill", 0.0)),
 		"gem": true,
+		"gem_id": String(effect.get("gem_id", "")),
 	}
 
 
@@ -2414,7 +2597,7 @@ func _check_low_health(peer_id: int) -> void:
 		if ratio < float(mechanic.get("threshold", 0.3)) and float(timers.get(key, 0.0)) <= 0.0:
 			timers[key] = float(mechanic.get("cooldown", 30.0))
 			_add_barrier(peer_id, float(mechanic.get("barrier", 40.0)), 6.0)
-			_vfx(state["zone"], "label", [state["position"], "SEGUNDO FOLEGO", Color("7fd6e0")])
+			_vfx(state["zone"], "label", [state["position"], "SEGUNDO FOLEGO", Color("7fd6e0"), "heal"])
 	for helper in _players_in_arena():
 		if helper == peer_id or not is_connected_player(helper):
 			continue
@@ -2519,6 +2702,20 @@ func _update_persistent_effects(delta: float) -> void:
 			effect["position"] = player(owner_peer)["position"]
 		if mechanic == "orbit":
 			effect["phase"] = fmod(float(effect.get("phase", 0.0)) + float(effect["angular_speed"]) * delta, TAU)
+		if mechanic == "volley":
+			var archer := player(owner_peer)
+			var cost := float(effect["breath_per_second"]) * delta
+			if archer.is_empty() or archer["zone"] not in ARENA_ZONES or bool(archer.get("downed", false)) or float(archer["breath"]) < cost or float(effect["duration"]) <= 0.0:
+				if not archer.is_empty() and float(archer.get("breath", 0.0)) < cost:
+					_status(owner_peer, "Folego esgotado: Saraivada encerrada.")
+				persistent_effects.erase(effect)
+				continue
+			archer["breath"] = float(archer["breath"]) - cost
+			effect["tick_timer"] = float(effect["tick_timer"]) - delta
+			if float(effect["tick_timer"]) <= 0.0:
+				effect["tick_timer"] = float(effect["tick_interval"])
+				_fire_volley(effect)
+			continue
 		if mechanic == "mine":
 			effect["arm_timer"] = maxf(0.0, float(effect["arm_timer"]) - delta)
 			if float(effect["duration"]) <= 0.0 or (float(effect["arm_timer"]) <= 0.0 and nearest_enemy_to(effect["position"], float(effect["trigger_radius"])) >= 0):
@@ -2569,6 +2766,50 @@ func _update_persistent_effects(delta: float) -> void:
 				_vfx(arena_zone(), "ring", [effect["position"], expire_radius])
 				damage_enemies(owner_peer, effect["position"] as Vector2, expire_radius, expire, effect.get("hit", {}) as Dictionary)
 			persistent_effects.erase(effect)
+
+
+## Saraivada: usar de novo encerra; senão acompanha a portadora disparando em círculo.
+func _toggle_volley(peer_id: int, effect: Dictionary, hit: Dictionary) -> void:
+	var gem_id := String(effect.get("gem_id", ""))
+	for existing in persistent_effects:
+		if String(existing["mechanic"]) == "volley" and int(existing["owner_peer"]) == peer_id:
+			persistent_effects.erase(existing)
+			_status(peer_id, "Saraivada encerrada.")
+			return
+	persistent_effects.append({
+		"mechanic": "volley", "gem_id": gem_id, "owner_peer": peer_id, "position": player(peer_id)["position"],
+		"follows": true, "duration": float(effect.get("duration", 8.0)), "radius": float(effect.get("range", 300.0)),
+		"power": float(effect.get("power", 0.0)), "range": float(effect.get("range", 300.0)),
+		"tick_interval": float(effect.get("tick_interval", 0.4)), "tick_timer": 0.0,
+		"arrow_count": clampi(int(effect.get("arrow_count", 24)), 1, 48),
+		"breath_per_second": float(effect.get("breath_per_second", 9.0)), "volley_index": 0, "hit": hit,
+		"pierce": clampi(int(effect.get("pierce", 0)), 0, 6),
+	})
+
+
+## Uma rajada: flechas em círculo, girando meio passo a cada rajada; cada uma acerta o primeiro
+## inimigo no caminho e atravessa tantos outros quanto a perfuração. O elemento alterna entre rajadas: fogo bate mais forte, gelo desacelera,
+## raio deixa vulnerável.
+func _fire_volley(effect: Dictionary) -> void:
+	var peer_id := int(effect["owner_peer"])
+	var state := player(peer_id)
+	var origin := (state["position"] as Vector2) - Vector2(0.0, 12.0)
+	var count := int(effect["arrow_count"])
+	var index := int(effect["volley_index"])
+	effect["volley_index"] = index + 1
+	var element := VOLLEY_ELEMENTS[index % VOLLEY_ELEMENTS.size()] as Dictionary
+	var hit := (effect["hit"] as Dictionary).duplicate()
+	for key: String in element:
+		if key != "id" and key != "power_multiplier":
+			hit[key] = maxf(float(hit.get(key, 0.0)), float(element[key]))
+	var previous_theme := _vfx_theme
+	_vfx_theme = "element:" + String(element["id"])
+	for arrow in range(count):
+		var direction := Vector2.RIGHT.rotated(TAU * (float(arrow) + 0.5 * float(index % 2)) / float(count))
+		var end := origin + direction * float(effect["range"])
+		_vfx(state["zone"], "travel", ["vfx/arrow", origin, end, 0.22, 14.0])
+		_damage_segment(peer_id, origin, end, 16.0, float(effect["power"]) * float(element.get("power_multiplier", 1.0)), 1 + int(effect.get("pierce", 0)), hit)
+	_vfx_theme = previous_theme
 
 
 func _summon_target(effect: Dictionary) -> int:
@@ -2738,6 +2979,10 @@ func _grant_loot(peer_id: int, enemy: Dictionary) -> void:
 		var bonus := LootDifficultyScript.pick_bonus_item(_collection("items"), difficulty, allow_relics, quality_random)
 		if not bonus.is_empty():
 			drops.append({"item_id": bonus, "quantity": 1})
+	if quality_random.randf() < float(UNIQUE_WEAPON_CHANCE.get(String(enemy.get("encounter_class", "common")), 0.0)):
+		var unique := _pick_unique_weapon(peer_id, quality_random)
+		if not unique.is_empty():
+			drops.append({"item_id": unique, "quantity": 1})
 	var origin := enemy.get("position", state["position"]) as Vector2
 	for drop_index in range(drops.size()):
 		var drop := drops[drop_index] as Dictionary
@@ -2750,6 +2995,21 @@ func _grant_loot(peer_id: int, enemy: Dictionary) -> void:
 		if _is_equipment(item_id):
 			quality = LootDifficultyScript.pick_weighted(LootDifficultyScript.fabrication_weights(difficulty), quality_random)
 		drop_item(arena_zone(), origin + scatter, item_id, quantity, quality)
+
+
+## Arma única de uma das gemas ativas de quem abateu; vazio se nenhuma tiver arma.
+func _pick_unique_weapon(peer_id: int, random: RandomNumberGenerator) -> String:
+	var gems := _gem_state(peer_id)
+	if gems.is_empty():
+		return ""
+	var candidates: Array[String] = []
+	for gem_id: Variant in gems["slots"] as Array:
+		if String(gem_id).is_empty():
+			continue
+		var unique_id := "unica_" + String(gem_id)
+		if not _find(_collection("items"), unique_id).is_empty():
+			candidates.append(unique_id)
+	return candidates[random.randi_range(0, candidates.size() - 1)] if not candidates.is_empty() else ""
 
 
 ## Coloca saque no chão. Itens empilháveis iguais muito próximos se juntam numa pilha.
@@ -2789,9 +3049,11 @@ func _collect_ground_items(peer_id: int) -> void:
 		var item := ground_items[index]
 		if item["zone"] != state["zone"] or int(item.get("floor", 0)) != current_floor or (item["position"] as Vector2).distance_to(state["position"] as Vector2) > reach:
 			continue
+		if _filtered_out(peer_id, String(item["item_id"]), String(item.get("tier", "common"))):
+			continue
 		ground_items.remove_at(index)
 		_receive_item(peer_id, String(item["item_id"]), int(item["quantity"]), String(item.get("quality", "")))
-		_vfx(state["zone"], "label", [item["position"], "+%d %s" % [int(item["quantity"]), String(item["name"])] if int(item["quantity"]) > 1 else "+" + String(item["name"]), Color("e8b84a")])
+		_vfx(state["zone"], "label", [item["position"], "+%d %s" % [int(item["quantity"]), String(item["name"])] if int(item["quantity"]) > 1 else "+" + String(item["name"]), Color("e8b84a"), "coins"])
 
 
 func _receive_item(peer_id: int, item_id: String, quantity: int, quality: String = "") -> void:
@@ -2839,7 +3101,6 @@ func _grant_experience(peer_id: int, enemy: Dictionary) -> void:
 	var reward := int(EXPERIENCE_REWARDS.get(String(enemy.get("encounter_class", "common")), 12))
 	character_experience[key] = int(character_experience.get(key, 0)) + reward
 	_process_level_ups(peer_id)
-	_grant_gem_experience(peer_id, reward)
 
 
 ## EXP direta (atalho de desenvolvimento): o mesmo caminho de níveis, marcos e gemas.
@@ -2849,7 +3110,8 @@ func add_experience(peer_id: int, amount: int) -> void:
 		return
 	character_experience[key] = int(character_experience.get(key, 0)) + amount
 	_process_level_ups(peer_id)
-	_grant_gem_experience(peer_id, amount)
+	for gem_id: Variant in _gem_state(peer_id).get("slots", []) as Array:
+		gain_gem_experience(peer_id, String(gem_id), amount)
 
 
 func _process_level_ups(peer_id: int) -> void:
@@ -2866,6 +3128,7 @@ func _process_level_ups(peer_id: int) -> void:
 			break
 		player(peer_id)["health"] = minf(max_health(peer_id), float(player(peer_id)["health"]) + HEALTH_PER_LEVEL)
 		_status(peer_id, "%s alcancou o nivel %d." % [player(peer_id)["character_name"], build.level])
+		_vfx(player(peer_id)["zone"], "play", ["levelup", player(peer_id)["position"]])
 	if build.has_pending_milestone():
 		_status(peer_id, "Nivel %d: uma evolucao precisa ser escolhida." % build.level)
 
@@ -2954,7 +3217,12 @@ func derived_stats(peer_id: int) -> Dictionary:
 	resolved["critical_damage_bonus"] = _mod(peer_id, "crit_damage_add")
 	resolved["movement_speed_multiplier"] = float(resolved["movement_speed_multiplier"]) * _mod(peer_id, "move_speed_mult")
 	resolved["automatic_attack_rate_multiplier"] = float(resolved["automatic_attack_rate_multiplier"]) * _mod(peer_id, "auto_rate_mult")
-	resolved["cooldown_recovery_multiplier"] = float(resolved["cooldown_recovery_multiplier"]) / maxf(0.5, _mod(peer_id, "cooldown_mult"))
+	resolved["cooldown_recovery_multiplier"] = minf(COOLDOWN_RECOVERY_CAP, float(resolved["cooldown_recovery_multiplier"]) / maxf(0.5, _mod(peer_id, "cooldown_mult")))
+	resolved["cooldown_reduction"] = 1.0 - 1.0 / float(resolved["cooldown_recovery_multiplier"])
+	resolved["area_multiplier"] = minf(AREA_MULTIPLIER_CAP, (1.0 + float(modifiers.get(&"area", 0.0)) / 100.0) * _mod(peer_id, "radius_mult"))
+	# Defesa do equipamento com retorno decrescente: 100 de defesa reduz metade, nunca mais que 50%.
+	var defense := maxf(0.0, float(modifiers.get(&"defense", 0.0)))
+	resolved["damage_reduction"] = minf(0.5, defense / (defense + 100.0))
 	return resolved
 
 
@@ -3051,8 +3319,16 @@ func _event(event: Dictionary) -> void:
 	_events.append(event)
 
 
+func _announce_stairs() -> void:
+	if floor_layout.has("stairs"):
+		_vfx(arena_zone(), "play", ["stairs", (floor_layout["stairs"] as Rect2).get_center()])
+
+
 func _vfx(zone: StringName, call_name: String, args: Array) -> void:
-	_event({"type": "vfx", "zone": String(zone), "call": call_name, "args": args})
+	var event := {"type": "vfx", "zone": String(zone), "call": call_name, "args": args}
+	if not _vfx_theme.is_empty():
+		event["theme"] = _vfx_theme
+	_event(event)
 
 
 func _status(peer_id: int, text: String) -> void:
@@ -3069,6 +3345,7 @@ func view_snapshot() -> Dictionary:
 		var passive := state["passive"] as RefCounted
 		player_views[peer_id] = {
 			"peer": peer_id,
+			"loot_filter": String(_gear(peer_id).get("loot_filter", "common")),
 			"character_id": String(state["character_id"]),
 			"character_name": state["character_name"],
 			"connected": bool(state.get("connected", true)),
@@ -3130,7 +3407,7 @@ func view_snapshot() -> Dictionary:
 	var effect_views: Array[Dictionary] = []
 	for effect in persistent_effects:
 		effect_views.append({
-			"mechanic": effect["mechanic"], "position": effect["position"], "radius": effect.get("radius", 40.0),
+			"mechanic": effect["mechanic"], "gem_id": String(effect.get("gem_id", "")), "position": effect["position"], "radius": effect.get("radius", 40.0),
 			"duration": effect.get("duration", 1.0), "collision_radius": effect.get("collision_radius", 12.0),
 			"points": SkillGeometryScript.orbit_points(effect["position"], float(effect["radius"]), float(effect.get("phase", 0.0)), int(effect.get("orbit_count", 1))) if String(effect["mechanic"]) == "orbit" else [],
 			"armed": float(effect.get("arm_timer", 0.0)) <= 0.0,
@@ -3298,6 +3575,9 @@ func _skills_model(peer_id: int) -> Array[Dictionary]:
 	var resolver: RefCounted = SkillResolverScript.new()
 	for slot in range(4):
 		var gem_id := String((gems["slots"] as Array)[slot])
+		if not (gems["gems"] as Dictionary).has(gem_id):
+			result.append({"slot": slot, "key": GEM_SLOT_KEYS[slot], "id": "", "empty": true, "name": "Encaixe vazio"})
+			continue
 		var definition := gem_definition(gem_id)
 		var progress := (gems["gems"] as Dictionary)[gem_id] as Dictionary
 		var level := int(progress["level"])
@@ -3315,27 +3595,31 @@ func _skills_model(peer_id: int) -> Array[Dictionary]:
 			if not in_use and bool(resolver.call("supports", definition, support)):
 				available.append({"id": support_id, "name": String(support.get("name", support_id)), "drain": int(support.get("drain", 0)), "category": support.get("category", "buff"), "description": support.get("description", "")})
 		var pending: Array[Dictionary] = []
-		if not (progress["choices"] as Dictionary).has(str(level)):
-			for option in _evolution_options(gem_id, level):
-				pending.append({"id": String(option.get("id", "")), "name": String(option.get("name", "")), "modifiers": option.get("modifiers", {})})
+		var pending_tier := pending_evolution_tier(progress)
+		for option in _evolution_options(gem_id, pending_tier):
+			pending.append({"id": String(option.get("id", "")), "name": String(option.get("name", "")), "modifiers": option.get("modifiers", {})})
 		var chosen: Array[String] = []
-		for chosen_level in range(1, level + 1):
+		for chosen_level in range(1, level):
 			var choice_id := String((progress["choices"] as Dictionary).get(str(chosen_level), ""))
 			for option in _evolution_options(gem_id, chosen_level):
 				if String(option.get("id", "")) == choice_id:
 					chosen.append(String(option.get("name", choice_id)))
 		var resolved := resolve_slot(peer_id, slot)
+		var scale := _skill_power_multiplier(peer_id, resolved)
 		available.sort_custom(func(left: Dictionary, right: Dictionary) -> bool: return String(left["name"]).naturalnocasecmp_to(String(right["name"])) < 0)
 		result.append({
 			"slot": slot, "key": GEM_SLOT_KEYS[slot], "id": gem_id, "name": String(definition.get("name", gem_id)),
 			"mechanic": String(definition.get("mechanic", "")), "tags": definition.get("tags", []),
 			"description": definition.get("description", ""),
 			"level": level, "max_level": GEM_MAX_LEVEL_BETA,
-			"experience": int(progress["experience"]), "experience_required": gem_experience_required(level),
+			"experience": int(progress["experience"]), "experience_required": gem_experience_required(level) if level < GEM_MAX_LEVEL_BETA else 0,
+			"pending_tier": pending_tier,
 			"capacity_used": _used_capacity((gems["supports"] as Array)[slot] as Array), "capacity": gem_capacity(level),
 			"supports": attached, "available_supports": available, "support_count": attached.size(),
 			"pending_choices": pending, "chosen": chosen,
-			"power": float(resolved.get("power", 0.0)), "barrier": float(resolved.get("barrier", 0.0)), "healing": float(resolved.get("healing", 0.0)),
+			"power": float(resolved.get("power", 0.0)) * scale, "barrier": float(resolved.get("barrier", 0.0)) * scale, "healing": float(resolved.get("healing", 0.0)) * scale,
+			"base_power": float(resolved.get("power", 0.0)), "power_multiplier": scale, "scaling": gem_scaling_view(peer_id, gem_id),
+			"unique_weapon": String(unique_weapon_for(peer_id, gem_id).get("description", "")),
 			"breath_cost": float(resolved.get("breath_cost", 0.0)), "charges": 1 + maxi(0, int(resolved.get("extra_charge", 0))),
 			"cooldown": float(resolved.get("cooldown", 0.0)) / maxf(0.01, float(derived_stats(peer_id).get("cooldown_recovery_multiplier", 1.0))),
 		})
@@ -3390,6 +3674,14 @@ func skill_tooltips(peer_id: int) -> Array[String]:
 	for slot in range(slots.size()):
 		var definition := gem_definition(String(slots[slot]))
 		var model := resolve_slot(peer_id, slot).duplicate()
+		if model.is_empty():
+			result.append("Encaixe vazio. Equipe uma gema em Aresta (SKILLS).")
+			continue
+		var scale := _skill_power_multiplier(peer_id, model)
+		for key in ["power", "barrier", "healing"]:
+			if model.has(key):
+				model[key] = float(model[key]) * scale
+		model["scaling"] = gem_scaling_view(peer_id, String(slots[slot]))
 		model["name"] = definition.get("name", "")
 		model["description"] = definition.get("description", "")
 		model["cooldown"] = float(model.get("cooldown", 0.0)) / recovery
@@ -3402,13 +3694,31 @@ func skill_tooltips(peer_id: int) -> Array[String]:
 	return result
 
 
+## Gemas possuídas, com nível, para trocar de encaixe.
 func _gem_options(peer_id: int) -> Array[Dictionary]:
 	var result: Array[Dictionary] = []
 	var gems := _gem_state(peer_id)
+	var owned := gems.get("gems", {}) as Dictionary
 	for definition in _collection("active_gems"):
 		var gem_id := String(definition.get("id", ""))
-		result.append({"id": gem_id, "name": String(definition.get("name", gem_id)), "description": definition.get("description", ""), "equipped": (gems.get("slots", []) as Array).has(gem_id)})
+		if owned.has(gem_id):
+			result.append({"id": gem_id, "name": String(definition.get("name", gem_id)), "description": definition.get("description", ""),
+				"equipped": (gems.get("slots", []) as Array).has(gem_id), "level": int((owned[gem_id] as Dictionary)["level"])})
 	result.sort_custom(func(left: Dictionary, right: Dictionary) -> bool: return String(left["name"]).naturalnocasecmp_to(String(right["name"])) < 0)
+	return result
+
+
+## Gemas que a personagem ainda não tem, agrupadas pelo chefe que as entrega.
+func _locked_gem_sets(peer_id: int) -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	var owned := _gem_state(peer_id).get("gems", {}) as Dictionary
+	for boss in TowerContentScript.collection("bosses"):
+		var names: Array[String] = []
+		for gem_id: Variant in boss.get("gem_set", []) as Array:
+			if not owned.has(String(gem_id)):
+				names.append(String(gem_definition(String(gem_id)).get("name", gem_id)))
+		if not names.is_empty():
+			result.append({"floor": int(boss.get("floor", 0)), "boss": String(boss.get("name", "")), "gems": names})
 	return result
 
 
@@ -3514,16 +3824,26 @@ func menu_model(peer_id: int) -> Dictionary:
 		"carried_loot": (state.get("carried_loot", {}) as Dictionary).duplicate(),
 		"banked_loot": banked_loot.duplicate(),
 		"inventory_equipment": _inventory_model(gear, peer_id),
+		"silver": int(gear.get("silver", 0)), "loot_filter": String(gear.get("loot_filter", "common")), "auto_sell": String(gear.get("auto_sell", "")),
 		"equipped_count": equipment.equipped_count() if equipment != null else 0,
 		"equipment_slots": _slots_model(equipment, peer_id),
 		"item_tooltips": _item_tooltips(),
+		"item_tiers": _item_tiers(),
 		"derived_stats": derived_stats(peer_id),
 		"skills": skills,
 		"gem_options": _gem_options(peer_id),
+		"locked_gem_sets": _locked_gem_sets(peer_id),
 		"in_safe_area": state.get("zone", &"village") not in ARENA_ZONES,
 		"passive_name": String(passive.get("name", "")),
 		"passive_description": String(passive.get("description", "")),
 	}
+
+
+func _item_tiers() -> Dictionary:
+	var result := {}
+	for definition in _collection("items"):
+		result[String(definition["id"])] = String(definition.get("tier", "common"))
+	return result
 
 
 func _item_tooltips() -> Dictionary:
@@ -3548,8 +3868,9 @@ func _inventory_model(gear: Dictionary, peer_id: int) -> Array[Dictionary]:
 	for instance_id: StringName in inventory.items:
 		var item: EquipmentItemInstance = inventory.items[instance_id] as EquipmentItemInstance
 		result.append({
-			"instance_id": String(instance_id), "name": item_display_name(String(item.definition.id)),
-			"tier": ItemTier.label(item.tier), "slot": LayoutScript.slot_label(item.definition.slot),
+			"instance_id": String(instance_id), "item_id": String(item.definition.id), "name": item_display_name(String(item.definition.id)),
+			"tier": ItemTier.label(item.tier), "tier_id": ItemTier.key(item.tier), "slot": LayoutScript.slot_label(item.definition.slot),
+			"sell_price": item_sell_price(item),
 			"fabrication": String(LootDifficultyScript.FABRICATION_LABELS.get(String(item.quality), "Regular")),
 			"slot_id": int(item.definition.slot), "score": _item_score(item),
 			"tooltip": _equipment_tooltip(item, peer_id),
@@ -3571,6 +3892,8 @@ func _slots_model(equipment: EquipmentLoadout, peer_id: int) -> Array[Dictionary
 		var item: EquipmentItemInstance = equipment.get_equipped(slot, index) if equipment != null else null
 		result.append({
 			"slot": spec[0], "item": item_display_name(String(item.definition.id)) if item != null else "VAZIO",
+			"item_id": String(item.definition.id) if item != null else "",
+			"tier_id": ItemTier.key(item.tier) if item != null else "",
 			"occupied": item != null, "slot_id": int(slot), "index": index, "score": _item_score(item) if item != null else -1.0,
 			"tooltip": _equipment_tooltip(item, peer_id) if item != null else "",
 		})
@@ -3669,7 +3992,7 @@ func load_data(data: Dictionary, host_peer: int) -> bool:
 	village_progress = clampi(int(data.get("village_progress", 0)), 0, 1)
 	_restore_progress(data.get("character_progress", {}))
 	_restore_gear(data, StringName(String(data.get("character_id", "eloa"))))
-	_restore_gems(data.get("character_gems", {}))
+	_restore_gems(data.get("character_gems", {}), version)
 	var host := player(host_peer)
 	_milestone_cache.clear()
 	for peer_id: int in players:
@@ -3698,27 +4021,43 @@ func load_data(data: Dictionary, host_peer: int) -> bool:
 	return true
 
 
-func _restore_gems(raw: Variant) -> void:
+## Saves até a versão 7 guardavam todas as gemas, e a evolução do nível N era escolhida no
+## próprio nível N. Na migração ficam a gema inicial, as gemas com progresso e os conjuntos dos
+## chefes já ultrapassados; o nível sobe um quando a evolução do nível atual já fora escolhida.
+func _restore_gems(raw: Variant, version: int = SAVE_VERSION) -> void:
 	if not raw is Dictionary:
 		return
 	for key: Variant in raw:
 		var saved := raw[key] as Dictionary
-		var state := _new_gem_state()
-		var slots: Variant = saved.get("slots", [])
-		if slots is Array and (slots as Array).size() == 4:
-			for index in range(4):
-				if (state["gems"] as Dictionary).has(String(slots[index])):
-					(state["slots"] as Array)[index] = String(slots[index])
+		var state := _new_gem_state(String(key))
+		var owned := state["gems"] as Dictionary
 		var saved_gems: Variant = saved.get("gems", {})
 		if saved_gems is Dictionary:
 			for gem_id: Variant in saved_gems:
-				if (state["gems"] as Dictionary).has(String(gem_id)) and saved_gems[gem_id] is Dictionary:
-					var entry := saved_gems[gem_id] as Dictionary
-					(state["gems"] as Dictionary)[String(gem_id)] = {
-						"level": clampi(int(entry.get("level", 1)), 1, GEM_MAX_LEVEL_BETA),
-						"experience": maxi(0, int(entry.get("experience", 0))),
-						"choices": (entry.get("choices", {}) as Dictionary).duplicate(),
-					}
+				if gem_definition(String(gem_id)).is_empty() or not saved_gems[gem_id] is Dictionary:
+					continue
+				var entry := saved_gems[gem_id] as Dictionary
+				var level := int(entry.get("level", 1))
+				var choices := (entry.get("choices", {}) as Dictionary).duplicate()
+				if version < 8:
+					if level <= 1 and int(entry.get("experience", 0)) <= 0 and choices.is_empty():
+						continue
+					level += 1 if choices.has(str(level)) else 0
+				owned[String(gem_id)] = {
+					"level": clampi(level, 1, GEM_MAX_LEVEL_BETA),
+					"experience": maxi(0, int(entry.get("experience", 0))),
+					"choices": choices,
+				}
+		if version < 8:
+			for boss in TowerContentScript.collection("bosses"):
+				if int(boss.get("floor", 0)) < deepest_floor:
+					for gem_id: Variant in boss.get("gem_set", []) as Array:
+						if not owned.has(String(gem_id)) and not gem_definition(String(gem_id)).is_empty():
+							owned[String(gem_id)] = _new_gem_progress()
+		var slots: Variant = saved.get("slots", [])
+		if slots is Array and (slots as Array).size() == 4:
+			for index in range(4):
+				(state["slots"] as Array)[index] = String(slots[index]) if owned.has(String(slots[index])) and not (state["slots"] as Array).slice(0, index).has(String(slots[index])) else ""
 		var saved_supports: Variant = saved.get("supports", [])
 		if saved_supports is Array and (saved_supports as Array).size() == 4:
 			state["supports"] = (saved_supports as Array).duplicate(true)
@@ -3764,7 +4103,10 @@ func _restore_gear(data: Dictionary, saved_character: StringName) -> void:
 		equipment_instance_sequence = maxi(1, int((data["equipment"] as Dictionary).get("instance_sequence", 1)))
 	for key: String in per_character:
 		var saved := per_character[key] as Dictionary
-		var gear := {"inventory": ItemInventory.new(StringName(key)), "equipment": EquipmentLoadout.new()}
+		var gear := _new_gear(key)
+		gear["silver"] = maxi(0, int(saved.get("silver", STARTING_SILVER)))
+		gear["loot_filter"] = String(saved.get("loot_filter", "common")) if String(saved.get("loot_filter", "common")) in TIER_ORDER else "common"
+		gear["auto_sell"] = String(saved.get("auto_sell", "")) if String(saved.get("auto_sell", "")) in TIER_ORDER else ""
 		var factory: RefCounted = BetaItemFactoryScript.new()
 		for raw_item: Variant in saved.get("items", []) as Array:
 			if not raw_item is Dictionary:
@@ -3796,7 +4138,88 @@ func _gear_snapshot(gear: Dictionary) -> Dictionary:
 		var item := equipment.get_equipped(spec[1] as EquipmentItemDefinition.Slot, int(spec[2]))
 		if item != null:
 			items.append(_item_snapshot(item, "equipped", int(spec[1]), int(spec[2])))
-	return {"items": items}
+	return {"items": items, "silver": int(gear.get("silver", STARTING_SILVER)), "loot_filter": String(gear.get("loot_filter", "common")), "auto_sell": String(gear.get("auto_sell", ""))}
+
+
+func _new_gear(key: String) -> Dictionary:
+	return {"inventory": ItemInventory.new(StringName(key)), "equipment": EquipmentLoadout.new(), "silver": STARTING_SILVER, "loot_filter": "common", "auto_sell": ""}
+
+
+## Valor em prata de uma peça: raridade vezes fabricação.
+func item_sell_price(item: EquipmentItemInstance) -> int:
+	return maxi(1, int(round(float(SELL_PRICES.get(ItemTier.key(item.tier), 8)) * LootDifficultyScript.fabrication_factor(String(item.quality)))))
+
+
+## Vende uma peça do inventário (nunca uma equipada). Devolve a prata recebida, 0 se não vendeu.
+func sell_item(peer_id: int, instance_id: StringName) -> int:
+	var gear := _gear(peer_id)
+	if gear.is_empty():
+		return 0
+	var inventory := gear["inventory"] as ItemInventory
+	var item := inventory.get_item(instance_id)
+	if item == null or _is_equipped(gear, item):
+		return 0
+	var price := item_sell_price(item)
+	inventory.remove(instance_id)
+	gear["silver"] = int(gear["silver"]) + price
+	_status(peer_id, "%s vendido por %d P." % [item_display_name(String(item.definition.id)), price])
+	return price
+
+
+## Filtro de saque: equipamentos abaixo desta raridade ficam no chão. "common" recolhe tudo.
+func set_loot_filter(peer_id: int, tier: String) -> bool:
+	var gear := _gear(peer_id)
+	if gear.is_empty() or tier not in TIER_ORDER or tier == "legendary":
+		return false
+	gear["loot_filter"] = tier
+	return true
+
+
+## Autovenda ao voltar à vila: peças abaixo desta raridade. Vazio desliga.
+func set_auto_sell(peer_id: int, tier: String) -> bool:
+	var gear := _gear(peer_id)
+	if gear.is_empty() or (tier != "" and tier not in ["uncommon", "rare", "epic"]):
+		return false
+	gear["auto_sell"] = tier
+	return true
+
+
+## Vende o que estiver abaixo do limite da autovenda; armas únicas e peças equipadas ficam.
+## Devolve o resumo para o relatório de retorno ("" quando nada foi vendido).
+func _auto_sell(peer_id: int) -> String:
+	var gear := _gear(peer_id)
+	var limit := TIER_ORDER.find(String(gear.get("auto_sell", "")))
+	if gear.is_empty() or limit <= 0:
+		return ""
+	var inventory := gear["inventory"] as ItemInventory
+	var sold := 0
+	var earned := 0
+	for instance_id: StringName in inventory.items.keys():
+		var item := inventory.items[instance_id] as EquipmentItemInstance
+		if int(item.tier) >= limit or _is_equipped(gear, item) or _find(_collection("items"), String(item.definition.id)).has("unique_gem"):
+			continue
+		earned += item_sell_price(item)
+		inventory.remove(instance_id)
+		sold += 1
+	if sold == 0:
+		return ""
+	gear["silver"] = int(gear["silver"]) + earned
+	return " Autovenda: %d %s por %d P." % [sold, "peca" if sold == 1 else "pecas", earned]
+
+
+func _is_equipped(gear: Dictionary, item: EquipmentItemInstance) -> bool:
+	var equipment := gear["equipment"] as EquipmentLoadout
+	for spec: Array in LayoutScript.equipment_slot_specs():
+		if equipment.get_equipped(spec[1] as EquipmentItemDefinition.Slot, int(spec[2])) == item:
+			return true
+	return false
+
+
+## Quem tem filtro acima da raridade do equipamento passa por cima sem recolher.
+func _filtered_out(peer_id: int, item_id: String, tier: String) -> bool:
+	if not _is_equipment(item_id):
+		return false
+	return TIER_ORDER.find(tier) < TIER_ORDER.find(String(_gear(peer_id).get("loot_filter", "common")))
 
 
 func _item_snapshot(item: EquipmentItemInstance, location: String, slot: int, index: int) -> Dictionary:

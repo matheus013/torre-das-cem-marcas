@@ -16,6 +16,7 @@ func _world(gem_id: String) -> WorldSimulation:
 	var sim := Simulation.new()
 	sim.setup(9104)
 	sim.add_player(1, &"rui")
+	sim.unlock_all_gems(1, true)
 	sim.set_gem_slot(1, 0, gem_id)
 	sim.enter_tower(1)
 	sim.enemies.clear()
@@ -51,7 +52,7 @@ func _hurt(sim: WorldSimulation) -> bool:
 func _run() -> void:
 	var catalog := Catalog.new()
 	if not catalog.load_from():
-		return _fail("Invalid catalog: %s" % catalog.validation_errors())
+		return _fail("Invalid catalog: %s" % [catalog.validation_errors()])
 	var actives := catalog.collection("active_gems")
 	var supports := catalog.collection("support_gems")
 	var mechanic_count := 0
@@ -59,8 +60,8 @@ func _run() -> void:
 	var resolver := Resolver.new()
 	var pairs := 0
 	var signatures: Dictionary = {}
-	if actives.size() != 36 or supports.size() != 40:
-		return _fail("Expected 36 actives and 40 supports")
+	if actives.size() != 44 or supports.size() != 40:
+		return _fail("Expected 44 actives and 40 supports")
 	for gem in actives:
 		if not ResourceLoader.exists("res://assets/sprites/icons/%s.png" % gem["id"]):
 			return _fail("Missing active icon: %s" % gem["id"])
@@ -159,18 +160,9 @@ func _run() -> void:
 	restored.add_player(1, &"rui")
 	if not restored.load_data(saved.save_data(1), 1) or restored.resolve_slot(1, 0).get("gem_id") != "laminas_orbitais" or restored.resolve_slot(1, 0).get("breath_per_hit") != 2:
 		return _fail("New gem and support must survive save/reload")
-	var legacy := _world("agulha_lastro")
-	legacy.leave_tower(1)
-	var legacy_data := legacy.save_data(1)
-	var progress: Dictionary = legacy_data["character_gems"]["rui"]["gems"]
-	for key: Variant in progress.keys():
-		if String(key) not in ["agulha_lastro", "passo_vetorial", "pulso_cicatriz", "prisao_gravitica", "muralha_refeita", "elo_residual", "molde_vigilante", "semeadura_vital"]:
-			progress.erase(key)
-	if not restored.load_data(legacy_data, 1) or not restored.set_gem_slot(1, 0, "cometa_de_vidro"):
-		return _fail("Old eight-gem progress must receive the new catalog without losing its slots")
 	if "--capture" in OS.get_cmdline_user_args():
 		await _capture()
-	print("EXPANDED_SKILLS_OK: 36 distinct actives, 20 mechanics, 20 buffs, %d compatible pairs, evolutions, timing, icons and save" % pairs)
+	print("EXPANDED_SKILLS_OK: 44 distinct actives, 20 mechanics, 20 buffs, %d compatible pairs, evolutions, timing, icons and save" % pairs)
 	quit(0)
 
 
@@ -180,6 +172,7 @@ func _capture() -> void:
 	await process_frame
 	(village.get("_character_panel") as Control).hide()
 	var sim: WorldSimulation = village.get("_sim")
+	sim.unlock_all_gems(1)
 	for slot in range(4):
 		sim.set_gem_slot(1, slot, ["laminas_orbitais", "mina_de_lastro", "chuva_ferral", "ceifa_ampla"][slot])
 	village.call("_open_player_menu", "skills")

@@ -8,8 +8,12 @@ foram preservados: saves antigos recebem o tipo ao reconstituir o item.
 | --- | --- | --- | --- | --- | --- | --- |
 | Eloa | Filamentos de Forja | Foco | 340 | 18 | 0.80s | Inteligencia 0.6%, Sabedoria 0.3% |
 | Sena | Lanca de Duas Rotas | Lanca | 220 | 22 | 0.75s | Forca 0.5%, Agilidade 0.3% |
-| Cira | Manoplas de Placa Viva | Manoplas | 105 | 12 | 0.40s | Forca 0.4%, Vitalidade 0.4% |
-| Rui | Bastao Modular de Campo | Bastao | 160 | 28 | 1.10s | Sabedoria 0.4%, Forca 0.4% |
+| Cira | Manoplas de Placa Viva | Manoplas | 125 | 15 | 0.40s | Forca 0.4%, Vitalidade 0.4% |
+| Rui | Bastao Modular de Campo | Bastao | 160 | 28 | 1.00s | Sabedoria 0.4%, Forca 0.4% |
+
+Guarda (decisao 577): reducao do dano recebido enquanto a arma esta equipada, para
+compensar o risco da luta colada. Manoplas 38% e roubo de Vida 6%; bastao 18%; lanca 5%;
+foco 0%. Aparece na ficha e no tooltip da arma.
 
 Foco: dano arcano, +2 pontos percentuais de critico, vulnerabilidade de 8%
 por 2 segundos. Dano arcano ignora a reducao fisica de Pele de Pedra; nao

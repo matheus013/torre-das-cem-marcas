@@ -21,6 +21,7 @@ func _run() -> void:
 	var sim := Simulation.new()
 	sim.setup(9141)
 	sim.add_player(1, &"eloa")
+	sim.unlock_all_gems(1, true)
 	sim.player(1)["carried_loot"] = {"pedra_regenerativa":1}
 	var model := sim.menu_model(1)
 	for item: Dictionary in model["inventory_equipment"] as Array:

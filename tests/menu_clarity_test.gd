@@ -12,13 +12,14 @@ func _run() -> void:
 	var sim := Simulation.new()
 	sim.setup(7312)
 	sim.add_player(1, &"eloa")
+	sim.unlock_all_gems(1, true)
 	sim.character_build(1).base_stats[&"wisdom"] = 30
 	if not sim.attach_support(1, 0, "aegis_por_acerto"):
 		return _fail("Could not attach test support")
 	sim.set_gem_slot(1, 2, "muralha_refeita")
 	sim.set_gem_slot(1, 3, "semeadura_vital")
 	var progress := ((sim.call("_gem_state", 1) as Dictionary)["gems"] as Dictionary)["passo_vetorial"] as Dictionary
-	progress["level"] = 3
+	progress["level"] = 4
 	progress["choices"] = {"3":"segunda_rota"}
 	var model := sim.menu_model(1)
 	if int(model["skills"][1]["charges"]) != 2 or float(model["skills"][2]["barrier"]) <= 0.0 or float(model["skills"][3]["healing"]) <= 0.0:

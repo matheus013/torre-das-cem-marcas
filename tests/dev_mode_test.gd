@@ -54,7 +54,8 @@ func _init() -> void:
 	vfx.call("number", Vector2.ZERO, 30.0, true)
 	vfx.call("number", Vector2.ZERO, 8.0, false, "player")
 	vfx.call("label", Vector2.ZERO, "BLOQUEIO", Color.WHITE)
-	if int(vfx.call("active_count")) != 4:
+	var texts := (vfx.get("_effects") as Array).filter(func(effect: Dictionary) -> bool: return String(effect["kind"]) == "number")
+	if texts.size() != 4:
 		_fail("Damage numbers were not queued")
 		return
 	await process_frame

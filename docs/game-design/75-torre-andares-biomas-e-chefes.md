@@ -34,19 +34,19 @@
 
 Todo chefe muda de fase pela Vida, entra em furia apos o tempo indicado (dano x1,5 e recargas x0,6) e ganha combinacoes extras com dois, tres e quatro jogadores. Toda habilidade de area e anunciada no chao antes do golpe.
 
-| Andar | Chefe | Vida | Dano | Fases (Vida) | Furia | Habilidades |
-|---|---|---|---|---|---|---|
-| 4 | Guardiao de Enxerto | 2250 | 24 | 60% | 150 s | golpes em circulo sob os jogadores; explosao ao redor do chefe; invoca criaturas do bioma (fase 2) |
-| 7 | O Refeitor | 3500 | 28 | 65%, 30% | 180 s | cruz de quatro linhas; golpes em circulo sob os jogadores; anel (seguro so colado ao chefe) (fase 2); invoca criaturas do bioma (fase 2) |
-| 16 | Pastor das Correntes | 5500 | 32 | 60%, 30% | 180 s | rajada em linha que empurra; rajada radial de projeteis; puxao para o centro e explosao (fase 2); chuva de areas pela arena (fase 2) |
-| 27 | Guardia do No-Mae | 6400 | 36 | 60%, 30% | 200 s | poca persistente (dano e lentidao); explosao ao redor do chefe; invoca criaturas do bioma; anel (seguro so colado ao chefe) (fase 2) |
-| 39 | Guardiao da Comporta | 8280 | 42 | 60%, 30% | 210 s | linhas a partir do chefe; poca persistente (dano e lentidao); investida em linha; rajada radial de projeteis (fase 2) |
-| 51 | Coroa dos Condutores | 9920 | 48 | 65%, 35% | 220 s | chuva de areas pela arena; cruz de quatro linhas; rajada radial de projeteis; explosao ao redor do chefe (fase 2) |
-| 63 | Guardiao do Marco Cego | 12000 | 54 | 60%, 30% | 230 s | linhas a partir do chefe; golpes em circulo sob os jogadores; investida em linha; anel (seguro so colado ao chefe) (fase 2) |
-| 72 | Palpebra do Horizonte | 14700 | 60 | 60%, 30% | 240 s | anel (seguro so colado ao chefe); linhas a partir do chefe; invoca criaturas do bioma; chuva de areas pela arena (fase 2) |
-| 81 | Guardiao do Eixo Zero | 16900 | 66 | 60%, 30% | 240 s | puxao para o centro e explosao; cruz de quatro linhas; rajada radial de projeteis; investida em linha (fase 2) |
-| 93 | Guardiao da Ultima Escolha | 19200 | 72 | 65%, 35% | 250 s | chuva de areas pela arena; anel (seguro so colado ao chefe); linhas a partir do chefe; invoca criaturas do bioma (fase 2) |
-| 100 | Regente Centesimo | 22000 | 48 | 70%, 40%, 15% | 260 s | cruz de quatro linhas; chuva de areas pela arena; anel (seguro so colado ao chefe); rajada radial de projeteis; puxao para o centro e explosao (fase 2); invoca criaturas do bioma (fase 2) |
+| Andar | Chefe | Vida | Dano | Fases (Vida) | Furia | Habilidades | Gemas que entrega |
+|---|---|---|---|---|---|---|---|
+| 4 | Guardiao de Enxerto | 1260 | 24 | 60% | 150 s | golpes em circulo sob os jogadores; explosao ao redor do chefe; invoca criaturas do bioma (fase 2) | Agulha de Lastro, Elo Residual, Passo Vetorial, Estilhacos Lunares, Anel de Geada, Circulo de Reparo |
+| 7 | O Refeitor | 3500 | 28 | 65%, 30% | 180 s | cruz de quatro linhas; golpes em circulo sob os jogadores; anel (seguro so colado ao chefe) (fase 2); invoca criaturas do bioma (fase 2) | Pulso de Cicatriz, Mina de Lastro, Lanca Ferral, Bola de Fogo, Muralha Refeita, Ceifa Ampla |
+| 16 | Pastor das Correntes | 5500 | 32 | 60%, 30% | 180 s | rajada em linha que empurra; rajada radial de projeteis; puxao para o centro e explosao (fase 2); chuva de areas pela arena (fase 2) | Arco Voltaico, Corte Vetorial, Prisao Gravitica, Esfera de Gelo, Semeadura Vital, Laminas Orbitais |
+| 27 | Guardia do No-Mae | 6400 | 36 | 60%, 30% | 200 s | poca persistente (dano e lentidao); explosao ao redor do chefe; invoca criaturas do bioma; anel (seguro so colado ao chefe) (fase 2) | Raizes Presas, Bolha Corrosiva, Pantano Acido, Sopro Criogenico, Salto de Guarda, Saraivada de Flechas |
+| 39 | Guardiao da Comporta | 8280 | 42 | 60%, 30% | 210 s | linhas a partir do chefe; poca persistente (dano e lentidao); investida em linha; rajada radial de projeteis (fase 2) | Satelites de Geada, Disco de Retorno, Brasa Persistente, Raio Prismatico, Casca Reativa |
+| 51 | Coroa dos Condutores | 9920 | 48 | 65%, 35% | 220 s | chuva de areas pela arena; cruz de quatro linhas; rajada radial de projeteis; explosao ao redor do chefe (fase 2) | Trovao Descendente, Dreno em Rede, Sentinela Ferral, Chuva Ferral, Semente Explosiva |
+| 63 | Guardiao do Marco Cego | 12000 | 54 | 60%, 30% | 230 s | linhas a partir do chefe; golpes em circulo sob os jogadores; investida em linha; anel (seguro so colado ao chefe) (fase 2) | Molde Vigilante, Orbe de Ruptura, Fio Desintegrador, Enxame Luminar, Abrigo de Escora |
+| 72 | Palpebra do Horizonte | 14700 | 60 | 60%, 30% | 240 s | anel (seguro so colado ao chefe); linhas a partir do chefe; invoca criaturas do bioma; chuva de areas pela arena (fase 2) | Cometa de Vidro, Cometa Sombrio, Pilar Sagrado, Ruptura Sismica, Guardiao de Lastro |
+| 81 | Guardiao do Eixo Zero | 16900 | 66 | 60%, 30% | 240 s | puxao para o centro e explosao; cruz de quatro linhas; rajada radial de projeteis; investida em linha (fase 2) | - |
+| 93 | Guardiao da Ultima Escolha | 19200 | 72 | 65%, 35% | 250 s | chuva de areas pela arena; anel (seguro so colado ao chefe); linhas a partir do chefe; invoca criaturas do bioma (fase 2) | - |
+| 100 | Regente Centesimo | 22000 | 48 | 70%, 40%, 15% | 260 s | cruz de quatro linhas; chuva de areas pela arena; anel (seguro so colado ao chefe); rajada radial de projeteis; puxao para o centro e explosao (fase 2); invoca criaturas do bioma (fase 2) | - |
 
 ## Andares
 

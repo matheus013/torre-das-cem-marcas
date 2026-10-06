@@ -25,6 +25,25 @@ func _run() -> void:
 		for enemy: Dictionary in tower.collection(collection):
 			if Sprites.texture("enemies/" + String(enemy["id"])) == null:
 				return _fail("Missing tower sprite: " + String(enemy["id"]))
+	for biome: Dictionary in tower.collection("biomes"):
+		for key: String in [String(biome["tile"])] + (biome["props"] as Array):
+			if Sprites.texture(key) == null:
+				return _fail("Missing biome sprite in %s: %s" % [biome["id"], key])
+	var item_ids := {}
+	for item: Dictionary in beta["items"]:
+		item_ids[String(item["id"])] = true
+	for item: Dictionary in tower.collection("items"):
+		item_ids[String(item["id"])] = true
+	for name in DirAccess.get_files_at("res://assets/sprites/items"):
+		if name.ends_with(".png") and not item_ids.has(name.trim_suffix(".png")):
+			return _fail("Item icon without a catalog item: " + name)
+	var seen_icons := {}
+	for collection in ["active_gems", "support_gems"]:
+		for gem: Dictionary in beta[collection]:
+			var pixels := Sprites.texture("icons/" + String(gem["id"])).get_image().get_data()
+			if seen_icons.has(pixels):
+				return _fail("Gems %s and %s share the same icon" % [seen_icons[pixels], gem["id"]])
+			seen_icons[pixels] = gem["id"]
 	var aegis := Sprites.texture("icons/aegis_por_acerto").get_image().get_data()
 	var stability := Sprites.texture("icons/estabilidade_solida").get_image().get_data()
 	if aegis == stability:

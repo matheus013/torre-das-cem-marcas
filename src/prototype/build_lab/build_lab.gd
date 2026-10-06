@@ -15,14 +15,6 @@ const STAT_NAMES: Dictionary = {
 	&"wisdom": "Sabedoria",
 }
 
-const TIER_COLORS: Dictionary = {
-	ItemTier.Value.COMMON: Color("aeb8bf"),
-	ItemTier.Value.UNCOMMON: Color("63d08b"),
-	ItemTier.Value.RARE: Color("5ca7ff"),
-	ItemTier.Value.EPIC: Color("c17cff"),
-	ItemTier.Value.LEGENDARY: Color("ffb84f"),
-}
-
 var _build: CharacterBuild
 var _character_definitions: Array[Dictionary] = []
 var _character_builds: Dictionary = {}
@@ -443,7 +435,7 @@ func _build_equipment_tab() -> void:
 		button.text = "%s\n%s • %s" % [
 			entry["label"], ItemTier.label(item.tier), "Equipado" if equipped else "No inventário"
 		]
-		button.modulate = TIER_COLORS[item.tier]
+		button.modulate = ItemTier.color(item.tier)
 		button.pressed.connect(_toggle_equipment.bind(slot, index, item.instance_id))
 		grid.add_child(button)
 

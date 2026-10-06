@@ -22,7 +22,7 @@ func _init() -> void:
 	var evolutions: Array[Dictionary] = [{"power_multiplier": 1.25, "pierce_add": 1}]
 	var effect: Dictionary = resolver.call("resolve", active, supports, evolutions)
 	if (
-		not is_equal_approx(float(effect["power"]), 35.0 * 0.78 * 1.25)
+		not is_equal_approx(float(effect["power"]), float(active["power"]) * 0.78 * 1.25)
 		or int(effect["projectile_count"]) != 1
 		or int(effect["pierce"]) != 1
 	):

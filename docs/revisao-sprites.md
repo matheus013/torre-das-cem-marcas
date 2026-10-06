@@ -27,14 +27,13 @@ quatro atlas novos. Integridade tecnica nao significa aprovacao artistica.
 | Predios | 12 | Variacoes identificaveis; perspectiva, bases de terreno e objetos anexos ainda inconsistentes |
 | Props | 52 | Misturam objetos isolados, kits e salas completas; revisar escala/colisao junto da arte |
 | Decoracao | 26 | Varios arquivos contem conjuntos de objetos, nao uma unica peca; separar ou regenerar |
-| Icones | 76 | Muitos suportes diferem so por pequenos sigilos; duplicata exata corrigida nesta entrega |
+| Icones | 76 | Substituidos depois por icones de magia curados; ver assets-de-terceiros.md |
 | Tiles | 13 | Opacos e validos; grama ruidosa e repeticao visivel precisam de passe de legibilidade |
 
-Tambem nao ha PNGs em `assets/sprites/vfx/`. Referencias a impacto, onda,
-faisca, pedra, agulha, santuario e gravidade usam fallbacks procedurais no
-runtime. Os testes de cobertura validam os sprites obrigatorios dos catalogos,
-nao consideram esses efeitos opcionais como arte concluida. Geracao/animacao
-dedicada de VFX continua pendente.
+Efeitos de combate animados agora existem em `assets/sprites/vfx/anim/`; veja
+[assets-de-terceiros.md](assets-de-terceiros.md). As chaves estaticas de marcadores no
+chao (impacto, agulha, pedra, santuario e gravidade) continuam com fallbacks
+procedurais no runtime.
 
 ## Entrega de personagens
 
@@ -69,10 +68,16 @@ e `enemies/pastor_das_correntes` por enquadramento de sala/base opaca.
 silhueta inequivoca antes de animar.
 
 Depois: converter decoracao em pecas realmente independentes, reduzir ruido
-dos pisos, diferenciar os 40 suportes por mecanica e substituir props que
+dos pisos e substituir props que
 representam uma sala inteira (`props/escada_aberta`, `props/escada_selada`,
 `props/campos_jardim_possivel`, `props/manto_poca_ambar`). Nao retirar fundo
 automaticamente dessas imagens: isso pode apagar partes legitimas da arte.
+
+`props/rocks`, obstaculo das Galerias Refeitas (andares 1 a 7), nao existia: o
+jogo desenhava retangulos chapados no lugar. Agora e gerada por codigo, na
+paleta do pilar e dos caixotes, com `godot --headless --path . --script tools/art/make_rocks.gd`
+(o PixelForge estava fora do ar). `sprite_coverage_test` passou a exigir tile e
+props de todos os biomas.
 
 NPCs/inimigos continuam com animacao procedural nesta entrega. Ataque, dano,
 esquiva e morte quadro a quadro nao foram gerados. Esta revisao nao declara

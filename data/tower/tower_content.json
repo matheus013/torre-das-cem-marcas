@@ -1958,7 +1958,7 @@
    "biome": "galerias",
    "id": "guardiao_de_enxerto",
    "name": "Guardiao de Enxerto",
-   "health": 2250,
+   "health": 1260,
    "damage": 24,
    "speed": 38,
    "abilities": [
@@ -1988,7 +1988,15 @@
     0.6
    ],
    "enrage": 150,
-   "loot_table_id": "saque_guardiao_de_enxerto"
+   "loot_table_id": "saque_guardiao_de_enxerto",
+   "gem_set": [
+    "agulha_lastro",
+    "elo_residual",
+    "passo_vetorial",
+    "estilhacos_lunares",
+    "anel_de_geada",
+    "circulo_de_reparo"
+   ]
   },
   {
    "floor": 7,
@@ -2036,7 +2044,15 @@
     0.3
    ],
    "enrage": 180,
-   "loot_table_id": "saque_refeitor"
+   "loot_table_id": "saque_refeitor",
+   "gem_set": [
+    "pulso_cicatriz",
+    "mina_de_lastro",
+    "lanca_ferral",
+    "bola_de_fogo",
+    "muralha_refeita",
+    "ceifa_ampla"
+   ]
   },
   {
    "floor": 16,
@@ -2088,7 +2104,15 @@
     0.3
    ],
    "enrage": 180,
-   "loot_table_id": "saque_pastor_das_correntes"
+   "loot_table_id": "saque_pastor_das_correntes",
+   "gem_set": [
+    "arco_voltaico",
+    "corte_vetorial",
+    "prisao_gravitica",
+    "esfera_de_gelo",
+    "semeadura_vital",
+    "laminas_orbitais"
+   ]
   },
   {
    "floor": 27,
@@ -2135,7 +2159,15 @@
     0.3
    ],
    "enrage": 200,
-   "loot_table_id": "saque_guardia_do_no_mae"
+   "loot_table_id": "saque_guardia_do_no_mae",
+   "gem_set": [
+    "raizes_presas",
+    "bolha_corrosiva",
+    "pantano_acido",
+    "sopro_criogenico",
+    "salto_de_guarda",
+    "saraivada_de_flechas"
+   ]
   },
   {
    "floor": 39,
@@ -2187,7 +2219,14 @@
     0.3
    ],
    "enrage": 210,
-   "loot_table_id": "saque_guardiao_da_comporta"
+   "loot_table_id": "saque_guardiao_da_comporta",
+   "gem_set": [
+    "satelites_de_geada",
+    "disco_de_retorno",
+    "brasa_persistente",
+    "raio_prismatico",
+    "casca_reativa"
+   ]
   },
   {
    "floor": 51,
@@ -2236,7 +2275,14 @@
     0.35
    ],
    "enrage": 220,
-   "loot_table_id": "saque_coroa_dos_condutores"
+   "loot_table_id": "saque_coroa_dos_condutores",
+   "gem_set": [
+    "trovao_descendente",
+    "dreno_em_rede",
+    "sentinela_ferral",
+    "chuva_ferral",
+    "semente_explosiva"
+   ]
   },
   {
    "floor": 63,
@@ -2287,7 +2333,14 @@
     0.3
    ],
    "enrage": 230,
-   "loot_table_id": "saque_guardiao_do_marco_cego"
+   "loot_table_id": "saque_guardiao_do_marco_cego",
+   "gem_set": [
+    "molde_vigilante",
+    "orbe_de_ruptura",
+    "fio_desintegrador",
+    "enxame_luminar",
+    "abrigo_de_escora"
+   ]
   },
   {
    "floor": 72,
@@ -2337,7 +2390,14 @@
     0.3
    ],
    "enrage": 240,
-   "loot_table_id": "saque_palpebra_do_horizonte"
+   "loot_table_id": "saque_palpebra_do_horizonte",
+   "gem_set": [
+    "cometa_de_vidro",
+    "cometa_sombrio",
+    "pilar_sagrado",
+    "ruptura_sismica",
+    "guardiao_de_lastro"
+   ]
   },
   {
    "floor": 81,
@@ -2385,7 +2445,8 @@
     0.3
    ],
    "enrage": 240,
-   "loot_table_id": "saque_guardiao_do_eixo_zero"
+   "loot_table_id": "saque_guardiao_do_eixo_zero",
+   "gem_set": []
   },
   {
    "floor": 93,
@@ -2435,7 +2496,8 @@
     0.35
    ],
    "enrage": 250,
-   "loot_table_id": "saque_guardiao_da_ultima_escolha"
+   "loot_table_id": "saque_guardiao_da_ultima_escolha",
+   "gem_set": []
   },
   {
    "floor": 100,
@@ -2500,7 +2562,8 @@
     0.15
    ],
    "enrage": 260,
-   "loot_table_id": "saque_regente_centesimo"
+   "loot_table_id": "saque_regente_centesimo",
+   "gem_set": []
   }
  ],
  "party_abilities": {

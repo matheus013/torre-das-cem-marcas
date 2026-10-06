@@ -23,6 +23,9 @@ func _run() -> void:
 	var sim: RefCounted = instance.get("_sim")
 	if sim == null or (sim.get("players") as Dictionary).size() != 1:
 		return _fail("Solo session did not create the authoritative simulation")
+	if (sim.call("_gem_state", PEER) as Dictionary)["slots"] != ["elo_residual", "", "", ""]:
+		return _fail("Eloa must start with only her own gem in Q")
+	sim.call("unlock_all_gems", PEER, true)
 	var gear := sim.call("_gear", PEER) as Dictionary
 	var equipment := gear["equipment"] as EquipmentLoadout
 	var inventory := gear["inventory"] as ItemInventory
@@ -238,7 +241,8 @@ func _run() -> void:
 	state["barrier"] = 0.0
 	(state["carried_loot"] as Dictionary)["pedra_regenerativa"] = 2
 	var ground_before := (sim.get("ground_items") as Array).size()
-	sim.call("take_damage", PEER, 10.0)
+	# Golpe claramente letal: defesa e guarda reduzem dano, então 10 exatos já não derrubam.
+	sim.call("take_damage", PEER, 100.0)
 	if state["zone"] != &"village" or int(state["carried_stone"]) != 0:
 		return _fail("Defeat did not return to the village and drop carried loot")
 	if (sim.get("ground_items") as Array).size() <= ground_before:
@@ -251,13 +255,13 @@ func _run() -> void:
 	var points_before := agent_build.unspent_stat_points
 	var supports_before := 0
 	for skill: Dictionary in (sim.call("menu_model", PEER) as Dictionary)["skills"]:
-		supports_before += int(skill["support_count"])
+		supports_before += int(skill.get("support_count", 0))
 	instance.call("_agent_manage_build")
 	var supports_after := 0
 	var pending_after := 0
 	for skill: Dictionary in (sim.call("menu_model", PEER) as Dictionary)["skills"]:
-		supports_after += int(skill["support_count"])
-		pending_after += (skill["pending_choices"] as Array).size()
+		supports_after += int(skill.get("support_count", 0))
+		pending_after += (skill.get("pending_choices", []) as Array).size()
 	if agent_build.unspent_stat_points >= points_before or not agent_build.selected_milestones.has(10):
 		return _fail("Agent must spend stat points and choose the level 10 milestone")
 	if supports_after <= supports_before and pending_after > 0:

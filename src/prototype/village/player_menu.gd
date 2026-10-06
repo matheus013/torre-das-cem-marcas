@@ -7,6 +7,9 @@ signal stat_requested(stat: StringName)
 signal milestone_requested(choice_id: StringName)
 signal equip_requested(instance_id: StringName)
 signal unequip_requested(slot: int, index: int)
+signal sell_requested(instance_id: StringName)
+signal loot_filter_requested(tier: String)
+signal auto_sell_requested(tier: String)
 signal gem_slot_requested(slot: int, gem_id: String)
 signal support_attach_requested(slot: int, support_id: String)
 signal support_detach_requested(slot: int, support_id: String)
@@ -135,7 +138,19 @@ func _rebuild() -> void:
 		_: _build_inventory()
 
 
+const LOOT_FILTER_OPTIONS := [["common", "Recolher tudo"], ["uncommon", "Incomum ou melhor"], ["rare", "Raro ou melhor"], ["epic", "Epico ou melhor"]]
+const AUTO_SELL_OPTIONS := [["", "Desligada"], ["uncommon", "Vender comuns"], ["rare", "Abaixo de raro"], ["epic", "Abaixo de epico"]]
+
+
 func _build_inventory() -> void:
+	_section("BOLSA", "%d P" % int(_model.get("silver", 0)))
+	var filters := HBoxContainer.new()
+	filters.add_theme_constant_override("separation", 12)
+	_content.add_child(filters)
+	_add_choice(filters, "Filtro de saque", LOOT_FILTER_OPTIONS, String(_model.get("loot_filter", "common")), func(tier: String) -> void: loot_filter_requested.emit(tier),
+		"Equipamentos abaixo desta raridade ficam no chao, apagados. Materiais sempre sao recolhidos.")
+	_add_choice(filters, "Autovenda", AUTO_SELL_OPTIONS, String(_model.get("auto_sell", "")), func(tier: String) -> void: auto_sell_requested.emit(tier),
+		"Ao voltar a vila, vende as pecas do inventario abaixo desta raridade. Pecas equipadas e armas unicas nunca sao vendidas.")
 	_section("CARGA DA EXPEDICAO", "%d tipos carregados" % (_model.get("carried_loot", {}) as Dictionary).size())
 	_loot_rows(_model.get("carried_loot", {}) as Dictionary, "Nenhum saque carregado")
 	_section("ARMAZEM DA VILA", "%d tipos armazenados" % (_model.get("banked_loot", {}) as Dictionary).size())
@@ -145,14 +160,26 @@ func _build_inventory() -> void:
 	if available.is_empty():
 		_add_text("Nenhum equipamento disponivel", MUTED)
 	for entry: Dictionary in available:
+		var line := HBoxContainer.new()
+		line.add_theme_constant_override("separation", 6)
+		_content.add_child(line)
 		var equip_button := Button.new()
+		equip_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		equip_button.text = "%s   |   %s   |   %s   |   %s" % [String(entry.get("name", "")), String(entry.get("tier", "")).to_upper(), String(entry.get("fabrication", "Regular")), String(entry.get("slot", ""))]
 		equip_button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		equip_button.custom_minimum_size.y = 34.0
+		_set_item_icon(equip_button, String(entry.get("item_id", "")))
+		_tint_by_tier(equip_button, String(entry.get("tier_id", "common")))
 		DescriptionHover.attach(equip_button, String(entry.get("tooltip", "")))
 		var instance_id := StringName(String(entry.get("instance_id", "")))
 		equip_button.pressed.connect(func() -> void: equip_requested.emit(instance_id))
-		_content.add_child(equip_button)
+		line.add_child(equip_button)
+		var sell_button := Button.new()
+		sell_button.text = "Vender %d P" % int(entry.get("sell_price", 0))
+		sell_button.custom_minimum_size = Vector2(112.0, 34.0)
+		sell_button.add_theme_color_override("font_color", GOLD)
+		sell_button.pressed.connect(func() -> void: sell_requested.emit(instance_id))
+		line.add_child(sell_button)
 	_section("EQUIPAMENTO", "%d / 21 ocupados" % int(_model.get("equipped_count", 0)))
 	var slots: Array = _model.get("equipment_slots", []) as Array
 	var grid := GridContainer.new()
@@ -165,6 +192,9 @@ func _build_inventory() -> void:
 		row.text = "%s   %s" % [String(slot.get("slot", "")), String(slot.get("item", "VAZIO"))]
 		row.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		row.custom_minimum_size = Vector2(260.0, 32.0)
+		_set_item_icon(row, String(slot.get("item_id", "")))
+		if bool(slot.get("occupied", false)):
+			_tint_by_tier(row, String(slot.get("tier_id", "common")))
 		row.disabled = not bool(slot.get("occupied", false))
 		if not row.disabled:
 			var slot_id := int(slot.get("slot_id", -1))
@@ -181,8 +211,21 @@ func _loot_rows(loot: Dictionary, empty_text: String) -> void:
 	var ids := loot.keys()
 	ids.sort()
 	for item_id: Variant in ids:
-		_add_text("%s   x%d" % [_friendly(String(item_id)), int(loot[item_id])], TEXT)
-		DescriptionHover.attach(_content.get_child(-1) as Control, String((_model.get("item_tooltips", {}) as Dictionary).get(String(item_id), "Item de expedicao.")))
+		var line := HBoxContainer.new()
+		line.add_theme_constant_override("separation", 8)
+		var icon := TextureRect.new()
+		icon.texture = item_icon(String(item_id))
+		icon.custom_minimum_size = Vector2(24.0, 24.0)
+		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		line.add_child(icon)
+		var label := Label.new()
+		label.text = "%s   x%d" % [_friendly(String(item_id)), int(loot[item_id])]
+		label.add_theme_color_override("font_color", ItemTier.color(String((_model.get("item_tiers", {}) as Dictionary).get(String(item_id), "common"))))
+		label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		line.add_child(label)
+		_content.add_child(line)
+		DescriptionHover.attach(label, String((_model.get("item_tooltips", {}) as Dictionary).get(String(item_id), "Item de expedicao.")))
 
 
 func _build_character() -> void:
@@ -216,17 +259,19 @@ func _build_character() -> void:
 		_content.add_child(row)
 	var derived := _model.get("derived_stats", {}) as Dictionary
 	_section("VALORES DE COMBATE", "atributos e equipamento")
-	_add_text("VIDA %.0f   MOVIMENTO %.0f%%   CRITICO %.1f%%   RECARGA %.0f%%" % [
+	_add_text("VIDA %.0f   MOVIMENTO %.0f%%   CRITICO %.1f%%   RECARGA -%.0f%%   AREA +%.0f%%   DEFESA -%.0f%%" % [
 		float(derived.get("max_health", 100.0)),
 		float(derived.get("movement_speed_multiplier", 1.0)) * 100.0,
 		float(derived.get("critical_chance", 0.12)) * 100.0,
-		float(derived.get("cooldown_recovery_multiplier", 1.0)) * 100.0,
+		float(derived.get("cooldown_reduction", 0.0)) * 100.0,
+		(float(derived.get("area_multiplier", 1.0)) - 1.0) * 100.0,
+		float(derived.get("damage_reduction", 0.0)) * 100.0,
 	], TEXT)
 	var chosen: Array = _model.get("chosen_milestones", []) as Array
 	var weapon := _model.get("weapon_attack", {}) as Dictionary
 	if not weapon.is_empty():
 		_section(String(weapon.get("item_name", weapon.get("name", ""))), "Afinidade %.0f%%" % float(weapon.get("affinity", 100.0)))
-		_add_text("DANO %.1f   ALCANCE %.0f   INTERVALO %.2fs   CRITICO %.1f%%" % [float(weapon["damage"]), float(weapon["range"]), float(weapon["interval"]), float(weapon["critical_chance"]) * 100.0], TEXT)
+		_add_text("DANO %.1f   ALCANCE %.0f   INTERVALO %.2fs   CRITICO %.1f%%   GUARDA -%.0f%%" % [float(weapon["damage"]), float(weapon["range"]), float(weapon["interval"]), float(weapon["critical_chance"]) * 100.0, float(weapon.get("guard", 0.0)) * 100.0], TEXT)
 		var damage_label := "ARCANO" if String(weapon["damage_type"]) == "arcane" else "FISICO"
 		var pattern_label := String({"single":"ALVO UNICO", "line":"LINHA", "cone":"CONE"}.get(String(weapon["pattern"]), ""))
 		_add_text("%s   |   %s   |   %s" % [String(weapon["name"]).to_upper(), damage_label, pattern_label], MUTED)
@@ -312,6 +357,11 @@ func _build_skills() -> void:
 	var gem_options: Array = _model.get("gem_options", []) as Array
 	for skill: Dictionary in _model.get("skills", []) as Array:
 		_build_skill_card(skill, gem_options, safe)
+	var locked := _model.get("locked_gem_sets", []) as Array
+	if not locked.is_empty():
+		_section("GEMAS A CONQUISTAR", "cada chefe entrega um conjunto a quem estiver na arena")
+		for entry: Dictionary in locked:
+			_add_text("Andar %d  %s:  %s" % [int(entry.get("floor", 0)), String(entry.get("boss", "")), ", ".join(PackedStringArray(entry.get("gems", []) as Array))], MUTED)
 	var auto := _model.get("auto_attack_supports", {}) as Dictionary
 	if not auto.is_empty():
 		_section("AUTOATAQUE", String(auto.get("weapon_name", "")))
@@ -342,40 +392,47 @@ func _build_skill_card(skill: Dictionary, gem_options: Array, safe: bool) -> voi
 	header.add_theme_constant_override("separation", 10)
 	column.add_child(header)
 	var icon := TextureRect.new()
-	icon.texture = SpriteLibraryScript.texture("icons/" + gem_id)
+	icon.texture = null if gem_id.is_empty() else SpriteLibraryScript.texture("icons/" + gem_id)
 	icon.custom_minimum_size = Vector2(44.0, 44.0)
 	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	header.add_child(icon)
-	DescriptionHover.attach(icon, ContentDescriptions.skill(skill))
+	if not gem_id.is_empty():
+		DescriptionHover.attach(icon, ContentDescriptions.skill(skill))
 	var key_label := Label.new()
 	key_label.text = BindingsScript.label("skill_%d" % (slot + 1))
 	key_label.add_theme_font_size_override("font_size", 22)
 	key_label.add_theme_color_override("font_color", GOLD)
 	header.add_child(key_label)
+	var empty := bool(skill.get("empty", false))
 	var title := Label.new()
-	title.text = "%s\nNivel %d / %d   EXP %d / %d   Capacidade %d / %d" % [
-		String(skill.get("name", "")), int(skill.get("level", 1)), int(skill.get("max_level", 3)),
-		int(skill.get("experience", 0)), int(skill.get("experience_required", 1)),
+	var level := int(skill.get("level", 1))
+	var maximum := int(skill.get("max_level", 4))
+	title.text = "Encaixe vazio\nEscolha uma das suas gemas" if empty else "%s\nNivel %d / %d   %s   Capacidade %d / %d" % [
+		String(skill.get("name", "")), level, maximum,
+		"NIVEL MAXIMO" if level >= maximum else "EXP de uso %d / %d" % [int(skill.get("experience", 0)), int(skill.get("experience_required", 1))],
 		int(skill.get("capacity_used", 0)), int(skill.get("capacity", 3)),
 	]
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title.add_theme_color_override("font_color", TEXT)
 	header.add_child(title)
-	DescriptionHover.attach(title, ContentDescriptions.skill(skill))
+	if not empty:
+		DescriptionHover.attach(title, ContentDescriptions.skill(skill))
 	var swap := OptionButton.new()
 	swap.custom_minimum_size = Vector2(200.0, 32.0)
 	swap.tooltip_text = "Trocar a gema deste encaixe"
 	swap.disabled = not safe
+	swap.add_item("(vazio)")
+	swap.set_item_metadata(0, "")
 	var selected := 0
 	for index in range(gem_options.size()):
 		var option := gem_options[index] as Dictionary
-		swap.add_item(String(option.get("name", "")))
-		swap.set_item_metadata(index, String(option.get("id", "")))
-		swap.get_popup().set_item_tooltip(index, String(option.get("description", "")))
+		swap.add_item("%s  Nv %d" % [String(option.get("name", "")), int(option.get("level", 1))])
+		swap.set_item_metadata(index + 1, String(option.get("id", "")))
+		swap.get_popup().set_item_tooltip(index + 1, String(option.get("description", "")))
 		if String(option.get("id", "")) == gem_id:
-			selected = index
+			selected = index + 1
 	swap.select(selected)
 	swap.item_selected.connect(func(index: int) -> void:
 		var chosen := String(swap.get_item_metadata(index))
@@ -383,6 +440,8 @@ func _build_skill_card(skill: Dictionary, gem_options: Array, safe: bool) -> voi
 			gem_slot_requested.emit(slot, chosen)
 	)
 	header.add_child(swap)
+	if empty:
+		return
 	if not String(skill.get("description", "")).is_empty():
 		var description := Label.new()
 		description.text = String(skill["description"])
@@ -392,7 +451,7 @@ func _build_skill_card(skill: Dictionary, gem_options: Array, safe: bool) -> voi
 
 	var stats := Label.new()
 	var values := PackedStringArray()
-	for spec in [["power", "Potencia da gema"], ["barrier", "Barreira"], ["healing", "Cura por pulso"]]:
+	for spec in [["power", "Potencia"], ["barrier", "Barreira"], ["healing", "Cura por pulso"]]:
 		if float(skill.get(spec[0], 0.0)) > 0.0:
 			values.append("%s %.0f" % [spec[1], float(skill[spec[0]])])
 	values.append("Recarga %.1f s" % float(skill.get("cooldown", 0.0)))
@@ -402,6 +461,22 @@ func _build_skill_card(skill: Dictionary, gem_options: Array, safe: bool) -> voi
 	stats.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	stats.add_theme_color_override("font_color", MUTED)
 	column.add_child(stats)
+	var scaling := skill.get("scaling", []) as Array
+	if not scaling.is_empty():
+		var parts := PackedStringArray()
+		for entry: Dictionary in scaling:
+			parts.append("%s +%.1f%% por ponto (%.0f)" % [_stat_label(String(entry["stat"])), float(entry["per_point"]) * 100.0, float(entry["points"])])
+		var scaling_label := Label.new()
+		scaling_label.text = "Escala: %s   =   x%.2f sobre a base %.0f" % [", ".join(parts), float(skill.get("power_multiplier", 1.0)), float(skill.get("base_power", 0.0))]
+		scaling_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		scaling_label.add_theme_color_override("font_color", MUTED)
+		column.add_child(scaling_label)
+	if not String(skill.get("unique_weapon", "")).is_empty():
+		var unique_label := Label.new()
+		unique_label.text = String(skill["unique_weapon"])
+		unique_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		unique_label.add_theme_color_override("font_color", GOLD)
+		column.add_child(unique_label)
 	var evolutions := Label.new()
 	evolutions.text = "Evolucoes: " + (", ".join(PackedStringArray(skill.get("chosen", []) as Array)) if not (skill.get("chosen", []) as Array).is_empty() else "nenhuma")
 	evolutions.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -454,7 +529,7 @@ func _build_skill_controls(column: VBoxContainer, skill: Dictionary, safe: bool)
 	var pending: Array = skill.get("pending_choices", []) as Array
 	if not pending.is_empty():
 		var hint := Label.new()
-		hint.text = "Evolucao do nivel %d pendente — escolha uma:" % int(skill.get("level", 1))
+		hint.text = "Evolucao %d liberada pelo uso — escolha uma:" % int(skill.get("pending_tier", 1))
 		hint.add_theme_color_override("font_color", GOLD)
 		column.add_child(hint)
 		var choices_row := HBoxContainer.new()
@@ -489,7 +564,8 @@ const MODIFIER_NAMES := {
 	"angle": "abertura", "width": "largura", "angular_speed": "rotacao", "orbit_count": "orbitas",
 	"arm_delay": "tempo de armar", "meteor_count": "impactos", "delay": "atraso", "fork_count": "bifurcacoes",
 	"remote_nova": "pulso remoto", "inner_radius": "centro vazio", "invulnerability": "invulnerabilidade",
-	"breath_per_hit": "Folego por acerto",
+	"breath_per_hit": "Folego por acerto", "breath_on_kill": "Folego por abate", "arrow_count": "flechas",
+	"breath_per_second": "Folego por segundo", "tick_interval": "intervalo das rajadas",
 }
 
 
@@ -527,6 +603,45 @@ func _section(title: String, detail: String) -> void:
 	row.add_child(title_label)
 	row.add_child(detail_label)
 	_content.add_child(row)
+
+
+## Rótulo + seletor; emite a chave escolhida.
+func _add_choice(parent: Container, title: String, options: Array, current: String, on_pick: Callable, hint: String) -> void:
+	var label := Label.new()
+	label.text = title
+	label.add_theme_color_override("font_color", MUTED)
+	parent.add_child(label)
+	var picker := OptionButton.new()
+	picker.custom_minimum_size = Vector2(170.0, 30.0)
+	for index in range(options.size()):
+		picker.add_item(String(options[index][1]))
+		picker.set_item_metadata(index, String(options[index][0]))
+		if String(options[index][0]) == current:
+			picker.select(index)
+	picker.item_selected.connect(func(index: int) -> void: on_pick.call(String(picker.get_item_metadata(index))))
+	parent.add_child(picker)
+	DescriptionHover.attach(picker, hint)
+
+
+## Ícone do item em assets/sprites/items; nulo quando a peça ainda não tem arte.
+static func item_icon(item_id: String) -> Texture2D:
+	return SpriteLibraryScript.texture("items/" + item_id) if not item_id.is_empty() else null
+
+
+## Texto do botão na cor da raridade, mantida também ao passar o mouse e ao focar.
+func _tint_by_tier(button: Button, tier_id: String) -> void:
+	var color := ItemTier.color(tier_id)
+	for state in ["font_color", "font_hover_color", "font_focus_color", "font_pressed_color"]:
+		button.add_theme_color_override(state, color)
+
+
+func _set_item_icon(button: Button, item_id: String) -> void:
+	var texture := item_icon(item_id)
+	if texture == null:
+		return
+	button.icon = texture
+	button.expand_icon = true
+	button.add_theme_constant_override("icon_max_width", 26)
 
 
 func _add_text(value: String, color: Color) -> void:

@@ -40,9 +40,13 @@ static func scaled_quantity(quantity: int, difficulty: float, random: RandomNumb
 	return whole + (1 if random.randf() < scaled - float(whole) else 0)
 
 
-## Chance de um item bônus além da tabela da criatura.
+## Chance de um equipamento bônus além da tabela da criatura. A base garante que inimigos
+## comuns também soltem equipamento (cerca de 2 a 3 por andar de 30 abates).
+const BONUS_BASE_CHANCE := 0.08
+
+
 static func bonus_chance(difficulty: float) -> float:
-	return minf(0.75, 0.04 * difficulty)
+	return minf(0.75, BONUS_BASE_CHANCE + 0.04 * difficulty)
 
 
 static func tier_weights(difficulty: float) -> Dictionary:
@@ -78,8 +82,8 @@ static func pick_weighted(weights: Dictionary, random: RandomNumberGenerator) ->
 	return String(weights.keys()[weights.size() - 1])
 
 
-## Sorteia o item bônus: primeiro o tier, depois um item desse tier (ou do mais próximo abaixo).
-## Relíquias só entram quando a baixa é de chefe ou raid.
+## Sorteia o equipamento bônus: primeiro o tier, depois uma peça desse tier (ou do mais próximo abaixo).
+## Materiais e consumíveis ficam de fora, pois já vêm das tabelas. Relíquias só de chefe ou raid.
 static func pick_bonus_item(items: Array[Dictionary], difficulty: float, allow_relics: bool, random: RandomNumberGenerator) -> String:
 	var tier := pick_weighted(tier_weights(difficulty), random)
 	for index in range(TIERS.find(tier), -1, -1):
@@ -87,7 +91,9 @@ static func pick_bonus_item(items: Array[Dictionary], difficulty: float, allow_r
 		for item in items:
 			if String(item.get("tier", "common")) != TIERS[index]:
 				continue
-			if String(item.get("slot", "none")) == "relic" and not allow_relics:
+			var slot := String(item.get("slot", "none"))
+			# Armas únicas têm sorteio próprio, direcionado às gemas de quem abateu.
+			if slot == "none" or (slot == "relic" and not allow_relics) or item.has("unique_gem"):
 				continue
 			pool.append(String(item.get("id", "")))
 		if not pool.is_empty():

@@ -42,7 +42,7 @@ const STAT_NAMES := {
 	"cooldown_recovery":"Recuperacao de recarga", "defense":"Defesa", "stability":"Estabilidade",
 	"magic_power":"Potencia magica", "area":"Area", "interaction_speed":"Velocidade de interacao", "carry_capacity":"Capacidade de carga",
 }
-const FUNCTIONAL_STATS := ["health", "breath", "strength", "intelligence", "agility", "vitality", "wisdom", "fortune", "movement_speed", "attack_speed", "critical_chance", "cooldown_recovery"]
+const FUNCTIONAL_STATS := ["health", "breath", "strength", "intelligence", "agility", "vitality", "wisdom", "fortune", "movement_speed", "attack_speed", "critical_chance", "cooldown_recovery", "area", "defense"]
 
 
 static func item(definition: Dictionary, tier: String, fabrication: String = "", weapon: Dictionary = {}) -> String:
@@ -54,11 +54,13 @@ static func item(definition: Dictionary, tier: String, fabrication: String = "",
 	if not weapon.is_empty():
 		lines.append("%s | %s | Afinidade %.0f%%" % [weapon["name"], "Arcano" if weapon["damage_type"] == "arcane" else "Fisico", float(weapon["affinity"])])
 		lines.append("Potencia da arma %.1f | Alcance %.0f | Intervalo base %.2fs" % [float(weapon["damage"]), float(weapon["range"]), float(weapon["interval"])])
+		if float(weapon.get("guard", 0.0)) > 0.0 or float(weapon.get("life_steal", 0.0)) > 0.0:
+			lines.append("Guarda: -%.0f%% de dano recebido | Roubo de Vida: %.0f%%" % [float(weapon.get("guard", 0.0)) * 100.0, float(weapon.get("life_steal", 0.0)) * 100.0])
 		for stat: String in weapon["scaling"] as Dictionary:
 			lines.append("%s: +%.1f%% por ponto" % [STAT_NAMES.get(stat, stat), float(weapon["scaling"][stat]) * 100.0])
 	var stats := definition.get("stats", {}) as Dictionary
 	for stat: String in stats:
-		var unit := "%" if stat in ["movement_speed", "attack_speed", "critical_chance", "cooldown_recovery"] else ""
+		var unit := "%" if stat in ["movement_speed", "attack_speed", "critical_chance", "cooldown_recovery", "area"] else ""
 		lines.append("%s: +%.1f%s%s" % [STAT_NAMES.get(stat, stat.replace("_", " ")), float(stats[stat]), unit, " (sem efeito no beta)" if stat not in FUNCTIONAL_STATS else ""])
 	if not (definition.get("mechanics", []) as Array).is_empty():
 		lines.append("Efeitos especiais deste item: integracao pendente no beta.")
@@ -68,9 +70,14 @@ static func item(definition: Dictionary, tier: String, fabrication: String = "",
 static func skill(model: Dictionary) -> String:
 	var lines := PackedStringArray([String(model.get("name", "")), String(model.get("description", ""))])
 	lines.append("Folego %.0f | Recarga %.1fs | Cargas %d" % [float(model.get("breath_cost", 0.0)), float(model.get("cooldown", 0.0)), int(model.get("charges", 1))])
-	for spec in [["power", "Potencia da gema"], ["barrier", "Barreira da gema"], ["healing", "Cura base por pulso"]]:
+	for spec in [["power", "Potencia"], ["barrier", "Barreira"], ["healing", "Cura por pulso"]]:
 		if float(model.get(spec[0], 0.0)) > 0.0:
 			lines.append("%s: %.0f" % [spec[1], float(model[spec[0]])])
+	var scaling := PackedStringArray()
+	for entry: Dictionary in model.get("scaling", []) as Array:
+		scaling.append("%s +%.1f%%/ponto" % [STAT_NAMES.get(String(entry["stat"]), String(entry["stat"])), float(entry["per_point"]) * 100.0])
+	if not scaling.is_empty():
+		lines.append("Escala com: " + ", ".join(scaling))
 	for support: Dictionary in model.get("supports", []) as Array:
 		lines.append("%s: %s" % [support.get("name", ""), support.get("description", "")])
 	return "\n".join(lines)

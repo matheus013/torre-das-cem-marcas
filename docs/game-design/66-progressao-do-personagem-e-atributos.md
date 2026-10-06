@@ -122,6 +122,8 @@ Investir os 450 pontos em um único atributo produz 262,5 pontos efetivos. Distr
 - chance crítica total: 35%;
 - dano crítico total: 200%;
 - recuperação adicional de recarga: 50%;
+- redução total de recarga (Sabedoria, equipamento e evoluções somados): 60%, ou seja, recuperação até 2,5×;
+- Área total (equipamento e evoluções): +100%. A Área amplia raio, área de impacto, raio de contato das órbitas, largura dos feixes e área de chegada do dash; alcance é distância e não é afetado;
 - eficiência adicional de recurso: 50%;
 - resistência a controle: 45%.
 

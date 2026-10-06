@@ -11,6 +11,8 @@ func _init() -> void:
 		if not bool(sim.call("add_player", peer_id)):
 			_fail("Player %d could not join" % peer_id)
 			return
+	for peer_id in [1, 2, 3, 4]:
+		sim.call("unlock_all_gems", peer_id, true)
 	if bool(sim.call("add_player", 5)):
 		_fail("A fifth player must be rejected")
 		return
@@ -38,14 +40,20 @@ func _init() -> void:
 		_fail("Support without required tags must be rejected")
 		return
 	var resolved: Dictionary = sim.call("resolve_slot", 1, 0)
-	if int(resolved.get("projectile_count", 0)) != 1 or not is_equal_approx(float(resolved["power"]), 35.0 * 0.78):
+	# Potência base lida do catálogo: o balanceamento muda o número, a composição não.
+	var needle_power := float((sim.call("gem_definition", "agulha_lastro") as Dictionary)["power"])
+	if int(resolved.get("projectile_count", 0)) != 1 or not is_equal_approx(float(resolved["power"]), needle_power * 0.78):
 		_fail("Support modifiers were not resolved into the gem")
 		return
+	if bool(sim.call("choose_gem_evolution", 1, "agulha_lastro", "ponta_pesada")):
+		_fail("Evolution 1 needs gem level 2")
+		return
+	sim.call("gain_gem_experience", 1, "agulha_lastro", int(sim.call("gem_experience_required", 1)))
 	if not bool(sim.call("choose_gem_evolution", 1, "agulha_lastro", "ponta_pesada")):
-		_fail("Level one evolution could not be chosen")
+		_fail("Evolution 1 could not be chosen at gem level 2")
 		return
 	resolved = sim.call("resolve_slot", 1, 0)
-	if not is_equal_approx(float(resolved["power"]), 35.0 * 1.35 * 0.78):
+	if not is_equal_approx(float(resolved["power"]), needle_power * 1.35 * 0.78):
 		_fail("Evolution and support must compose in canonical order")
 		return
 
@@ -118,24 +126,26 @@ func _init() -> void:
 	guarded["barrier"] = 0.0
 	sim.call("execute_gem_effect", 2, {"mechanic": "sanctuary", "radius": 120.0, "duration": 5.0, "power": 0.0, "healing": 0.0, "stability": 0.25}, guarded["position"])
 	sim.call("take_damage", 2, 20.0)
-	if not is_equal_approx(float(guarded["health"]), 85.0):
+	# Estabilidade 25% compõe com a guarda da arma e a defesa da armadura (balanceamento de 2026-10).
+	var other := (1.0 - float((sim.call("weapon_attack_model", 2) as Dictionary).get("guard", 0.0))) * (1.0 - float((sim.call("derived_stats", 2) as Dictionary).get("damage_reduction", 0.0)))
+	if not is_equal_approx(float(guarded["health"]), 100.0 - 20.0 * 0.75 * other):
 		_fail("Sanctuary stability must reduce damage taken inside it (health %s)" % guarded["health"])
 		return
 
-	# Nível de gema bloqueado pela escolha pendente do nível atual.
+	# Nível de gema pela EXP de uso (150 x nível); escolhas pendentes não travam a subida (decisão 579).
 	var gems := ((sim.get("character_gems") as Dictionary)[String((sim.call("player", 1) as Dictionary)["character_id"])] as Dictionary)["gems"] as Dictionary
 	var needle := gems["agulha_lastro"] as Dictionary
 	needle["experience"] = 500
 	sim.call("_advance_gem", 1, "agulha_lastro")
-	if int(needle["level"]) != 2:
-		_fail("Gem must level once and stop at the next pending choice")
+	if int(needle["level"]) != 3 or int(needle["experience"]) != 200 or SimulationScript.pending_evolution_tier(needle) != 2:
+		_fail("Gem must reach level 3 with 500 experience and keep tier 2 pending")
 		return
 
 	# Segunda Rota: carga extra permite dois usos seguidos e recarrega uma por vez.
 	var dasher := sim.call("player", 3) as Dictionary
 	var dasher_gems := (sim.get("character_gems") as Dictionary)[String(dasher["character_id"])] as Dictionary
 	var dash_progress := (dasher_gems["gems"] as Dictionary)["passo_vetorial"] as Dictionary
-	dash_progress["level"] = 3
+	dash_progress["level"] = 4
 	dash_progress["choices"] = {"1": "passo_economico", "2": "guarda_de_chegada", "3": "segunda_rota"}
 	sim.call("refresh_charges", 3)
 	dasher["breath"] = 100.0
@@ -161,7 +171,7 @@ func _init() -> void:
 		_fail("Save could not be loaded")
 		return
 	var restored_skills: Array = (restored.call("menu_model", 1) as Dictionary)["skills"]
-	if String((restored_skills[3] as Dictionary)["id"]) != "elo_residual" or (restored_skills[0] as Dictionary)["supports"].is_empty() or int((restored_skills[0] as Dictionary)["level"]) != 2:
+	if String((restored_skills[3] as Dictionary)["id"]) != "elo_residual" or (restored_skills[0] as Dictionary)["supports"].is_empty() or int((restored_skills[0] as Dictionary)["level"]) != 3:
 		_fail("Gem slots, supports and levels were not restored")
 		return
 

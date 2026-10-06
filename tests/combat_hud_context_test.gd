@@ -16,6 +16,7 @@ func _fixture(sim: WorldSimulation) -> void:
 		var peer := index + 1
 		if not sim.players.has(peer):
 			sim.add_player(peer, [&"eloa", &"sena", &"cira", &"rui"][index])
+			sim.unlock_all_gems(peer, true)
 		sim.enter_tower(peer)
 		sim.player(peer)["position"] = ORIGIN + Vector2(0, index * 60)
 		sim.player(peer)["target"] = sim.player(peer)["position"]
