@@ -1111,6 +1111,19 @@ func can_stand(zone: StringName, position: Vector2) -> bool:
 	return true
 
 
+## Ponto livre mais próximo em espiral: chegada dentro de colisão (mapa mudou, save antigo)
+## prenderia a personagem, já que todo movimento a partir dali é recusado.
+func nearest_standable(zone: StringName, position: Vector2) -> Vector2:
+	if can_stand(zone, position):
+		return position
+	for ring in range(1, 16):
+		for step in range(ring * 8):
+			var candidate := position + Vector2.RIGHT.rotated(TAU * float(step) / float(ring * 8)) * float(ring) * 12.0
+			if can_stand(zone, candidate):
+				return candidate
+	return position
+
+
 func _zone_size(zone: StringName) -> Vector2:
 	if zone == &"tower" and not floor_layout.is_empty():
 		return floor_layout["size"] as Vector2
@@ -1119,6 +1132,8 @@ func _zone_size(zone: StringName) -> Vector2:
 
 func _place(peer_id: int, zone: StringName, position: Vector2, cooldown: float = 0.5) -> void:
 	var state := player(peer_id)
+	if zone != &"tower":
+		position = nearest_standable(zone, position)
 	state["zone"] = zone
 	state["position"] = position
 	state["target"] = position

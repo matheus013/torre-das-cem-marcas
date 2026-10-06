@@ -60,10 +60,15 @@ static func pieces() -> Array[Dictionary]:
 	for x in range(2530, 3100, 170):
 		for y in [1200, 1380]:
 			result.append(_prop("pines", Vector2(x, y)))
+	var buildings := result.filter(func(piece: Dictionary) -> bool: return String(piece["sprite"]).begins_with("buildings/"))
 	for road in ROADS:
 		if road.size.x > road.size.y:
 			for x in range(int(road.position.x) + 40, int(road.end.x), 300):
-				result.append(_prop("lamp", Vector2(x, road.position.y - 16)))
+				var spot := Vector2(x, road.position.y - 16)
+				# Poste nunca na frente de uma entrada: bloquearia a porta e o ponto de chegada.
+				if buildings.any(func(piece: Dictionary) -> bool: return absf(spot.x - (piece["base"] as Vector2).x) < 80.0 and spot.y >= (piece["base"] as Vector2).y and spot.y - (piece["base"] as Vector2).y < 140.0):
+					continue
+				result.append(_prop("lamp", spot))
 	return result
 
 static func _building(id: String, base: Vector2, label: String) -> Dictionary:
