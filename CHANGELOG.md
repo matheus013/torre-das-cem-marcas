@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.4.0](https://github.com/matheus013/torre-das-cem-marcas/compare/v0.3.0...v0.4.0) (2026-10-06)
+
+### Novidades
+
+* remodela cenarios e anima todos os NPCs e monstros ([8f34994](https://github.com/matheus013/torre-das-cem-marcas/commit/8f34994ed86ecf177251dba19bdde187e0fa1321))
+
+### Documentacao
+
+* registra efeitos sem sprites e limites da revisao de arte ([bea9f29](https://github.com/matheus013/torre-das-cem-marcas/commit/bea9f29b2f3ad44d30bd8fb9791ac64f9d373fb5))
+
 ## [0.3.0](https://github.com/matheus013/torre-das-cem-marcas/compare/v0.2.1...v0.3.0) (2026-10-05)
 
 ### Novidades
