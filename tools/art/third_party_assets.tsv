@@ -1,0 +1,290 @@
+# Curadoria de assets de terceiros a partir dos pacotes brutos em assets/new (fora do git).
+# Reconstruir: sh tools/art/import_third_party.sh
+# tipo	destino	origem (relativa a assets/new; "pacote::membro" le de dentro de zip/rar)	filtro ffmpeg opcional
+#
+# VFX: Super Pixel Effects Gigapack (Free Version) - Will Tice / unTied Games.
+# Tiras horizontais de quadros quadrados, 15 FPS. Credito obrigatorio.
+vfx	hit	dev 2/Super Pixel Effects Gigapack (Free Version) v3.0.0.zip::Super Pixel Effects Gigapack (Free Version)/spritesheet/Impacts/directional_impact_001/directional_impact_001_small_blue/spritesheet.png
+vfx	crit	dev 2/Super Pixel Effects Gigapack (Free Version) v3.0.0.zip::Super Pixel Effects Gigapack (Free Version)/spritesheet/Impacts/symmetrical_impact_001/symmetrical_impact_001_small_yellow/spritesheet.png
+vfx	burst	dev 2/Super Pixel Effects Gigapack (Free Version) v3.0.0.zip::Super Pixel Effects Gigapack (Free Version)/spritesheet/Impacts/symmetrical_impact_002/symmetrical_impact_002_small_blue/spritesheet.png
+vfx	block	dev 2/Super Pixel Effects Gigapack (Free Version) v3.0.0.zip::Super Pixel Effects Gigapack (Free Version)/spritesheet/Impacts/directional_impact_004/directional_impact_004_small_yellow/spritesheet.png
+vfx	zap	dev 2/Super Pixel Effects Gigapack (Free Version) v3.0.0.zip::Super Pixel Effects Gigapack (Free Version)/spritesheet/Lightning/lightning_burst_003/lightning_burst_003_small_violet/spritesheet.png
+vfx	blood	dev 2/Super Pixel Effects Gigapack (Free Version) v3.0.0.zip::Super Pixel Effects Gigapack (Free Version)/spritesheet/Splatters/burst_splatter_001/burst_splatter_001_small_red/spritesheet.png
+vfx	poof	dev 2/Super Pixel Effects Gigapack (Free Version) v3.0.0.zip::Super Pixel Effects Gigapack (Free Version)/spritesheet/Smoke Bursts/directional_smoke_burst_001/directional_smoke_burst_001_small_white/spritesheet.png
+vfx	explosion	dev 2/Super Pixel Effects Gigapack (Free Version) v3.0.0.zip::Super Pixel Effects Gigapack (Free Version)/spritesheet/Explosions/symmetrical_explosion_002/symmetrical_explosion_002_small_orange/spritesheet.png
+vfx	downed	dev 2/Super Pixel Effects Gigapack (Free Version) v3.0.0.zip::Super Pixel Effects Gigapack (Free Version)/spritesheet/Smoke Bursts/stylized_skull_smoke_burst_001/stylized_skull_smoke_burst_001_small_white/spritesheet.png
+vfx	heal	dev 2/Super Pixel Effects Gigapack (Free Version) v3.0.0.zip::Super Pixel Effects Gigapack (Free Version)/spritesheet/Fantasy Spells/spell_heal_001/spell_heal_001_small_red/spritesheet.png
+vfx	shield	dev 2/Super Pixel Effects Gigapack (Free Version) v3.0.0.zip::Super Pixel Effects Gigapack (Free Version)/spritesheet/Fantasy Spells/spell_defense_up_001/spell_defense_up_001_small_blue/spritesheet.png
+vfx	coins	dev 2/Super Pixel Effects Gigapack (Free Version) v3.0.0.zip::Super Pixel Effects Gigapack (Free Version)/spritesheet/Magic Bursts/directional_coin_burst_001/directional_coin_burst_001_small_yellow/spritesheet.png
+vfx	levelup	dev 2/Super Pixel Effects Gigapack (Free Version) v3.0.0.zip::Super Pixel Effects Gigapack (Free Version)/spritesheet/Magic Bursts/round_light_burst_001/round_light_burst_001_small_yellow/spritesheet.png
+#
+# SFX: Helton Yan's Pixel Combat. Convertidos para WAV 16-bit mono 44.1 kHz,
+# silencio final cortado. Varias variacoes por som evitam repeticao audivel.
+sfx	shoot_1	Helton Yan_s Pixel Combat - Single Files-001/DSGNTonl_SKILL RELEASE-Tiny Energy Sphere_HY_PC-001.wav
+sfx	shoot_2	Helton Yan_s Pixel Combat - Single Files-001/DSGNTonl_SKILL RELEASE-Tiny Energy Sphere_HY_PC-002.wav
+sfx	shoot_3	Helton Yan_s Pixel Combat - Single Files-001/DSGNTonl_SKILL RELEASE-Tiny Energy Sphere_HY_PC-003.wav
+sfx	needle_1	Helton Yan_s Pixel Combat - Single Files-001/MAGSpel_CAST-Pierce_HY_PC-001.wav
+sfx	needle_2	Helton Yan_s Pixel Combat - Single Files-001/MAGSpel_CAST-Pierce_HY_PC-002.wav
+sfx	hit_1	Helton Yan_s Pixel Combat - Single Files-001/DSGNMisc_HIT-Spell Hit_HY_PC-001.wav
+sfx	hit_2	Helton Yan_s Pixel Combat - Single Files-001/DSGNMisc_HIT-Spell Hit_HY_PC-002.wav
+sfx	hit_3	Helton Yan_s Pixel Combat - Single Files-001/DSGNMisc_HIT-Spell Hit_HY_PC-003.wav
+sfx	crit_1	Helton Yan_s Pixel Combat - Single Files-001/DSGNMisc_SKILL IMPACT-Critical Strike_HY_PC-001.wav
+sfx	crit_2	Helton Yan_s Pixel Combat - Single Files-001/DSGNMisc_SKILL IMPACT-Critical Strike_HY_PC-002.wav
+sfx	hurt_1	Helton Yan_s Pixel Combat - Single Files-001/FGHTImpt_MELEE-Gut Punch_HY_PC-001.wav
+sfx	hurt_2	Helton Yan_s Pixel Combat - Single Files-001/FGHTImpt_MELEE-Gut Punch_HY_PC-002.wav
+sfx	hurt_3	Helton Yan_s Pixel Combat - Single Files-001/FGHTImpt_MELEE-Gut Punch_HY_PC-003.wav
+sfx	block_1	Helton Yan_s Pixel Combat - Single Files-001/DSGNMisc_MELEE-Sword Deflect_HY_PC-001.wav
+sfx	block_2	Helton Yan_s Pixel Combat - Single Files-001/DSGNMisc_MELEE-Sword Deflect_HY_PC-002.wav
+sfx	shield_1	Helton Yan_s Pixel Combat - Single Files-001/DSGNTonl_SKILL IMPACT-Deflected Hit_HY_PC-001.wav
+sfx	shield_2	Helton Yan_s Pixel Combat - Single Files-001/DSGNTonl_SKILL IMPACT-Deflected Hit_HY_PC-002.wav
+sfx	burst_1	Helton Yan_s Pixel Combat - Single Files-001/DSGNImpt_EXPLOSION-Small Flare_HY_PC-001.wav
+sfx	burst_2	Helton Yan_s Pixel Combat - Single Files-001/DSGNImpt_EXPLOSION-Small Flare_HY_PC-002.wav
+sfx	ring_1	Helton Yan_s Pixel Combat - Single Files-001/DSGNTonl_SKILL IMPACT-Wubwub Impact_HY_PC-001.wav
+sfx	ring_2	Helton Yan_s Pixel Combat - Single Files-001/DSGNTonl_SKILL IMPACT-Wubwub Impact_HY_PC-002.wav
+sfx	slash_1	Helton Yan_s Pixel Combat - Single Files-001/DSGNMisc_MELEE-Sword Slash_HY_PC-001.wav
+sfx	slash_2	Helton Yan_s Pixel Combat - Single Files-001/DSGNMisc_MELEE-Sword Slash_HY_PC-002.wav
+sfx	slash_3	Helton Yan_s Pixel Combat - Single Files-001/DSGNMisc_MELEE-Sword Slash_HY_PC-003.wav
+sfx	zap_1	Helton Yan_s Pixel Combat - Single Files-001/DSGNMisc_HIT-Laser Electric Zap_HY_PC-001.wav
+sfx	zap_2	Helton Yan_s Pixel Combat - Single Files-001/DSGNMisc_HIT-Laser Electric Zap_HY_PC-002.wav
+sfx	dash_1	Helton Yan_s Pixel Combat - Single Files-001/WHSH_MOVEMENT-Simple Whoosh_HY_PC-001.wav
+sfx	dash_2	Helton Yan_s Pixel Combat - Single Files-001/WHSH_MOVEMENT-Simple Whoosh_HY_PC-002.wav
+sfx	telegraph_1	Helton Yan_s Pixel Combat - Single Files-001/MAGSpel_CAST-Aura Rise_HY_PC-001.wav
+sfx	poof_1	Helton Yan_s Pixel Combat - Single Files-001/DSGNImpt_EXPLOSION-Crunchy Burst_HY_PC-001.wav
+sfx	poof_2	Helton Yan_s Pixel Combat - Single Files-001/DSGNImpt_EXPLOSION-Crunchy Burst_HY_PC-002.wav
+sfx	poof_3	Helton Yan_s Pixel Combat - Single Files-001/DSGNImpt_EXPLOSION-Crunchy Burst_HY_PC-003.wav
+sfx	explosion_1	Helton Yan_s Pixel Combat - Single Files-001/DSGNImpt_EXPLOSION-Eruption_HY_PC-001.wav
+sfx	downed_1	Helton Yan_s Pixel Combat - Single Files-001/DSGNSynth_BUFF-Failed Buff_HY_PC-001.wav
+sfx	heal_1	Helton Yan_s Pixel Combat - Single Files-001/MAGAngl_BUFF-Simple Heal_HY_PC-001.wav
+sfx	coins_1	Helton Yan_s Pixel Combat - Single Files-001/DSGNTonl_USABLE-Magic Coin_HY_PC-001.wav
+sfx	coins_2	Helton Yan_s Pixel Combat - Single Files-001/DSGNTonl_USABLE-Magic Coin_HY_PC-002.wav
+sfx	levelup_1	Helton Yan_s Pixel Combat - Single Files-001/DSGNSynth_BUFF-Stats Up_HY_PC-001.wav
+sfx	stairs_1	Helton Yan_s Pixel Combat - Single Files-001/MAGAngl_BUFF-Effect Success_HY_PC-001.wav
+sfx	denied_1	Helton Yan_s Pixel Combat - Single Files-001/UIMisc_INTERFACE-Denied_HY_PC-001.wav
+sfx	click_1	Helton Yan_s Pixel Combat - Single Files-001/UIClick_INTERFACE-Positive Click_HY_PC-001.wav
+#
+# Icones de gema: MAGE ICONS BIG PACK - Batareya. Pixel art 64x64 ampliada 8x; volta ao tamanho nativo.
+# O pacote nao traz licenca; confirmar os termos na pagina da autora antes da Steam.
+icon	agulha_lastro	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::117.png	scale=64:64:flags=neighbor
+icon	passo_vetorial	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::22.png	scale=64:64:flags=neighbor
+icon	pulso_cicatriz	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::225.png	scale=64:64:flags=neighbor
+icon	prisao_gravitica	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::111.png	scale=64:64:flags=neighbor
+icon	muralha_refeita	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::185.png	scale=64:64:flags=neighbor
+icon	elo_residual	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::39.png	scale=64:64:flags=neighbor
+icon	molde_vigilante	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::182.png	scale=64:64:flags=neighbor
+icon	semeadura_vital	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::44.png	scale=64:64:flags=neighbor
+icon	estilhacos_lunares	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::104.png	scale=64:64:flags=neighbor
+icon	lanca_ferral	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::55.png	scale=64:64:flags=neighbor
+icon	orbe_de_ruptura	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::36.png	scale=64:64:flags=neighbor
+icon	corte_vetorial	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::21.png	scale=64:64:flags=neighbor
+icon	salto_de_guarda	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::23.png	scale=64:64:flags=neighbor
+icon	anel_de_geada	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::34.png	scale=64:64:flags=neighbor
+icon	ruptura_sismica	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::238.png	scale=64:64:flags=neighbor
+icon	brasa_persistente	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::142.png	scale=64:64:flags=neighbor
+icon	pantano_acido	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::82.png	scale=64:64:flags=neighbor
+icon	casca_reativa	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::33.png	scale=64:64:flags=neighbor
+icon	arco_voltaico	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::205.png	scale=64:64:flags=neighbor
+icon	dreno_em_rede	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::87.png	scale=64:64:flags=neighbor
+icon	sentinela_ferral	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::106.png	scale=64:64:flags=neighbor
+icon	enxame_luminar	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::27.png	scale=64:64:flags=neighbor
+icon	guardiao_de_lastro	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::54.png	scale=64:64:flags=neighbor
+icon	circulo_de_reparo	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::126.png	scale=64:64:flags=neighbor
+icon	abrigo_de_escora	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::131.png	scale=64:64:flags=neighbor
+icon	ceifa_ampla	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::171.png	scale=64:64:flags=neighbor
+icon	sopro_criogenico	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::208.png	scale=64:64:flags=neighbor
+icon	raio_prismatico	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::174.png	scale=64:64:flags=neighbor
+icon	fio_desintegrador	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::167.png	scale=64:64:flags=neighbor
+icon	laminas_orbitais	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::40.png	scale=64:64:flags=neighbor
+icon	satelites_de_geada	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::38.png	scale=64:64:flags=neighbor
+icon	mina_de_lastro	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::9.png	scale=64:64:flags=neighbor
+icon	semente_explosiva	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::175.png	scale=64:64:flags=neighbor
+icon	chuva_ferral	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::52.png	scale=64:64:flags=neighbor
+icon	cometa_de_vidro	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::200.png	scale=64:64:flags=neighbor
+icon	disco_de_retorno	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::144.png	scale=64:64:flags=neighbor
+icon	projeteis_gemeos	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::164.png	scale=64:64:flags=neighbor
+icon	perfuracao_refeita	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::125.png	scale=64:64:flags=neighbor
+icon	ricochete_de_junta	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::207.png	scale=64:64:flags=neighbor
+icon	area_expandida	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::243.png	scale=64:64:flags=neighbor
+icon	foco_concentrado	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::240.png	scale=64:64:flags=neighbor
+icon	eco_atrasado	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::114.png	scale=64:64:flags=neighbor
+icon	fluxo_rapido	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::118.png	scale=64:64:flags=neighbor
+icon	duracao_estendida	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::230.png	scale=64:64:flags=neighbor
+icon	drenagem_vital	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::154.png	scale=64:64:flags=neighbor
+icon	impulso_de_impacto	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::18.png	scale=64:64:flags=neighbor
+icon	busca_residual	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::115.png	scale=64:64:flags=neighbor
+icon	sobrecarga_instavel	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::210.png	scale=64:64:flags=neighbor
+icon	retorno_vetorial	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::112.png	scale=64:64:flags=neighbor
+icon	bifurcacao_residual	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::116.png	scale=64:64:flags=neighbor
+icon	explosao_de_contato	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::239.png	scale=64:64:flags=neighbor
+icon	novas_remotas	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::130.png	scale=64:64:flags=neighbor
+icon	anel_vazio	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::7.png	scale=64:64:flags=neighbor
+icon	zona_itinerante	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::183.png	scale=64:64:flags=neighbor
+icon	detonacao_tardia	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::20.png	scale=64:64:flags=neighbor
+icon	eco_triplo	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::41.png	scale=64:64:flags=neighbor
+icon	guarda_partilhada	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::216.png	scale=64:64:flags=neighbor
+icon	vigia_itinerante	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::26.png	scale=64:64:flags=neighbor
+icon	enxame_duplo	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::29.png	scale=64:64:flags=neighbor
+icon	corrente_de_retorno	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::177.png	scale=64:64:flags=neighbor
+icon	conversao_cultivo	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::136.png	scale=64:64:flags=neighbor
+icon	salto_explosivo	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::247.png	scale=64:64:flags=neighbor
+icon	potencia_bruta	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::206.png	scale=64:64:flags=neighbor
+icon	precisao_lapidada	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::108.png	scale=64:64:flags=neighbor
+icon	alcance_treinado	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::83.png	scale=64:64:flags=neighbor
+icon	barreira_densa	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::64.png	scale=64:64:flags=neighbor
+icon	cura_reforcada	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::121.png	scale=64:64:flags=neighbor
+icon	ritmo_de_cultivo	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::143.png	scale=64:64:flags=neighbor
+icon	passo_extenso	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::170.png	scale=64:64:flags=neighbor
+icon	passo_seguro	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::218.png	scale=64:64:flags=neighbor
+icon	invocacao_celere	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::184.png	scale=64:64:flags=neighbor
+icon	elo_amplo	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::196.png	scale=64:64:flags=neighbor
+icon	estabilidade_solida	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::186.png	scale=64:64:flags=neighbor
+icon	sifao_de_folego	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::103.png	scale=64:64:flags=neighbor
+icon	aegis_por_acerto	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::84.png	scale=64:64:flags=neighbor
+icon	cadencia_precisa	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::89.png	scale=64:64:flags=neighbor
+icon	bola_de_fogo	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::214.png	scale=64:64:flags=neighbor
+icon	bolha_corrosiva	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::74.png	scale=64:64:flags=neighbor
+icon	cometa_sombrio	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::226.png	scale=64:64:flags=neighbor
+icon	raizes_presas	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::124.png	scale=64:64:flags=neighbor
+icon	pilar_sagrado	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::237.png	scale=64:64:flags=neighbor
+icon	esfera_de_gelo	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::31.png	scale=64:64:flags=neighbor
+icon	trovao_descendente	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::149.png	scale=64:64:flags=neighbor
+icon	saraivada_de_flechas	dev 2/MAGE ICONS BIG PACk (by Batareya).rar::60.png	scale=64:64:flags=neighbor
+#
+# Itens: celulas 32x32 da FantasyInventory (10x5).
+item	filamentos_de_forja	dev 2/FantasyInventory.zip::FantasyInventory/FantasyInventorySpritesheet.png	crop=32:32:224:0
+item	escudo_de_escora	dev 2/FantasyInventory.zip::FantasyInventory/FantasyInventorySpritesheet.png	crop=32:32:160:128
+item	foco_de_vidro_termico	dev 2/FantasyInventory.zip::FantasyInventory/FantasyInventorySpritesheet.png	crop=32:32:64:96
+item	amuleto_da_primeira_marca	dev 2/FantasyInventory.zip::FantasyInventory/FantasyInventorySpritesheet.png	crop=32:32:288:0
+item	reliquia_coracao_de_junta	dev 2/FantasyInventory.zip::FantasyInventory/FantasyInventorySpritesheet.png	crop=32:32:32:128
+item	reliquia_molde_sem_dono	dev 2/FantasyInventory.zip::FantasyInventory/FantasyInventorySpritesheet.png	crop=32:32:128:96
+item	reliquia_lastro_partido	dev 2/FantasyInventory.zip::FantasyInventory/FantasyInventorySpritesheet.png	crop=32:32:192:0
+item	faixa_coagulante	dev 2/FantasyInventory.zip::FantasyInventory/FantasyInventorySpritesheet.png	crop=32:32:0:0
+item	tonico_de_folego	dev 2/FantasyInventory.zip::FantasyInventory/FantasyInventorySpritesheet.png	crop=32:32:256:64
+item	sal_de_fissura	dev 2/FantasyInventory.zip::FantasyInventory/FantasyInventorySpritesheet.png	crop=32:32:160:32
+item	cunha_de_retorno	dev 2/FantasyInventory.zip::FantasyInventory/FantasyInventorySpritesheet.png	crop=32:32:128:32
+item	pedra_regenerativa	dev 2/FantasyInventory.zip::FantasyInventory/FantasyInventorySpritesheet.png	crop=32:32:224:64
+item	musgo_de_orientacao	dev 2/FantasyInventory.zip::FantasyInventory/FantasyInventorySpritesheet.png	crop=32:32:288:64
+item	escama_de_reboco	dev 2/FantasyInventory.zip::FantasyInventory/FantasyInventorySpritesheet.png	crop=32:32:128:64
+item	argila_de_enxerto	dev 2/FantasyInventory.zip::FantasyInventory/FantasyInventorySpritesheet.png	crop=32:32:128:128
+item	junco_mineral	dev 2/FantasyInventory.zip::FantasyInventory/FantasyInventorySpritesheet.png	crop=32:32:32:64
+item	membrana_de_pressao	dev 2/FantasyInventory.zip::FantasyInventory/FantasyInventorySpritesheet.png	crop=32:32:160:64
+item	lanterna_de_esporo	dev 2/FantasyInventory.zip::FantasyInventory/FantasyInventorySpritesheet.png	crop=32:32:32:96
+item	ambar_micelial	dev 2/FantasyInventory.zip::FantasyInventory/FantasyInventorySpritesheet.png	crop=32:32:96:64
+item	lodo_mineral	dev 2/FantasyInventory.zip::FantasyInventory/FantasyInventorySpritesheet.png	crop=32:32:96:128
+item	perola_de_refluxo	dev 2/FantasyInventory.zip::FantasyInventory/FantasyInventorySpritesheet.png	crop=32:32:288:32
+item	vidro_negro	dev 2/FantasyInventory.zip::FantasyInventory/FantasyInventorySpritesheet.png	crop=32:32:0:96
+item	cristal_de_carga	dev 2/FantasyInventory.zip::FantasyInventory/FantasyInventorySpritesheet.png	crop=32:32:64:64
+item	tinta_mineral	dev 2/FantasyInventory.zip::FantasyInventory/FantasyInventorySpritesheet.png	crop=32:32:64:32
+item	marco_gravado	dev 2/FantasyInventory.zip::FantasyInventory/FantasyInventorySpritesheet.png	crop=32:32:192:96
+item	pele_mineral	dev 2/FantasyInventory.zip::FantasyInventory/FantasyInventorySpritesheet.png	crop=32:32:256:32
+item	seiva_colossal	dev 2/FantasyInventory.zip::FantasyInventory/FantasyInventorySpritesheet.png	crop=32:32:32:0
+item	cabo_de_lastro	dev 2/FantasyInventory.zip::FantasyInventory/FantasyInventorySpritesheet.png	crop=32:32:224:128
+item	fragmento_de_eixo	dev 2/FantasyInventory.zip::FantasyInventory/FantasyInventorySpritesheet.png	crop=32:32:64:128
+item	petala_possivel	dev 2/FantasyInventory.zip::FantasyInventory/FantasyInventorySpritesheet.png	crop=32:32:0:128
+item	semente_do_quase	dev 2/FantasyInventory.zip::FantasyInventory/FantasyInventorySpritesheet.png	crop=32:32:0:64
+item	material_sem_autor	dev 2/FantasyInventory.zip::FantasyInventory/FantasyInventorySpritesheet.png	crop=32:32:224:96
+item	marca_de_mandato	dev 2/FantasyInventory.zip::FantasyInventory/FantasyInventorySpritesheet.png	crop=32:32:288:128
+#
+# Armas: Free Pixel Fantasy Weapon Pack (domin-dev). 64x32 nativo, sem credito obrigatorio.
+item	lanca_de_duas_rotas	dev 2/FreePixelFantasyWeaponPack.zip::FreePixelFantasyWeaponPack/Weapons/17.png	
+item	bastao_modular_de_campo	dev 2/FreePixelFantasyWeaponPack.zip::FreePixelFantasyWeaponPack/Weapons/36.png	
+#
+# Aneis: TTRPG Legacy Rings - Ddant1100 (credito obrigatorio). Metal segue o tier:
+# incomum bronze, raro prata, epico ouro. Renders 512px reduzidos para 32.
+item	anel_de_folego	dev/ttrpg_legacy_rings_1.0.zip::Bronze base/bronze_ring_base_01.png	scale=32:32:flags=lanczos
+item	anel_de_precisao	dev/ttrpg_legacy_rings_1.0.zip::Bronze base/bronze_ring_base_09.png	scale=32:32:flags=lanczos
+item	anel_de_area	dev/ttrpg_legacy_rings_1.0.zip::Silver base/silver_ring_base_07.png	scale=32:32:flags=lanczos
+item	anel_de_retorno	dev/ttrpg_legacy_rings_1.0.zip::Silver base/silver_ring_base_06.png	scale=32:32:flags=lanczos
+item	anel_de_partilha	dev/ttrpg_legacy_rings_1.0.zip::Silver base/silver_ring_base_08.png	scale=32:32:flags=lanczos
+item	anel_de_cicatriz	dev/ttrpg_legacy_rings_1.0.zip::Gold base/gold_ring_base_05.png	scale=32:32:flags=lanczos
+#
+# Armas unicas (uma por gema): TTRPG Legacy Swords - Ddant1100 (credito obrigatorio).
+# Renders 512px reduzidos para 32; armas finas 64x32 ficavam ilegiveis como icone.
+item	unica_agulha_lastro	dev 2/ttrpg_legacy_swords_1.0.zip::sword_38.png	scale=32:32:flags=lanczos
+item	unica_passo_vetorial	dev 2/ttrpg_legacy_swords_1.0.zip::sword_26.png	scale=32:32:flags=lanczos
+item	unica_pulso_cicatriz	dev 2/ttrpg_legacy_swords_1.0.zip::sword_29.png	scale=32:32:flags=lanczos
+item	unica_prisao_gravitica	dev 2/ttrpg_legacy_swords_1.0.zip::sword_27.png	scale=32:32:flags=lanczos
+item	unica_muralha_refeita	dev 2/ttrpg_legacy_swords_1.0.zip::sword_48.png	scale=32:32:flags=lanczos
+item	unica_elo_residual	dev 2/ttrpg_legacy_swords_1.0.zip::sword_25.png	scale=32:32:flags=lanczos
+item	unica_molde_vigilante	dev 2/ttrpg_legacy_swords_1.0.zip::sword_17.png	scale=32:32:flags=lanczos
+item	unica_semeadura_vital	dev 2/ttrpg_legacy_swords_1.0.zip::sword_40.png	scale=32:32:flags=lanczos
+item	unica_estilhacos_lunares	dev 2/ttrpg_legacy_swords_1.0.zip::sword_42.png	scale=32:32:flags=lanczos
+item	unica_lanca_ferral	dev 2/ttrpg_legacy_swords_1.0.zip::sword_32.png	scale=32:32:flags=lanczos
+item	unica_orbe_de_ruptura	dev 2/ttrpg_legacy_swords_1.0.zip::sword_24.png	scale=32:32:flags=lanczos
+item	unica_corte_vetorial	dev 2/ttrpg_legacy_swords_1.0.zip::sword_22.png	scale=32:32:flags=lanczos
+item	unica_salto_de_guarda	dev 2/ttrpg_legacy_swords_1.0.zip::sword_35.png	scale=32:32:flags=lanczos
+item	unica_anel_de_geada	dev 2/ttrpg_legacy_swords_1.0.zip::sword_11.png	scale=32:32:flags=lanczos
+item	unica_ruptura_sismica	dev 2/ttrpg_legacy_swords_1.0.zip::sword_37.png	scale=32:32:flags=lanczos
+item	unica_brasa_persistente	dev 2/ttrpg_legacy_swords_1.0.zip::sword_16.png	scale=32:32:flags=lanczos
+item	unica_pantano_acido	dev 2/ttrpg_legacy_swords_1.0.zip::sword_31.png	scale=32:32:flags=lanczos
+item	unica_casca_reativa	dev 2/ttrpg_legacy_swords_1.0.zip::sword_47.png	scale=32:32:flags=lanczos
+item	unica_arco_voltaico	dev 2/ttrpg_legacy_swords_1.0.zip::sword_09.png	scale=32:32:flags=lanczos
+item	unica_dreno_em_rede	dev 2/ttrpg_legacy_swords_1.0.zip::sword_45.png	scale=32:32:flags=lanczos
+item	unica_sentinela_ferral	dev 2/ttrpg_legacy_swords_1.0.zip::sword_21.png	scale=32:32:flags=lanczos
+item	unica_enxame_luminar	dev 2/ttrpg_legacy_swords_1.0.zip::sword_41.png	scale=32:32:flags=lanczos
+item	unica_guardiao_de_lastro	dev 2/ttrpg_legacy_swords_1.0.zip::sword_14.png	scale=32:32:flags=lanczos
+item	unica_circulo_de_reparo	dev 2/ttrpg_legacy_swords_1.0.zip::sword_05.png	scale=32:32:flags=lanczos
+item	unica_abrigo_de_escora	dev 2/ttrpg_legacy_swords_1.0.zip::sword_50.png	scale=32:32:flags=lanczos
+item	unica_ceifa_ampla	dev 2/ttrpg_legacy_swords_1.0.zip::sword_46.png	scale=32:32:flags=lanczos
+item	unica_sopro_criogenico	dev 2/ttrpg_legacy_swords_1.0.zip::sword_28.png	scale=32:32:flags=lanczos
+item	unica_raio_prismatico	dev 2/ttrpg_legacy_swords_1.0.zip::sword_15.png	scale=32:32:flags=lanczos
+item	unica_fio_desintegrador	dev 2/ttrpg_legacy_swords_1.0.zip::sword_44.png	scale=32:32:flags=lanczos
+item	unica_laminas_orbitais	dev 2/ttrpg_legacy_swords_1.0.zip::sword_07.png	scale=32:32:flags=lanczos
+item	unica_satelites_de_geada	dev 2/ttrpg_legacy_swords_1.0.zip::sword_39.png	scale=32:32:flags=lanczos
+item	unica_mina_de_lastro	dev 2/ttrpg_legacy_swords_1.0.zip::sword_34.png	scale=32:32:flags=lanczos
+item	unica_semente_explosiva	dev 2/ttrpg_legacy_swords_1.0.zip::sword_19.png	scale=32:32:flags=lanczos
+item	unica_chuva_ferral	dev 2/ttrpg_legacy_swords_1.0.zip::sword_18.png	scale=32:32:flags=lanczos
+item	unica_cometa_de_vidro	dev 2/ttrpg_legacy_swords_1.0.zip::sword_08.png	scale=32:32:flags=lanczos
+item	unica_disco_de_retorno	dev 2/ttrpg_legacy_swords_1.0.zip::sword_10.png	scale=32:32:flags=lanczos
+item	unica_bola_de_fogo	dev 2/ttrpg_legacy_swords_1.0.zip::sword_36.png	scale=32:32:flags=lanczos
+item	unica_bolha_corrosiva	dev 2/ttrpg_legacy_swords_1.0.zip::sword_43.png	scale=32:32:flags=lanczos
+item	unica_cometa_sombrio	dev 2/ttrpg_legacy_swords_1.0.zip::sword_12.png	scale=32:32:flags=lanczos
+item	unica_raizes_presas	dev 2/ttrpg_legacy_swords_1.0.zip::sword_49.png	scale=32:32:flags=lanczos
+item	unica_pilar_sagrado	dev 2/ttrpg_legacy_swords_1.0.zip::sword_06.png	scale=32:32:flags=lanczos
+item	unica_esfera_de_gelo	dev 2/ttrpg_legacy_swords_1.0.zip::sword_04.png	scale=32:32:flags=lanczos
+item	unica_trovao_descendente	dev 2/ttrpg_legacy_swords_1.0.zip::sword_13.png	scale=32:32:flags=lanczos
+item	unica_saraivada_de_flechas	dev 2/ttrpg_legacy_swords_1.0.zip::sword_02.png	scale=32:32:flags=lanczos
+#
+# Animacoes de skill por elemento (prefixo el_). Tiras horizontais; quadros nao quadrados
+# (trevas 40x32 e 48x64, raio 128x256 e 256x128) declaram largura em SkillThemes.
+# Series Acid/Dark/Holy/Wood/Fire/Earth e Animation Pack sem licenca no arquivo;
+# Frostwindz (raios) permite uso comercial; craftpix (feixe e circulo) permite uso comercial sem redistribuicao.
+vfx	el_fire_bolt	dev 2/Fire Effect 1.rar::Fire Effect 1/Firebolt SpriteSheet.png	crop=192:48:0:0
+vfx	el_fire_hit	dev 2/Fire Effect 1.rar::Fire Effect 1/Firebolt SpriteSheet.png	crop=336:48:192:0
+vfx	el_fire_blast	dev 2/Fire Effect 2.rar::Fire Effect 2/Explosion 2 SpriteSheet.png	crop=576:48:288:0
+vfx	el_acid_bolt	dev 2/Acid VFX 01 - 02.rar::Acid VFX 01 - 02/Acid VFX 1/Acid VFX 01.png	crop=320:32:0:0
+vfx	el_acid_hit	dev 2/Acid VFX 01 - 02.rar::Acid VFX 01 - 02/Acid VFX 1/Acid VFX 01.png	crop=192:32:320:0
+vfx	el_dark_bolt	dev 2/Dark VFX 01 - 02.rar::Dark VFX 1/Dark VFX 1 (40x32).png	crop=400:32:0:0
+vfx	el_dark_hit	dev 2/Dark VFX 01 - 02.rar::Dark VFX 1/Dark VFX 1 (40x32).png	crop=240:32:0:32
+vfx	el_dark_rise	dev 2/Dark VFX 01 - 02.rar::Dark VFX 2/Dark VFX 2 (48x64).png	
+vfx	el_holy_bolt	dev 2/Holy VFX 01-02.rar::Holy VFX 01/Holy VFX 01 Repeatable.png	
+vfx	el_holy_hit	dev 2/Holy VFX 01-02.rar::Holy VFX 01/Holy VFX 01 Impact.png	
+vfx	el_holy_pillar	dev 2/Holy VFX 01-02.rar::Holy VFX 02/Holy VFX 02.png	
+vfx	el_wood_bolt	dev 2/Wood VFX 01 - 02.rar::Wood VFX 01 - 02/Wood VFX 01/Wood VFX 01 Repeatable.png	
+vfx	el_wood_hit	dev 2/Wood VFX 01 - 02.rar::Wood VFX 01 - 02/Wood VFX 01/Wood VFX 01 Hit.png	
+vfx	el_wood_roots	dev 2/Wood VFX 01 - 02.rar::Wood VFX 01 - 02/Wood VFX 02/Wood VFX 02.png	
+vfx	el_ice_ball	dev 2/Animation Pack.rar::Animation Pack/Ice/Ball of ice.png	untile=1x4,tile=4x1
+vfx	el_ice_burst	dev 2/Animation Pack.rar::Animation Pack/Ice/Burst of ice.png	untile=1x7,tile=7x1
+vfx	el_energy_ball	dev 2/Animation Pack.rar::Animation Pack/Energy ball/EnergyBall.png	
+vfx	el_energy_hit	dev 2/Animation Pack.rar::Animation Pack/Energy ball/energyBallImpact.png	untile=1x8,tile=8x1
+vfx	el_earth_bump	dev 2/Earth Effect 02.rar::Earth Effect 02/Earth Bump.png	untile=4x4,tile=16x1
+vfx	el_thunder_strike	dev 2/Pixel Art Skill Animations - Lightning.zip::VFX3/Sprite-sheet/Sprite-sheet.png	
+vfx	el_lightning_link	dev 2/Pixel Art Skill Animations - Lightning.zip::VFX1/Sprite-sheet/Sprite-sheet.png	
+vfx	el_light_beam	dev 2/free-pixel-magic-sprite-effects-pack.zip::1 Magic/3.png	
+vfx	el_magic_circle	dev 2/free-pixel-magic-sprite-effects-pack.zip::1 Magic/2.png	format=rgba,hue=s=0,lutrgb=r=min(val*3.5\,255):g=min(val*3.5\,255):b=min(val*3.5\,255)
+#
+# Folhas de 9 cores (prefixo sh_): RPG Effect All Free e Effect and FX Pixel All Free.
+# Quadros 64x64; cada linha e uma cor (laranja, magenta, ciano, verde, marrom, branco, malva,
+# vermelho, violeta). SkillThemes escolhe a linha pelo elemento. Sem licenca no pacote.
+vfx	sh_arrow	dev 2/Effect and FX Pixel All Free.zip::Free/Part 12/579.png	
+vfx	sh_comet	dev 2/Effect and FX Pixel All Free.zip::Free/Part 12/578.png	
+vfx	sh_rune	dev 2/Effect and FX Pixel All Free.zip::Free/Part 4/184.png	
+vfx	sh_fountain	dev 2/Effect and FX Pixel All Free.zip::Free/Part 11/529.png	
+vfx	sh_ripple	dev 2/Effect and FX Pixel All Free.zip::Free/Part 10/466.png	
+vfx	sh_summon	dev/RPG Effect All Free.zip::Free/Part 25/1225.png	
+vfx	sh_nova	dev/RPG Effect All Free.zip::Free/Part 26/1262.png	
+vfx	sh_slash	dev/RPG Effect All Free.zip::Free/Part 26/1272.png	
+vfx	sh_sparks	dev/RPG Effect All Free.zip::Free/Part 27/1339.png	
+vfx	sh_cast	dev/RPG Effect All Free.zip::Free/Part 32/1572.png	
+vfx	sh_pulse	dev/RPG Effect All Free.zip::Free/Part 32/1582.png	
+vfx	sh_vortex	dev/RPG Effect All Free.zip::Free/Part 33/1627.png	
+vfx	sh_star	dev/RPG Effect All Free.zip::Free/Part 33/1637.png	

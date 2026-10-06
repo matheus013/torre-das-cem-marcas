@@ -19,3 +19,6 @@ node_modules/
 art/candidates/
 art/shots/
 art/preview.png
+
+# Pacotes de terceiros brutos (curados em assets/audio e assets/sprites/vfx)
+assets/new/
