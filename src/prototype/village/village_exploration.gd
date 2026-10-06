@@ -76,6 +76,7 @@ var _npc_client: Node
 var _npc_settings: Dictionary = {}
 var _village_lights: Node2D
 var _talk_hint: Label
+var _service_menu: Control
 var _village_log_label: Label
 var _interface_layer: CanvasLayer
 var _top_bar: Panel
@@ -441,6 +442,9 @@ func _apply_intent(peer_id: int, kind: String, args: Array) -> void:
 			if args.size() == 1 and args[0] is String and String(args[0]).length() <= 64:
 				_sim.call("talk_to_npc", peer_id, String(args[0]))
 			refresh_menu = false
+		"service":
+			if args.size() == 2 and args[0] is String and args[1] is String and String(args[0]).length() <= 64 and String(args[1]).length() <= 64:
+				_sim.call("use_village_service", peer_id, String(args[0]), String(args[1]))
 		"start_floor":
 			if args.size() == 1 and args[0] is int:
 				_sim.call("set_start_floor", peer_id, int(args[0]))
@@ -522,6 +526,15 @@ func _physics_process(delta: float) -> void:
 		var torch := light as PointLight2D
 		torch.energy = 0.8 + 0.12 * sin(_anim_time * 9.0 + torch.position.x) + 0.08 * sin(_anim_time * 23.0 + torch.position.y)
 	_update_interface()
+	if _service_menu != null and _service_menu.visible:
+		var service_npc := {}
+		for npc: Dictionary in _view.get("npcs", []):
+			if String(npc["id"]) == String(_service_menu.get("npc_id")):
+				service_npc = npc
+		if zone != &"village" or service_npc.is_empty() or _display_position(_local_peer).distance_to(service_npc["position"] as Vector2) > 110:
+			_service_menu.call("close")
+		else:
+			_service_menu.call("refresh", local, _view.get("warehouse", {}), _status)
 	_update_milestone_choice()
 	queue_redraw()
 
@@ -563,7 +576,7 @@ func _on_pad_connection_changed(device: int, connected: bool) -> void:
 
 
 func _input_blocked() -> bool:
-	return (_milestone_choice != null and _milestone_choice.visible) or (_player_menu != null and _player_menu.visible) or (_character_panel != null and _character_panel.visible) or (_settings_dialog != null and _settings_dialog.visible)
+	return (_service_menu != null and _service_menu.visible) or (_milestone_choice != null and _milestone_choice.visible) or (_player_menu != null and _player_menu.visible) or (_character_panel != null and _character_panel.visible) or (_settings_dialog != null and _settings_dialog.visible)
 
 
 func _update_display(delta: float) -> void:
@@ -672,6 +685,11 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if _milestone_choice != null and _milestone_choice.visible:
 		return
+	if command and _service_menu != null and _service_menu.visible:
+		if event.is_action_pressed("ui_cancel") or BindingsScript.pressed(event, "pause"):
+			_service_menu.call("close")
+			get_viewport().set_input_as_handled()
+		return
 	if command and _player_menu != null and _player_menu.visible:
 		if event.is_action_pressed("ui_cancel") or BindingsScript.pressed(event, "pause") or BindingsScript.pressed(event, "inventory") or BindingsScript.pressed(event, "character") or BindingsScript.pressed(event, "skills") or BindingsScript.pressed(event, "tower"):
 			_player_menu.call("close")
@@ -714,7 +732,11 @@ func _unhandled_input(event: InputEvent) -> void:
 		elif BindingsScript.pressed(event, "interact") and _local_zone() == &"village":
 			var npc := _nearest_npc(110.0)
 			if not npc.is_empty():
-				_send_intent("talk", [String(npc["id"])])
+				if not preload("res://src/gameplay/world/village_services.gd").offers(String(npc["id"])).is_empty():
+					_send_move(_local()["position"] as Vector2)
+					_service_menu.call("open", npc, _local(), _view.get("warehouse", {}))
+				else:
+					_send_intent("talk", [String(npc["id"])])
 		elif BindingsScript.pressed(event, "npc_mode"):
 			_toggle_npc_mode()
 		elif BindingsScript.pressed(event, "switch_character") and not _in_arena(_local_zone()):
@@ -1156,6 +1178,8 @@ func _draw_ground(zone: StringName) -> void:
 	match zone:
 		&"village":
 			_draw_tiled("tiles/grass", Rect2(Vector2.ZERO, LayoutScript.WORLD_SIZE), Color("5f7f45"))
+			for district: Dictionary in LayoutScript.VillagePlan.DISTRICTS:
+				_draw_tiled(String(district["tile"]), district["rect"] as Rect2, Color("8f7a6a"))
 			for road in LayoutScript.VILLAGE_ROADS:
 				_draw_tiled("tiles/road", road, Color("8f7a6a"))
 			var grass := SpriteLibraryScript.texture("tiles/grass")
@@ -1184,6 +1208,9 @@ func _draw_ground(zone: StringName) -> void:
 			draw_string(ThemeDB.fallback_font, LayoutScript.INTERIOR_EXIT.position + Vector2(0.0, 38.0), "SAIDA", HORIZONTAL_ALIGNMENT_CENTER, LayoutScript.INTERIOR_EXIT.size.x, 15, Color("f2e6c9"))
 		&"tower":
 			_draw_floor_ground()
+		&"boss_room":
+			_draw_tiled("tiles/floor_tower", Rect2(Vector2.ZERO, LayoutScript.INTERIOR_SIZE), Color("5c5a5e"))
+			_draw_door_hint(LayoutScript.BOSS_ROOM_EXIT)
 
 
 ## Chão do andar: tile do bioma, borda escurecida, arena circular nos andares de chefe,
@@ -1212,6 +1239,9 @@ func _draw_floor_ground() -> void:
 		draw_arc(center, radius, 0.0, TAU, 96, Color(0.91, 0.72, 0.29, 0.35 + 0.15 * sin(_anim_time * 2.0)), 4.0)
 	else:
 		_draw_tiled(tile_key, Rect2(Vector2.ZERO, size), Color("5c5a5e"))
+		var route := _floor_layout.get("route", []) as Array
+		for index in range(route.size() - 1):
+			draw_line(route[index], route[index + 1], Color(0.8, 0.83, 0.75, 0.07), 180.0)
 		for band in range(5):
 			var inset := float(band) * 22.0
 			draw_rect(Rect2(Vector2.ONE * inset, size - Vector2.ONE * inset * 2.0), Color(0.07, 0.06, 0.09, 0.25), false, 22.0)
@@ -1356,7 +1386,17 @@ func _draw_sprite(key: String, base: Vector2, flip: bool, tint: Color, lift: flo
 
 func _draw_piece(piece: Dictionary, zone: StringName) -> void:
 	var base := piece["base"] as Vector2
-	if not _draw_sprite(String(piece["sprite"]), base, false, Color.WHITE) and piece.has("solid"):
+	var scale_factor := float(piece.get("visual_scale", 1.0))
+	var rendered := false
+	if scale_factor != 1.0:
+		var texture := SpriteLibraryScript.texture(String(piece["sprite"]))
+		if texture != null:
+			var dimensions := texture.get_size() * scale_factor
+			draw_texture_rect(texture, Rect2(base - Vector2(dimensions.x * 0.5, dimensions.y), dimensions), false)
+			rendered = true
+	else:
+		rendered = _draw_sprite(String(piece["sprite"]), base, false, Color.WHITE)
+	if not rendered and piece.has("solid"):
 		var solid := piece["solid"] as Rect2
 		draw_rect(Rect2(base + solid.position, solid.size), Color("6b5a5e"))
 	if zone == &"tower" and String(piece["sprite"]) == "props/pillar":
@@ -1366,7 +1406,7 @@ func _draw_piece(piece: Dictionary, zone: StringName) -> void:
 		draw_circle(flame + Vector2(0.0, -3.0), 3.5 + flicker * 0.3, Color("e8b84a"))
 		draw_circle(flame + Vector2(0.0, -5.0), 1.5, Color("f2e6c9"))
 	if piece.has("label"):
-		draw_string(ThemeDB.fallback_font, base + Vector2(-60.0, 18.0), String(piece["label"]), HORIZONTAL_ALIGNMENT_CENTER, 120.0, 13, Color("f2e6c9"))
+		draw_string(ThemeDB.fallback_font, base + Vector2(-130.0, 18.0), String(piece["label"]), HORIZONTAL_ALIGNMENT_CENTER, 260.0, 12, Color("f2e6c9"))
 
 
 func _player_color(peer_id: Variant) -> Color:
@@ -1393,6 +1433,8 @@ func _draw_npc(npc: Dictionary) -> void:
 		draw_string(ThemeDB.fallback_font, top + Vector2(-80.0, 0.0), String(npc.get("name", "")), HORIZONTAL_ALIGNMENT_CENTER, 160.0, 11, Color("e8b84a") if named else Color("d9c2a0"))
 		if near and named:
 			draw_string(ThemeDB.fallback_font, top + Vector2(-80.0, 11.0), String(npc.get("title", "")), HORIZONTAL_ALIGNMENT_CENTER, 160.0, 9, Color("aaa59a"))
+	if near and not String(npc.get("resource", "")).is_empty():
+		draw_string(ThemeDB.fallback_font, feet + Vector2(-110, 18), String(npc.get("label", "")), HORIZONTAL_ALIGNMENT_CENTER, 220, 10, Color("f2e6c9"))
 	if bool(npc.get("thinking", false)) and String(npc.get("speech", "")) in ["", "..."]:
 		for dot in range(3):
 			draw_circle(top + Vector2(-8.0 + float(dot) * 8.0, -12.0), 2.5 if int(_anim_time * 3.0) % 3 == dot else 1.6, Color("f2e6c9"))
@@ -1414,10 +1456,24 @@ func _draw_npc(npc: Dictionary) -> void:
 ## Vida no ar da vila: fumaça das chaminés, pássaros de dia, vaga-lumes e janelas acesas à noite,
 ## galinhas ciscando nas plantações.
 func _draw_village_life_overlay(visible_rect: Rect2) -> void:
+	var warehouse := _view.get("warehouse", {}) as Dictionary
+	var warehouse_position := warehouse.get("position", Vector2.ZERO) as Vector2
+	if not warehouse.is_empty() and _display_position(_local_peer).distance_to(warehouse_position) < 250:
+		var stock := warehouse.get("stock", {}) as Dictionary
+		var board := Rect2(warehouse_position + Vector2(-130, 75), Vector2(260, 92))
+		draw_rect(board, Color("202923ed"))
+		draw_rect(board, Color("829382"), false, 1)
+		draw_string(ThemeDB.fallback_font, board.position + Vector2(12, 20), "RESERVAS DA VILA", HORIZONTAL_ALIGNMENT_LEFT, 236, 13, Color("f2e6c9"))
+		for index in range(3):
+			var resource := ["madeira", "minerio", "alimentos"][index] as String
+			draw_string(ThemeDB.fallback_font, board.position + Vector2(12, 39 + index * 19), "%s: %d / %d" % [resource.capitalize(), int(stock.get(resource, 0)), int(warehouse.get("capacity", 0))], HORIZONTAL_ALIGNMENT_LEFT, 236, 12, Color("f2e6c9"))
 	var period := String(_view.get("village_period", "manha"))
 	var night := period == "noite"
 	var dusk := period == "entardecer"
-	var chimneys: Array[Vector2] = [Vector2(1540.0, 1130.0), Vector2(870.0, 380.0), Vector2(320.0, 770.0), Vector2(875.0, 830.0), Vector2(1270.0, 240.0), Vector2(2740.0, 240.0), Vector2(2780.0, 1130.0)]
+	var chimneys: Array[Vector2] = []
+	for building in LayoutScript.VILLAGE_PIECES:
+		if String(building["sprite"]).begins_with("buildings/") and String(building["sprite"]) != "buildings/torre":
+			chimneys.append((building["base"] as Vector2) + Vector2(20, -90))
 	for chimney in chimneys:
 		if not visible_rect.has_point(chimney):
 			continue
@@ -1449,7 +1505,7 @@ func _draw_village_life_overlay(visible_rect: Rect2) -> void:
 	var chicken := SpriteLibraryScript.texture("props/galinha")
 	if chicken != null:
 		for hen in range(5):
-			var home := Vector2(200.0 + float(hen) * 70.0, 1440.0 + float(hen % 2) * 20.0)
+			var home := Vector2(200.0 + float(hen) * 60.0, 2000.0 + float(hen % 2) * 20.0)
 			var spot := home + Vector2(sin(_anim_time * 0.4 + float(hen) * 2.0) * 50.0, cos(_anim_time * 0.3 + float(hen)) * 18.0)
 			if visible_rect.has_point(spot):
 				draw_set_transform(spot.round(), 0.0, Vector2(-1.0 if cos(_anim_time * 0.4 + float(hen) * 2.0) < 0.0 else 1.0, 1.0))
@@ -1884,6 +1940,11 @@ func _build_interface() -> void:
 	_talk_hint.add_theme_color_override("font_shadow_color", Color.BLACK)
 	_talk_hint.visible = false
 	layer.add_child(_talk_hint)
+	_service_menu = preload("res://src/prototype/village/service_menu.gd").new()
+	_service_menu.name = "VillageServices"
+	layer.add_child(_service_menu)
+	_service_menu.connect("purchase_requested", func(npc_id: String, offer_id: String) -> void: _send_intent("service", [npc_id, offer_id]))
+	_service_menu.connect("talk_requested", func(npc_id: String) -> void: _send_intent("talk", [npc_id]))
 	_village_log_label = Label.new()
 	_village_log_label.name = "VillageLog"
 	_village_log_label.position = Vector2(20.0, 560.0)
@@ -2071,7 +2132,8 @@ func _update_village_panel(zone: StringName, period: String) -> void:
 	var npc := _nearest_npc(110.0)
 	if not npc.is_empty() and not _input_blocked():
 		_talk_hint.visible = true
-		_talk_hint.text = "%s: conversar com %s" % [BindingsScript.label("interact"), String(npc["name"])]
+		var has_service := not preload("res://src/gameplay/world/village_services.gd").offers(String(npc["id"])).is_empty()
+		_talk_hint.text = "%s: %s · %s" % [BindingsScript.label("interact"), String(npc["name"]), String(npc["title"]) if has_service else "Conversar"]
 	var lines: Array[String] = ["%s  ·  MORADORES: %s%s" % [PERIOD_NAMES.get(period, period.to_upper()), "COM IA" if String(_view.get("npc_mode", "padrao")) == "ia" else "PADRAO", "  (%s alterna)" % BindingsScript.label("npc_mode") if _sim != null else ""]]
 	var log := _view.get("village_log", []) as Array
 	for index in range(maxi(0, log.size() - 4), log.size()):

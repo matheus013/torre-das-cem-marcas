@@ -32,12 +32,16 @@ var _random := RandomNumberGenerator.new()
 var _requests: Dictionary = {}
 var _request_sequence := 1
 var _outbox: Array[Dictionary] = []
+var economy := preload("res://src/simulation/npc/village_economy.gd").new()
+var _navigation := preload("res://src/simulation/npc/village_navigation.gd").new()
 
 
 ## `spots` traz os pontos do mapa: "work" (por local de trabalho), "homes", "social" e "patrol".
 func setup(seed: int, spots: Dictionary) -> void:
 	_random.seed = seed
 	_spots = spots
+	economy.setup(spots)
+	_navigation.setup(spots.get("size", Vector2(3840, 2400)), spots.get("blocked", []))
 	npcs.clear()
 	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(CONTENT_PATH))
 	var homes := spots.get("homes", [Vector2(400.0, 700.0)]) as Array
@@ -52,7 +56,10 @@ func setup(seed: int, spots: Dictionary) -> void:
 		mind.call("set_need", &"repouso", 0.3)
 		mind.call("set_need", &"pertencimento", 0.5)
 		var work := _work_spot(String(definition.get("work", "praca")), index)
-		var home := homes[index % homes.size()] as Vector2
+		var home := (spots.get("home_by_id", {}) as Dictionary).get(String(definition["id"]), homes[index % homes.size()]) as Vector2
+		var routine := String(definition.get("routine", "roaming"))
+		if routine == "resident":
+			work = home
 		npcs.append({
 			"id": String(definition["id"]), "name": String(definition["name"]), "title": String(definition.get("title", "")),
 			"named": bool(definition.get("named", false)), "sprite": String(definition.get("sprite", "")),
@@ -62,7 +69,11 @@ func setup(seed: int, spots: Dictionary) -> void:
 			"target": work, "action": "trabalhar", "action_label": "trabalhando", "action_timer": _random.randf_range(2.0, 10.0),
 			"speech": "", "speech_ttl": 0.0, "facing_left": false, "moving": false, "mind": mind,
 			"pending": 0, "ai_timer": _random.randf_range(4.0, AI_INTERVAL), "partner": "",
+			"routine": routine, "resource": String(definition.get("resource", "")),
+			"cargo": 0, "job_phase": "buscar", "work_timer": 0.0,
 		})
+		if routine in ["resident", "stationary"]:
+			npcs.back()["position"] = work
 		index += 1
 
 
@@ -94,11 +105,16 @@ func remember_event(tag: String, text: String, impact: float, target: String = "
 ## `context` traz `players` ({peer: {name, position}}) e `world` (fatos verdadeiros do mundo).
 func step(delta: float, context: Dictionary) -> void:
 	var players := context.get("players", {}) as Dictionary
+	economy.step(delta)
 	for npc in npcs:
 		npc["speech_ttl"] = maxf(0.0, float(npc["speech_ttl"]) - delta)
 		if float(npc["speech_ttl"]) <= 0.0:
 			npc["speech"] = ""
 		_move(npc, delta)
+		if not String(npc["resource"]).is_empty():
+			if float(npc["speech_ttl"]) <= 0.0:
+				economy.worker_step(npc, delta, period() == "noite")
+			continue
 		npc["action_timer"] = float(npc["action_timer"]) - delta
 		npc["ai_timer"] = float(npc["ai_timer"]) - delta
 		var pending := int(npc["pending"])
@@ -199,6 +215,8 @@ func _fallback(request_id: int, context: Dictionary) -> void:
 # ---------------------------------------------------------------- candidatos e decisão
 
 func _candidates(npc: Dictionary, players: Dictionary, world: Dictionary, situation: Dictionary) -> Array:
+	if String(npc["routine"]) in ["resident", "stationary"]:
+		return [_option("trabalhar", "Permanecer no seu local", 8.0, {}, {})]
 	var current := period()
 	var result: Array = []
 	var work_weight := {"manha": 6.0, "tarde": 5.0, "entardecer": 2.0, "noite": 0.5}.get(current, 3.0) as float
@@ -258,6 +276,8 @@ func _choose_default(npc: Dictionary, candidates: Array) -> Dictionary:
 
 func _chat_partner(npc: Dictionary) -> Dictionary:
 	for other in npcs:
+		if String(other.get("routine", "roaming")) in ["resident", "stationary"] or not String(other.get("resource", "")).is_empty():
+			continue
 		if other == npc or String(other["action"]).begins_with("conversar"):
 			continue
 		if (other["position"] as Vector2).distance_to(npc["position"] as Vector2) <= CHAT_RADIUS:
@@ -278,7 +298,7 @@ func _apply(npc: Dictionary, candidate: Dictionary, model_speech: String, contex
 	npc["action_timer"] = _random.randf_range(8.0, 18.0)
 	match kind:
 		"trabalhar":
-			npc["target"] = (npc["work"] as Vector2) + Vector2(_random.randf_range(-40.0, 40.0), _random.randf_range(-25.0, 25.0))
+			npc["target"] = npc["work"] if String(npc["routine"]) in ["resident", "stationary"] else (npc["work"] as Vector2) + Vector2(_random.randf_range(-18.0, 18.0), _random.randf_range(0.0, 12.0))
 			npc["action_label"] = "trabalhando"
 		"vigiar":
 			var patrol := _spots.get("patrol", [npc["work"]]) as Array
@@ -311,6 +331,8 @@ func _apply(npc: Dictionary, candidate: Dictionary, model_speech: String, contex
 		_:
 			npc["target"] = npc["position"]
 			npc["action_label"] = "conversando"
+	if String(npc["routine"]) in ["resident", "stationary"]:
+		npc["target"] = npc["work"]
 	var speech := model_speech if not model_speech.is_empty() else _authored_line(npc, kind, argument, context)
 	if not speech.is_empty():
 		_say(npc, speech, model_speech.is_empty())
@@ -326,8 +348,16 @@ func _say(npc: Dictionary, text: String, authored: bool) -> void:
 
 func _move(npc: Dictionary, delta: float) -> void:
 	var position := npc["position"] as Vector2
-	var offset := (npc["target"] as Vector2) - position
-	npc["moving"] = offset.length() > 4.0
+	var destination := npc["target"] as Vector2
+	if destination != (npc.get("route_target", Vector2.INF) as Vector2):
+		npc["route_target"] = destination
+		npc["route"] = _navigation.route(position, destination)
+	var route := npc.get("route", PackedVector2Array()) as PackedVector2Array
+	while not route.is_empty() and position.distance_to(route[0]) <= 1.0:
+		route.remove_at(0)
+	npc["route"] = route
+	var offset := (route[0] - position) if not route.is_empty() else Vector2.ZERO
+	npc["moving"] = offset.length() > 0.5
 	if not bool(npc["moving"]):
 		return
 	var speed := SPEED * (1.25 if String(npc["action"]).begins_with("vigiar") else 1.0)
@@ -337,7 +367,7 @@ func _move(npc: Dictionary, delta: float) -> void:
 	for rect: Rect2 in blocked:
 		if rect.has_point(next):
 			npc["moving"] = false
-			npc["target"] = position + Vector2(_random.randf_range(-60.0, 60.0), _random.randf_range(-60.0, 60.0))
+			npc["route_target"] = Vector2.INF
 			return
 	npc["position"] = next
 	npc["facing_direction"] = step.normalized()
@@ -480,6 +510,7 @@ func view() -> Array:
 			"position": npc["position"], "facing_left": npc["facing_left"], "moving": npc["moving"],
 			"facing_direction": npc.get("facing_direction", Vector2.DOWN),
 			"speech": npc["speech"], "label": npc["action_label"], "thinking": int(npc["pending"]) > 0,
+			"routine": npc["routine"], "resource": npc["resource"], "cargo": npc["cargo"],
 		})
 	return result
 
@@ -489,10 +520,28 @@ func snapshot() -> Dictionary:
 	for npc in npcs:
 		var mind := npc["mind"] as RefCounted
 		minds[npc["id"]] = {"memories": (mind.get("memories") as Array).duplicate(true), "facts": (npc.get("facts", []) as Array).duplicate()}
-	return {"period": period_index, "minds": minds}
+	var workers := {}
+	for npc in npcs:
+		if not String(npc["resource"]).is_empty():
+			workers[npc["id"]] = {"position": [npc["position"].x, npc["position"].y], "cargo": npc["cargo"], "job_phase": npc["job_phase"], "work_timer": npc["work_timer"]}
+	return {"period": period_index, "minds": minds, "economy": economy.snapshot(), "workers": workers}
 
 
 func restore(data: Dictionary) -> void:
+	economy.restore(data.get("economy", {}) as Dictionary)
+	for npc in npcs:
+		var worker := (data.get("workers", {}) as Dictionary).get(npc["id"], {}) as Dictionary
+		if String(npc["resource"]).is_empty() or worker.is_empty():
+			continue
+		var position := worker.get("position", []) as Array
+		if position.size() == 2:
+			var restored := Vector2(float(position[0]), float(position[1]))
+			if Rect2(Vector2.ZERO, _spots.get("size", Vector2(3840, 2400))).has_point(restored):
+				npc["position"] = restored
+		npc["cargo"] = clampi(int(worker.get("cargo", 0)), 0, economy.LOAD)
+		npc["job_phase"] = "entregar" if String(worker.get("job_phase", "")) == "entregar" else "buscar"
+		npc["work_timer"] = clampf(float(worker.get("work_timer", 0.0)), 0.0, economy.WORK_SECONDS)
+		npc["route_target"] = Vector2.INF
 	period_index = clampi(int(data.get("period", 0)), 0, PERIODS.size() - 1)
 	var minds := data.get("minds", {}) as Dictionary
 	for npc in npcs:

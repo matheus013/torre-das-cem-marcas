@@ -32,7 +32,12 @@ const SHAPE := {
 		"slots": [TYPE_STRING], "supports": [[TYPE_STRING]],
 		"gems": {"*": {"level": TYPE_FLOAT, "experience": TYPE_FLOAT, "choices": {"*": TYPE_STRING}}},
 	}},
-	"village_life": {"period": TYPE_FLOAT, "minds": {"*": {"memories": [TYPE_DICTIONARY], "facts": TYPE_ARRAY}}},
+	"village_life": {
+		"period": TYPE_FLOAT, "minds": {"*": {"memories": [TYPE_DICTIONARY], "facts": TYPE_ARRAY}},
+		"economy": {"stock": {"*": TYPE_FLOAT}, "deliveries": TYPE_FLOAT,
+			"nodes": {"*": {"amount": TYPE_FLOAT, "regen": TYPE_FLOAT}}},
+		"workers": {"*": {"position": [TYPE_FLOAT], "cargo": TYPE_FLOAT, "job_phase": TYPE_STRING, "work_timer": TYPE_FLOAT}},
+	},
 	"respawn": {
 		"death_sequence": TYPE_FLOAT, "spawn_sequence": TYPE_FLOAT,
 		"queue": [{"definition_id": TYPE_STRING, "encounter_class": TYPE_STRING,

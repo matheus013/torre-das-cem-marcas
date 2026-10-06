@@ -150,6 +150,28 @@ def build():
                        "prompt": PROP_PROMPT.format(prompt), "seeds": [seed_for(manifest_key)], "size": 1024 if key in ("plantacao", "fonte", "andaime_vila") else 512})
         sprites.append({"key": manifest_key, "group": "village_props", "source": "raw/%s_s%d.png" % (manifest_key, seed_for(manifest_key)),
                         "output": "res://assets/sprites/props/%s.png" % key, "block": 8 if key in ("plantacao", "fonte", "andaime_vila") else 12})
+    # Reuse the animated worker families; roles do not need duplicate sprite assets.
+    for index, (name, work) in enumerate([("Bento", "mina"), ("Rosa", "mina"),
+                                         ("Nilo", "madeira"), ("Lena", "madeira"),
+                                         ("Dona Celia", "casa_elen"), ("Seu Abel", "praca")]):
+        npcs.append({"id": "morador_%d" % (index + 1), "name": name,
+                     "title": {"mina": "Mineiro", "madeira": "Lenhador"}.get(work, "Morador"),
+                     "house": "Aresta", "work": work, "named": False,
+                     "sprite": "npcs/comum_trabalhador" if work in ("mina", "madeira") else "npcs/comum_feirante",
+                     "traits": {"caution": 0.5, "empathy": 0.6}, "values": {"vila": 0.7},
+                     "personality": "Cuida da vila e de seus vizinhos.", "opinions": ""})
+    npcs.append({"id": "sira_botanica", "name": "Sira Botanica", "title": "Alquimista",
+                 "house": "Aresta", "work": "alquimia", "named": True, "sprite": "npcs/comum_feirante",
+                 "traits": {"caution": 0.7, "empathy": 0.6}, "values": {"conhecimento": 0.8, "vila": 0.7},
+                 "personality": "Prepara remedios com colheitas locais; cuidadosa e curiosa.",
+                 "opinions": "Prefere testar cada ingrediente antes de preparar uma mistura."})
+    for npc in npcs:
+        npc["routine"] = "resident" if npc["id"] in ("elen", "morador_5", "morador_6") else "roaming"
+        if npc["work"] in ("forja", "arquivo", "enfermaria", "conselho", "armazem", "alquimia"):
+            npc["routine"] = "stationary"
+        npc["resource"] = {"mina": "minerio", "madeira": "madeira", "campos": "alimentos"}.get(npc["work"], "")
+        if npc["id"] == "lior_campelo":
+            npc["routine"], npc["resource"] = "stationary", ""
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT.write_text(json.dumps({"version": 1, "npcs": npcs}, ensure_ascii=False, indent=1), encoding="utf-8")
     manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
@@ -159,7 +181,7 @@ def build():
     process = json.loads(PROCESS.read_text(encoding="utf-8"))
     known = {entry["key"] for entry in process["sprites"]}
     process["sprites"].extend(entry for entry in sprites if entry["key"] not in known)
-    PROCESS.write_text(json.dumps(process, ensure_ascii=False, indent=1), encoding="utf-8")
+    PROCESS.write_text(json.dumps(process, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
     print("moradores %d, arte %d" % (len(npcs), len(assets)))
     print(" ".join(entry["key"] for entry in assets))
 

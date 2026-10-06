@@ -51,28 +51,30 @@ static func _explore(definition: Dictionary, biome: Dictionary) -> Dictionary:
 		"lights": [] as Array[Vector2],
 	}
 	var sprites := biome.get("props", ["props/rocks"]) as Array
+	# A readable spine connects entry, two clearings and stairs on every floor.
+	var route: Array[Vector2] = [entry, Vector2(size.x * 0.34, size.y * 0.5), Vector2(size.x * 0.66, size.y * 0.5), stairs_center]
+	layout["route"] = route
+	layout["landmarks"] = [] as Array[Dictionary]
 	var keep_clear: Array[Vector2] = [entry, stairs_center]
-	# Cristas: fileiras de obstáculos que criam corredores e esconderijos.
-	for _ridge in range(int(size.x * size.y / 900000.0)):
-		var start := Vector2(random.randf_range(500.0, size.x - 500.0), random.randf_range(300.0, size.y - 300.0))
-		var direction := Vector2.RIGHT.rotated(random.randf() * TAU)
-		for step in range(random.randi_range(4, 8)):
-			_place_prop(layout, start + direction * 70.0 * float(step), String(sprites[random.randi_range(0, sprites.size() - 1)]), keep_clear)
-	# Matas soltas por célula.
-	var columns := int(size.x / CELL)
-	var rows := int(size.y / CELL)
-	for column in range(columns):
-		for row in range(rows):
-			var center := Vector2((float(column) + 0.5) * CELL, (float(row) + 0.5) * CELL) + Vector2(random.randf_range(-80.0, 80.0), random.randf_range(-80.0, 80.0))
-			var roll := random.randf()
-			if roll < 0.32:
-				for _piece in range(random.randi_range(1, 3)):
-					_place_prop(layout, center + Vector2(random.randf_range(-60.0, 60.0), random.randf_range(-40.0, 40.0)), String(sprites[random.randi_range(0, sprites.size() - 1)]), keep_clear)
-			elif roll < 0.62 and center.distance_to(entry) > 600.0 and _free(layout, center, 50.0):
+	for column in range(3):
+		for row in range(2):
+			var center := Vector2(size.x * (0.25 + float(column) * 0.25), size.y * (0.23 if row == 0 else 0.77))
+			center += Vector2(random.randf_range(-50, 50), random.randf_range(-35, 35))
+			var primary := String(sprites[(column + row) % sprites.size()])
+			(layout["landmarks"] as Array[Dictionary]).append({"center": center, "sprite": primary})
+			# Group related props, not alternating buildings in an arbitrary ridge.
+			_place_prop(layout, center, primary, keep_clear)
+			var companion := String(sprites[(column + row + 1) % sprites.size()])
+			if not primary.contains("posto") and not primary.contains("torre") and not primary.contains("ruina") and not primary.contains("monumento"):
+				for offset: Vector2 in [Vector2(-170, 0), Vector2(170, 0)]:
+					_place_prop(layout, center + offset, primary, keep_clear)
+			_place_prop(layout, center + Vector2(0, 180), companion, keep_clear)
+			(layout["lights"] as Array[Vector2]).append(center)
+	for column in range(1, int(size.x / CELL)):
+		for row in range(1, int(size.y / CELL)):
+			var center := Vector2(float(column) * CELL, float(row) * CELL)
+			if center.distance_to(entry) > 600 and _free(layout, center, 60):
 				(layout["spawn_points"] as Array[Vector2]).append(center)
-	for prop: Dictionary in layout["props"]:
-		if random.randf() < 0.12:
-			(layout["lights"] as Array[Vector2]).append(prop["base"] as Vector2)
 	return layout
 
 
@@ -94,7 +96,7 @@ static func _boss_arena(definition: Dictionary, biome: Dictionary) -> Dictionary
 	for index in range(16):
 		var angle := TAU * float(index) / 16.0
 		var base := center + Vector2(cos(angle), sin(angle)) * (radius + 60.0)
-		(layout["props"] as Array[Dictionary]).append({"sprite": String(sprites[index % sprites.size()]), "base": base})
+		(layout["props"] as Array[Dictionary]).append({"sprite": String(sprites[0]), "base": base})
 		if index % 4 == 0:
 			(layout["lights"] as Array[Vector2]).append(base)
 	for index in range(6):
@@ -110,9 +112,13 @@ static func _place_prop(layout: Dictionary, base: Vector2, sprite: String, keep_
 	for spot in keep_clear:
 		if base.distance_to(spot) < SAFE_RADIUS:
 			return
+	var route := layout.get("route", []) as Array
+	for index in range(route.size() - 1):
+		if Geometry2D.get_closest_point_to_segment(base, route[index], route[index + 1]).distance_to(base) < 180.0:
+			return
 	var solid := Rect2(base + PROP_FOOTPRINT.position, PROP_FOOTPRINT.size)
 	for other: Rect2 in layout["obstacles"]:
-		if other.grow(6.0).intersects(solid):
+		if other.grow(75.0).intersects(solid):
 			return
 	(layout["obstacles"] as Array[Rect2]).append(solid)
 	(layout["props"] as Array[Dictionary]).append({"sprite": sprite, "base": base})

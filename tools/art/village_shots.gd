@@ -4,7 +4,7 @@ extends SceneTree
 ## Uso: godot --path . --script tools/art/village_shots.gd
 
 const OUTPUT_DIR := "res://art/shots/village/"
-const SPOTS := {"praca": Vector2(1960.0, 880.0), "conselho": Vector2(2300.0, 520.0), "forja_obra": Vector2(1450.0, 1100.0), "campos": Vector2(420.0, 1380.0), "centro": Vector2(900.0, 600.0)}
+const SPOTS := {"praca": Vector2(1650, 1350), "conselho": Vector2(1650, 1050), "forja_obra": Vector2(1220, 2040), "campos": Vector2(380, 1980), "centro": Vector2(1000, 550), "armazem": Vector2(385, 455), "pedreira": Vector2(2890, 1980), "serraria": Vector2(2900, 1420), "moradias": Vector2(2850, 1090)}
 
 
 func _init() -> void:
@@ -33,4 +33,6 @@ func _init() -> void:
 			var name := "%s_%s" % [spot_name, "noite" if period == 3 else "dia"]
 			root.get_texture().get_image().save_png(ProjectSettings.globalize_path(OUTPUT_DIR + name + ".png"))
 			print("shot %s" % name)
+	instance.queue_free()
+	await process_frame
 	quit(0)

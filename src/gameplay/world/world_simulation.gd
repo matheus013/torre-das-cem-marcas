@@ -50,7 +50,7 @@ const AREA_MULTIPLIER_CAP := 2.0
 ## Campos de tamanho de efeito que a Área amplia; alcance é distância, não área, e fica de fora.
 const AREA_KEYS: Array[String] = ["radius", "impact_area", "collision_radius", "width", "arrival_area"]
 const CRIT_MULTIPLIER := 1.75
-const SAVE_VERSION := 8
+const SAVE_VERSION := 9
 const CONTENT_PATH := "res://data/generated/dev_content.json"
 const BETA_PATH := "res://data/beta/beta_content.json"
 const CHARACTER_IDS: Array[StringName] = [&"eloa", &"sena", &"cira", &"rui"]
@@ -1214,6 +1214,61 @@ func _village_context() -> Dictionary:
 ## Conversa iniciada por um jogador perto de um morador.
 func talk_to_npc(peer_id: int, npc_id: String) -> bool:
 	return bool(village_life.call("talk", npc_id, peer_id, _village_context()))
+
+
+func use_village_service(peer_id: int, npc_id: String, offer_id: String) -> bool:
+	var state := player(peer_id)
+	var npc := village_life.call("find", npc_id) as Dictionary
+	var offer := preload("res://src/gameplay/world/village_services.gd").offer(npc_id, offer_id)
+	if state.is_empty() or npc.is_empty() or offer.is_empty() or not is_connected_player(peer_id):
+		return false
+	if state["zone"] != &"village" or bool(state.get("downed", false)) or (state["position"] as Vector2).distance_to(npc["position"] as Vector2) > 110.0:
+		return false
+	var gear := _gear(peer_id)
+	var stock: Dictionary = village_life.economy.stock
+	var materials := offer["materials"] as Dictionary
+	if int(gear["silver"]) < int(offer["price"]):
+		_status(peer_id, "Prata insuficiente.")
+		return false
+	for resource: String in materials:
+		if int(stock.get(resource, 0)) < int(materials[resource]):
+			_status(peer_id, "O armazem precisa de mais %s." % resource)
+			return false
+	var effect := String(offer["effect"])
+	var repair_items: Array[EquipmentItemInstance] = []
+	if effect == "supply" and int(state["quick_items"]) + int(offer["quantity"]) > 9:
+		_status(peer_id, "A bolsa comporta ate 9 suprimentos.")
+		return false
+	if effect == "heal" and float(state["health"]) >= max_health(peer_id) and float(state["breath"]) >= max_breath(peer_id) and int(state.get("wounds", 0)) == 0:
+		_status(peer_id, "Voce ja esta recuperado.")
+		return false
+	if effect == "repair":
+		for item: EquipmentItemInstance in (gear["inventory"] as ItemInventory).items.values():
+			if item.integrity < 1.0:
+				repair_items.append(item)
+		for spec in LayoutScript.equipment_slot_specs():
+			var item := (gear["equipment"] as EquipmentLoadout).get_equipped(spec[1], int(spec[2]))
+			if item != null and item.integrity < 1.0:
+				repair_items.append(item)
+		if repair_items.is_empty():
+			_status(peer_id, "Seu equipamento nao precisa de reparos.")
+			return false
+	# Validate the entire transaction before spending shared reserves or personal silver.
+	gear["silver"] = int(gear["silver"]) - int(offer["price"])
+	for resource: String in materials:
+		stock[resource] = int(stock[resource]) - int(materials[resource])
+	match effect:
+		"supply":
+			state["quick_items"] = int(state["quick_items"]) + int(offer["quantity"])
+		"heal":
+			state["wounds"] = 0
+			state["health"] = max_health(peer_id)
+			state["breath"] = max_breath(peer_id)
+		"repair":
+			for item in repair_items:
+				item.integrity = 1.0
+	_status(peer_id, "%s: %s." % [String(npc["name"]), String(offer["name"])])
+	return true
 
 
 func resolve_npc_request(request_id: int, action_id: String, speech: String) -> bool:
@@ -3418,6 +3473,7 @@ func view_snapshot() -> Dictionary:
 			"skill_tooltips": skill_tooltips(peer_id),
 			"skill_costs": skill_costs(peer_id),
 			"quick_items": state["quick_items"],
+			"silver": int(_gear(peer_id).get("silver", 0)),
 			"carried_stone": state["carried_stone"],
 			"level": level,
 			"experience": int(character_experience.get(String(state["character_id"]), 0)),
@@ -3467,6 +3523,7 @@ func view_snapshot() -> Dictionary:
 		"floor": _floor_view(),
 		"npcs": village_life.call("view"),
 		"village_period": String(village_life.call("period")),
+		"warehouse": village_life.economy.view(),
 		"village_log": (village_life.get("log") as Array).duplicate(true),
 		"npc_mode": String(village_life.get("mode")),
 		"telegraphs": _telegraph_views(),

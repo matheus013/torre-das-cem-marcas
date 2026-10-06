@@ -21,7 +21,9 @@
     "poder": 0.6
    },
    "personality": "Velaria serena e calculista; fala pouco e mede cada palavra; pensa sempre na autonomia da vila.",
-   "opinions": "Quer expedicoes bem registradas e sem alarde; teme que crises tirem a autonomia de Aresta."
+   "opinions": "Quer expedicoes bem registradas e sem alarde; teme que crises tirem a autonomia de Aresta.",
+   "routine": "stationary",
+   "resource": ""
   },
   {
    "id": "nara_quiral",
@@ -43,7 +45,9 @@
     "dever": 0.7
    },
    "personality": "Nacaria, antiga aventureira; direta, animada com cada descida e exigente com relatorios.",
-   "opinions": "Reuniu o quadro especial para reavaliar o andar 78; cobra relatorio de cada expedicao."
+   "opinions": "Reuniu o quadro especial para reavaliar o andar 78; cobra relatorio de cada expedicao.",
+   "routine": "roaming",
+   "resource": ""
   },
   {
    "id": "dalia_ferral",
@@ -65,7 +69,9 @@
     "familia": 0.7
    },
    "personality": "Nacaria severa e paciente; respeita trabalho bem feito e desconfia de materiais desconhecidos.",
-   "opinions": "Quer entender todo material da Torre antes de usa-lo; discute precos com os Rotavela."
+   "opinions": "Quer entender todo material da Torre antes de usa-lo; discute precos com os Rotavela.",
+   "routine": "stationary",
+   "resource": ""
   },
   {
    "id": "cassio_rotavela",
@@ -87,7 +93,9 @@
     "familia": 0.7
    },
    "personality": "Humano cordial e preciso; sorri enquanto calcula; gosta de comercio e de novos aventureiros.",
-   "opinions": "Defende comercio exterior e expansao; ve cada pedra regenerativa como oportunidade."
+   "opinions": "Defende comercio exterior e expansao; ve cada pedra regenerativa como oportunidade.",
+   "routine": "stationary",
+   "resource": ""
   },
   {
    "id": "tamar_vardal",
@@ -109,7 +117,9 @@
     "vila": 0.7
    },
    "personality": "Diade: uma corrente le a lei ao pe da letra, a outra pesa as consequencias; costuma falar em duas vozes.",
-   "opinions": "Defende fiscalizacao, mas rejeita poderes de emergencia sem prazo."
+   "opinions": "Defende fiscalizacao, mas rejeita poderes de emergencia sem prazo.",
+   "routine": "roaming",
+   "resource": ""
   },
   {
    "id": "ivo_cerne",
@@ -131,7 +141,9 @@
     "sobrevivencia": 0.6
    },
    "personality": "Humano pragmatico e seco; encontrou uma criatura profunda perto da entrada e ainda pensa nisso.",
-   "opinions": "Quer a entrada da Torre vigiada; pede que os grupos voltem antes de exaurir."
+   "opinions": "Quer a entrada da Torre vigiada; pede que os grupos voltem antes de exaurir.",
+   "routine": "roaming",
+   "resource": ""
   },
   {
    "id": "maura_salvedra",
@@ -153,7 +165,9 @@
     "familia": 0.6
    },
    "personality": "Humana medica, gentil com pacientes e dura com quem arrisca a vida a toa.",
-   "opinions": "Defende saude publica e recuperacao de aventureiros; pede cuidado com substancias da Torre."
+   "opinions": "Defende saude publica e recuperacao de aventureiros; pede cuidado com substancias da Torre.",
+   "routine": "stationary",
+   "resource": ""
   },
   {
    "id": "lior_campelo",
@@ -175,7 +189,9 @@
     "sobrevivencia": 0.75
    },
    "personality": "Velario agricultor, voz mansa, preocupado com o solo e com as reservas de comida.",
-   "opinions": "Prefere independencia da masmorra; acha que a Torre nao pode ser a unica fonte de Aresta."
+   "opinions": "Prefere independencia da masmorra; acha que a Torre nao pode ser a unica fonte de Aresta.",
+   "routine": "stationary",
+   "resource": ""
   },
   {
    "id": "brina_pedralva",
@@ -197,7 +213,9 @@
     "conhecimento": 0.6
    },
    "personality": "Diade energica, pensa em vigas e fundacoes; quer uma grande obra publica para ganhar assento.",
-   "opinions": "Precisa de pedra regenerativa para os reforcos da vila e valoriza quem entrega material."
+   "opinions": "Precisa de pedra regenerativa para os reforcos da vila e valoriza quem entrega material.",
+   "routine": "roaming",
+   "resource": ""
   },
   {
    "id": "oren_lumeiro",
@@ -219,7 +237,9 @@
     "poder": 0.4
    },
    "personality": "Nacario erudito e reservado; fala por enigmas quando o assunto e perigoso.",
-   "opinions": "Defende contexto antes de divulgar verdades; adora registros e mapas trazidos da Torre."
+   "opinions": "Defende contexto antes de divulgar verdades; adora registros e mapas trazidos da Torre.",
+   "routine": "stationary",
+   "resource": ""
   },
   {
    "id": "elen",
@@ -241,7 +261,9 @@
     "pertencimento": 0.7
    },
    "personality": "Vizinha acolhedora que abre a casa para o quadro de expedicao; curiosa sobre tudo que acontece.",
-   "opinions": "Gosta de ouvir historias da Torre e se preocupa quando alguem volta ferido."
+   "opinions": "Gosta de ouvir historias da Torre e se preocupa quando alguem volta ferido.",
+   "routine": "resident",
+   "resource": ""
   },
   {
    "id": "guarda_1",
@@ -260,7 +282,9 @@
     "vila": 0.6
    },
    "personality": "Morador comum de Aresta.",
-   "opinions": ""
+   "opinions": "",
+   "routine": "roaming",
+   "resource": ""
   },
   {
    "id": "guarda_2",
@@ -279,7 +303,9 @@
     "vila": 0.6
    },
    "personality": "Morador comum de Aresta.",
-   "opinions": ""
+   "opinions": "",
+   "routine": "roaming",
+   "resource": ""
   },
   {
    "id": "guarda_3",
@@ -298,7 +324,9 @@
     "vila": 0.6
    },
    "personality": "Morador comum de Aresta.",
-   "opinions": ""
+   "opinions": "",
+   "routine": "roaming",
+   "resource": ""
   },
   {
    "id": "guarda_4",
@@ -317,7 +345,9 @@
     "vila": 0.6
    },
    "personality": "Morador comum de Aresta.",
-   "opinions": ""
+   "opinions": "",
+   "routine": "roaming",
+   "resource": ""
   },
   {
    "id": "feirante_1",
@@ -336,7 +366,9 @@
     "vila": 0.6
    },
    "personality": "Morador comum de Aresta.",
-   "opinions": ""
+   "opinions": "",
+   "routine": "roaming",
+   "resource": ""
   },
   {
    "id": "feirante_2",
@@ -355,7 +387,9 @@
     "vila": 0.6
    },
    "personality": "Morador comum de Aresta.",
-   "opinions": ""
+   "opinions": "",
+   "routine": "roaming",
+   "resource": ""
   },
   {
    "id": "feirante_3",
@@ -374,7 +408,9 @@
     "vila": 0.6
    },
    "personality": "Morador comum de Aresta.",
-   "opinions": ""
+   "opinions": "",
+   "routine": "roaming",
+   "resource": ""
   },
   {
    "id": "trabalhador_1",
@@ -393,7 +429,9 @@
     "vila": 0.6
    },
    "personality": "Morador comum de Aresta.",
-   "opinions": ""
+   "opinions": "",
+   "routine": "roaming",
+   "resource": ""
   },
   {
    "id": "trabalhador_2",
@@ -412,7 +450,9 @@
     "vila": 0.6
    },
    "personality": "Morador comum de Aresta.",
-   "opinions": ""
+   "opinions": "",
+   "routine": "roaming",
+   "resource": ""
   },
   {
    "id": "trabalhador_3",
@@ -431,7 +471,9 @@
     "vila": 0.6
    },
    "personality": "Morador comum de Aresta.",
-   "opinions": ""
+   "opinions": "",
+   "routine": "roaming",
+   "resource": ""
   },
   {
    "id": "lavrador_1",
@@ -450,7 +492,9 @@
     "vila": 0.6
    },
    "personality": "Morador comum de Aresta.",
-   "opinions": ""
+   "opinions": "",
+   "routine": "roaming",
+   "resource": "alimentos"
   },
   {
    "id": "lavrador_2",
@@ -469,7 +513,9 @@
     "vila": 0.6
    },
    "personality": "Morador comum de Aresta.",
-   "opinions": ""
+   "opinions": "",
+   "routine": "roaming",
+   "resource": "alimentos"
   },
   {
    "id": "lavrador_3",
@@ -488,7 +534,9 @@
     "vila": 0.6
    },
    "personality": "Morador comum de Aresta.",
-   "opinions": ""
+   "opinions": "",
+   "routine": "roaming",
+   "resource": "alimentos"
   },
   {
    "id": "aventureiro_1",
@@ -507,7 +555,9 @@
     "vila": 0.6
    },
    "personality": "Morador comum de Aresta.",
-   "opinions": ""
+   "opinions": "",
+   "routine": "roaming",
+   "resource": ""
   },
   {
    "id": "aventureiro_2",
@@ -526,7 +576,9 @@
     "vila": 0.6
    },
    "personality": "Morador comum de Aresta.",
-   "opinions": ""
+   "opinions": "",
+   "routine": "roaming",
+   "resource": ""
   },
   {
    "id": "aventureiro_3",
@@ -545,7 +597,9 @@
     "vila": 0.6
    },
    "personality": "Morador comum de Aresta.",
-   "opinions": ""
+   "opinions": "",
+   "routine": "roaming",
+   "resource": ""
   },
   {
    "id": "crianca_1",
@@ -564,7 +618,9 @@
     "vila": 0.6
    },
    "personality": "Morador comum de Aresta.",
-   "opinions": ""
+   "opinions": "",
+   "routine": "roaming",
+   "resource": ""
   },
   {
    "id": "crianca_2",
@@ -583,7 +639,9 @@
     "vila": 0.6
    },
    "personality": "Morador comum de Aresta.",
-   "opinions": ""
+   "opinions": "",
+   "routine": "roaming",
+   "resource": ""
   },
   {
    "id": "crianca_3",
@@ -602,7 +660,150 @@
     "vila": 0.6
    },
    "personality": "Morador comum de Aresta.",
-   "opinions": ""
+   "opinions": "",
+   "routine": "roaming",
+   "resource": ""
+  },
+  {
+   "id": "morador_1",
+   "name": "Bento",
+   "title": "Mineiro",
+   "house": "Aresta",
+   "work": "mina",
+   "named": false,
+   "sprite": "npcs/comum_trabalhador",
+   "traits": {
+    "caution": 0.5,
+    "empathy": 0.6
+   },
+   "values": {
+    "vila": 0.7
+   },
+   "personality": "Cuida da vila e de seus vizinhos.",
+   "opinions": "",
+   "routine": "roaming",
+   "resource": "minerio"
+  },
+  {
+   "id": "morador_2",
+   "name": "Rosa",
+   "title": "Mineiro",
+   "house": "Aresta",
+   "work": "mina",
+   "named": false,
+   "sprite": "npcs/comum_trabalhador",
+   "traits": {
+    "caution": 0.5,
+    "empathy": 0.6
+   },
+   "values": {
+    "vila": 0.7
+   },
+   "personality": "Cuida da vila e de seus vizinhos.",
+   "opinions": "",
+   "routine": "roaming",
+   "resource": "minerio"
+  },
+  {
+   "id": "morador_3",
+   "name": "Nilo",
+   "title": "Lenhador",
+   "house": "Aresta",
+   "work": "madeira",
+   "named": false,
+   "sprite": "npcs/comum_trabalhador",
+   "traits": {
+    "caution": 0.5,
+    "empathy": 0.6
+   },
+   "values": {
+    "vila": 0.7
+   },
+   "personality": "Cuida da vila e de seus vizinhos.",
+   "opinions": "",
+   "routine": "roaming",
+   "resource": "madeira"
+  },
+  {
+   "id": "morador_4",
+   "name": "Lena",
+   "title": "Lenhador",
+   "house": "Aresta",
+   "work": "madeira",
+   "named": false,
+   "sprite": "npcs/comum_trabalhador",
+   "traits": {
+    "caution": 0.5,
+    "empathy": 0.6
+   },
+   "values": {
+    "vila": 0.7
+   },
+   "personality": "Cuida da vila e de seus vizinhos.",
+   "opinions": "",
+   "routine": "roaming",
+   "resource": "madeira"
+  },
+  {
+   "id": "morador_5",
+   "name": "Dona Celia",
+   "title": "Morador",
+   "house": "Aresta",
+   "work": "casa_elen",
+   "named": false,
+   "sprite": "npcs/comum_feirante",
+   "traits": {
+    "caution": 0.5,
+    "empathy": 0.6
+   },
+   "values": {
+    "vila": 0.7
+   },
+   "personality": "Cuida da vila e de seus vizinhos.",
+   "opinions": "",
+   "routine": "resident",
+   "resource": ""
+  },
+  {
+   "id": "morador_6",
+   "name": "Seu Abel",
+   "title": "Morador",
+   "house": "Aresta",
+   "work": "praca",
+   "named": false,
+   "sprite": "npcs/comum_feirante",
+   "traits": {
+    "caution": 0.5,
+    "empathy": 0.6
+   },
+   "values": {
+    "vila": 0.7
+   },
+   "personality": "Cuida da vila e de seus vizinhos.",
+   "opinions": "",
+   "routine": "resident",
+   "resource": ""
+  },
+  {
+   "id": "sira_botanica",
+   "name": "Sira Botanica",
+   "title": "Alquimista",
+   "house": "Aresta",
+   "work": "alquimia",
+   "named": true,
+   "sprite": "npcs/comum_feirante",
+   "traits": {
+    "caution": 0.7,
+    "empathy": 0.6
+   },
+   "values": {
+    "conhecimento": 0.8,
+    "vila": 0.7
+   },
+   "personality": "Prepara remedios com colheitas locais; cuidadosa e curiosa.",
+   "opinions": "Prefere testar cada ingrediente antes de preparar uma mistura.",
+   "routine": "stationary",
+   "resource": ""
   }
  ]
 }

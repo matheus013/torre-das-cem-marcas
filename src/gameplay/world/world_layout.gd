@@ -4,7 +4,8 @@ extends RefCounted
 ## Mapa compartilhado pela simulação (colisão e transições) e pela apresentação (desenho).
 ## Peças são posicionadas pela base do sprite; "solid" é a área de colisão relativa à base.
 
-const WORLD_SIZE := Vector2(2880.0, 1620.0)
+const VillagePlan := preload("res://src/gameplay/world/village_plan.gd")
+const WORLD_SIZE := VillagePlan.SIZE
 const INTERIOR_SIZE := Vector2(1280.0, 720.0)
 const WORLD_SPAWN := Vector2(370.0, 650.0)
 const HOUSE_RETURN := Vector2(850.0, 555.0)
@@ -24,89 +25,8 @@ const RESPAWN_POINTS: Array[Vector2] = [
 	Vector2(1180.0, 110.0), Vector2(980.0, 640.0), Vector2(700.0, 110.0), Vector2(1200.0, 640.0),
 ]
 
-const VILLAGE_PIECES: Array[Dictionary] = [
-	{"sprite": "buildings/armazem", "base": Vector2(385.0, 400.0), "solid": Rect2(-58.0, -78.0, 116.0, 60.0)},
-	{"sprite": "buildings/house", "base": Vector2(850.0, 470.0), "solid": Rect2(-55.0, -100.0, 110.0, 70.0)},
-	{"sprite": "buildings/expedicoes", "base": Vector2(1340.0, 720.0), "solid": Rect2(-62.0, -90.0, 124.0, 70.0)},
-	{"sprite": "buildings/torre", "base": Vector2(1665.0, 395.0), "solid": Rect2(-62.0, -100.0, 124.0, 55.0)},
-	{"sprite": "props/tree", "base": Vector2(130.0, 200.0), "solid": Rect2(-14.0, -22.0, 28.0, 16.0)},
-	{"sprite": "props/tree_fruit", "base": Vector2(1070.0, 260.0), "solid": Rect2(-12.0, -18.0, 24.0, 14.0)},
-	{"sprite": "props/pines", "base": Vector2(1440.0, 330.0), "solid": Rect2(-12.0, -16.0, 24.0, 12.0)},
-	{"sprite": "props/tree", "base": Vector2(2050.0, 1470.0), "solid": Rect2(-14.0, -22.0, 28.0, 16.0)},
-	{"sprite": "props/pines", "base": Vector2(190.0, 950.0), "solid": Rect2(-12.0, -16.0, 24.0, 12.0)},
-	{"sprite": "props/tree_fruit", "base": Vector2(470.0, 900.0), "solid": Rect2(-12.0, -18.0, 24.0, 14.0)},
-	{"sprite": "props/pines", "base": Vector2(1880.0, 140.0), "solid": Rect2(-12.0, -16.0, 24.0, 12.0)},
-	{"sprite": "props/tree", "base": Vector2(1000.0, 1020.0), "solid": Rect2(-14.0, -22.0, 28.0, 16.0)},
-	{"sprite": "props/well", "base": Vector2(780.0, 700.0), "solid": Rect2(-22.0, -24.0, 44.0, 20.0)},
-	{"sprite": "props/crates", "base": Vector2(470.0, 420.0), "solid": Rect2(-20.0, -14.0, 40.0, 12.0)},
-	{"sprite": "props/lamp", "base": Vector2(540.0, 495.0), "solid": Rect2(-4.0, -6.0, 8.0, 6.0)},
-	{"sprite": "props/lamp", "base": Vector2(990.0, 495.0), "solid": Rect2(-4.0, -6.0, 8.0, 6.0)},
-	{"sprite": "props/lamp", "base": Vector2(1590.0, 495.0), "solid": Rect2(-4.0, -6.0, 8.0, 6.0)},
-	{"sprite": "props/lamp", "base": Vector2(1180.0, 760.0), "solid": Rect2(-4.0, -6.0, 8.0, 6.0)},
-	{"sprite": "buildings/house_blue", "base": Vector2(300.0, 860.0), "solid": Rect2(-58.0, -96.0, 116.0, 70.0)},
-	{"sprite": "buildings/house_stone", "base": Vector2(855.0, 920.0), "solid": Rect2(-55.0, -96.0, 110.0, 70.0)},
-	{"sprite": "buildings/house_stone", "base": Vector2(1250.0, 330.0), "solid": Rect2(-55.0, -96.0, 110.0, 70.0)},
-	{"sprite": "buildings/cabin", "base": Vector2(1660.0, 980.0), "solid": Rect2(-55.0, -96.0, 110.0, 70.0)},
-	{"sprite": "props/cart", "base": Vector2(300.0, 470.0), "solid": Rect2(-16.0, -12.0, 32.0, 10.0)},
-	{"sprite": "props/sign", "base": Vector2(1575.0, 485.0), "solid": Rect2(-3.0, -5.0, 6.0, 5.0)},
-	{"sprite": "deco/barrel_1", "base": Vector2(1440.0, 700.0), "solid": Rect2(-26.0, -16.0, 52.0, 14.0)},
-	{"sprite": "deco/barrel_2", "base": Vector2(1015.0, 420.0), "solid": Rect2(-14.0, -12.0, 28.0, 10.0)},
-	{"sprite": "deco/bush_1", "base": Vector2(1530.0, 700.0), "solid": Rect2(-28.0, -16.0, 56.0, 12.0)},
-	{"sprite": "props/fence", "base": Vector2(130.0, 760.0), "solid": Rect2(-28.0, -8.0, 56.0, 6.0)},
-	{"sprite": "props/fence", "base": Vector2(186.0, 760.0), "solid": Rect2(-28.0, -8.0, 56.0, 6.0)},
-	{"sprite": "props/fence", "base": Vector2(1120.0, 160.0), "solid": Rect2(-28.0, -8.0, 56.0, 6.0)},
-	{"sprite": "props/fence", "base": Vector2(1176.0, 160.0), "solid": Rect2(-28.0, -8.0, 56.0, 6.0)},
-	# Bairros da ampliação (decisão 561): conselho, guarda, praça e feira, enfermaria, arquivo,
-	# forja, obra da Pedralva, plantações dos Campelo e novas casas.
-	{"sprite": "buildings/conselho", "base": Vector2(2420.0, 430.0), "solid": Rect2(-70.0, -95.0, 140.0, 75.0), "label": "CONSELHO"},
-	{"sprite": "props/bandeira", "base": Vector2(2310.0, 470.0), "solid": Rect2(-4.0, -6.0, 8.0, 6.0)},
-	{"sprite": "props/bandeira", "base": Vector2(2530.0, 470.0), "solid": Rect2(-4.0, -6.0, 8.0, 6.0)},
-	{"sprite": "buildings/posto_guarda", "base": Vector2(1880.0, 330.0), "solid": Rect2(-40.0, -60.0, 80.0, 50.0), "label": "GUARDA"},
-	{"sprite": "props/fonte", "base": Vector2(1960.0, 900.0), "solid": Rect2(-40.0, -40.0, 80.0, 34.0)},
-	{"sprite": "props/barraca_frutas", "base": Vector2(1790.0, 800.0), "solid": Rect2(-30.0, -24.0, 60.0, 20.0)},
-	{"sprite": "props/barraca_tecidos", "base": Vector2(2130.0, 800.0), "solid": Rect2(-30.0, -24.0, 60.0, 20.0)},
-	{"sprite": "props/barraca_frutas", "base": Vector2(1800.0, 1010.0), "solid": Rect2(-30.0, -24.0, 60.0, 20.0)},
-	{"sprite": "props/banco", "base": Vector2(2080.0, 990.0), "solid": Rect2(-18.0, -8.0, 36.0, 6.0)},
-	{"sprite": "props/banco", "base": Vector2(1850.0, 900.0), "solid": Rect2(-18.0, -8.0, 36.0, 6.0)},
-	{"sprite": "buildings/enfermaria", "base": Vector2(2580.0, 900.0), "solid": Rect2(-65.0, -90.0, 130.0, 70.0), "label": "ENFERMARIA"},
-	{"sprite": "buildings/arquivo", "base": Vector2(2560.0, 1560.0), "solid": Rect2(-60.0, -110.0, 120.0, 85.0), "label": "ARQUIVO"},
-	{"sprite": "buildings/forja", "base": Vector2(1520.0, 1230.0), "solid": Rect2(-62.0, -90.0, 124.0, 70.0), "label": "FORJA"},
-	{"sprite": "props/andaime_vila", "base": Vector2(1400.0, 960.0), "solid": Rect2(-30.0, -20.0, 60.0, 18.0)},
-	{"sprite": "props/plantacao", "base": Vector2(260.0, 1360.0), "solid": Rect2(-50.0, -30.0, 100.0, 26.0)},
-	{"sprite": "props/plantacao", "base": Vector2(440.0, 1360.0), "solid": Rect2(-50.0, -30.0, 100.0, 26.0)},
-	{"sprite": "props/plantacao", "base": Vector2(260.0, 1520.0), "solid": Rect2(-50.0, -30.0, 100.0, 26.0)},
-	{"sprite": "props/plantacao", "base": Vector2(440.0, 1520.0), "solid": Rect2(-50.0, -30.0, 100.0, 26.0)},
-	{"sprite": "props/fence", "base": Vector2(560.0, 1440.0), "solid": Rect2(-28.0, -8.0, 56.0, 6.0)},
-	{"sprite": "buildings/house_blue", "base": Vector2(2720.0, 330.0), "solid": Rect2(-58.0, -96.0, 116.0, 70.0)},
-	{"sprite": "buildings/house_stone", "base": Vector2(860.0, 1540.0), "solid": Rect2(-55.0, -96.0, 110.0, 70.0)},
-	{"sprite": "buildings/cabin", "base": Vector2(1960.0, 1540.0), "solid": Rect2(-55.0, -96.0, 110.0, 70.0)},
-	{"sprite": "buildings/house", "base": Vector2(2760.0, 1220.0), "solid": Rect2(-55.0, -100.0, 110.0, 70.0)},
-	{"sprite": "props/lamp", "base": Vector2(2000.0, 495.0), "solid": Rect2(-4.0, -6.0, 8.0, 6.0)},
-	{"sprite": "props/lamp", "base": Vector2(2400.0, 495.0), "solid": Rect2(-4.0, -6.0, 8.0, 6.0)},
-	{"sprite": "props/lamp", "base": Vector2(1880.0, 760.0), "solid": Rect2(-4.0, -6.0, 8.0, 6.0)},
-	{"sprite": "props/lamp", "base": Vector2(2050.0, 1050.0), "solid": Rect2(-4.0, -6.0, 8.0, 6.0)},
-	{"sprite": "props/lamp", "base": Vector2(1300.0, 1240.0), "solid": Rect2(-4.0, -6.0, 8.0, 6.0)},
-	{"sprite": "props/lamp", "base": Vector2(700.0, 1240.0), "solid": Rect2(-4.0, -6.0, 8.0, 6.0)},
-	{"sprite": "props/lamp", "base": Vector2(2440.0, 1240.0), "solid": Rect2(-4.0, -6.0, 8.0, 6.0)},
-	{"sprite": "props/crates", "base": Vector2(1660.0, 1250.0), "solid": Rect2(-20.0, -14.0, 40.0, 12.0)},
-	{"sprite": "deco/barrel_3", "base": Vector2(2200.0, 1010.0), "solid": Rect2(-14.0, -12.0, 28.0, 10.0)},
-]
-## Locais de trabalho, casas, pontos de encontro e ronda dos moradores (decisão 560).
-const VILLAGE_SPOTS := {
-	"work": {
-		"conselho": Vector2(2420.0, 480.0), "vigilia": Vector2(2330.0, 500.0), "expedicoes": Vector2(1340.0, 770.0),
-		"forja": Vector2(1520.0, 1270.0), "armazem": Vector2(385.0, 440.0), "posto_guarda": Vector2(1860.0, 390.0),
-		"enfermaria": Vector2(2580.0, 950.0), "campos": Vector2(350.0, 1440.0), "obra": Vector2(1400.0, 1000.0),
-		"arquivo": Vector2(2560.0, 1590.0), "casa_elen": Vector2(850.0, 540.0), "feira": Vector2(1960.0, 820.0),
-		"praca": Vector2(1960.0, 960.0),
-	},
-	"homes": [
-		Vector2(850.0, 520.0), Vector2(300.0, 900.0), Vector2(855.0, 960.0), Vector2(1250.0, 370.0), Vector2(1660.0, 1020.0),
-		Vector2(2720.0, 370.0), Vector2(860.0, 1580.0), Vector2(1960.0, 1580.0), Vector2(2760.0, 1260.0),
-	],
-	"social": [Vector2(1960.0, 960.0), Vector2(780.0, 740.0), Vector2(1960.0, 820.0), Vector2(1340.0, 800.0), Vector2(2080.0, 1020.0), Vector2(2420.0, 520.0)],
-	"patrol": [Vector2(1700.0, 560.0), Vector2(1950.0, 600.0), Vector2(2250.0, 560.0), Vector2(1080.0, 600.0), Vector2(620.0, 600.0), Vector2(1080.0, 1300.0), Vector2(1900.0, 1300.0), Vector2(2230.0, 900.0)],
-}
+static var VILLAGE_PIECES: Array[Dictionary] = VillagePlan.pieces()
+static var VILLAGE_SPOTS: Dictionary = VillagePlan.spots()
 const SCATTER_SPRITES: Array[String] = [
 	"deco/flower_4", "deco/flower_5", "deco/flower_6", "deco/flower_8",
 	"deco/rock_4", "deco/rock_5", "deco/rock_6", "deco/bush_b_2", "deco/bush_b_3", "deco/bush_b_4",
@@ -133,13 +53,7 @@ const BOSS_ROOM_PIECES: Array[Dictionary] = [
 	{"sprite": "props/pillar", "base": Vector2(1060.0, 230.0), "solid": Rect2(-22.0, -36.0, 44.0, 34.0)},
 	{"sprite": "props/pillar", "base": Vector2(1060.0, 560.0), "solid": Rect2(-22.0, -36.0, 44.0, 34.0)},
 ]
-const VILLAGE_ROADS: Array[Rect2] = [
-	Rect2(0.0, 500.0, 2880.0, 150.0),
-	Rect2(560.0, 0.0, 150.0, 1620.0),
-	Rect2(1000.0, 450.0, 160.0, 1170.0),
-	Rect2(2160.0, 0.0, 140.0, 1620.0),
-	Rect2(0.0, 1250.0, 2880.0, 130.0),
-]
+const VILLAGE_ROADS: Array[Rect2] = VillagePlan.ROADS
 const REINFORCEMENT_PIECE := {"sprite": "props/pillar", "base": Vector2(1250.0, 860.0), "solid": Rect2(-22.0, -36.0, 44.0, 34.0), "label": "REFORCO CONSTRUIDO"}
 
 static var _scenery: Array[Dictionary] = []
@@ -191,6 +105,7 @@ static func village_scenery() -> Array[Dictionary]:
 static func village_spots() -> Dictionary:
 	var spots := VILLAGE_SPOTS.duplicate(true)
 	spots["blocked"] = obstacles(&"village", 1)
+	spots["size"] = WORLD_SIZE
 	return spots
 
 
