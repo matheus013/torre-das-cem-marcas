@@ -179,8 +179,6 @@ func _run() -> void:
 	var floor_state := sim.get("floor_run") as Dictionary
 	if not bool(floor_state["stairs_open"]) or float(sim.call("best_time", 4, "solo")) <= 0.0:
 		return _fail("Boss victory must open the stairs and record the solo time")
-	if float((sim.get("boss_cooldowns") as Dictionary).get(4, 0.0)) < 1199.0:
-		return _fail("Defeated floor boss must start its long cooldown")
 	instance.call("_send_intent", "stat", ["strength"])
 	if int(eloa.base_stats.get(&"strength", 0)) != 1:
 		return _fail("Character panel could not allocate a stat point")
@@ -221,8 +219,8 @@ func _run() -> void:
 	state = sim.call("player", PEER) as Dictionary
 	if int(sim.get("banked_stone")) != banked_before + 3 or int(sim.get("village_progress")) != 1 or int(state["quick_items"]) != 1 or state["character_id"] != &"cira":
 		return _fail("Loaded world did not restore expedition consequences")
-	if float((sim.get("boss_cooldowns") as Dictionary).get(4, 0.0)) <= 0.0 or int(sim.get("deepest_floor")) != 5:
-		return _fail("Boss cooldown and deepest floor did not survive save and load")
+	if int(sim.get("deepest_floor")) != 5:
+		return _fail("Deepest floor did not survive save and load")
 	eloa = (sim.get("character_builds") as Dictionary)["eloa"] as CharacterBuild
 	if eloa.level != 2 or int(eloa.base_stats.get(&"strength", 0)) != 1:
 		return _fail("Character experience and allocated stats did not survive save and load")

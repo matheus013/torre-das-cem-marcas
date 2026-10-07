@@ -415,11 +415,6 @@ func _build_tower() -> void:
 		go.custom_minimum_size = Vector2(110.0, 28.0)
 		go.pressed.connect(func() -> void: start_floor_requested.emit(number))
 		row.add_child(go)
-		if float(entry.get("boss_cooldown", 0.0)) > 0.0:
-			var cooldown := Label.new()
-			cooldown.text = "chefe volta em %d s" % int(entry["boss_cooldown"])
-			cooldown.add_theme_color_override("font_color", MUTED)
-			row.add_child(cooldown)
 		_content.add_child(row)
 
 

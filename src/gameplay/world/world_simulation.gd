@@ -48,7 +48,7 @@ const VOLLEY_ELEMENTS := [
 ## 1%/5%/100% faziam cair mais lendários que raros (1 a 2 por 100 abates).
 const UNIQUE_WEAPON_CHANCE := {"common": 0.0005, "elite": 0.005, "boss": 0.1, "raid": 0.25}
 ## Gema de chefe (decisão 585): cada vitória dá uma gema do conjunto ou nenhuma; depois de uma
-## vitória sem gema, a próxima garante uma (o chefe só volta após BOSS_COOLDOWN).
+## vitória sem gema, a próxima garante uma.
 const BOSS_GEM_CHANCE := 0.5
 ## Venenos (decisão 586): cada inimigo carrega um veneno de cada tipo. Esporo cresce a cada tick e
 ## se espalha quando o alvo morre; toxina vem da poça, escala com Inteligência e some logo depois
@@ -112,7 +112,6 @@ const RESPAWN_MIN_INTERVAL := 2.5
 const RESPAWN_ACCELERATION := 120.0
 const RESPAWN_MIN_DISTANCE := 480.0
 ## Chefe derrotado só volta depois da recarga (decisão 526); enquanto isso o andar é passagem.
-const BOSS_COOLDOWN := 1200.0
 ## Alcance do golpe corpo a corpo dos chefes; o resto do dano vem das mecânicas anunciadas.
 const BOSS_MELEE_RANGE := 75.0
 const RECORD_MODES: Array[String] = ["solo", "duo", "trio", "squad"]
@@ -156,7 +155,6 @@ var floor_layout: Dictionary = {}
 var floor_run: Dictionary = {}
 var telegraphs: Array[Dictionary] = []
 var hazard_zones: Array[Dictionary] = []
-var boss_cooldowns: Dictionary = {}
 var tower_start_floor := 1
 var deepest_floor := 1
 var records: Dictionary = {}
@@ -933,10 +931,6 @@ func is_milestone_paused() -> bool:
 func step(delta: float) -> void:
 	if is_milestone_paused():
 		return
-	for floor_key: Variant in boss_cooldowns.keys():
-		boss_cooldowns[floor_key] = float(boss_cooldowns[floor_key]) - delta
-		if float(boss_cooldowns[floor_key]) <= 0.0:
-			boss_cooldowns.erase(floor_key)
 	for peer_id: int in players.keys():
 		if not players.has(peer_id):
 			continue
@@ -1431,10 +1425,8 @@ func start_floor(number: int) -> void:
 	}
 	if is_explore_floor():
 		_spawn_floor_population()
-	elif boss_cooldowns.has(current_floor):
-		floor_run["stairs_open"] = true
-		_status(0, "O guardiao deste andar ainda se recompoe. A passagem esta aberta.")
 	else:
+		# Sem recarga (decisão 587): o guardião volta sempre que o grupo entra no andar.
 		_spawn_floor_boss()
 		floor_run["boss_fight"] = true
 
@@ -1545,7 +1537,6 @@ func _register_floor_kill(enemy: Dictionary) -> void:
 	if floor_run.is_empty():
 		return
 	if bool(enemy.get("floor_boss", false)):
-		boss_cooldowns[current_floor] = BOSS_COOLDOWN
 		_grant_boss_gems(current_floor)
 		_finish_floor_run()
 		floor_run["stairs_open"] = true
@@ -3879,7 +3870,6 @@ func _tower_map_model() -> Array:
 		result.append({
 			"number": number, "name": String(definition.get("name", "")), "kind": String(definition.get("kind", "explore")),
 			"biome": String(TowerContentScript.biome(String(definition.get("biome", ""))).get("name", "")),
-			"boss_cooldown": float(boss_cooldowns.get(number, 0.0)),
 		})
 	return result
 
@@ -4291,7 +4281,6 @@ func save_data(host_peer: int) -> Dictionary:
 		"ground_items": _serialize_ground_items(),
 		"current_floor": current_floor,
 		"floor_run": floor_run.duplicate(true),
-		"boss_cooldowns": boss_cooldowns.duplicate(),
 		"village_life": village_life.call("snapshot"),
 		"tower_start_floor": tower_start_floor,
 		"deepest_floor": deepest_floor,
@@ -4345,10 +4334,7 @@ func load_data(data: Dictionary, host_peer: int) -> bool:
 	if saved_life is Dictionary:
 		village_life.call("restore", saved_life)
 	tower_start_floor = clampi(int(data.get("tower_start_floor", 1)), 1, deepest_floor)
-	boss_cooldowns.clear()
-	var saved_cooldowns := data.get("boss_cooldowns", {}) as Dictionary
-	for floor_key: Variant in saved_cooldowns:
-		boss_cooldowns[int(floor_key)] = float(saved_cooldowns[floor_key])
+	# Saves antigos podem trazer "boss_cooldowns": ignorado, chefes não têm mais recarga.
 	current_floor = clampi(int(data.get("current_floor", 0)), 0, TowerContentScript.MAX_FLOOR)
 	floor_layout = FloorLayoutScript.generate(current_floor) if current_floor > 0 else {}
 	floor_run = (data.get("floor_run", {}) as Dictionary).duplicate(true) if current_floor > 0 else {}
