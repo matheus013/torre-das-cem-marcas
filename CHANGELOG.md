@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.8.0](https://github.com/matheus013/torre-das-cem-marcas/compare/v0.7.1...v0.8.0) (2026-10-07)
+
+### Novidades
+
+* venenos, Esporos, Poca de Veneno e Presa da Serpente ([631fd40](https://github.com/matheus013/torre-das-cem-marcas/commit/631fd40978fd17c1301e370b3d4cda4c1e7c755a))
+
+### Correcoes
+
+* folga de tempo no teste online para a vila maior ([ca7a40b](https://github.com/matheus013/torre-das-cem-marcas/commit/ca7a40b588a2245e55e846617ea3dcb7b98cf27f))
+* melhora assets das skills e disparos giratorios da Saraivada ([82ebd77](https://github.com/matheus013/torre-das-cem-marcas/commit/82ebd775e5275f8f98c33380df8c4daf3f2e8645))
+
 ## [0.7.1](https://github.com/matheus013/torre-das-cem-marcas/compare/v0.7.0...v0.7.1) (2026-10-07)
 
 ### Correcoes
