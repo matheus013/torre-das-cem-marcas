@@ -1,6 +1,7 @@
 {
   "provider": "OpenAI image generation, no PixelForge",
-  "revision": 2,
+  "revision": 3,
+  "generation": "art/locomotion-generation.json",
   "directions": ["down", "left", "right", "up"],
   "columns": 4,
   "frame_size": 64,
@@ -8,9 +9,9 @@
   "foot_baseline": 60,
   "frames_per_second": 8,
   "characters": [
-    {"id":"eloa", "source":"raw/animations/eloa_walk_v2.png", "weapon":"focus", "identity":"Auburn bob, teal smith apron, copper focus with cyan filament."},
-    {"id":"sena", "source":"raw/animations/sena_walk_v2.png", "weapon":"spear", "identity":"Auburn ponytail, charcoal traveling cloak, rust tunic, spear."},
-    {"id":"cira", "source":"raw/animations/cira_walk_v2.png", "weapon":"gauntlets", "identity":"Silver braid, violet coat, living mineral gauntlets with cyan seams."},
-    {"id":"rui", "source":"raw/animations/rui_walk_v2.png", "weapon":"staff", "identity":"Copper hair, leather builder vest, slate trousers, measuring staff."}
+    {"id":"eloa", "source":"raw/animations/eloa_locomotion_v3.png", "source_columns":5, "weapon":"focus", "identity":"Auburn bob, teal smith apron, copper focus with cyan filament."},
+    {"id":"sena", "source":"raw/animations/sena_locomotion_v3.png", "source_columns":5, "weapon":"spear", "identity":"Auburn ponytail, charcoal traveling cloak, rust tunic, spear."},
+    {"id":"cira", "source":"raw/animations/cira_locomotion_v3.png", "source_columns":5, "weapon":"gauntlets", "identity":"Silver braid, violet coat, living mineral gauntlets with cyan seams."},
+    {"id":"rui", "source":"raw/animations/rui_locomotion_v3.png", "source_columns":5, "weapon":"staff", "identity":"Copper hair, leather builder vest, slate trousers, measuring staff."}
   ]
 }

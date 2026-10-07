@@ -1,12 +1,26 @@
 # Roadmap: Steam em acesso antecipado
 
-Atualizado em 2026-10-06. Objetivo: uma build paga que entrega um ciclo de jogo
+Atualizado em 2026-10-07. Objetivo: uma build paga que entrega um ciclo de jogo
 estavel, tem escopo descrito com honestidade e passa pela revisao da Steam.
 Este plano complementa o roadmap de MVP; a quantidade de conteudo existente
 nao substitui os criterios de qualidade abaixo. Datas de lancamento dependem
 de playtests e aprovacoes, nao de estimativas de porcentagem.
 
 ## Situacao atual
+
+[Correcao de locomocao](correcao-locomocao.md), 2026-10-07: quatro protagonistas
+e 17 modelos de NPC com repouso separado, quatro direcoes e caminhada por
+distancia percorrida. Fontes v3 preservam identidade/armas; backup v2 mantido.
+Ataque, dano e morte quadro a quadro continuam pendentes.
+
+Verificacao da correcao: 68 testes aprovados em copia isolada, auditoria de
+recortes sem falhas e pranchas de GPU cobrindo os 21 modelos humanoides.
+
+[Vila e servicos](vila-e-servicos.md): bairros reorganizados, 37 moradores,
+residentes/atendentes fixos, trabalhadores com coleta e entrega no armazem,
+loja, enfermaria, alquimia, forja e racoes. Save v9 preserva economia/cargas.
+Conectividade da vila e dos cem andares testada. Primeira suite isolada:
+61 testes aprovados; QA externo e controles fisicos ainda pendentes.
 
 Entrega de gameplay em 2026-10-04: 36 skills ativas, 20 suportes mecanicos,
 20 buffs, quatro tipos de arma inicial com escala e afinidade percentual.

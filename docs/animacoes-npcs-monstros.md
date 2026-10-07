@@ -1,5 +1,10 @@
 # Animacoes de NPCs e monstros
 
+Atualizacao de 2026-10-07: protagonistas e NPCs usam agora folhas v3 com
+repouso separado da caminhada. Ver [correcao de locomocao](correcao-locomocao.md).
+Os numeros e a grade 4x4 abaixo descrevem a entrega v2 anterior; inimigos
+continuam nessa grade.
+
 Entrega validada em 2026-10-06: 17 NPCs e 55 inimigos, incluindo chefes,
 regenerados no padrao visual dos players, sem PixelForge. Sao 72 atlas
 de 256x256, cada um com 16 quadros de 64x64: frente, esquerda, direita e

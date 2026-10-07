@@ -56,6 +56,7 @@ var _display: Dictionary = {}
 var _snapshot_timer := 0.0
 var _status := "Explore Aresta e entre na casa de teto vermelho."
 var _anim_time := 0.0
+var _locomotion := preload("res://src/presentation/art/actor_locomotion.gd").new()
 var _road_edges: Array[PackedVector2Array] = []
 var _last_zone: StringName = &""
 var _last_gem_key := ""
@@ -595,15 +596,25 @@ func _input_blocked() -> bool:
 
 func _update_display(delta: float) -> void:
 	var players := _view.get("players", {}) as Dictionary
+	var actor_keys: Array[String] = []
 	for peer_id: Variant in players:
 		var target := (players[peer_id] as Dictionary)["position"] as Vector2
 		if _sim != null or not _display.has(peer_id) or (_display[peer_id] as Vector2).distance_to(target) > 160.0:
 			_display[peer_id] = target
 		else:
 			_display[peer_id] = (_display[peer_id] as Vector2).lerp(target, clampf(delta * 14.0, 0.0, 1.0))
+		var state := players[peer_id] as Dictionary
+		var key := "player:%s" % peer_id
+		actor_keys.append(key)
+		_locomotion.update(key, _display[peer_id], bool(state.get("moving", false)), 24.0, String(state.get("character_id", "")) + String(state.get("zone", "")))
 	for peer_id: Variant in _display.keys():
 		if not players.has(peer_id):
 			_display.erase(peer_id)
+	for actor: Dictionary in _view.get("npcs", []):
+		var key := "npcs:%s" % actor.get("id", "")
+		actor_keys.append(key)
+		_locomotion.update(key, actor["position"], bool(actor.get("moving", false)), 10.0)
+	_locomotion.retain(actor_keys)
 
 
 func _display_position(peer_id: Variant) -> Vector2:
@@ -1477,7 +1488,7 @@ func _draw_npc(npc: Dictionary) -> void:
 	var feet := position + Vector2(0.0, 12.0)
 	_draw_shadow(feet, Vector2(11.0, 4.0))
 	var lift := absf(sin(_anim_time * 12.0 + position.x)) * 2.0 if bool(npc.get("moving", false)) else (sin(_anim_time * 2.0 + position.y) + 1.0) * 0.4
-	var frame := SpriteLibraryScript.actor_frame(String(npc.get("sprite", "")), npc.get("facing_direction", Vector2.DOWN) as Vector2, bool(npc.get("moving", false)), _anim_time + position.x * 0.01)
+	var frame := SpriteLibraryScript.actor_frame(String(npc.get("sprite", "")), npc.get("facing_direction", Vector2.DOWN) as Vector2, bool(npc.get("moving", false)), _locomotion.elapsed("npcs:%s" % npc.get("id", "")))
 	if frame != null:
 		draw_texture(frame, (feet - SpriteLibraryScript.CHARACTER_FOOT_ANCHOR).round())
 	elif not _draw_sprite(String(npc.get("sprite", "")), feet, bool(npc.get("facing_left", false)), Color.WHITE, lift):
@@ -1593,7 +1604,7 @@ func _draw_player(state: Dictionary, peer_id: Variant) -> void:
 		tint = Color(0.8, 1.0, 1.0, 0.55)
 	var character_id := String(state.get("character_id", "eloa"))
 	var direction := state.get("facing_direction", Vector2.LEFT if bool(state.get("facing_left", false)) else Vector2.DOWN) as Vector2
-	var frame := SpriteLibraryScript.character_frame(character_id, direction, bool(state.get("moving", false)), _anim_time)
+	var frame := SpriteLibraryScript.character_frame(character_id, direction, bool(state.get("moving", false)), _locomotion.elapsed("player:%s" % peer_id))
 	if frame != null:
 		draw_texture(frame, (feet - SpriteLibraryScript.CHARACTER_FOOT_ANCHOR).round(), tint)
 	elif not _draw_sprite("characters/" + character_id, feet, bool(state.get("facing_left", false)), tint, lift):
@@ -1782,7 +1793,7 @@ func _draw_enemy(enemy: Dictionary) -> void:
 	var mechanic := String(enemy.get("base_mechanic", ""))
 	var distance := position.distance_to(_display_position(_local_peer))
 	var texture := SpriteLibraryScript.texture("enemies/" + String(enemy.get("definition_id", "")))
-	var frame := SpriteLibraryScript.actor_frame("enemies/" + String(enemy.get("definition_id", "")), enemy.get("facing_direction", Vector2.DOWN) as Vector2, bool(enemy.get("moving", false)), _anim_time + position.x * 0.01)
+	var frame := SpriteLibraryScript.actor_frame("enemies/" + String(enemy.get("definition_id", "")), enemy.get("facing_direction", Vector2.DOWN) as Vector2, bool(enemy.get("moving", false)), _anim_time)
 	var visual_scale := 1.75 if frame != null and bool(enemy.get("boss", false)) else 1.0
 	var height := texture.get_size().y if texture != null else 26.0
 	height *= visual_scale

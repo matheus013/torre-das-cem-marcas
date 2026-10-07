@@ -34,7 +34,14 @@ static func actor_frame(actor_key: String, direction: Vector2, moving: bool, ela
 		return null
 	var row := direction_row(direction)
 	var column := posmod(int(floor(elapsed * WALK_FPS)), 4) if moving else 1
-	var key := "%s:%d:%d" % [actor_key, row, column]
+	var mode := "walk"
+	if not moving:
+		var idle := texture(parts[0] + "/animations/" + parts[1] + "_idle")
+		if idle != null and idle.get_size() == Vector2(64.0, 256.0):
+			atlas = idle
+			column = 0
+			mode = "idle"
+	var key := "%s:%s:%d:%d" % [actor_key, mode, row, column]
 	if not _frame_cache.has(key):
 		var frame := AtlasTexture.new()
 		frame.atlas = atlas

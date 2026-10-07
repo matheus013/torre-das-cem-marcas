@@ -35,11 +35,19 @@ static func run(tree: SceneTree) -> void:
 		if frame == null:
 			_fail(tree, "Missing packaged animation: " + character_id)
 			return
+		var idle := preload("res://src/presentation/art/sprite_library.gd").character_frame(character_id, Vector2.DOWN, false, 0.0) as AtlasTexture
+		if idle == null or idle.atlas.get_size() != Vector2(64, 256):
+			_fail(tree, "Missing packaged idle animation: " + character_id)
+			return
 	var title := load(DevModeScript.PUBLIC_HOME) as PackedScene
 	var village := JSON.parse_string(FileAccess.get_file_as_string("res://data/village/village_content.json")) as Dictionary
 	for npc: Dictionary in village["npcs"]:
 		if preload("res://src/presentation/art/sprite_library.gd").actor_frame(String(npc["sprite"]), Vector2.DOWN, true, 0.0) == null:
 			_fail(tree, "Missing packaged NPC animation: " + String(npc["id"]))
+			return
+		var idle := preload("res://src/presentation/art/sprite_library.gd").actor_frame(String(npc["sprite"]), Vector2.DOWN, false, 0.0) as AtlasTexture
+		if idle == null or idle.atlas.get_size() != Vector2(64, 256):
+			_fail(tree, "Missing packaged NPC idle animation: " + String(npc["id"]))
 			return
 	for collection in ["enemies", "bosses"]:
 		for enemy: Dictionary in TowerContentScript.collection(collection):

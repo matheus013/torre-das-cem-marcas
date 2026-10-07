@@ -31,8 +31,12 @@ func _run() -> void:
 			if hashes.size() != 4:
 				return _fail("Duplicate walk poses: " + id)
 			var idle := Sprites.character_frame(id, directions[row], false, 5.0) as AtlasTexture
-			if idle.region.position != Vector2(64.0, float(row) * 64.0):
+			if idle.region.position != Vector2(0.0, float(row) * 64.0) or idle.atlas.get_size() != Vector2(64, 256):
 				return _fail("Idle must retain direction and stop cycling")
+			var idle_pixels := idle.atlas.get_image().get_region(Rect2i(0, row * 64, 64, 64))
+			var idle_bounds := idle_pixels.get_used_rect()
+			if idle_bounds.size == Vector2i.ZERO or idle_bounds.end.y != 61 or idle_bounds.size.y > 48 or hashes.has(idle_pixels.get_data().hex_encode().sha256_text()):
+				return _fail("Idle must be a separate, grounded pose: " + id)
 	if Sprites.character_frame("missing", Vector2.DOWN, true, 0.0) != null:
 		return _fail("Missing sheet must allow static fallback")
 	if Sprites.direction_row(Vector2.ZERO) != 0 or Sprites.direction_row(Vector2(-1.0, -0.2)) != 1:

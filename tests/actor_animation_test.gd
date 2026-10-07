@@ -40,8 +40,16 @@ func _run() -> void:
 			if hashes.size() != 4:
 				return _fail("Duplicate locomotion phases: " + key)
 			var idle := Sprites.actor_frame(key, directions[row], false, 50.0) as AtlasTexture
-			if idle.region.position != Vector2(64, row * 64):
+			var idle_column := 0 if actor["group"] == "npcs" else 1
+			if idle.region.position != Vector2(idle_column * 64, row * 64):
 				return _fail("Idle cycles or loses direction: " + key)
+			if actor["group"] == "npcs":
+				if idle.atlas.get_size() != Vector2(64, 256):
+					return _fail("NPC has no dedicated idle atlas: " + key)
+				var idle_pixels := idle.atlas.get_image().get_region(Rect2i(0, row * 64, 64, 64))
+				var idle_bounds := idle_pixels.get_used_rect()
+				if idle_bounds.size == Vector2i.ZERO or idle_bounds.end.y != 61 or idle_bounds.size.y > 48 or hashes.has(idle_pixels.get_data().hex_encode().sha256_text()):
+					return _fail("NPC idle is empty, ungrounded or a walk pose: " + key)
 	if counts != {"npcs": 17, "enemies": 55}:
 		return _fail("Incomplete actor catalog")
 	for group in counts:
@@ -68,6 +76,23 @@ func _run() -> void:
 	for frame in frames:
 		if frame.get_used_rect().size != Vector2i(40, 80):
 			return _fail("Unequal gutter sliced a silhouette")
+	var locomotion_source := Image.create_empty(500, 400, false, Image.FORMAT_RGBA8)
+	for row in range(4):
+		for column in range(5):
+			locomotion_source.fill_rect(Rect2i(column * 100 + 20, row * 100 + 10, 40, 80), Color.WHITE)
+	var locomotion_frames := Slicer.frames(locomotion_source, 5, 4)
+	if locomotion_frames.size() != 20:
+		return _fail("Slicer lost idle column")
+	for frame in locomotion_frames:
+		if frame.get_used_rect().size != Vector2i(40, 80):
+			return _fail("Idle/walk gutter sliced a silhouette")
+	var staggered := Image.create_empty(500, 430, false, Image.FORMAT_RGBA8)
+	for row in range(4):
+		for column in range(5):
+			staggered.fill_rect(Rect2i(column * 100 + 20, row * 100 + 10 + (column % 2) * 30, 40, 80), Color.WHITE)
+	for frame in Slicer.frames(staggered, 5, 4):
+		if frame.get_used_rect().size != Vector2i(40, 80):
+			return _fail("Staggered lanes sliced a silhouette")
 	print("ACTOR_ANIMATION_OK: 17 NPCs, 55 enemies, 1152 unique poses, anchors, cache, idle, facing and gutters")
 	quit(0)
 
