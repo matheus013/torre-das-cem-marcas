@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.1](https://github.com/matheus013/torre-das-cem-marcas/compare/v0.7.0...v0.7.1) (2026-10-07)
+
+### Correcoes
+
+* corrige repouso e caminhada de todos os protagonistas e NPCs ([b9d26a8](https://github.com/matheus013/torre-das-cem-marcas/commit/b9d26a8be8b6862463ebad0e65481e272dca4559))
+* preserva carga dos moradores com armazem cheio a noite ([ec0fac0](https://github.com/matheus013/torre-das-cem-marcas/commit/ec0fac09e8f7f169418f264225880a7d1c15b7d3))
+
 ## [0.7.0](https://github.com/matheus013/torre-das-cem-marcas/compare/v0.6.0...v0.7.0) (2026-10-06)
 
 ### Novidades
