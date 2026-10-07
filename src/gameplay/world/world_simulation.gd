@@ -64,7 +64,7 @@ const AREA_MULTIPLIER_CAP := 2.0
 ## Campos de tamanho de efeito que a Área amplia; alcance é distância, não área, e fica de fora.
 const AREA_KEYS: Array[String] = ["radius", "impact_area", "collision_radius", "width", "arrival_area"]
 const CRIT_MULTIPLIER := 1.75
-const SAVE_VERSION := 11
+const SAVE_VERSION := 12
 const NarrativeProgress := preload("res://src/gameplay/world/narrative_progress.gd")
 const CONTENT_PATH := "res://data/generated/dev_content.json"
 const BETA_PATH := "res://data/beta/beta_content.json"
@@ -84,8 +84,22 @@ const STARTER_GEMS := {
 const GEM_CAST_EXPERIENCE := 6
 ## "tower" é sempre o andar ativo da Torre (`current_floor`); o grupo atravessa os andares junto.
 const ARENA_ZONES: Array[StringName] = [&"tower"]
-## Nível 1 é a gema-base; os níveis 2, 3 e 4 liberam a escolha das evoluções 1, 2 e 3.
-const GEM_MAX_LEVEL_BETA := 4
+## Maestria das gemas (decisão 588): níveis 1 a 21; cada nível soma GEM_LEVEL_POWER_STEP aos
+## números principais; nos níveis 5, 10, 15 e 20 escolhe-se 1 de 3 modificadores e no 21 1 de 2
+## grandes modificadores. Requisitos de atributo crescem com o nível: sem cumpri-los, a gema age no
+## maior nível cumprido. Levar uma gema ao 21 custa o esforço de levar a personagem ao 95.
+const GEM_MAX_LEVEL_BETA := 21
+const GEM_MASTERY_LEVELS: Array[int] = [5, 10, 15, 20, 21]
+const GEM_LEVEL_POWER_STEP := 0.05
+const GEM_PRIMARY_FIELDS: Array[String] = ["power", "barrier", "healing", "trail_damage", "arrival_damage", "arrival_barrier"]
+## Requisito no nível 21: atributo principal 150, secundário 60% disso; curva (nível-1)/20 ^ 1,2.
+const GEM_REQUIREMENT_MAX := 150.0
+const GEM_REQUIREMENT_SECONDARY := 0.6
+const GEM_REQUIREMENT_EXPONENT := 1.2
+## Nível do jogador equivalente ao nível 21 da gema, e a parte da EXP do jogador que uma gema
+## bem usada recebe (medida em tools/bench/gem_experience_probe.gd).
+const GEM_PLAYER_LEVEL_EQUIVALENT := 95
+const GEM_EXPERIENCE_SHARE := 0.85
 const STABILITY_LIMIT := 0.6
 const RECONNECT_GRACE := 60.0
 ## Escalonamento cooperativo do documento 58: orçamento do encontro, Vida de elite e Vida de chefe
@@ -497,8 +511,9 @@ func support_definition(support_id: String) -> Dictionary:
 	return _find(_collection("support_gems"), support_id)
 
 
+## Capacidade de suporte: 3 no nível 1 e +1 a cada 5 níveis (7 no 20).
 func gem_capacity(gem_level: int) -> int:
-	return 2 + gem_level
+	return 3 + clampi(gem_level, 1, GEM_MAX_LEVEL_BETA) / 5
 
 
 func _used_capacity(supports: Array) -> int:
@@ -613,23 +628,62 @@ func choose_gem_evolution(peer_id: int, gem_id: String, choice_id: String) -> bo
 	if not _in_safe_area(peer_id, "Escolher evolucoes"):
 		return false
 	var progress := (gems["gems"] as Dictionary)[gem_id] as Dictionary
-	var tier := pending_evolution_tier(progress)
-	if tier <= 0:
+	var mastery_level := pending_evolution_tier(progress)
+	if mastery_level <= 0:
 		return false
-	for option: Dictionary in _evolution_options(gem_id, tier):
+	for option: Dictionary in _evolution_options(gem_id, mastery_level):
 		if String(option.get("id", "")) == choice_id:
-			(progress["choices"] as Dictionary)[str(tier)] = choice_id
+			(progress["choices"] as Dictionary)[str(mastery_level)] = choice_id
 			_status(peer_id, "%s: %s." % [gem_definition(gem_id).get("name", gem_id), option.get("name", choice_id)])
 			return true
 	return false
 
 
-## Primeira evolução liberada pelo nível (tier = nível - 1) e ainda sem escolha; 0 se nenhuma.
+## Primeiro nível de maestria (5, 10, 15, 20, 21) já alcançado e ainda sem escolha; 0 se nenhum.
 static func pending_evolution_tier(progress: Dictionary) -> int:
-	for tier in range(1, int(progress.get("level", 1))):
-		if not (progress.get("choices", {}) as Dictionary).has(str(tier)):
-			return tier
+	for mastery_level in GEM_MASTERY_LEVELS:
+		if mastery_level <= int(progress.get("level", 1)) and not (progress.get("choices", {}) as Dictionary).has(str(mastery_level)):
+			return mastery_level
 	return 0
+
+
+## Requisitos de atributo da gema num nível: os atributos que ela escala (Esporos, que não escalam,
+## pedem Sabedoria); o principal chega a 150 no nível 21 e o secundário a 60% disso.
+func gem_requirements(gem_id: String, level: int) -> Dictionary:
+	var stats := (gem_definition(gem_id).get("scaling", []) as Array).duplicate()
+	if stats.is_empty():
+		stats = ["wisdom"]
+	var primary := roundf(GEM_REQUIREMENT_MAX * pow(float(clampi(level, 1, GEM_MAX_LEVEL_BETA) - 1) / float(GEM_MAX_LEVEL_BETA - 1), GEM_REQUIREMENT_EXPONENT))
+	var result := {String(stats[0]): primary}
+	if stats.size() > 1:
+		result[String(stats[1])] = roundf(primary * GEM_REQUIREMENT_SECONDARY)
+	return result
+
+
+## Atributo bruto da personagem (pontos distribuídos, marcos e equipamento), comparado aos requisitos.
+func raw_stat(peer_id: int, stat: String) -> float:
+	var build := character_build(peer_id)
+	if build == null:
+		return 0.0
+	var gear := _gear(peer_id)
+	var modifiers: Dictionary = (gear["equipment"] as EquipmentLoadout).combined_stat_modifiers() if not gear.is_empty() else {}
+	return float(build.base_stats.get(StringName(stat), 0.0)) + float(modifiers.get(StringName(stat), 0.0))
+
+
+## Maior nível até o atual cujos requisitos a personagem cumpre: é nele que a gema age.
+func gem_effective_level(peer_id: int, gem_id: String) -> int:
+	var progress := (_gem_state(peer_id).get("gems", {}) as Dictionary).get(gem_id, {}) as Dictionary
+	var level := int(progress.get("level", 1))
+	while level > 1:
+		var met := true
+		var requirements := gem_requirements(gem_id, level)
+		for stat: String in requirements:
+			if raw_stat(peer_id, stat) < float(requirements[stat]):
+				met = false
+		if met:
+			break
+		level -= 1
+	return level
 
 
 func _evolution_options(gem_id: String, level: int) -> Array[Dictionary]:
@@ -641,8 +695,16 @@ func _evolution_options(gem_id: String, level: int) -> Array[Dictionary]:
 	return result
 
 
+## EXP do nível N ao N+1: a parte (GEM_EXPERIENCE_SHARE) da EXP que o jogador gasta no bloco de níveis
+## equivalente. Os 20 passos da gema cobrem os níveis 1 a 95 do jogador (~4,7 níveis por passo).
 func gem_experience_required(level: int) -> int:
-	return 150 * level
+	var span := float(GEM_PLAYER_LEVEL_EQUIVALENT - 1) / float(GEM_MAX_LEVEL_BETA - 1)
+	var first := int(floor(float(clampi(level, 1, GEM_MAX_LEVEL_BETA - 1) - 1) * span)) + 1
+	var last := int(floor(float(clampi(level, 1, GEM_MAX_LEVEL_BETA - 1)) * span))
+	var total := 0
+	for player_level in range(first, last + 1):
+		total += experience_required(player_level)
+	return maxi(1, int(round(float(total) * GEM_EXPERIENCE_SHARE)))
 
 
 ## EXP de uso: só a gema que foi lançada ou que abateu o inimigo cresce.
@@ -669,9 +731,14 @@ func _advance_gem(peer_id: int, gem_id: String) -> void:
 		if int(progress["level"]) >= GEM_MAX_LEVEL_BETA:
 			progress["experience"] = 0
 		var state := player(peer_id)
+		var name := String(gem_definition(gem_id).get("name", gem_id))
+		var milestone := int(progress["level"]) in GEM_MASTERY_LEVELS
 		if not state.is_empty():
-			_vfx(state["zone"] as StringName, "label", [state["position"] as Vector2 + Vector2(0.0, -30.0), "%s NV %d" % [String(gem_definition(gem_id).get("name", gem_id)).to_upper(), progress["level"]], Color("9fd8ff"), "levelup"])
-		_status(peer_id, "%s alcancou o nivel %d. Escolha a evolucao em Aresta." % [gem_definition(gem_id).get("name", gem_id), progress["level"]])
+			_vfx(state["zone"] as StringName, "label", [state["position"] as Vector2 + Vector2(0.0, -30.0), "%s NV %d%s" % [name.to_upper(), progress["level"], " - MODIFICADOR!" if milestone else ""], Color("f2d16a") if milestone else Color("9fd8ff"), "levelup"])
+		if milestone:
+			_status(peer_id, "%s alcancou o nivel %d: escolha um modificador em Aresta (SKILLS)." % [name, progress["level"]])
+		else:
+			_status(peer_id, "%s alcancou o nivel %d." % [name, progress["level"]])
 
 
 func _validate_supports(gems: Dictionary) -> void:
@@ -700,10 +767,17 @@ func resolve_slot(peer_id: int, slot: int) -> Dictionary:
 	var gem_id := String((gems["slots"] as Array)[slot])
 	if not (gems["gems"] as Dictionary).has(gem_id):
 		return {}
-	var definition := gem_definition(gem_id)
+	var definition := gem_definition(gem_id).duplicate(true)
 	var progress := (gems["gems"] as Dictionary)[gem_id] as Dictionary
+	# Nível efetivo (requisitos de atributo): números e modificadores só até ele.
+	var effective := gem_effective_level(peer_id, gem_id)
+	for field in GEM_PRIMARY_FIELDS:
+		if definition.has(field):
+			definition[field] = float(definition[field]) * (1.0 + GEM_LEVEL_POWER_STEP * float(effective - 1))
 	var evolution_modifiers: Array[Dictionary] = []
-	for level in range(1, int(progress["level"])):
+	for level in GEM_MASTERY_LEVELS:
+		if level > effective:
+			break
 		var choice_id := String((progress["choices"] as Dictionary).get(str(level), ""))
 		for option in _evolution_options(gem_id, level):
 			if String(option.get("id", "")) == choice_id:
@@ -3923,11 +3997,18 @@ func _skills_model(peer_id: int) -> Array[Dictionary]:
 		for option in _evolution_options(gem_id, pending_tier):
 			pending.append({"id": String(option.get("id", "")), "name": String(option.get("name", "")), "modifiers": option.get("modifiers", {})})
 		var chosen: Array[String] = []
-		for chosen_level in range(1, level):
+		for chosen_level in GEM_MASTERY_LEVELS:
 			var choice_id := String((progress["choices"] as Dictionary).get(str(chosen_level), ""))
 			for option in _evolution_options(gem_id, chosen_level):
 				if String(option.get("id", "")) == choice_id:
-					chosen.append(String(option.get("name", choice_id)))
+					chosen.append("Nv %d: %s" % [chosen_level, String(option.get("name", choice_id))])
+		var effective := gem_effective_level(peer_id, gem_id)
+		var requirements: Array[Dictionary] = []
+		var next_requirements := gem_requirements(gem_id, mini(level + 1, GEM_MAX_LEVEL_BETA))
+		var current_requirements := gem_requirements(gem_id, level)
+		for stat: String in current_requirements:
+			requirements.append({"stat": stat, "value": float(current_requirements[stat]), "next": float(next_requirements.get(stat, 0.0)),
+				"have": raw_stat(peer_id, stat), "met": raw_stat(peer_id, stat) >= float(current_requirements[stat])})
 		var resolved := resolve_slot(peer_id, slot)
 		var scale := _skill_power_multiplier(peer_id, resolved)
 		available.sort_custom(func(left: Dictionary, right: Dictionary) -> bool: return String(left["name"]).naturalnocasecmp_to(String(right["name"])) < 0)
@@ -3937,7 +4018,8 @@ func _skills_model(peer_id: int) -> Array[Dictionary]:
 			"description": definition.get("description", ""),
 			"level": level, "max_level": GEM_MAX_LEVEL_BETA,
 			"experience": int(progress["experience"]), "experience_required": gem_experience_required(level) if level < GEM_MAX_LEVEL_BETA else 0,
-			"pending_tier": pending_tier,
+			"pending_tier": pending_tier, "effective_level": effective, "requirements": requirements,
+			"next_mastery": GEM_MASTERY_LEVELS.filter(func(mastery: int) -> bool: return mastery > level).front() if level < GEM_MAX_LEVEL_BETA else 0,
 			"capacity_used": _used_capacity((gems["supports"] as Array)[slot] as Array), "capacity": gem_capacity(level),
 			"supports": attached, "available_supports": available, "support_count": attached.size(),
 			"pending_choices": pending, "chosen": chosen,
@@ -4403,9 +4485,22 @@ func _restore_gems(raw: Variant, version: int = SAVE_VERSION) -> void:
 					if level <= 1 and int(entry.get("experience", 0)) <= 0 and choices.is_empty():
 						continue
 					level += 1 if choices.has(str(level)) else 0
+				var experience := maxi(0, int(entry.get("experience", 0)))
+				if version < 12:
+					# Maestria (decisão 588): a EXP da curva antiga (150 x nível, até o 4) vira nível na
+					# curva nova; as escolhas antigas não existem mais e são refeitas nos níveis 5 a 21.
+					var total := experience
+					for old_level in range(1, clampi(level, 1, 4)):
+						total += 150 * old_level
+					level = 1
+					while level < GEM_MAX_LEVEL_BETA and total >= gem_experience_required(level):
+						total -= gem_experience_required(level)
+						level += 1
+					experience = total
+					choices = {}
 				owned[String(gem_id)] = {
 					"level": clampi(level, 1, GEM_MAX_LEVEL_BETA),
-					"experience": maxi(0, int(entry.get("experience", 0))),
+					"experience": experience,
 					"choices": choices,
 				}
 		if version < 8:

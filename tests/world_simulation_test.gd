@@ -45,16 +45,26 @@ func _init() -> void:
 	if int(resolved.get("projectile_count", 0)) != 1 or not is_equal_approx(float(resolved["power"]), needle_power * 0.78):
 		_fail("Support modifiers were not resolved into the gem")
 		return
-	if bool(sim.call("choose_gem_evolution", 1, "agulha_lastro", "ponta_pesada")):
-		_fail("Evolution 1 needs gem level 2")
+	# Maestria (decisão 588): o primeiro modificador vem no nível 5, com os requisitos cumpridos.
+	if bool(sim.call("choose_gem_evolution", 1, "agulha_lastro", "agulha_lastro_m5_2")):
+		_fail("Mastery modifier needs gem level 5")
 		return
-	sim.call("gain_gem_experience", 1, "agulha_lastro", int(sim.call("gem_experience_required", 1)))
-	if not bool(sim.call("choose_gem_evolution", 1, "agulha_lastro", "ponta_pesada")):
-		_fail("Evolution 1 could not be chosen at gem level 2")
+	var needle_build := sim.call("character_build", 1) as CharacterBuild
+	needle_build.base_stats[&"strength"] = 300.0
+	needle_build.base_stats[&"agility"] = 300.0
+	for level in range(1, 5):
+		sim.call("gain_gem_experience", 1, "agulha_lastro", int(sim.call("gem_experience_required", level)))
+	if not bool(sim.call("choose_gem_evolution", 1, "agulha_lastro", "agulha_lastro_m5_2")):
+		_fail("Mastery modifier could not be chosen at gem level 5")
 		return
 	resolved = sim.call("resolve_slot", 1, 0)
-	if not is_equal_approx(float(resolved["power"]), needle_power * 1.35 * 0.78):
-		_fail("Evolution and support must compose in canonical order")
+	# Nível 5 (+20%), o modificador escolhido e o suporte (x0,78), em ordem canônica.
+	var chosen := ((sim.call("gem_definition", "agulha_lastro") as Dictionary)["evolutions"]["5"] as Array)[2] as Dictionary
+	var chosen_power := float((chosen["modifiers"] as Dictionary).get("power_multiplier", 1.0))
+	var chosen_cooldown := float((chosen["modifiers"] as Dictionary).get("cooldown_multiplier", 1.0))
+	if not is_equal_approx(float(resolved["power"]), needle_power * 1.2 * chosen_power * 0.78) \
+			or not is_equal_approx(float(resolved["cooldown"]), float((sim.call("gem_definition", "agulha_lastro") as Dictionary)["cooldown"]) * chosen_cooldown):
+		_fail("Gem level, mastery modifier and support must compose in canonical order (x%.3f)" % (float(resolved["power"]) / needle_power))
 		return
 
 	# Combate cooperativo na Torre.
@@ -132,21 +142,25 @@ func _init() -> void:
 		_fail("Sanctuary stability must reduce damage taken inside it (health %s)" % guarded["health"])
 		return
 
-	# Nível de gema pela EXP de uso (150 x nível); escolhas pendentes não travam a subida (decisão 579).
+	# Nível de gema pela EXP de uso (decisão 588): a sobra passa para o nível seguinte; o próximo
+	# modificador só no nível 10.
 	var gems := ((sim.get("character_gems") as Dictionary)[String((sim.call("player", 1) as Dictionary)["character_id"])] as Dictionary)["gems"] as Dictionary
 	var needle := gems["agulha_lastro"] as Dictionary
-	needle["experience"] = 500
+	needle["experience"] = int(sim.call("gem_experience_required", 5)) + 7
 	sim.call("_advance_gem", 1, "agulha_lastro")
-	if int(needle["level"]) != 3 or int(needle["experience"]) != 200 or SimulationScript.pending_evolution_tier(needle) != 2:
-		_fail("Gem must reach level 3 with 500 experience and keep tier 2 pending")
+	if int(needle["level"]) != 6 or int(needle["experience"]) != 7 or SimulationScript.pending_evolution_tier(needle) != 0:
+		_fail("Gem must reach level 6 keeping the leftover experience, with no modifier pending")
 		return
 
-	# Segunda Rota: carga extra permite dois usos seguidos e recarrega uma por vez.
+	# Segunda Rota (modificador do nível 20): carga extra permite dois usos seguidos e recarrega uma por vez.
 	var dasher := sim.call("player", 3) as Dictionary
 	var dasher_gems := (sim.get("character_gems") as Dictionary)[String(dasher["character_id"])] as Dictionary
 	var dash_progress := (dasher_gems["gems"] as Dictionary)["passo_vetorial"] as Dictionary
-	dash_progress["level"] = 4
-	dash_progress["choices"] = {"1": "passo_economico", "2": "guarda_de_chegada", "3": "segunda_rota"}
+	var dasher_build := sim.call("character_build", 3) as CharacterBuild
+	dasher_build.base_stats[&"agility"] = 300.0
+	dasher_build.base_stats[&"wisdom"] = 300.0
+	dash_progress["level"] = 20
+	dash_progress["choices"] = {"20": "passo_vetorial_m20_1"}
 	sim.call("refresh_charges", 3)
 	dasher["breath"] = 100.0
 	var dash_target := (dasher["position"] as Vector2) + Vector2(60.0, 0.0)
@@ -171,7 +185,7 @@ func _init() -> void:
 		_fail("Save could not be loaded")
 		return
 	var restored_skills: Array = (restored.call("menu_model", 1) as Dictionary)["skills"]
-	if String((restored_skills[3] as Dictionary)["id"]) != "elo_residual" or (restored_skills[0] as Dictionary)["supports"].is_empty() or int((restored_skills[0] as Dictionary)["level"]) != 3:
+	if String((restored_skills[3] as Dictionary)["id"]) != "elo_residual" or (restored_skills[0] as Dictionary)["supports"].is_empty() or int((restored_skills[0] as Dictionary)["level"]) != 6:
 		_fail("Gem slots, supports and levels were not restored")
 		return
 

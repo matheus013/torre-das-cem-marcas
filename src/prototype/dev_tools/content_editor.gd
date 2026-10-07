@@ -446,9 +446,9 @@ func _save_entry() -> void:
 		return
 	if _mode == &"active_gem":
 		var evolutions := entry.get("evolutions", {}) as Dictionary
-		for level in ["1", "2", "3"]:
-			if not evolutions.has(level) or not evolutions[level] is Array or evolutions[level].size() < 2:
-				_status.text = "Gema ativa exige duas evolucoes nos niveis 1, 2 e 3."
+		for level in ["5", "10", "15", "20", "21"]:
+			if not evolutions.has(level) or not evolutions[level] is Array or evolutions[level].size() < (2 if level == "21" else 3):
+				_status.text = "Gema ativa exige 3 modificadores nos niveis 5, 10, 15 e 20 e 2 no nivel 21."
 				return
 		if entry.get("mechanic", "") == "summon" and String(entry.get("summon_definition_id", "")).is_empty():
 			_status.text = "Gema de summon exige uma definicao de summon."

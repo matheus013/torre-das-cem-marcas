@@ -131,17 +131,18 @@ func _run() -> void:
 	var base_pool := plain.persistent_effects.filter(func(effect: Dictionary) -> bool: return String(effect["mechanic"]) == "poison_pool")
 	if base_pool.size() != 1 or not is_equal_approx(float(base_pool[0]["radius"]), _pool_radius(plain)):
 		return _fail("Serpent fang must leave a level 1 poison pool (radius x area x spread)")
-	var evolved := _world(0.0, ["poca_de_veneno"], ["lendario_presa_da_serpente"])
+	# Gema no nível 21 (requisito de Inteligência cumprido) com Pântano Profundo e Pântano Sem Fim.
+	var evolved := _world(300.0, ["poca_de_veneno"], ["lendario_presa_da_serpente"])
 	var progress := evolved._gem_state(1)["gems"]["poca_de_veneno"] as Dictionary
-	progress["level"] = 4
-	progress["choices"] = {"1": "poca_de_veneno_e1_1", "3": "poca_de_veneno_e3_0"}
+	progress["level"] = 21
+	progress["choices"] = {"5": "poca_de_veneno_m5_0", "21": "poca_de_veneno_m21_0"}
 	var spored := evolved.enemies[0]
 	evolved.apply_poison(1, spored, "esporo", {"damage": 1.0, "growth": 0.2, "interval": 0.5, "remaining": -1.0})
 	spored["health"] = 1.0
 	_step(evolved, 0.6)
 	var evolved_pool := evolved.persistent_effects.filter(func(effect: Dictionary) -> bool: return String(effect["mechanic"]) == "poison_pool")
-	if evolved_pool.is_empty() or not is_equal_approx(float(evolved_pool[0]["radius"]), _pool_radius(evolved) * 1.25 * 1.4):
-		return _fail("With the pool gem equipped the fang pool carries its upgrades (radius x1.25 x1.4)")
+	if evolved_pool.is_empty() or not is_equal_approx(float(evolved_pool[0]["radius"]), _pool_radius(evolved) * 1.4 * 1.6):
+		return _fail("With the pool gem equipped the fang pool carries its upgrades (radius x1.4 x1.6)")
 	# Proliferação: toda Presa traz +30% a +100%; amplia o espalhamento dos esporos e a poça.
 	var fang_sim := _world(0.0, ["esporos"])
 	var spread_values := []

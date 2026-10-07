@@ -487,8 +487,9 @@ func _build_skill_card(skill: Dictionary, gem_options: Array, safe: bool) -> voi
 	var title := Label.new()
 	var level := int(skill.get("level", 1))
 	var maximum := int(skill.get("max_level", 4))
-	title.text = "Encaixe vazio\nEscolha uma das suas gemas" if empty else "%s\nNivel %d / %d   %s   Capacidade %d / %d" % [
-		String(skill.get("name", "")), level, maximum,
+	var effective := int(skill.get("effective_level", level))
+	title.text = "Encaixe vazio\nEscolha uma das suas gemas" if empty else "%s\nNivel %d / %d%s   %s   Capacidade %d / %d" % [
+		String(skill.get("name", "")), level, maximum, "  (age no %d)" % effective if effective < level else "",
 		"NIVEL MAXIMO" if level >= maximum else "EXP de uso %d / %d" % [int(skill.get("experience", 0)), int(skill.get("experience_required", 1))],
 		int(skill.get("capacity_used", 0)), int(skill.get("capacity", 3)),
 	]
@@ -555,8 +556,24 @@ func _build_skill_card(skill: Dictionary, gem_options: Array, safe: bool) -> voi
 		unique_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		unique_label.add_theme_color_override("font_color", GOLD)
 		column.add_child(unique_label)
+	# Requisitos de atributo do nível atual (decisão 588): em vermelho o que falta.
+	var requirements := skill.get("requirements", []) as Array
+	if not requirements.is_empty():
+		var needs := RichTextLabel.new()
+		needs.bbcode_enabled = true
+		needs.fit_content = true
+		needs.scroll_active = false
+		var parts := PackedStringArray()
+		for need: Dictionary in requirements:
+			parts.append("[color=#%s]%s %d[/color] [color=#8f7a6a](tem %d, proximo nivel %d)[/color]" % ["93c25a" if bool(need["met"]) else "e87a6a",
+				_stat_label(String(need["stat"])).capitalize(), int(need["value"]), int(need["have"]), int(need["next"])])
+		needs.text = "[color=#aaa59a]Requisitos:[/color] " + "   ".join(parts)
+		if int(skill.get("effective_level", level)) < level:
+			needs.text += "\n[color=#e87a6a]Sem os requisitos, a gema age no nivel %d.[/color]" % int(skill["effective_level"])
+		column.add_child(needs)
 	var evolutions := Label.new()
-	evolutions.text = "Evolucoes: " + (", ".join(PackedStringArray(skill.get("chosen", []) as Array)) if not (skill.get("chosen", []) as Array).is_empty() else "nenhuma")
+	var next_mastery := int(skill.get("next_mastery", 0))
+	evolutions.text = "Modificadores: " + (", ".join(PackedStringArray(skill.get("chosen", []) as Array)) if not (skill.get("chosen", []) as Array).is_empty() else "nenhum") + ("   |   proximo no nivel %d" % next_mastery if next_mastery > 0 else "")
 	evolutions.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	evolutions.add_theme_color_override("font_color", MUTED)
 	column.add_child(evolutions)
@@ -607,7 +624,8 @@ func _build_skill_controls(column: VBoxContainer, skill: Dictionary, safe: bool)
 	var pending: Array = skill.get("pending_choices", []) as Array
 	if not pending.is_empty():
 		var hint := Label.new()
-		hint.text = "Evolucao %d liberada pelo uso — escolha uma:" % int(skill.get("pending_tier", 1))
+		var mastery := int(skill.get("pending_tier", 5))
+		hint.text = ("Nivel 21: escolha o grande modificador desta gema:" if mastery >= 21 else "Nivel %d: escolha um modificador:" % mastery)
 		hint.add_theme_color_override("font_color", GOLD)
 		column.add_child(hint)
 		var choices_row := HBoxContainer.new()
@@ -616,7 +634,7 @@ func _build_skill_controls(column: VBoxContainer, skill: Dictionary, safe: bool)
 		for choice: Dictionary in pending:
 			var button := Button.new()
 			button.text = "%s\n%s" % [String(choice.get("name", "")), _describe_modifiers(choice.get("modifiers", {}) as Dictionary)]
-			button.custom_minimum_size = Vector2(300.0, 48.0)
+			button.custom_minimum_size = Vector2(250.0, 48.0)
 			button.disabled = not safe
 			var choice_id := String(choice.get("id", ""))
 			button.pressed.connect(func() -> void: gem_evolution_requested.emit(gem_id, choice_id))
@@ -643,6 +661,8 @@ const MODIFIER_NAMES := {
 	"arm_delay": "tempo de armar", "meteor_count": "impactos", "delay": "atraso", "fork_count": "bifurcacoes",
 	"remote_nova": "pulso remoto", "inner_radius": "centro vazio", "invulnerability": "invulnerabilidade",
 	"breath_per_hit": "Folego por acerto", "breath_on_kill": "Folego por abate", "arrow_count": "flechas",
+	"poison_growth": "crescimento do veneno", "spread_radius": "espalhamento", "poison_linger": "toxina apos sair",
+	"trigger_radius": "gatilho", "collision_radius": "largura das laminas", "spread": "espalhamento",
 	"breath_per_second": "Folego por segundo", "tick_interval": "intervalo das rajadas",
 }
 

@@ -102,9 +102,11 @@ func validation_errors() -> Array[String]:
 			if int(gem.get("summon_count", 0)) <= 0:
 				errors.append("Summon gem has invalid count: %s" % gem.get("id", ""))
 		var evolutions: Variant = gem.get("evolutions", {})
-		for level in ["1", "2", "3"]:
-			if not evolutions is Dictionary or not evolutions.has(level) or not evolutions[level] is Array or evolutions[level].size() < 2:
-				errors.append("Active gem %s needs two choices at level %s" % [gem.get("id", ""), level])
+		# Maestria (decisão 588): 3 modificadores nos níveis 5, 10, 15 e 20; 2 grandes no 21.
+		for level in ["5", "10", "15", "20", "21"]:
+			var needed := 2 if level == "21" else 3
+			if not evolutions is Dictionary or not evolutions.has(level) or not evolutions[level] is Array or evolutions[level].size() < needed:
+				errors.append("Active gem %s needs %d mastery choices at level %s" % [gem.get("id", ""), needed, level])
 	for support in collection("support_gems"):
 		for mechanic: Variant in support.get("allowed_mechanics", []):
 			if String(mechanic) not in ACTIVE_MECHANICS:

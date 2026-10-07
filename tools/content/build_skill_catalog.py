@@ -1,53 +1,21 @@
 """Extend the authored beta skills without rewriting unrelated catalog sections.
 
 Usage: python3 tools/content/build_skill_catalog.py [--check]
-Deterministic IDs; existing gems/evolutions remain intact.
+Deterministic IDs. Evolutions are the gem mastery choices of tools/content/gem_mastery.py
+(levels 5, 10, 15, 20 and 21, decision 588), regenerated for every active gem.
 """
 
 import argparse
 import json
+import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from gem_mastery import mastery  # noqa: E402
 
 CONTENT = Path(__file__).resolve().parents[2] / "data/beta/beta_content.json"
 MANUAL = CONTENT.parents[2] / "docs/catalogo-gemas.md"
 ACTIVE_COUNT = 46
-
-
-def evolutions(gem):
-    mechanic = gem["mechanic"]
-    primary = "barrier" if mechanic == "barrier" else "healing" if mechanic == "sanctuary" else "power"
-    if mechanic == "dash":
-        primary = "trail_damage" if gem.get("trail_damage", 0) > 0 else "arrival_barrier"
-    shape = "distance" if mechanic == "dash" else "range" if mechanic in ("projectile", "boomerang", "chain", "beam", "summon", "volley") else "spread_radius" if mechanic == "spores" else "radius"
-    choices = [
-        [("Potencia Lapidada", {primary + "_multiplier": 1.25, "cooldown_multiplier": 1.1}),
-         ("Forma Ampla", {shape + "_multiplier": 1.25, "breath_cost_add": 3})],
-        [("Cadencia Afinada", {"cooldown_multiplier": 0.85, primary + "_multiplier": 0.9}),
-         ("Reserva de Carga", {"extra_charge": 1, "cooldown_multiplier": 1.2})],
-    ]
-    finals = {
-        "projectile": [("Retorno", {"return_projectile": True}), ("Fragmentacao", {"fork_count": 2, "power_multiplier": 0.85})],
-        "boomerang": [("Disco Gemeo", {"projectile_count_add": 1, "power_multiplier": 0.8}), ("Fio Denso", {"power_multiplier": 1.3})],
-        "dash": [("Chegada Explosiva", {"arrival_area": 80, "arrival_damage": 25}), ("Guarda de Chegada", {"arrival_barrier": 25})],
-        "nova": [("Pulso Remoto", {"remote_nova": True}), ("Anel Oco", {"inner_radius": 55, "power_multiplier": 1.25})],
-        "field": [("Campo Itinerante", {"field_follows_player": True}), ("Colapso", {"expire_damage": 50})],
-        "barrier": [("Guarda Partilhada", {"allies_receive_barrier": 0.6}), ("Casca Explosiva", {"expire_nova_damage": 40})],
-        "chain": [("Ultimo Elo", {"repeat_last_target": True}), ("Rede Ampla", {"chain_count_add": 2, "power_multiplier": 0.85})],
-        "summon": [("Vigia Itinerante", {"summon_follows_player": True}), ("Desmonte", {"expire_damage": 40})],
-        "sanctuary": [("Colheita Excedente", {"overheal_barrier": True}), ("Cultivo Movel", {"field_follows_player": True})],
-        "cone": [("Eco do Corte", {"repeat_count": 1, "power_multiplier": 0.7}), ("Abertura", {"angle_multiplier": 1.3})],
-        "beam": [("Feixe Duplo", {"repeat_count": 1, "power_multiplier": 0.7}), ("Lente Larga", {"width_multiplier": 1.5})],
-        "orbit": [("Orbita Dupla", {"orbit_count_add": 1, "power_multiplier": 0.8}), ("Orbita Celere", {"angular_speed_multiplier": 1.5})],
-        "mine": [("Preparacao Rapida", {"arm_delay_multiplier": 0.5}), ("Carga Ampla", {"radius_multiplier": 1.3, "power_multiplier": 0.9})],
-        "meteor": [("Chuva Dupla", {"meteor_count_add": 1, "power_multiplier": 0.7}), ("Impacto Denso", {"power_multiplier": 1.4, "delay_multiplier": 1.25})],
-        "volley": [("Folego Predador", {"breath_on_kill": 3}), ("Aljava Dupla", {"arrow_count_add": 12, "power_multiplier": 0.75})],
-        "spores": [("Colonia Voraz", {"poison_growth_add": 0.05}), ("Germinacao Rapida", {"tick_interval_multiplier": 0.75})],
-        "poison_pool": [("Pantano Profundo", {"radius_multiplier": 1.4}), ("Toxina Densa", {"power_multiplier": 1.35})],
-    }
-    choices.append(finals[mechanic])
-    return {str(level): [{"id": f"{gem['id']}_e{level}_{index}", "name": name, "modifiers": modifiers}
-                         for index, (name, modifiers) in enumerate(entries)]
-            for level, entries in enumerate(choices, 1)}
 
 
 def active(identifier, name, mechanic, description, **values):
@@ -70,7 +38,6 @@ def active(identifier, name, mechanic, description, **values):
         gem["radius"] = 12
     if gem.get("power", 0) > 0:
         gem["tags"].append("damage")
-    gem["evolutions"] = evolutions(gem)
     return gem
 
 
@@ -283,6 +250,7 @@ def main():
     gems = base + additions
     for gem in gems:
         gem["element"] = GEM_ELEMENT.get(gem["id"], "")
+        gem["evolutions"] = mastery(gem)
     supports += support_additions
     summons = [entry for entry in data["summons"] if entry["id"] not in {v["id"] for v in new_summons()}] + new_summons()
     assert len(gems) == ACTIVE_COUNT and len(supports) == 40

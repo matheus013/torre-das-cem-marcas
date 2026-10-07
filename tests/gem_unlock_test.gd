@@ -110,25 +110,56 @@ func _run() -> void:
 		return _fail("Starter gem must still be level 1 before enough use")
 	progress["experience"] = 0
 
-	# Níveis: 2, 3 e 4 liberam as evoluções 1, 2 e 3; escolha só em Aresta; nível máximo trava a EXP.
-	sim.gain_gem_experience(1, "elo_residual", sim.gem_experience_required(1))
-	if int(progress["level"]) != 2 or Simulation.pending_evolution_tier(progress) != 1:
-		return _fail("Level 2 must unlock evolution tier 1")
-	var option := (sim.gem_definition("elo_residual")["evolutions"]["1"] as Array)[0] as Dictionary
+	# Maestria (decisão 588): 21 níveis; nível 5 pede 1 de 3 modificadores, escolhido só em Aresta;
+	# cada nível soma 5% aos números; requisitos de atributo limitam o nível em que a gema age.
+	var build := sim.character_build(1)
+	build.base_stats[&"intelligence"] = 300.0
+	build.base_stats[&"fortune"] = 300.0
+	var to_five := 0
+	for level in range(1, 5):
+		to_five += sim.gem_experience_required(level)
+	sim.gain_gem_experience(1, "elo_residual", to_five)
+	if int(progress["level"]) != 5 or Simulation.pending_evolution_tier(progress) != 5:
+		return _fail("Level 5 must ask for the first mastery modifier, got level %d" % int(progress["level"]))
+	var offered := sim.gem_definition("elo_residual")["evolutions"]["5"] as Array
+	if offered.size() != 3:
+		return _fail("Mastery levels offer three modifiers")
+	var option := offered[2] as Dictionary
 	if sim.choose_gem_evolution(1, "elo_residual", String(option["id"])):
-		return _fail("Evolutions are chosen in Aresta only")
+		return _fail("Mastery modifiers are chosen in Aresta only")
 	sim.leave_tower(1)
 	var base_power := float(sim.gem_definition("elo_residual")["power"])
+	var before_choice := float(sim.resolve_slot(1, 0)["power"])
+	if not is_equal_approx(before_choice, base_power * 1.2):
+		return _fail("Each gem level adds 5%% to its numbers (level 5 = x1.2), got %.2f" % (before_choice / base_power))
 	if not sim.choose_gem_evolution(1, "elo_residual", String(option["id"])):
-		return _fail("Pending evolution must be selectable in Aresta")
+		return _fail("Pending modifier must be selectable in Aresta")
 	var power_multiplier := float((option["modifiers"] as Dictionary).get("power_multiplier", 1.0))
-	if not is_equal_approx(float(sim.resolve_slot(1, 0)["power"]), base_power * power_multiplier):
-		return _fail("Chosen evolution must apply to the gem")
-	sim.gain_gem_experience(1, "elo_residual", 100000)
-	if int(progress["level"]) != Simulation.GEM_MAX_LEVEL_BETA or int(progress["experience"]) != 0 or Simulation.pending_evolution_tier(progress) != 2:
-		return _fail("Experience stops at max level and leaves tiers 2 and 3 pending, got level %d" % int(progress["level"]))
-	if (sim.menu_model(1)["skills"] as Array)[0]["pending_tier"] != 2:
-		return _fail("Skill card must show the pending tier")
+	if not is_equal_approx(float(sim.resolve_slot(1, 0)["power"]), before_choice * power_multiplier):
+		return _fail("Chosen modifier must apply to the gem")
+	build.base_stats[&"intelligence"] = 0.0
+	if sim.gem_effective_level(1, "elo_residual") >= 5 or is_equal_approx(float(sim.resolve_slot(1, 0)["power"]), before_choice * power_multiplier):
+		return _fail("Without the attribute requirements the gem acts at a lower level")
+	build.base_stats[&"intelligence"] = 300.0
+	sim.gain_gem_experience(1, "elo_residual", 100000000)
+	if int(progress["level"]) != Simulation.GEM_MAX_LEVEL_BETA or int(progress["experience"]) != 0 or Simulation.pending_evolution_tier(progress) != 10:
+		return _fail("Experience stops at level 21 and leaves mastery 10 pending, got level %d" % int(progress["level"]))
+	if (sim.gem_definition("elo_residual")["evolutions"]["21"] as Array).size() != 2 or not bool(sim.gem_definition("elo_residual")["evolutions"]["21"][0].get("capstone", false)):
+		return _fail("Level 21 offers two great modifiers")
+	if (sim.menu_model(1)["skills"] as Array)[0]["pending_tier"] != 10:
+		return _fail("Skill card must show the pending mastery level")
+	var requirement := sim.gem_requirements("elo_residual", 21)
+	if float(requirement["intelligence"]) != 150.0 or float(requirement["fortune"]) != 90.0 or sim.gem_requirements("elo_residual", 1)["intelligence"] != 0.0:
+		return _fail("Requirements go from 0 to 150 (primary) and 90 (secondary): %s" % [requirement])
+	# Curva: levar a gema ao 21 custa GEM_EXPERIENCE_SHARE da EXP que a personagem gasta até o 95.
+	var gem_total := 0
+	for level in range(1, Simulation.GEM_MAX_LEVEL_BETA):
+		gem_total += sim.gem_experience_required(level)
+	var player_total := 0
+	for level in range(1, Simulation.GEM_PLAYER_LEVEL_EQUIVALENT):
+		player_total += sim.experience_required(level)
+	if absf(float(gem_total) / float(player_total) - Simulation.GEM_EXPERIENCE_SHARE) > 0.01:
+		return _fail("Gem level 21 must cost the share of player level 95: %d vs %d" % [gem_total, player_total])
 
 	# Encaixe pode ficar vazio de novo e o save guarda posse, níveis e vazios.
 	if not sim.set_gem_slot(1, 3, ""):
@@ -140,7 +171,7 @@ func _run() -> void:
 	if not restored.load_data(saved, 1):
 		return _fail("Save with owned gems must load")
 	var restored_state := restored._gem_state(1)
-	if restored_state["slots"] != (sim._gem_state(1)["slots"] as Array) or (restored_state["gems"] as Dictionary).size() != 6 or int(restored_state["gems"]["elo_residual"]["level"]) != 4:
+	if restored_state["slots"] != (sim._gem_state(1)["slots"] as Array) or (restored_state["gems"] as Dictionary).size() != 6 or int(restored_state["gems"]["elo_residual"]["level"]) != 21:
 		return _fail("Owned gems, levels and empty slots must survive save/load, got %s" % [restored_state["slots"]])
 
 	# Save antigo (versão 7, todas as gemas): fica com a inicial, as gemas com progresso e os
@@ -151,9 +182,9 @@ func _run() -> void:
 	var legacy_gems := {}
 	for gem_id in all_gems:
 		legacy_gems[gem_id] = {"level": 1, "experience": 0, "choices": {}}
-	var agulha_choice := String((sim.gem_definition("agulha_lastro")["evolutions"]["1"] as Array)[0]["id"])
+	var agulha_choice := "agulha_lastro_e1_0"
 	legacy_gems["agulha_lastro"] = {"level": 1, "experience": 20, "choices": {"1": agulha_choice}}
-	legacy_gems["prisao_gravitica"] = {"level": 2, "experience": 5, "choices": {"1": String((sim.gem_definition("prisao_gravitica")["evolutions"]["1"] as Array)[0]["id"])}}
+	legacy_gems["prisao_gravitica"] = {"level": 2, "experience": 5, "choices": {"1": "prisao_gravitica_e1_0"}}
 	legacy["character_gems"] = {"eloa": {"slots": ["agulha_lastro", "passo_vetorial", "pulso_cicatriz", "cometa_de_vidro"], "supports": [[], [], [], []], "auto_supports": [], "gems": legacy_gems}}
 	var migrated := Simulation.new()
 	migrated.setup(63)
@@ -164,12 +195,14 @@ func _run() -> void:
 	var migrated_gems := migrated_state["gems"] as Dictionary
 	if migrated_state["slots"] != ["agulha_lastro", "passo_vetorial", "pulso_cicatriz", ""]:
 		return _fail("Legacy slots keep owned gems and empty the rest, got %s" % [migrated_state["slots"]])
-	if int(migrated_gems["agulha_lastro"]["level"]) != 2 or int(migrated_gems["prisao_gravitica"]["level"]) != 2 or migrated_gems.has("cometa_de_vidro"):
-		return _fail("Legacy levels shift by the chosen evolution and untouched later gems stay locked")
+	# Saves antigos: a EXP da curva antiga (150 x nível) vira nível na curva nova e as escolhas somem.
+	var agulha := migrated_gems["agulha_lastro"] as Dictionary
+	if int(agulha["level"]) != 1 or int(agulha["experience"]) != 170 or not (agulha["choices"] as Dictionary).is_empty() or migrated_gems.has("cometa_de_vidro"):
+		return _fail("Legacy gem experience converts to the new curve and old choices are cleared: %s" % [agulha])
 	if not migrated_gems.has("bola_de_fogo") or migrated_gems.has("arco_voltaico"):
 		return _fail("Legacy saves receive the sets of bosses already passed (floors 4 and 7)")
 
-	print("GEM_UNLOCK_OK: %d bosses share %d gems, starter-only start, boss sets, usage experience, tiered evolutions, save and migration" % [bosses_with_sets, seen.size()])
+	print("GEM_UNLOCK_OK: %d bosses share %d gems, starter-only start, boss sets, usage experience, 21-level mastery with requirements, save and migration" % [bosses_with_sets, seen.size()])
 	quit(0)
 
 

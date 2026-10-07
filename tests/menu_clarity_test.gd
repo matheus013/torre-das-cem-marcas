@@ -19,8 +19,11 @@ func _run() -> void:
 	sim.set_gem_slot(1, 2, "muralha_refeita")
 	sim.set_gem_slot(1, 3, "semeadura_vital")
 	var progress := ((sim.call("_gem_state", 1) as Dictionary)["gems"] as Dictionary)["passo_vetorial"] as Dictionary
-	progress["level"] = 4
-	progress["choices"] = {"3":"segunda_rota"}
+	# Segunda Rota é um modificador do nível 20 (decisão 588); requisitos cumpridos com folga.
+	sim.character_build(1).base_stats[&"agility"] = 300
+	sim.character_build(1).base_stats[&"wisdom"] = 300
+	progress["level"] = 20
+	progress["choices"] = {"20": "passo_vetorial_m20_1"}
 	var model := sim.menu_model(1)
 	if int(model["skills"][1]["charges"]) != 2 or float(model["skills"][2]["barrier"]) <= 0.0 or float(model["skills"][3]["healing"]) <= 0.0:
 		return _fail("Extra charges, barrier or healing details are missing")
