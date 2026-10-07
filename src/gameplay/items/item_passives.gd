@@ -14,14 +14,14 @@ const ACTIONS: Array[String] = [
 ]
 const FILTERS: Array[String] = [
 	"on", "actions", "gem", "element", "tag", "source", "mechanic", "crit", "chance", "every",
-	"cooldown", "burning", "below", "seconds",
+	"cooldown", "burning", "below", "seconds", "poisoned",
 ]
 ## Chaves de `mods` e de bônus temporários: as mesmas lidas por `_mod` na simulação.
 const MOD_KEYS: Array[String] = [
 	"power_mult", "auto_damage_mult", "auto_rate_mult", "damage_taken_mult", "breath_regen_mult",
 	"move_speed_mult", "cooldown_mult", "radius_mult", "barrier_mult", "duration_mult",
 	"crit_chance_add", "crit_damage_add", "max_health_add", "max_breath_add", "life_steal_add",
-	"heal_on_kill_add", "breath_on_kill_add", "healing_mult", "barrier_on_skill_add",
+	"heal_on_kill_add", "breath_on_kill_add", "healing_mult", "barrier_on_skill_add", "poison_spread_mult",
 	"power_physical_mult", "power_magic_mult", "power_fire_mult", "power_ice_mult",
 	"power_lightning_mult", "power_acid_mult", "power_nature_mult", "power_dark_mult",
 	"power_holy_mult", "power_earth_mult", "power_arcane_mult", "power_summon_mult",
@@ -291,6 +291,8 @@ static func _matches(sim: RefCounted, trigger: Dictionary, context: Dictionary) 
 	var enemy := context.get("enemy", {}) as Dictionary
 	if bool(trigger.get("burning", false)) and float(enemy.get("burn_timer", 0.0)) <= 0.0:
 		return false
+	if bool(trigger.get("poisoned", false)) and (enemy.get("poisons", {}) as Dictionary).is_empty():
+		return false
 	if trigger.has("below") and (enemy.is_empty() or float(enemy.get("health", 0.0)) > float(enemy.get("max_health", 1.0)) * float(trigger["below"])):
 		return false
 	return true
@@ -316,6 +318,8 @@ static func _act(sim: RefCounted, peer_id: int, passive: Dictionary, action: Dic
 		"burst":
 			var center := state["position"] as Vector2 if String(action.get("at", "victim")) == "self" else context.get("position", state["position"]) as Vector2
 			var radius := float(action.get("radius", 80.0)) * float((sim.call("derived_stats", peer_id) as Dictionary).get("area_multiplier", 1.0))
+			if bool(action.get("spread_scaled", false)):
+				radius *= modifier(sim, peer_id, "poison_spread_mult")
 			var damage := _amount(sim, peer_id, passive, action, context)
 			var previous := String(sim.get("_vfx_theme"))
 			sim.set("_vfx_theme", "element:" + String(action.get("element", "arcane")))
@@ -405,6 +409,9 @@ static func _act(sim: RefCounted, peer_id: int, passive: Dictionary, action: Dic
 ## arma única (`gem_power`, com a escala da personagem) ou valor fixo escalado pelo nível (`power`).
 static func _amount(sim: RefCounted, peer_id: int, passive: Dictionary, action: Dictionary, context: Dictionary) -> float:
 	var amount := float(context.get("damage", 0.0)) * float(action.get("ratio", 0.0))
+	var victim := context.get("enemy", {}) as Dictionary
+	if action.has("victim_health_ratio") and not victim.is_empty():
+		amount += float(victim.get("max_health", 0.0)) * float(action["victim_health_ratio"])
 	if action.has("gem_power"):
 		var gem_id := String(action.get("gem", passive.get("unique_gem", "")))
 		var gem := sim.call("gem_definition", gem_id) as Dictionary
@@ -418,8 +425,12 @@ static func _amount(sim: RefCounted, peer_id: int, passive: Dictionary, action: 
 ## Lança uma gema de graça: a do encaixe (`slot`, com evoluções e suportes) ou a base do catálogo.
 static func _cast(sim: RefCounted, peer_id: int, action: Dictionary, context: Dictionary) -> void:
 	var effect: Dictionary
+	var equipped := (sim.call("_gem_state", peer_id) as Dictionary).get("slots", []) as Array
 	if action.has("slot"):
 		effect = (sim.call("resolve_slot", peer_id, int(action["slot"])) as Dictionary).duplicate(true)
+	elif bool(action.get("use_slot", false)) and equipped.has(String(action.get("gem", ""))):
+		# Gema equipada: lança com evoluções e suportes do encaixe (Presa da Serpente).
+		effect = (sim.call("resolve_slot", peer_id, equipped.find(String(action["gem"]))) as Dictionary).duplicate(true)
 	else:
 		effect = (sim.call("gem_definition", String(action.get("gem", ""))) as Dictionary).duplicate(true)
 		effect["gem_id"] = String(action.get("gem", ""))
@@ -430,6 +441,8 @@ static func _cast(sim: RefCounted, peer_id: int, action: Dictionary, context: Di
 	for key: String in ["radius", "impact_area", "collision_radius", "width", "arrival_area"]:
 		if effect.has(key):
 			effect[key] = float(effect[key]) * area
+	if bool(action.get("spread_scaled", false)) and effect.has("radius"):
+		effect["radius"] = float(effect["radius"]) * modifier(sim, peer_id, "poison_spread_mult")
 	effect["passive_cast"] = true
 	var state := sim.call("player", peer_id) as Dictionary
 	var origin := state["position"] as Vector2

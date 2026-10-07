@@ -334,12 +334,12 @@ REGENTE_DAMAGE_SCALE = 0.6
 
 # Conjuntos de gemas por chefe, ate o andar 72 (decisao 579). Cada personagem comeca so com a
 # sua gema inicial (STARTER_GEMS em world_simulation.gd); as quatro iniciais saem nos dois
-# primeiros chefes para as outras personagens. Todas as 44 gemas ativas aparecem uma vez.
+# primeiros chefes para as outras personagens. Todas as 46 gemas ativas aparecem uma vez.
 BOSS_GEM_SETS = {
     "guardiao_de_enxerto": ["agulha_lastro", "elo_residual", "passo_vetorial", "estilhacos_lunares", "anel_de_geada", "circulo_de_reparo"],
     "refeitor": ["pulso_cicatriz", "mina_de_lastro", "lanca_ferral", "bola_de_fogo", "muralha_refeita", "ceifa_ampla"],
-    "pastor_das_correntes": ["arco_voltaico", "corte_vetorial", "prisao_gravitica", "esfera_de_gelo", "semeadura_vital", "laminas_orbitais"],
-    "guardia_do_no_mae": ["raizes_presas", "bolha_corrosiva", "pantano_acido", "sopro_criogenico", "salto_de_guarda", "saraivada_de_flechas"],
+    "pastor_das_correntes": ["arco_voltaico", "corte_vetorial", "prisao_gravitica", "esfera_de_gelo", "semeadura_vital", "laminas_orbitais", "esporos"],
+    "guardia_do_no_mae": ["raizes_presas", "bolha_corrosiva", "pantano_acido", "sopro_criogenico", "salto_de_guarda", "saraivada_de_flechas", "poca_de_veneno"],
     "guardiao_da_comporta": ["satelites_de_geada", "disco_de_retorno", "brasa_persistente", "raio_prismatico", "casca_reativa"],
     "coroa_dos_condutores": ["trovao_descendente", "dreno_em_rede", "sentinela_ferral", "chuva_ferral", "semente_explosiva"],
     "guardiao_do_marco_cego": ["molde_vigilante", "orbe_de_ruptura", "fio_desintegrador", "enxame_luminar", "abrigo_de_escora"],

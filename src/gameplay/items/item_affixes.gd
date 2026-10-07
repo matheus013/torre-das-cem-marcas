@@ -8,7 +8,7 @@ extends RefCounted
 
 const COUNT := {"common": [1, 1], "uncommon": [2, 2], "rare": [3, 3], "epic": [3, 3], "legendary": [3, 4]}
 const SCALE := {"common": 1.0, "uncommon": 1.25, "rare": 1.5, "epic": 1.75, "legendary": 2.0}
-const MAX_AFFIXES := 4
+const MAX_AFFIXES := 5
 const MAX_ITEM_LEVEL := 100
 ## Cada nível do item soma 2% aos atributos-base e aos afixos: andar 100 vale ~3x o andar 1.
 const LEVEL_STEP := 0.02
@@ -45,6 +45,8 @@ const POOL := {
 	"regeneracao_folego": {"kind": "mod", "key": "breath_regen_mult", "min": 0.05, "max": 0.12, "label": "regeneracao de Folego"},
 	"roubo_vida": {"kind": "mod", "key": "life_steal_add", "min": 0.01, "max": 0.02, "label": "roubo de Vida"},
 	"resistencia": {"kind": "mod", "key": "damage_taken_mult", "min": -0.05, "max": -0.02, "label": "dano recebido"},
+	# Fixo de certos lendários (fora do sorteio comum): faixa exata, sem escala de raridade ou nível.
+	"proliferacao": {"kind": "mod", "key": "poison_spread_mult", "min": 0.3, "max": 1.0, "label": "alcance de proliferacao de veneno", "random": false},
 }
 
 
@@ -60,7 +62,7 @@ static func level_factor(item_level: int) -> float:
 static func roll(tier: String, random: RandomNumberGenerator, item_level: int = 1) -> Array[Dictionary]:
 	var bounds := count_range(tier)
 	var count := random.randi_range(int(bounds[0]), int(bounds[1]))
-	var ids: Array = POOL.keys()
+	var ids: Array = POOL.keys().filter(func(id: String) -> bool: return bool((POOL[id] as Dictionary).get("random", true)))
 	var result: Array[Dictionary] = []
 	for index in range(count):
 		var pick := random.randi_range(index, ids.size() - 1)
@@ -70,6 +72,20 @@ static func roll(tier: String, random: RandomNumberGenerator, item_level: int = 
 		var spec := POOL[ids[index]] as Dictionary
 		var value := random.randf_range(float(spec["min"]), float(spec["max"])) * float(SCALE.get(tier, 1.0)) * level_factor(item_level)
 		result.append({"id": String(ids[index]), "value": _round(spec, value)})
+	return result
+
+
+## Afixos fixos de um item (`fixed_affixes` nos dados): sempre presentes, valor sorteado na faixa
+## declarada pelo item, sem escala de raridade ou nível (Presa da Serpente: proliferação +30% a +100%).
+static func roll_fixed(specs: Array, random: RandomNumberGenerator) -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	for spec: Dictionary in specs:
+		var id := String(spec.get("id", ""))
+		if not POOL.has(id):
+			continue
+		var pool_spec := POOL[id] as Dictionary
+		var value := random.randf_range(float(spec.get("min", pool_spec["min"])), float(spec.get("max", pool_spec["max"])))
+		result.append({"id": id, "value": snappedf(value, 0.05)})
 	return result
 
 

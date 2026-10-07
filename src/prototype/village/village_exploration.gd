@@ -1823,6 +1823,10 @@ func _draw_enemy(enemy: Dictionary) -> void:
 	var tint := Color(1.0, 1.0, 1.0, alpha)
 	if float(enemy.get("flash", 0.0)) > 0.0:
 		tint = Color(1.0, 0.55, 0.5, alpha)
+	var poisons := enemy.get("poisons", []) as Array
+	if not poisons.is_empty():
+		# Envenenado (decisão 586): tom verde e bolhas subindo, mais rápidas com esporos.
+		tint = Color(tint.r * 0.7, minf(1.0, tint.g * 1.05), tint.b * 0.6, tint.a)
 	if frame != null:
 		draw_set_transform(feet.round(), 0.0, Vector2.ONE * visual_scale)
 		draw_texture(frame, -SpriteLibraryScript.CHARACTER_FOOT_ANCHOR, tint)
@@ -1842,6 +1846,12 @@ func _draw_enemy(enemy: Dictionary) -> void:
 		draw_rect(Rect2(top + Vector2(-bar_width * 0.5, 4.0), Vector2(bar_width * health / maximum, 4.0)), Color("b04a3a"))
 	if int(enemy.get("shield_hits", 0)) > 0:
 		draw_arc(position, height * 0.6, 0.0, TAU, 28, Color(0.79, 0.83, 0.84, 0.8), 2.0)
+	if not poisons.is_empty():
+		var spores := poisons.any(func(entry: Dictionary) -> bool: return String(entry.get("type", "")) == "esporo")
+		for bubble in range(3):
+			var phase := fmod(_anim_time * (1.6 if spores else 1.0) + bubble * 0.37 + position.x * 0.013, 1.0)
+			var spot := top + Vector2((bubble - 1) * 7.0, 10.0 - phase * 16.0)
+			draw_circle(spot, 2.0 + bubble % 2, Color("b4f05a" if spores else "8fe05a", 1.0 - phase))
 
 
 func _draw_summon(effect: Dictionary) -> void:

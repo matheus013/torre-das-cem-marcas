@@ -6,7 +6,7 @@ const ItemPassivesScript := preload("res://src/gameplay/items/item_passives.gd")
 const DEFAULT_PATH := "res://data/beta/beta_content.json"
 const ACTIVE_MECHANICS: Array[String] = [
 	"projectile", "dash", "nova", "field", "barrier", "chain", "summon", "sanctuary",
-	"cone", "beam", "orbit", "mine", "meteor", "boomerang", "volley",
+	"cone", "beam", "orbit", "mine", "meteor", "boomerang", "volley", "spores", "poison_pool",
 ]
 const ENEMY_MECHANICS: Array[String] = [
 	"swarm", "erode_cover", "telegraphed_shot", "wall_ambush", "loot_mimic",

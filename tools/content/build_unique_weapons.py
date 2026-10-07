@@ -65,6 +65,8 @@ NAMES = {
     "esfera_de_gelo": "Nucleo do Inverno",
     "trovao_descendente": "Voz do Trovao",
     "saraivada_de_flechas": "Arco das Tres Tempestades",
+    "esporos": "Esporangio Ancestral",
+    "poca_de_veneno": "Calice do Lodo",
 }
 
 # Assinatura por mecânica, somada ao bônus universal. Usa a convenção dos suportes:
@@ -85,6 +87,8 @@ SIGNATURES = {
     "mine": ({"radius_multiplier": 1.3}, "explosao +30%"),
     "meteor": ({"meteor_count_add": 2}, "+2 impactos"),
     "volley": ({"arrow_count_add": 12, "breath_on_kill_add": 2}, "+12 flechas por rajada e +2 de Folego por abate"),
+    "spores": ({"poison_growth_add": 0.05, "spread_radius_multiplier": 1.3}, "crescimento do veneno +5 pontos e espalhamento +30%"),
+    "poison_pool": ({"radius_multiplier": 1.3, "duration_multiplier": 1.25}, "poca +30% maior e duracao +25%"),
 }
 POWER_MULTIPLIER = 1.5
 COOLDOWN_MULTIPLIER = 0.75

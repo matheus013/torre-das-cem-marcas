@@ -1110,6 +1110,43 @@
       "element": ""
     },
     {
+      "id": "esporos",
+      "name": "Esporos",
+      "description": "Infecta um unico alvo com esporos: nao causa dano direto; o veneno comeca em 5 por segundo, cresce 20% a cada tick e nao escala com atributos. Quando o alvo morre, os esporos passam, com o dano atual, aos inimigos proximos.",
+      "mechanic": "spores",
+      "tags": ["poison", "precision", "duration", "damage"],
+      "cooldown": 6,
+      "breath_cost": 8,
+      "power": 5,
+      "radius": 60,
+      "range": 420,
+      "scaling": [],
+      "poison_growth": 0.2,
+      "tick_interval": 1.0,
+      "spread_radius": 130,
+      "fixed_power": true,
+      "evolutions": {"1": [{"id": "esporos_e1_0", "name": "Potencia Lapidada", "modifiers": {"power_multiplier": 1.25, "cooldown_multiplier": 1.1}}, {"id": "esporos_e1_1", "name": "Forma Ampla", "modifiers": {"spread_radius_multiplier": 1.25, "breath_cost_add": 3}}], "2": [{"id": "esporos_e2_0", "name": "Cadencia Afinada", "modifiers": {"cooldown_multiplier": 0.85, "power_multiplier": 0.9}}, {"id": "esporos_e2_1", "name": "Reserva de Carga", "modifiers": {"extra_charge": 1, "cooldown_multiplier": 1.2}}], "3": [{"id": "esporos_e3_0", "name": "Colonia Voraz", "modifiers": {"poison_growth_add": 0.05}}, {"id": "esporos_e3_1", "name": "Germinacao Rapida", "modifiers": {"tick_interval_multiplier": 0.75}}]},
+      "element": "nature"
+    },
+    {
+      "id": "poca_de_veneno",
+      "name": "Poca de Veneno",
+      "description": "Cria uma poca de toxina que dura 20 s. Inimigos dentro ficam envenenados (dano constante por segundo que escala com Inteligencia e dura 2 s apos sair).",
+      "mechanic": "poison_pool",
+      "tags": ["area", "magic", "poison", "duration", "damage"],
+      "cooldown": 12,
+      "breath_cost": 12,
+      "power": 14,
+      "radius": 95,
+      "range": 420,
+      "scaling": ["intelligence"],
+      "duration": 20,
+      "tick_interval": 0.5,
+      "poison_linger": 2.0,
+      "evolutions": {"1": [{"id": "poca_de_veneno_e1_0", "name": "Potencia Lapidada", "modifiers": {"power_multiplier": 1.25, "cooldown_multiplier": 1.1}}, {"id": "poca_de_veneno_e1_1", "name": "Forma Ampla", "modifiers": {"radius_multiplier": 1.25, "breath_cost_add": 3}}], "2": [{"id": "poca_de_veneno_e2_0", "name": "Cadencia Afinada", "modifiers": {"cooldown_multiplier": 0.85, "power_multiplier": 0.9}}, {"id": "poca_de_veneno_e2_1", "name": "Reserva de Carga", "modifiers": {"extra_charge": 1, "cooldown_multiplier": 1.2}}], "3": [{"id": "poca_de_veneno_e3_0", "name": "Pantano Profundo", "modifiers": {"radius_multiplier": 1.4}}, {"id": "poca_de_veneno_e3_1", "name": "Toxina Densa", "modifiers": {"power_multiplier": 1.35}}]},
+      "element": "acid"
+    },
+    {
       "id": "trovao_descendente",
       "name": "Trovao Descendente",
       "description": "Dois raios caem rapido ao redor da mira.",
@@ -1205,7 +1242,7 @@
       "modifiers": {"duration_multiplier": 1.45},
       "category": "buff",
       "description": "Duracao +45%.",
-      "allowed_mechanics": ["barrier", "field", "sanctuary", "orbit", "mine", "summon"]
+      "allowed_mechanics": ["barrier", "field", "sanctuary", "orbit", "mine", "summon", "poison_pool"]
     },
     {
       "id": "drenagem_vital",
@@ -1302,7 +1339,7 @@
       "name": "Zona Itinerante",
       "category": "mechanic",
       "requires": [],
-      "allowed_mechanics": ["field", "sanctuary"],
+      "allowed_mechanics": ["field", "sanctuary", "poison_pool"],
       "description": "Zona acompanha o portador; duracao -20%.",
       "drain": 2,
       "modifiers": {"field_follows_player": true, "duration_multiplier": 0.8}
@@ -1392,7 +1429,7 @@
       "name": "Potencia Bruta",
       "category": "buff",
       "requires": ["damage"],
-      "allowed_mechanics": ["projectile", "boomerang", "nova", "field", "chain", "summon", "sanctuary", "cone", "beam", "orbit", "mine", "meteor", "volley"],
+      "allowed_mechanics": ["projectile", "boomerang", "nova", "field", "chain", "summon", "sanctuary", "cone", "beam", "orbit", "mine", "meteor", "volley", "spores", "poison_pool"],
       "description": "Potencia +22%; recarga +10%.",
       "drain": 2,
       "modifiers": {"power_multiplier": 1.22, "cooldown_multiplier": 1.1}
@@ -1412,7 +1449,7 @@
       "name": "Alcance Treinado",
       "category": "buff",
       "requires": [],
-      "allowed_mechanics": ["projectile", "boomerang", "chain", "beam", "summon", "field", "mine", "meteor", "volley"],
+      "allowed_mechanics": ["projectile", "boomerang", "chain", "beam", "summon", "field", "mine", "meteor", "volley", "spores", "poison_pool"],
       "description": "Alcance +35%; recarga +8%.",
       "drain": 2,
       "modifiers": {"range_multiplier": 1.35, "cooldown_multiplier": 1.08}
@@ -1442,7 +1479,7 @@
       "name": "Ritmo de Cultivo",
       "category": "buff",
       "requires": [],
-      "allowed_mechanics": ["field", "sanctuary", "orbit"],
+      "allowed_mechanics": ["field", "sanctuary", "orbit", "poison_pool"],
       "description": "Intervalo dos pulsos -25%; potencia, cura e duracao -15%.",
       "drain": 2,
       "modifiers": {"tick_interval_multiplier": 0.75, "power_multiplier": 0.85, "healing_multiplier": 0.85, "duration_multiplier": 0.85}
@@ -1731,6 +1768,7 @@
     {"id":"lendario_ampulheta_partida","name":"Ampulheta Partida","item_type":"relic","slot":"relic","tier":"legendary","power":50,"stats":{"cooldown_recovery":8,"wisdom":10,"intelligence":9},"description":"Ampulheta quebrada cuja areia escorre para cima.","passive":{"name":"Tempo Roubado","description":"Cada abate adianta 0,35 s a recarga de todas as gemas. Recargas -10%.","mods":{"cooldown_mult":0.9},"triggers":[{"on":"kill","actions":[{"do":"refund","scope":"all","seconds":0.35}]}]}},
     {"id":"lendario_folego_primordial","name":"Folego Primordial","item_type":"accessory","slot":"amulet","tier":"legendary","power":50,"stats":{"breath":40,"vitality":8,"agility":7},"description":"Garrafa com o primeiro sopro de vento que entrou na Torre.","passive":{"name":"Pulmao do Mundo","description":"Folego maximo +40 e regeneracao +60%; cada abate devolve 3 de Folego.","mods":{"breath_regen_mult":1.6,"max_breath_add":40},"triggers":[{"on":"kill","actions":[{"do":"breath","amount":3}]}]}},
     {"id":"lendario_couraca_do_colosso","name":"Couraca do Colosso","item_type":"armor","slot":"armor","tier":"legendary","power":50,"stats":{"health":80,"defense":25},"description":"Placa arrancada do peito de um colosso que nunca caiu.","passive":{"name":"Colosso","description":"Dano recebido -25%; ao ser ferida, ganha barreira de 15% da Vida (a cada 6 s).","mods":{"damage_taken_mult":0.75},"triggers":[{"on":"hurt","cooldown":6.0,"actions":[{"do":"barrier","ratio":0.15,"duration":5.0}]}]}},
+    {"id":"lendario_presa_da_serpente","name":"Presa da Serpente","item_type":"accessory","slot":"amulet","tier":"legendary","power":50,"stats":{"intelligence":10,"vitality":8,"wisdom":7,"area":6,"health":16},"description":"Presa de uma serpente do brejo, ainda pingando veneno.","passive":{"name":"Mordida Final","description":"Inimigo envenenado (qualquer veneno) que morre explode com 20% da propria Vida maxima em volta e deixa uma Poca de Veneno: com todas as melhorias se a gema estiver equipada; senao, de nivel 1. Toda Presa traz alcance de proliferacao de veneno de +30% a +100%, que amplia a explosao, a poca e o espalhamento dos esporos.","triggers":[{"on":"kill","poisoned":true,"actions":[{"do":"burst","at":"victim","radius":110,"victim_health_ratio":0.2,"element":"acid","spread_scaled":true},{"do":"cast","gem":"poca_de_veneno","use_slot":true,"at":"target","power":1.0,"spread_scaled":true}]}]},"fixed_affixes":[{"id":"proliferacao","min":0.3,"max":1.0}]},
     {"id":"lendario_botas_do_cacador","name":"Botas do Cacador","item_type":"armor","slot":"boots","tier":"legendary","power":50,"stats":{"movement_speed":12,"agility":10,"strength":7},"description":"Botas leves que aceleram a cada presa abatida.","passive":{"name":"Frenesi da Caca","description":"Cada abate da +8% de potencia e +4% de velocidade por 6 s, acumulando ate 6 vezes.","triggers":[{"on":"kill","actions":[{"do":"buff","id":"frenesi","mods":{"power_mult":1.08,"move_speed_mult":1.04},"duration":6.0,"stacks":6}]}]}},
     {"id":"unica_agulha_lastro","name":"Fio do Primeiro Lastro","item_type":"weapon","weapon_type":"spear","slot":"weapon","tier":"legendary","power":24,"unique_gem":"agulha_lastro","gem_modifiers":{"power_multiplier":1.5,"cooldown_multiplier":0.75,"projectile_count_add":1,"pierce_add":2},"passive":{"name":"Agulha Fantasma","description":"A cada 2 lancamentos, tres agulhas fantasmas partem sozinhas contra os inimigos mais proximos com potencia total.","triggers":[{"on":"cast","every":2,"gem":"agulha_lastro","actions":[{"do":"cast","gem":"agulha_lastro","at":"nearest","count":3,"power":1.0}]}]},"description":"Arma unica de Agulha de Lastro: potencia +50%, recarga -25%, +1 projetil e +2 perfuracoes. Assume a forma da arma de quem a empunha."},
     {"id":"unica_passo_vetorial","name":"Vetor Sem Sombra","item_type":"weapon","weapon_type":"spear","slot":"weapon","tier":"legendary","power":24,"unique_gem":"passo_vetorial","gem_modifiers":{"arrival_barrier_multiplier":1.5,"cooldown_multiplier":0.75,"distance_multiplier":1.3},"passive":{"name":"Passo Alem","description":"Depois do Passo, todas as gemas ganham +50% de potencia por 4 s e as outras recargas andam 1,5 s.","triggers":[{"on":"cast","gem":"passo_vetorial","actions":[{"do":"buff","id":"passo_alem","mods":{"power_mult":1.5},"duration":4.0},{"do":"refund","scope":"all","seconds":1.5}]}]},"description":"Arma unica de Passo Vetorial: barreira de chegada +50%, recarga -25%, distancia +30%. Assume a forma da arma de quem a empunha."},
@@ -1775,6 +1813,8 @@
     {"id":"unica_pilar_sagrado","name":"Coluna da Alvorada","item_type":"weapon","weapon_type":"focus","slot":"weapon","tier":"legendary","power":24,"unique_gem":"pilar_sagrado","gem_modifiers":{"power_multiplier":1.5,"cooldown_multiplier":0.75,"meteor_count_add":2},"passive":{"name":"Pilar Eterno","description":"Erguer o Pilar cura 10% da Vida e da 10% em barreira; quem e atingido fica 30% mais vulneravel.","triggers":[{"on":"cast","gem":"pilar_sagrado","actions":[{"do":"heal","ratio":0.1},{"do":"barrier","ratio":0.1,"duration":5.0}]},{"on":"hit","gem":"pilar_sagrado","actions":[{"do":"vulnerable","amount":0.3,"duration":3.0}]}]},"description":"Arma unica de Pilar Sagrado: potencia +50%, recarga -25%, +2 impactos. Assume a forma da arma de quem a empunha."},
     {"id":"unica_esfera_de_gelo","name":"Nucleo do Inverno","item_type":"weapon","weapon_type":"focus","slot":"weapon","tier":"legendary","power":24,"unique_gem":"esfera_de_gelo","gem_modifiers":{"power_multiplier":1.5,"cooldown_multiplier":0.75,"projectile_count_add":1,"pierce_add":2},"passive":{"name":"Zero Absoluto","description":"Acertos congelam (lentidao 85% por 2 s; metade em chefes) e deixam o alvo 30% mais vulneravel.","triggers":[{"on":"hit","gem":"esfera_de_gelo","actions":[{"do":"freeze","slow":0.85,"duration":2.0},{"do":"vulnerable","amount":0.3,"duration":2.0}]}]},"description":"Arma unica de Esfera de Gelo: potencia +50%, recarga -25%, +1 projetil e +2 perfuracoes. Assume a forma da arma de quem a empunha."},
     {"id":"unica_saraivada_de_flechas","name":"Arco das Tres Tempestades","item_type":"weapon","weapon_type":"focus","slot":"weapon","tier":"legendary","power":24,"unique_gem":"saraivada_de_flechas","gem_modifiers":{"power_multiplier":1.5,"cooldown_multiplier":0.75,"arrow_count_add":12,"breath_on_kill_add":2},"passive":{"name":"Tempestade Triplice","description":"Flecha que abate vira um raio no corpo: 250% do golpe em area e 1 de Folego.","triggers":[{"on":"kill","gem":"saraivada_de_flechas","actions":[{"do":"burst","at":"victim","radius":80,"ratio":2.5,"element":"lightning"},{"do":"breath","amount":1}]}]},"description":"Arma unica de Saraivada de Flechas: potencia +50%, recarga -25%, +12 flechas por rajada e +2 de Folego por abate. Assume a forma da arma de quem a empunha."},
+    {"id":"unica_esporos","name":"Esporangio Ancestral","item_type":"weapon","weapon_type":"focus","slot":"weapon","tier":"legendary","power":24,"unique_gem":"esporos","gem_modifiers":{"power_multiplier":1.5,"cooldown_multiplier":0.75,"poison_growth_add":0.05,"spread_radius_multiplier":1.3},"passive":{"name":"Colonia Primordial","description":"Cada lancamento infecta tambem os dois inimigos mais proximos do alvo.","triggers":[{"on":"cast","gem":"esporos","actions":[{"do":"cast","gem":"esporos","at":"nearest","count":3,"power":1.0}]}]},"description":"Arma unica de Esporos: potencia +50%, recarga -25%, crescimento do veneno +5 pontos e espalhamento +30%. Assume a forma da arma de quem a empunha."},
+    {"id":"unica_poca_de_veneno","name":"Calice do Lodo","item_type":"weapon","weapon_type":"focus","slot":"weapon","tier":"legendary","power":24,"unique_gem":"poca_de_veneno","gem_modifiers":{"power_multiplier":1.5,"cooldown_multiplier":0.75,"radius_multiplier":1.3,"duration_multiplier":1.25},"passive":{"name":"Lodo Gemeo","description":"Cada Poca de Veneno abre uma segunda poca ao lado com 70% da potencia.","triggers":[{"on":"cast","gem":"poca_de_veneno","actions":[{"do":"recast","power":0.7,"scatter":110}]}]},"description":"Arma unica de Poca de Veneno: potencia +50%, recarga -25%, poca +30% maior e duracao +25%. Assume a forma da arma de quem a empunha."},
     {"id":"unica_trovao_descendente","name":"Voz do Trovao","item_type":"weapon","weapon_type":"focus","slot":"weapon","tier":"legendary","power":24,"unique_gem":"trovao_descendente","gem_modifiers":{"power_multiplier":1.5,"cooldown_multiplier":0.75,"meteor_count_add":2},"passive":{"name":"Ceu Partido","description":"Cada raio tem 40% de chance de ramificar no alvo: 60% do golpe em area.","triggers":[{"on":"hit","chance":0.4,"gem":"trovao_descendente","actions":[{"do":"burst","at":"victim","radius":90,"ratio":0.6,"element":"lightning"}]}]},"description":"Arma unica de Trovao Descendente: potencia +50%, recarga -25%, +2 impactos. Assume a forma da arma de quem a empunha."}
   ]
 }

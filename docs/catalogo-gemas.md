@@ -1,4 +1,4 @@
-# Catalogo de gemas: 44 ativas + 40 suportes
+# Catalogo de gemas: 46 ativas + 40 suportes
 
 Gerado por `python3 tools/content/build_skill_catalog.py`; confirme com `--check`.
 Referencia de design: [GGG: suporte, especializacao e contrapartidas](https://www.pathofexile.com/forum/view-thread/3147753).
@@ -21,7 +21,7 @@ ataque; sem recurso suficiente, espera regenerar. Trocas continuam em Aresta.
 Uma copia nao pode ficar ligada a skill e autoataque simultaneamente.
 Trocar arma preserva suportes incompativeis como inativos; reativam com arma
 compativel. Saves antigos iniciam sem suportes no autoataque, sem perder skills.
-44 ativas disponiveis no catalogo do beta; nao sao desbloqueios por loot. Saves antigos recebem novas entradas de progresso no carregamento.
+46 ativas disponiveis no catalogo do beta; nao sao desbloqueios por loot. Saves antigos recebem novas entradas de progresso no carregamento.
 IDs anteriores e escolhas salvas preservados. Graus 1-3 oferecem duas evolucoes por grau; nao confundir com marcos permanentes de personagem.
 Valores sao ponto de partida de balanceamento, nao prova de viabilidade equivalente. Efeitos visuais/icone provisorios em pixel art; audio individual ainda pendente.
 
@@ -72,6 +72,8 @@ Valores sao ponto de partida de balanceamento, nao prova de viabilidade equivale
 | Pilar Sagrado | `meteor` | Coluna de luz cai na mira apos breve aviso. |
 | Esfera de Gelo | `projectile` | Esfera gelada que estilhaca no impacto e desacelera em area. |
 | Saraivada de Flechas | `volley` | Enquanto ativa, voce gira disparando flechas em sequencia muito rapida, mesmo andando. Cada volta alterna fogo, gelo e raio; as flechas atravessam um inimigo. Consome Folego por segundo e segura a regeneracao; usar de novo encerra. |
+| Esporos | `spores` | Infecta um unico alvo com esporos: nao causa dano direto; o veneno comeca em 5 por segundo, cresce 20% a cada tick e nao escala com atributos. Quando o alvo morre, os esporos passam, com o dano atual, aos inimigos proximos. |
+| Poca de Veneno | `poison_pool` | Cria uma poca de toxina que dura 20 s. Inimigos dentro ficam envenenados (dano constante por segundo que escala com Inteligencia e dura 2 s apos sair). |
 | Trovao Descendente | `meteor` | Dois raios caem rapido ao redor da mira. |
 
 ## 20 suportes mecanicos

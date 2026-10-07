@@ -2111,7 +2111,8 @@
     "prisao_gravitica",
     "esfera_de_gelo",
     "semeadura_vital",
-    "laminas_orbitais"
+    "laminas_orbitais",
+    "esporos"
    ]
   },
   {
@@ -2166,7 +2167,8 @@
     "pantano_acido",
     "sopro_criogenico",
     "salto_de_guarda",
-    "saraivada_de_flechas"
+    "saraivada_de_flechas",
+    "poca_de_veneno"
    ]
   },
   {

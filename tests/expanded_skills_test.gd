@@ -40,6 +40,7 @@ func _advance_effects(sim: WorldSimulation, seconds := 2.5) -> void:
 	for index in range(int(seconds / 0.1)):
 		sim.call("_run_scheduled", 0.1)
 		sim.call("_update_persistent_effects", 0.1)
+		sim.call("_step_poisons", 0.1)
 
 
 func _hurt(sim: WorldSimulation) -> bool:
@@ -60,8 +61,8 @@ func _run() -> void:
 	var resolver := Resolver.new()
 	var pairs := 0
 	var signatures: Dictionary = {}
-	if actives.size() != 44 or supports.size() != 40:
-		return _fail("Expected 44 actives and 40 supports")
+	if actives.size() != 46 or supports.size() != 40:
+		return _fail("Expected 46 actives and 40 supports")
 	for gem in actives:
 		if not ResourceLoader.exists("res://assets/sprites/icons/%s.png" % gem["id"]):
 			return _fail("Missing active icon: %s" % gem["id"])
@@ -162,7 +163,7 @@ func _run() -> void:
 		return _fail("New gem and support must survive save/reload")
 	if "--capture" in OS.get_cmdline_user_args():
 		await _capture()
-	print("EXPANDED_SKILLS_OK: 44 distinct actives, 20 mechanics, 20 buffs, %d compatible pairs, evolutions, timing, icons and save" % pairs)
+	print("EXPANDED_SKILLS_OK: 46 distinct actives, 20 mechanics, 20 buffs, %d compatible pairs, evolutions, timing, icons and save" % pairs)
 	quit(0)
 
 

@@ -50,6 +50,14 @@ const UNIQUE_WEAPON_CHANCE := {"common": 0.0005, "elite": 0.005, "boss": 0.1, "r
 ## Gema de chefe (decisão 585): cada vitória dá uma gema do conjunto ou nenhuma; depois de uma
 ## vitória sem gema, a próxima garante uma (o chefe só volta após BOSS_COOLDOWN).
 const BOSS_GEM_CHANCE := 0.5
+## Venenos (decisão 586): cada inimigo carrega um veneno de cada tipo. Esporo cresce a cada tick e
+## se espalha quando o alvo morre; toxina vem da poça, escala com Inteligência e some logo depois
+## que o inimigo sai dela. Dano de veneno não critica e não dispara passivas de acerto.
+const POISON_TYPES := {
+	"esporo": {"name": "Esporos", "color": "b4f05a"},
+	"toxina": {"name": "Toxina", "color": "8fe05a"},
+}
+const SPORE_SPREAD_LIMIT := 12
 ## Tetos de redução de recarga (60%) e de área (+100%): acima disso as gemas viram spam contínuo.
 const COOLDOWN_RECOVERY_CAP := 2.5
 const AREA_MULTIPLIER_CAP := 2.0
@@ -803,6 +811,9 @@ func use_skill(peer_id: int, slot: int, target: Vector2) -> bool:
 
 ## Potência de gema vinda dos marcos: global, por tag e pela aura de aliados próximos.
 func _skill_power_multiplier(peer_id: int, effect: Dictionary) -> float:
+	# Gemas de potência fixa (Esporos) não escalam com atributos, nível nem bônus de personagem.
+	if bool(gem_definition(String(effect.get("gem_id", ""))).get("fixed_power", false)):
+		return 1.0
 	var multiplier := _mod(peer_id, "power_mult") * (1.0 + _ally_aura(peer_id, "ally_power_add")) * level_power(peer_id)
 	var effective := (derived_stats(peer_id).get("effective_primaries", {}) as Dictionary)
 	var scaling := 1.0
@@ -947,6 +958,7 @@ func step(delta: float) -> void:
 			return
 		_update_persistent_effects(delta)
 		ItemPassivesScript.step_burns(self, delta)
+		_step_poisons(delta)
 		if is_explore_floor():
 			tick_respawns(delta)
 			_update_reinforcements(delta)
@@ -2247,16 +2259,19 @@ func _damage_enemy(peer_id: int, index: int, damage: float, hit: Dictionary) -> 
 		hit = hit.duplicate()
 		hit["vulnerable"] = apply_vulnerable
 		hit["vulnerable_duration"] = 3.0
-	var critical := _crit_random.randf() < minf(0.5, minf(0.35, float(derived.get("critical_chance", CRIT_CHANCE))) + float(hit.get("crit_add", 0.0)))
+	var critical := not bool(hit.get("dot", false)) and _crit_random.randf() < minf(0.5, minf(0.35, float(derived.get("critical_chance", CRIT_CHANCE))) + float(hit.get("crit_add", 0.0)))
 	if critical:
 		damage *= minf(2.0, CRIT_MULTIPLIER + maxf(0.0, float(derived.get("critical_damage_multiplier", 1.5)) - 1.5) + float(derived.get("critical_damage_bonus", 0.0)))
 	var race_trait := String(enemy.get("race_trait", ""))
 	if race_trait == "stone_skin" and String(hit.get("damage_type", "physical")) == "physical":
 		damage *= 0.85
-	_vfx(zone, "number", [enemy_position, damage, critical])
-	_vfx(zone, "spark", [enemy_position])
+	if bool(hit.get("dot", false)):
+		_vfx(zone, "number", [enemy_position, damage, false, "poison"])
+	else:
+		_vfx(zone, "number", [enemy_position, damage, critical])
+		_vfx(zone, "spark", [enemy_position])
 	enemy["health"] = float(enemy["health"]) - damage
-	if not bool(hit.get("passive", false)) and players.has(peer_id):
+	if not bool(hit.get("passive", false)) and not bool(hit.get("dot", false)) and players.has(peer_id):
 		_passive_events.append({"kind": "hit", "peer": peer_id, "enemy": enemy, "damage": damage, "hit": hit, "critical": critical})
 	enemy["flash"] = 0.12
 	if float(enemy.get("provoked", 0.0)) <= 0.0:
@@ -2299,6 +2314,7 @@ func _damage_enemy(peer_id: int, index: int, damage: float, hit: Dictionary) -> 
 	var defeated := enemy.duplicate(true) as Dictionary
 	var mechanics: Array = defeated.get("modifier_mechanics", []) as Array
 	enemies.remove_at(index)
+	_spread_poisons(defeated)
 	var major := bool(defeated.get("floor_boss", false)) or String(defeated.get("encounter_class", "")) in ["boss", "raid"]
 	_vfx(zone, "play", ["explosion" if major else "poof", enemy_position])
 	if not bool(defeated.get("fragment", false)):
@@ -2574,7 +2590,19 @@ func _execute_gem_effect(peer_id: int, effect: Dictionary, target: Vector2) -> v
 					var distance := center.distance_to(enemies[index]["position"])
 					if distance >= inner and distance <= radius:
 						damage_enemy(peer_id, index, power, hit)
-		"field", "sanctuary", "orbit", "mine":
+		"spores":
+			var spore_target := nearest_enemy_to(_ranged_skill_target(peer_id, target, effect), float(effect.get("radius", 60.0)) + 60.0)
+			if spore_target < 0:
+				spore_target = nearest_enemy_to(target, float(effect.get("range", 420.0)))
+			if spore_target >= 0:
+				var victim := enemies[spore_target]
+				_vfx(zone, "travel", ["vfx/bolt", position - Vector2(0.0, 14.0), victim["position"], 0.18, 10.0])
+				_vfx(zone, "strike", [victim["position"], 40.0])
+				apply_poison(peer_id, victim, "esporo", {
+					"damage": power, "growth": float(effect.get("poison_growth", 0.2)), "interval": float(effect.get("tick_interval", 1.0)),
+					"remaining": -1.0, "spread_radius": float(effect.get("spread_radius", 130.0)), "gem_id": String(effect.get("gem_id", "")),
+				})
+		"field", "sanctuary", "orbit", "mine", "poison_pool":
 			var effect_position := position if mechanic == "sanctuary" else target
 			if mechanic == "orbit":
 				effect_position = position
@@ -2605,6 +2633,7 @@ func _execute_gem_effect(peer_id: int, effect: Dictionary, target: Vector2) -> v
 				"overheal_barrier": bool(effect.get("overheal_barrier", false)),
 				"stability": clampf(float(effect.get("stability", 0.0)), 0.0, STABILITY_LIMIT),
 				"hit": hit,
+				"poison_linger": float(effect.get("poison_linger", 2.0)),
 			})
 			_vfx(zone, "burst", [effect_position, radius * 0.6])
 		"summon":
@@ -2874,6 +2903,12 @@ func _update_persistent_effects(delta: float) -> void:
 				var nearest := _summon_target(effect)
 				if nearest >= 0 and (enemies[nearest]["position"] as Vector2).distance_to(effect["position"]) <= float(effect["range"]):
 					damage_enemy(owner_peer, nearest, float(effect["power"]), effect.get("hit", {}) as Dictionary)
+			elif mechanic == "poison_pool":
+				# Toxina por segundo = potência da poça; dura um pouco depois de sair dela.
+				for enemy in enemies:
+					if (enemy["position"] as Vector2).distance_to(effect["position"] as Vector2) <= float(effect["radius"]):
+						apply_poison(owner_peer, enemy, "toxina", {"damage": float(effect["power"]) * 0.5, "interval": 0.5,
+							"remaining": float(effect.get("poison_linger", 2.0)), "gem_id": String(effect.get("gem_id", ""))})
 			elif mechanic == "orbit":
 				for point in SkillGeometryScript.orbit_points(effect["position"], float(effect["radius"]), float(effect["phase"]), int(effect["orbit_count"])):
 					damage_enemies(owner_peer, point, float(effect["collision_radius"]), float(effect["power"]), effect.get("hit", {}) as Dictionary)
@@ -2894,6 +2929,78 @@ func _update_persistent_effects(delta: float) -> void:
 				_vfx(arena_zone(), "ring", [effect["position"], expire_radius])
 				damage_enemies(owner_peer, effect["position"] as Vector2, expire_radius, expire, effect.get("hit", {}) as Dictionary)
 			persistent_effects.erase(effect)
+
+
+## Aplica ou renova um veneno. Mesmo tipo não acumula: fica o maior dano por tick e a maior
+## duração (esporos nunca expiram; só a morte do alvo os espalha).
+func apply_poison(peer_id: int, enemy: Dictionary, poison_type: String, data: Dictionary) -> void:
+	var poisons := enemy.get_or_add("poisons", {}) as Dictionary
+	var current := poisons.get(poison_type, {}) as Dictionary
+	var entry := {
+		"type": poison_type, "peer": peer_id, "gem_id": String(data.get("gem_id", "")),
+		"damage": maxf(float(data.get("damage", 0.0)), float(current.get("damage", 0.0))),
+		"growth": float(data.get("growth", current.get("growth", 0.0))),
+		"interval": maxf(0.1, float(data.get("interval", 1.0))),
+		"timer": float(current.get("timer", data.get("interval", 1.0))),
+		"lasting": float(data.get("remaining", 1.0)) < 0.0,
+		"remaining": maxf(float(data.get("remaining", 1.0)), float(current.get("remaining", 0.0))),
+		"spread_radius": float(data.get("spread_radius", current.get("spread_radius", 0.0))),
+	}
+	poisons[poison_type] = entry
+
+
+func is_poisoned(enemy: Dictionary) -> bool:
+	return not (enemy.get("poisons", {}) as Dictionary).is_empty()
+
+
+func poison_view(enemy: Dictionary) -> Array:
+	var result := []
+	for entry: Dictionary in (enemy.get("poisons", {}) as Dictionary).values():
+		result.append({"type": entry["type"], "damage": float(entry["damage"]) / float(entry["interval"])})
+	return result
+
+
+## Ticks de veneno. A lista é copiada: um tick pode matar e espalhar para outros inimigos.
+func _step_poisons(delta: float) -> void:
+	for enemy in enemies.duplicate():
+		var poisons := enemy.get("poisons", {}) as Dictionary
+		for poison_type: String in poisons.keys():
+			var entry := poisons[poison_type] as Dictionary
+			entry["timer"] = float(entry["timer"]) - delta
+			if not bool(entry.get("lasting", false)):
+				entry["remaining"] = float(entry["remaining"]) - delta
+			if float(entry["timer"]) <= 0.0:
+				entry["timer"] = float(entry["timer"]) + float(entry["interval"])
+				var index := enemies.find(enemy)
+				if index >= 0 and players.has(int(entry["peer"])):
+					damage_enemy(int(entry["peer"]), index, float(entry["damage"]), {"gem": true, "gem_id": entry["gem_id"], "dot": true, "damage_type": "arcane", "poison": poison_type})
+				entry["damage"] = float(entry["damage"]) * (1.0 + float(entry["growth"]))
+			if not bool(entry.get("lasting", false)) and float(entry["remaining"]) <= 0.0:
+				poisons.erase(poison_type)
+		if poisons.is_empty():
+			enemy.erase("poisons")
+
+
+## Esporos de um inimigo que morreu passam, com o dano atual, para os vizinhos no raio.
+func _spread_poisons(defeated: Dictionary) -> void:
+	var spore := (defeated.get("poisons", {}) as Dictionary).get("esporo", {}) as Dictionary
+	if spore.is_empty() or float(spore.get("spread_radius", 0.0)) <= 0.0:
+		return
+	var origin := defeated["position"] as Vector2
+	var spread := 0
+	# Alcance de proliferação (afixo da Presa da Serpente) amplia o raio de quem aplicou.
+	var radius := float(spore["spread_radius"]) * (_mod(int(spore["peer"]), "poison_spread_mult") if players.has(int(spore["peer"])) else 1.0)
+	_vfx(arena_zone(), "ring", [origin, radius])
+	for enemy in enemies:
+		if spread >= SPORE_SPREAD_LIMIT:
+			break
+		if (enemy["position"] as Vector2).distance_to(origin) <= radius:
+			var copy := spore.duplicate()
+			copy["timer"] = float(spore["interval"])
+			var poisons := enemy.get_or_add("poisons", {}) as Dictionary
+			if float(copy["damage"]) >= float((poisons.get("esporo", {}) as Dictionary).get("damage", 0.0)):
+				poisons["esporo"] = copy
+			spread += 1
 
 
 ## Saraivada: usar de novo encerra; senão acompanha a portadora disparando em círculo.
@@ -3394,10 +3501,17 @@ func _add_equipment_instance(character_id: StringName, item_id: String, quality:
 		item.quality = StringName(quality)
 	if item != null:
 		item.item_level = clampi(item_level, 1, ItemAffixesScript.MAX_ITEM_LEVEL)
-		item.affixes = ItemAffixesScript.roll(ItemTier.key(item.tier), _affix_random, item.item_level)
+		item.affixes = _roll_item_affixes(definition, item)
 	if item == null or not (gear["inventory"] as ItemInventory).add(item):
 		return &""
 	return instance_id
+
+
+## Afixos fixos do item (ex.: proliferação da Presa da Serpente) seguidos dos sorteados pela raridade.
+func _roll_item_affixes(definition: Dictionary, item: EquipmentItemInstance) -> Array[Dictionary]:
+	var result := ItemAffixesScript.roll_fixed(definition.get("fixed_affixes", []) as Array, _affix_random)
+	result.append_array(ItemAffixesScript.roll(ItemTier.key(item.tier), _affix_random, item.item_level))
+	return result
 
 
 ## Equipa uma peça do inventário; se o encaixe estiver ocupado, troca pela peça atual (a de menor
@@ -3546,6 +3660,7 @@ func view_snapshot() -> Dictionary:
 			"race_trait": enemy["race_trait"], "race_id": enemy["race_id"], "rank_id": enemy["rank_id"],
 			"slow": float(enemy.get("slow_amount", 0.0)), "slow_timer": float(enemy.get("slow_timer", 0.0)),
 			"vulnerable": float(enemy.get("vulnerable_amount", 0.0)), "vulnerable_timer": float(enemy.get("vulnerable_timer", 0.0)),
+			"poisons": poison_view(enemy),
 			"boss": bool(enemy.get("floor_boss", false)) or bool(enemy.get("champion", false)),
 			"name": String(enemy.get("display_name", "")), "chasing": bool(enemy.get("chasing", false)),
 			"moving": bool(enemy.get("moving", false)),
@@ -4307,7 +4422,7 @@ func _restore_gear(data: Dictionary, saved_character: StringName) -> void:
 			item.integrity = clampf(float(entry.get("integrity", 1.0)), 0.0, 1.0)
 			item.item_level = clampi(int(entry.get("item_level", 1)), 1, ItemAffixesScript.MAX_ITEM_LEVEL)
 			# Peças de saves anteriores aos afixos (decisão 583) sorteiam os seus ao carregar.
-			item.affixes = ItemAffixesScript.sanitize(entry["affixes"]) if entry.has("affixes") else ItemAffixesScript.roll(ItemTier.key(item.tier), _affix_random, item.item_level)
+			item.affixes = ItemAffixesScript.sanitize(entry["affixes"]) if entry.has("affixes") else _roll_item_affixes(definition, item)
 			if not (gear["inventory"] as ItemInventory).add(item):
 				continue
 			if String(entry.get("location", "inventory")) == "equipped":

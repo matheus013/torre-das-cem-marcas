@@ -25,9 +25,9 @@ const GEMS := {
 	"brasa_persistente": "fire", "mina_de_lastro": "fire", "semente_explosiva": "fire", "chuva_ferral": "fire", "bola_de_fogo": "fire",
 	"anel_de_geada": "ice", "sopro_criogenico": "ice", "satelites_de_geada": "ice", "cometa_de_vidro": "ice", "esfera_de_gelo": "ice",
 	"elo_residual": "lightning", "arco_voltaico": "lightning", "trovao_descendente": "lightning",
-	"pantano_acido": "acid", "bolha_corrosiva": "acid",
+	"pantano_acido": "acid", "bolha_corrosiva": "acid", "poca_de_veneno": "acid",
 	"circulo_de_reparo": "holy", "enxame_luminar": "holy", "raio_prismatico": "holy", "pilar_sagrado": "holy",
-	"semeadura_vital": "nature", "abrigo_de_escora": "nature", "raizes_presas": "nature",
+	"semeadura_vital": "nature", "abrigo_de_escora": "nature", "raizes_presas": "nature", "esporos": "nature",
 	"muralha_refeita": "earth", "ruptura_sismica": "earth", "casca_reativa": "earth", "guardiao_de_lastro": "earth", "molde_vigilante": "earth",
 	"estilhacos_lunares": "arcane", "orbe_de_ruptura": "arcane", "sentinela_ferral": "arcane",
 }

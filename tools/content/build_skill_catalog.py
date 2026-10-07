@@ -10,7 +10,7 @@ from pathlib import Path
 
 CONTENT = Path(__file__).resolve().parents[2] / "data/beta/beta_content.json"
 MANUAL = CONTENT.parents[2] / "docs/catalogo-gemas.md"
-ACTIVE_COUNT = 44
+ACTIVE_COUNT = 46
 
 
 def evolutions(gem):
@@ -18,7 +18,7 @@ def evolutions(gem):
     primary = "barrier" if mechanic == "barrier" else "healing" if mechanic == "sanctuary" else "power"
     if mechanic == "dash":
         primary = "trail_damage" if gem.get("trail_damage", 0) > 0 else "arrival_barrier"
-    shape = "distance" if mechanic == "dash" else "range" if mechanic in ("projectile", "boomerang", "chain", "beam", "summon", "volley") else "radius"
+    shape = "distance" if mechanic == "dash" else "range" if mechanic in ("projectile", "boomerang", "chain", "beam", "summon", "volley") else "spread_radius" if mechanic == "spores" else "radius"
     choices = [
         [("Potencia Lapidada", {primary + "_multiplier": 1.25, "cooldown_multiplier": 1.1}),
          ("Forma Ampla", {shape + "_multiplier": 1.25, "breath_cost_add": 3})],
@@ -41,6 +41,8 @@ def evolutions(gem):
         "mine": [("Preparacao Rapida", {"arm_delay_multiplier": 0.5}), ("Carga Ampla", {"radius_multiplier": 1.3, "power_multiplier": 0.9})],
         "meteor": [("Chuva Dupla", {"meteor_count_add": 1, "power_multiplier": 0.7}), ("Impacto Denso", {"power_multiplier": 1.4, "delay_multiplier": 1.25})],
         "volley": [("Folego Predador", {"breath_on_kill": 3}), ("Aljava Dupla", {"arrow_count_add": 12, "power_multiplier": 0.75})],
+        "spores": [("Colonia Voraz", {"poison_growth_add": 0.05}), ("Germinacao Rapida", {"tick_interval_multiplier": 0.75})],
+        "poison_pool": [("Pantano Profundo", {"radius_multiplier": 1.4}), ("Toxina Densa", {"power_multiplier": 1.35})],
     }
     choices.append(finals[mechanic])
     return {str(level): [{"id": f"{gem['id']}_e{level}_{index}", "name": name, "modifiers": modifiers}
@@ -58,6 +60,7 @@ def active(identifier, name, mechanic, description, **values):
         "beam": ["precision", "magic"], "orbit": ["area", "physical", "duration"],
         "mine": ["area", "magic", "duration"], "meteor": ["area", "magic"],
         "volley": ["projectile", "magic", "duration"],
+        "spores": ["poison", "precision", "duration"], "poison_pool": ["area", "magic", "poison", "duration"],
     }[mechanic]
     scaling = ["strength", "agility"] if "physical" in tags else ["intelligence", "wisdom"]
     gem = dict(id=identifier, name=name, description=description, mechanic=mechanic, tags=tags,
@@ -109,6 +112,8 @@ def new_actives():
         active("pilar_sagrado", "Pilar Sagrado", "meteor", "Coluna de luz cai na mira apos breve aviso.", scaling=["wisdom", "intelligence"], power=70, radius=90, meteor_count=1, spread=0, delay=0.8, cooldown=8),
         active("esfera_de_gelo", "Esfera de Gelo", "projectile", "Esfera gelada que estilhaca no impacto e desacelera em area.", tags=["projectile", "magic", "precision"], scaling=["intelligence", "wisdom"], power=24, impact_area=55, slow=0.4, status_duration=2.5, radius=22, cooldown=4),
         active("saraivada_de_flechas", "Saraivada de Flechas", "volley", "Enquanto ativa, voce gira disparando flechas em sequencia muito rapida, mesmo andando. Cada volta alterna fogo, gelo e raio; as flechas atravessam um inimigo. Consome Folego por segundo e segura a regeneracao; usar de novo encerra.", tags=["projectile", "magic", "duration"], scaling=["agility", "intelligence"], power=4, pierce=1, arrow_count=24, tick_interval=0.4, range=300, radius=16, duration=8, breath_cost=6, breath_per_second=9, cooldown=1.5),
+        active("esporos", "Esporos", "spores", "Infecta um unico alvo com esporos: nao causa dano direto; o veneno comeca em 5 por segundo, cresce 20% a cada tick e nao escala com atributos. Quando o alvo morre, os esporos passam, com o dano atual, aos inimigos proximos.", scaling=[], power=5, poison_growth=0.2, tick_interval=1.0, spread_radius=130, range=420, radius=60, cooldown=6, breath_cost=8, fixed_power=True),
+        active("poca_de_veneno", "Poca de Veneno", "poison_pool", "Cria uma poca de toxina que dura 20 s. Inimigos dentro ficam envenenados (dano constante por segundo que escala com Inteligencia e dura 2 s apos sair).", scaling=["intelligence"], power=14, radius=95, range=420, duration=20, tick_interval=0.5, poison_linger=2.0, cooldown=12, breath_cost=12),
         active("trovao_descendente", "Trovao Descendente", "meteor", "Dois raios caem rapido ao redor da mira.", scaling=["intelligence", "agility"], power=36, radius=70, meteor_count=2, spread=60, delay=0.45, damage_taken=0.06, status_duration=2, cooldown=6),
     ]
 
@@ -122,13 +127,16 @@ def support(identifier, name, category, mechanics, description, drain=2, **modif
 def new_supports():
     projectile = ["projectile", "boomerang"]
     damaging = ["projectile", "boomerang", "nova", "field", "chain", "summon", "sanctuary", "cone", "beam", "orbit", "mine", "meteor", "volley"]
+    # Venenos so aproveitam suportes que mexem em potencia, area, alcance e ritmo: os ticks nao
+    # contam como acerto (sem critico, roubo de Vida, Folego ou barreira por acerto).
+    poison = ["spores", "poison_pool"]
     return [
         support("retorno_vetorial", "Retorno Vetorial", "mechanic", projectile, "Projeteis retornam pela linha de ida; -15% de potencia.", return_projectile=True, power_multiplier=0.85),
         support("bifurcacao_residual", "Bifurcacao Residual", "mechanic", projectile, "Do impacto saem duas linhas divergentes; -20% de potencia.", fork_count=2, power_multiplier=0.8, drain=3),
         support("explosao_de_contato", "Explosao de Contato", "mechanic", projectile, "Impacto ganha 55 unidades de area; -15% de potencia.", impact_area_add=55, power_multiplier=0.85, drain=3),
         support("novas_remotas", "Novas Remotas", "mechanic", ["nova"], "Pulso nasce na mira em vez do portador; recarga +15%.", remote_nova=True, cooldown_multiplier=1.15),
         support("anel_vazio", "Anel Vazio", "mechanic", ["nova"], "Nao atinge o centro de 55 unidades; potencia +25%.", inner_radius=55, power_multiplier=1.25),
-        support("zona_itinerante", "Zona Itinerante", "mechanic", ["field", "sanctuary"], "Zona acompanha o portador; duracao -20%.", field_follows_player=True, duration_multiplier=0.8),
+        support("zona_itinerante", "Zona Itinerante", "mechanic", ["field", "sanctuary", "poison_pool"], "Zona acompanha o portador; duracao -20%.", field_follows_player=True, duration_multiplier=0.8),
         support("detonacao_tardia", "Detonacao Tardia", "mechanic", ["field", "sanctuary", "orbit"], "Explode com 45 de dano ao expirar; pulsos -20%.", expire_damage_add=45, power_multiplier=0.8, drain=3),
         support("eco_triplo", "Eco Triplo", "mechanic", ["nova", "cone", "beam", "projectile", "chain", "meteor"], "Repete duas vezes com 0,45 s entre ecos; -50% de potencia.", repeat_count_add=2, repeat_delay=0.45, power_multiplier=0.5, drain=4),
         support("guarda_partilhada", "Guarda Partilhada", "mechanic", ["barrier"], "Aliados proximos recebem 60% da barreira; barreira propria -15%.", allies_receive_barrier=0.6, barrier_multiplier=0.85),
@@ -137,12 +145,12 @@ def new_supports():
         support("corrente_de_retorno", "Corrente de Retorno", "mechanic", ["chain"], "Ultimo alvo recebe um segundo acerto; -15% de potencia.", repeat_last_target=True, power_multiplier=0.85),
         support("conversao_cultivo", "Conversao de Cultivo", "mechanic", ["sanctuary"], "Cura excedente vira barreira; cura -15%.", overheal_barrier=True, healing_multiplier=0.85),
         support("salto_explosivo", "Salto Explosivo", "mechanic", ["dash"], "Chegada causa 25 de dano em raio 80; custo +8 Folego.", arrival_area=80, arrival_damage=25, breath_cost_add=8),
-        support("potencia_bruta", "Potencia Bruta", "buff", damaging, "Potencia +22%; recarga +10%.", power_multiplier=1.22, cooldown_multiplier=1.1),
+        support("potencia_bruta", "Potencia Bruta", "buff", damaging + poison, "Potencia +22%; recarga +10%.", power_multiplier=1.22, cooldown_multiplier=1.1),
         support("precisao_lapidada", "Precisao Lapidada", "buff", damaging, "Chance critica +12 pontos percentuais; potencia -10%.", critical_chance_add=0.12, power_multiplier=0.9),
-        support("alcance_treinado", "Alcance Treinado", "buff", ["projectile", "boomerang", "chain", "beam", "summon", "field", "mine", "meteor", "volley"], "Alcance +35%; recarga +8%.", range_multiplier=1.35, cooldown_multiplier=1.08),
+        support("alcance_treinado", "Alcance Treinado", "buff", ["projectile", "boomerang", "chain", "beam", "summon", "field", "mine", "meteor", "volley"] + poison, "Alcance +35%; recarga +8%.", range_multiplier=1.35, cooldown_multiplier=1.08),
         support("barreira_densa", "Barreira Densa", "buff", ["barrier"], "Barreira +35%; duracao -15%.", barrier_multiplier=1.35, duration_multiplier=0.85),
         support("cura_reforcada", "Cura Reforcada", "buff", ["sanctuary"], "Cura por pulso +35%; intervalo +20%.", healing_multiplier=1.35, tick_interval_multiplier=1.2),
-        support("ritmo_de_cultivo", "Ritmo de Cultivo", "buff", ["field", "sanctuary", "orbit"], "Intervalo dos pulsos -25%; potencia, cura e duracao -15%.", tick_interval_multiplier=0.75, power_multiplier=0.85, healing_multiplier=0.85, duration_multiplier=0.85),
+        support("ritmo_de_cultivo", "Ritmo de Cultivo", "buff", ["field", "sanctuary", "orbit", "poison_pool"], "Intervalo dos pulsos -25%; potencia, cura e duracao -15%.", tick_interval_multiplier=0.75, power_multiplier=0.85, healing_multiplier=0.85, duration_multiplier=0.85),
         support("passo_extenso", "Passo Extenso", "buff", ["dash"], "Distancia +30%; custo +5 Folego.", distance_multiplier=1.3, breath_cost_add=5),
         support("passo_seguro", "Passo Seguro", "buff", ["dash"], "Invulnerabilidade +40%; distancia -15%.", invulnerability_multiplier=1.4, distance_multiplier=0.85),
         support("invocacao_celere", "Invocacao Celere", "buff", ["summon"], "Intervalo de ataque -25%; potencia -15%.", attack_interval_multiplier=0.75, power_multiplier=0.85),
@@ -161,9 +169,9 @@ ELEMENTS = {
     "fire": ["brasa_persistente", "mina_de_lastro", "semente_explosiva", "chuva_ferral", "bola_de_fogo"],
     "ice": ["anel_de_geada", "sopro_criogenico", "satelites_de_geada", "cometa_de_vidro", "esfera_de_gelo"],
     "lightning": ["elo_residual", "arco_voltaico", "trovao_descendente"],
-    "acid": ["pantano_acido", "bolha_corrosiva"],
+    "acid": ["pantano_acido", "bolha_corrosiva", "poca_de_veneno"],
     "holy": ["circulo_de_reparo", "enxame_luminar", "raio_prismatico", "pilar_sagrado"],
-    "nature": ["semeadura_vital", "abrigo_de_escora", "raizes_presas"],
+    "nature": ["semeadura_vital", "abrigo_de_escora", "raizes_presas", "esporos"],
     "earth": ["muralha_refeita", "ruptura_sismica", "casca_reativa", "guardiao_de_lastro", "molde_vigilante"],
     "arcane": ["estilhacos_lunares", "orbe_de_ruptura", "sentinela_ferral"],
 }
@@ -209,7 +217,7 @@ def update_existing(gems, supports):
             if "damage" not in entry["requires"]:
                 entry["requires"].append("damage")
         if entry["id"] == "duracao_estendida":
-            entry["allowed_mechanics"] = ["barrier", "field", "sanctuary", "orbit", "mine", "summon"]
+            entry["allowed_mechanics"] = ["barrier", "field", "sanctuary", "orbit", "mine", "summon", "poison_pool"]
 
 
 def new_summons():

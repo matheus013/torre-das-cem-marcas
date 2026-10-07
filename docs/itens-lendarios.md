@@ -25,6 +25,7 @@ da historia; as dificuldades do pos-jogo (backlog G6) vao exigi-las. Valores pro
 | Ampulheta Partida | Reliquia | **Tempo Roubado**: Cada abate adianta 0,35 s a recarga de todas as gemas. Recargas -10%. |
 | Folego Primordial | Amuleto | **Pulmao do Mundo**: Folego maximo +40 e regeneracao +60%; cada abate devolve 3 de Folego. |
 | Couraca do Colosso | Armadura | **Colosso**: Dano recebido -25%; ao ser ferida, ganha barreira de 15% da Vida (a cada 6 s). |
+| Presa da Serpente | Amuleto | **Mordida Final**: Inimigo envenenado (qualquer veneno) que morre explode com 20% da propria Vida maxima em volta e deixa uma Poca de Veneno: com todas as melhorias se a gema estiver equipada; senao, de nivel 1. Toda Presa traz alcance de proliferacao de veneno de +30% a +100%, que amplia a explosao, a poca e o espalhamento dos esporos. |
 | Botas do Cacador | Botas | **Frenesi da Caca**: Cada abate da +8% de potencia e +4% de velocidade por 6 s, acumulando ate 6 vezes. |
 | Lastro Partido | Reliquia | **Peso Vetorial**: Toda gema de movimento abre uma Prisao Gravitica no ponto de chegada com 120% da potencia. Velocidade +10%. |
 
@@ -77,4 +78,6 @@ Alem da passiva, cada arma da +50% a potencia principal da gema, -25% de recarga
 | Ceu de Ferral | Chuva Ferral | **Diluvio Ferral**: Cada Chuva traz uma segunda onda 1 s depois com 80% da potencia. |
 | Cauda do Cometa | Cometa de Vidro | **Vidro Estilhacado**: Inimigo abatido pelo Cometa estilhaca: 60% do golpe em area e lentidao de 60%. |
 | Coluna da Alvorada | Pilar Sagrado | **Pilar Eterno**: Erguer o Pilar cura 10% da Vida e da 10% em barreira; quem e atingido fica 30% mais vulneravel. |
+| Esporangio Ancestral | Esporos | **Colonia Primordial**: Cada lancamento infecta tambem os dois inimigos mais proximos do alvo. |
+| Calice do Lodo | Poca de Veneno | **Lodo Gemeo**: Cada Poca de Veneno abre uma segunda poca ao lado com 70% da potencia. |
 | Voz do Trovao | Trovao Descendente | **Ceu Partido**: Cada raio tem 40% de chance de ramificar no alvo: 60% do golpe em area. |

@@ -148,6 +148,11 @@ def unique_passives():
         "pilar_sagrado": P("Pilar Eterno", "Erguer o Pilar cura 10% da Vida e da 10% em barreira; quem e atingido fica 30% mais vulneravel.",
                            T("cast", A("heal", ratio=0.1), A("barrier", ratio=0.1, duration=5.0), **own("pilar_sagrado")),
                            T("hit", A("vulnerable", amount=0.3, duration=3.0), **own("pilar_sagrado"))),
+        # Venenos (decisao 586)
+        "esporos": P("Colonia Primordial", "Cada lancamento infecta tambem os dois inimigos mais proximos do alvo.",
+                     T("cast", A("cast", gem="esporos", at="nearest", count=3, power=1.0), **own("esporos"))),
+        "poca_de_veneno": P("Lodo Gemeo", "Cada Poca de Veneno abre uma segunda poca ao lado com 70% da potencia.",
+                            T("cast", A("recast", power=0.7, scatter=110), **own("poca_de_veneno"))),
         "trovao_descendente": P("Ceu Partido", "Cada raio tem 40% de chance de ramificar no alvo: 60% do golpe em area.",
                                 T("hit", A("burst", at="victim", radius=90, ratio=0.6, element="lightning"), chance=0.4, **own("trovao_descendente"))),
     }
@@ -174,11 +179,15 @@ def legendary_items():
         "lendario_folego_primordial": "Garrafa com o primeiro sopro de vento que entrou na Torre.",
         "lendario_couraca_do_colosso": "Placa arrancada do peito de um colosso que nunca caiu.",
         "lendario_botas_do_cacador": "Botas leves que aceleram a cada presa abatida.",
+        "lendario_presa_da_serpente": "Presa de uma serpente do brejo, ainda pingando veneno.",
     }
 
-    def item(identifier, name, slot, item_type, stats, passive, power=50):
-        return {"id": identifier, "name": name, "item_type": item_type, "slot": slot, "tier": "legendary",
-                "power": power, "stats": stats, "description": lore[identifier], "passive": passive}
+    def item(identifier, name, slot, item_type, stats, passive, power=50, fixed_affixes=None):
+        entry = {"id": identifier, "name": name, "item_type": item_type, "slot": slot, "tier": "legendary",
+                 "power": power, "stats": stats, "description": lore[identifier], "passive": passive}
+        if fixed_affixes:
+            entry["fixed_affixes"] = fixed_affixes
+        return entry
 
     return [
         # Elementos
@@ -267,6 +276,13 @@ def legendary_items():
              P("Colosso", "Dano recebido -25%; ao ser ferida, ganha barreira de 15% da Vida (a cada 6 s).",
                T("hurt", A("barrier", ratio=0.15, duration=5.0), cooldown=6.0),
                mods={"damage_taken_mult": 0.75})),
+        # Venenos (decisao 586)
+        item("lendario_presa_da_serpente", "Presa da Serpente", "amulet", "accessory",
+             {"intelligence": 10, "vitality": 8, "wisdom": 7, "area": 6, "health": 16},
+             P("Mordida Final", "Inimigo envenenado (qualquer veneno) que morre explode com 20% da propria Vida maxima em volta e deixa uma Poca de Veneno: com todas as melhorias se a gema estiver equipada; senao, de nivel 1. Toda Presa traz alcance de proliferacao de veneno de +30% a +100%, que amplia a explosao, a poca e o espalhamento dos esporos.",
+               T("kill", A("burst", at="victim", radius=110, victim_health_ratio=0.2, element="acid", spread_scaled=True),
+                 A("cast", gem="poca_de_veneno", use_slot=True, at="target", power=1.0, spread_scaled=True), poisoned=True)),
+             fixed_affixes=[{"id": "proliferacao", "min": 0.3, "max": 1.0}]),
         item("lendario_botas_do_cacador", "Botas do Cacador", "boots", "armor",
              {"movement_speed": 12, "agility": 10, "strength": 7},
              P("Frenesi da Caca", "Cada abate da +8% de potencia e +4% de velocidade por 6 s, acumulando ate 6 vezes.",

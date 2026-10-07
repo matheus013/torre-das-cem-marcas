@@ -11,7 +11,7 @@ func _init() -> void:
 		return
 	var expected_counts := {
 		"playable_characters": 4,
-		"active_gems": 44,  # 36 do recorte + 7 gemas elementais + Saraivada de Flechas
+		"active_gems": 46,  # 36 do recorte + 7 gemas elementais + Saraivada + Esporos e Poca de Veneno
 		"support_gems": 40,
 		"summons": 4,
 		"monster_races": 5,
@@ -21,7 +21,7 @@ func _init() -> void:
 		"major_encounters": 2,
 		"special_boss_rooms": 1,
 		"enemy_modifiers": 12,
-		"items": 93,  # 32 itens base + 17 lendarios genericos + 44 armas unicas (uma por gema ativa)
+		"items": 96,  # 32 itens base + 18 lendarios genericos + 46 armas unicas (uma por gema ativa)
 	}
 	for collection_name: String in expected_counts:
 		var definitions: Array = catalog.call("collection", collection_name)

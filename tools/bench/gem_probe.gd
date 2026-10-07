@@ -107,7 +107,7 @@ func _measure(floor_number: int, gem_id: String, seed_index: int, boss_only: boo
 		for event: Dictionary in sim.call("drain_events"):
 			if String(event.get("call", "")) == "number":
 				var args := event["args"] as Array
-				if args.size() < 4 or String(args[3]) == "enemy":
+				if args.size() < 4 or String(args[3]) in ["enemy", "poison"]:
 					dealt += float(args[1])
 	if boss_only:
 		var alive := (sim.get("enemies") as Array).any(func(enemy: Dictionary) -> bool: return is_same(enemy, boss))
