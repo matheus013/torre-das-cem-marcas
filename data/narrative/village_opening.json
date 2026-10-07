@@ -1,0 +1,44 @@
+{
+  "id": "ra_crise",
+  "npc_id": "alda_serrin",
+  "title": "Renovacao Antecipada",
+  "objective": "Falar com Alda no Conselho de Aresta.",
+  "journal": "Alda relata uma renovacao fora do esperado nas Galerias Refeitas. Aresta precisa verificar suas rotas; a causa continua desconhecida.",
+  "preparation": "A expedicao parte pelo portao junto ao posto da guarda. O registro de Nara fica no andar 1. Preparacao e opcional; nao e preciso comprar nada para investigar.",
+  "risk": "No primeiro andar, o portal de retorno permite recuar sem descer mais. Uma derrota deixa a carga na Torre, mas nao apaga observacoes ja registradas.",
+  "reactions": {
+    "eloa": "Eloa: Quero comparar as juntas e os materiais. Rui tem razao em pedir cuidado: curiosidade nao torna uma estrutura segura.",
+    "sena": "Sena: Vou conferir a rota de volta antes de seguir. Um mapa vale pouco quando deixamos de olhar para o caminho.",
+    "cira": "Cira: Vou observar como a pedra nova reage, sem tratar ninguem como amostra. Maura pode preparar o atendimento; as decisoes sobre meu corpo sao minhas.",
+    "rui": "Rui: Eloa quer entender os materiais; eu quero garantir que os trabalhadores voltem. Vamos registrar as juntas antes de confiar nas paredes."
+  },
+  "conversations": {
+    "alda_serrin": {
+      "npc_name": "Alda Serrin",
+      "dialogue": "As Galerias Refeitas estao se renovando antes do esperado. Se os caminhos mudarem, Aresta perde acesso ao trabalho e aos materiais de que depende. Precisamos de relatos verificaveis, nao de uma conclusao apressada. Nara coordena o primeiro registro na Casa das Expedicoes.",
+      "summary": "Nara recebe os registros de campo. A causa da renovacao ainda nao esta estabelecida; proteger as rotas protege Aresta.",
+      "action": "acknowledge_crisis",
+      "action_label": "Registrar pedido de Alda"
+    },
+    "dalia_ferral": {
+      "npc_name": "Dalia Ferral",
+      "dialogue": "Observe a junta antes de confiar na pedra nova. Confira o equipamento aqui na oficina; um reparo so deve ser feito quando houver desgaste.",
+      "rumor": "Relato da oficina: alguns atribuem as mudancas ao modo como a pedra se recompoe. Ainda nao ha prova de que isso explique a renovacao antecipada."
+    },
+    "maura_salvedra": {
+      "npc_name": "Maura Salvedra",
+      "dialogue": "A enfermaria continua aberta para tratar ferimentos. Leve em conta sua condicao e seus suprimentos; voltar cedo e uma decisao de campo, nao uma vergonha.",
+      "rumor": "Relato da enfermaria: ha quem associe o perigo ao contato com material recente. Nao temos um diagnostico que explique a mudanca das rotas."
+    },
+    "cassio_rotavela": {
+      "npc_name": "Cassio Rotavela",
+      "dialogue": "Suprimentos de cura estao disponiveis no comercio. Confira suas reservas antes de comprar; o registro da primeira rota nao exige uma compra.",
+      "rumor": "Relato do comercio: alguns dizem que os mapas, e nao a Torre, estao errados. Isso tambem precisa ser conferido em campo."
+    },
+    "tamar_vardal": {
+      "npc_name": "Tamar Vardal",
+      "dialogue": "O portao continua aberto aos expedicionarios. Nara recebe os relatos; nao confundam uma rota conhecida com uma rota garantida.",
+      "rumor": "Relato da vigilia: uns culpam mapas antigos, outros juram ter visto juntas novas. Nenhuma versao dispensa a verificacao."
+    }
+  }
+}

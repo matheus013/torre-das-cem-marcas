@@ -7,6 +7,7 @@ var npc_id := ""
 var _title: Label
 var _balance: Label
 var _stock: Label
+var _context: Label
 var _feedback: Label
 var _rows: VBoxContainer
 var _buttons: Dictionary = {}
@@ -35,6 +36,7 @@ func _ready() -> void:
 	column.add_theme_constant_override("separation", 14)
 	panel.add_child(column)
 	_title = _label(column, 19)
+	_context = _label(column, 13)
 	_balance = _label(column, 14)
 	_stock = _label(column, 13)
 	_rows = VBoxContainer.new()
@@ -64,7 +66,7 @@ func _label(parent: Node, font_size: int) -> Label:
 	parent.add_child(label)
 	return label
 
-func open(npc: Dictionary, state: Dictionary, warehouse: Dictionary) -> void:
+func open(npc: Dictionary, state: Dictionary, warehouse: Dictionary, narrative_context: Dictionary = {}) -> void:
 	npc_id = String(npc["id"])
 	_title.text = String(npc["name"]) + " · " + String(npc["title"])
 	for child in _rows.get_children():
@@ -87,16 +89,18 @@ func open(npc: Dictionary, state: Dictionary, warehouse: Dictionary) -> void:
 		_buttons[offer["id"]] = button
 		button.pressed.connect(func() -> void: purchase_requested.emit(npc_id, String(offer["id"])))
 	visible = true
-	refresh(state, warehouse, "")
+	refresh(state, warehouse, "", narrative_context)
 	_close.grab_focus.call_deferred()
 	for button: Button in _buttons.values():
 		if not button.disabled:
 			button.grab_focus.call_deferred()
 			break
 
-func refresh(state: Dictionary, warehouse: Dictionary, status: String) -> void:
+func refresh(state: Dictionary, warehouse: Dictionary, status: String, narrative_context: Dictionary = {}) -> void:
 	if not visible:
 		return
+	_context.text = String(narrative_context.get("dialogue", ""))
+	_context.visible = not _context.text.is_empty()
 	var silver := int(state.get("silver", 0))
 	_balance.text = "Prata: %d    Suprimentos: %d / 9" % [silver, int(state.get("quick_items", 0))]
 	var stock := warehouse.get("stock", {}) as Dictionary

@@ -8,6 +8,15 @@ de playtests e aprovacoes, nao de estimativas de porcentagem.
 
 ## Situacao atual
 
+[Integracao da lore](roadmap-integracao-lore.md): roadmap criado em 2026-10-07,
+com oito marcos para Renovacao Antecipada em Aresta e nos andares 1 a 4.
+N0 auditado: matriz canone/runtime, gatilhos e limites de revelacao registrados.
+N1 implementado: contrato de Nara, pista do andar 1, diario compartilhado,
+relatorio e recompensa unica; save v10 com migracao e backup. Prova ENet
+cobre comandos duplicados, reconexao e entrada tardia. Ver
+[entrega N1](lore-n1-estado-narrativo.md). Arco completo e playtests continuam
+pendentes; nao encerra EA2 ou EA4.
+
 [Revisao visual das skills](revisao-assets-skills.md), 2026-10-07: 46 icones
 revisados, oito corrigidos e oito novas animacoes de quatro quadros para
 campos e orbitas. Avisos de raio/pilar nao exibem mais cometas indevidos.

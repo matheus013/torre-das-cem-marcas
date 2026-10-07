@@ -87,6 +87,8 @@ var _npc_settings: Dictionary = {}
 var _village_lights: Node2D
 var _talk_hint: Label
 var _service_menu: Control
+var _narrative_menu: Control
+var _objective_label: Label
 var _village_log_label: Label
 var _interface_layer: CanvasLayer
 var _top_bar: Panel
@@ -459,6 +461,9 @@ func _apply_intent(peer_id: int, kind: String, args: Array) -> void:
 		"service":
 			if args.size() == 2 and args[0] is String and args[1] is String and String(args[0]).length() <= 64 and String(args[1]).length() <= 64:
 				_sim.call("use_village_service", peer_id, String(args[0]), String(args[1]))
+		"narrative":
+			if args.size() == 1 and args[0] is String and String(args[0]).length() <= 64:
+				_sim.call("narrative_action", peer_id, String(args[0]))
 		"start_floor":
 			if args.size() == 1 and args[0] is int:
 				_sim.call("set_start_floor", peer_id, int(args[0]))
@@ -541,6 +546,16 @@ func _physics_process(delta: float) -> void:
 		var torch := light as PointLight2D
 		torch.energy = 0.8 + 0.12 * sin(_anim_time * 9.0 + torch.position.x) + 0.08 * sin(_anim_time * 23.0 + torch.position.y)
 	_update_interface()
+	if _narrative_menu != null and _narrative_menu.visible:
+		var selected_npc := String(_narrative_menu.get("npc_id"))
+		var in_range := false
+		for npc: Dictionary in _view.get("npcs", []):
+			if String(npc["id"]) == selected_npc and zone == &"village":
+				in_range = _display_position(_local_peer).distance_to(npc["position"] as Vector2) <= 110.0
+		if not selected_npc.is_empty() and zone != &"village":
+			_narrative_menu.call("close")
+		else:
+			_narrative_menu.call("refresh", _conversation_model(selected_npc), in_range or selected_npc.is_empty())
 	if _service_menu != null and _service_menu.visible:
 		var service_npc := {}
 		for npc: Dictionary in _view.get("npcs", []):
@@ -549,7 +564,7 @@ func _physics_process(delta: float) -> void:
 		if zone != &"village" or service_npc.is_empty() or _display_position(_local_peer).distance_to(service_npc["position"] as Vector2) > 110:
 			_service_menu.call("close")
 		else:
-			_service_menu.call("refresh", local, _view.get("warehouse", {}), _status)
+			_service_menu.call("refresh", local, _view.get("warehouse", {}), _status, _conversation_model(String(service_npc["id"])))
 	_update_milestone_choice()
 	queue_redraw()
 
@@ -591,6 +606,8 @@ func _on_pad_connection_changed(device: int, connected: bool) -> void:
 
 
 func _input_blocked() -> bool:
+	if _narrative_menu != null and _narrative_menu.visible:
+		return true
 	return (_service_menu != null and _service_menu.visible) or (_milestone_choice != null and _milestone_choice.visible) or (_player_menu != null and _player_menu.visible) or (_character_panel != null and _character_panel.visible) or (_settings_dialog != null and _settings_dialog.visible)
 
 
@@ -710,6 +727,11 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if _milestone_choice != null and _milestone_choice.visible:
 		return
+	if command and _narrative_menu != null and _narrative_menu.visible:
+		if event.is_action_pressed("ui_cancel") or BindingsScript.pressed(event, "pause"):
+			_narrative_menu.call("close")
+			get_viewport().set_input_as_handled()
+		return
 	if command and _service_menu != null and _service_menu.visible:
 		if event.is_action_pressed("ui_cancel") or BindingsScript.pressed(event, "pause"):
 			_service_menu.call("close")
@@ -757,11 +779,17 @@ func _unhandled_input(event: InputEvent) -> void:
 		elif BindingsScript.pressed(event, "interact") and _local_zone() == &"village":
 			var npc := _nearest_npc(110.0)
 			if not npc.is_empty():
-				if not preload("res://src/gameplay/world/village_services.gd").offers(String(npc["id"])).is_empty():
+				var npc_id := String(npc["id"])
+				if npc_id == "nara_quiral" or ((_view.get("narrative", {}) as Dictionary).get("conversations", {}) as Dictionary).has(npc_id) and preload("res://src/gameplay/world/village_services.gd").offers(npc_id).is_empty():
 					_send_move(_local()["position"] as Vector2)
-					_service_menu.call("open", npc, _local(), _view.get("warehouse", {}))
+					_narrative_menu.call("open", _conversation_model(npc_id), true)
+				elif not preload("res://src/gameplay/world/village_services.gd").offers(String(npc["id"])).is_empty():
+					_send_move(_local()["position"] as Vector2)
+					_service_menu.call("open", npc, _local(), _view.get("warehouse", {}), _conversation_model(npc_id))
 				else:
 					_send_intent("talk", [String(npc["id"])])
+		elif BindingsScript.pressed(event, "interact") and _near_narrative_marker():
+			_send_intent("narrative", ["inspect"])
 		elif BindingsScript.pressed(event, "npc_mode"):
 			_toggle_npc_mode()
 		elif BindingsScript.pressed(event, "switch_character") and not _in_arena(_local_zone()):
@@ -1173,6 +1201,11 @@ func _agent_roam(position: Vector2) -> void:
 func _draw() -> void:
 	var zone := _local_zone()
 	_draw_ground(zone)
+	var story := _view.get("narrative", {}) as Dictionary
+	if zone == &"tower" and story.has("marker_position"):
+		var marker := story["marker_position"] as Vector2
+		_draw_sprite("props/rocks", marker, false, Color("b7d8d1"))
+		draw_arc(marker, 38.0, 0, TAU, 32, Color("e8b84a"), 2.0)
 	var arena := StringName(String(_view.get("arena_zone", "tower")))
 	var in_arena := zone == arena and _in_arena(zone)
 	if _in_arena(zone):
@@ -1486,6 +1519,8 @@ func _player_color(peer_id: Variant) -> Color:
 func _draw_npc(npc: Dictionary) -> void:
 	var position := npc["position"] as Vector2
 	var feet := position + Vector2(0.0, 12.0)
+	if String((_view.get("narrative", {}) as Dictionary).get("target_npc", "")) == String(npc.get("id", "")):
+		draw_arc(feet, 22.0, 0.0, TAU, 24, Color("e8b84a"), 2.0)
 	_draw_shadow(feet, Vector2(11.0, 4.0))
 	var lift := absf(sin(_anim_time * 12.0 + position.x)) * 2.0 if bool(npc.get("moving", false)) else (sin(_anim_time * 2.0 + position.y) + 1.0) * 0.4
 	var frame := SpriteLibraryScript.actor_frame(String(npc.get("sprite", "")), npc.get("facing_direction", Vector2.DOWN) as Vector2, bool(npc.get("moving", false)), _locomotion.elapsed("npcs:%s" % npc.get("id", "")))
@@ -2049,7 +2084,26 @@ func _build_interface() -> void:
 	_service_menu.name = "VillageServices"
 	layer.add_child(_service_menu)
 	_service_menu.connect("purchase_requested", func(npc_id: String, offer_id: String) -> void: _send_intent("service", [npc_id, offer_id]))
-	_service_menu.connect("talk_requested", func(npc_id: String) -> void: _send_intent("talk", [npc_id]))
+	_service_menu.connect("talk_requested", func(npc_id: String) -> void:
+		if ((_view.get("narrative", {}) as Dictionary).get("conversations", {}) as Dictionary).has(npc_id):
+			_narrative_menu.call("open", _conversation_model(npc_id), true)
+		else:
+			_send_intent("talk", [npc_id]))
+	_narrative_menu = preload("res://src/prototype/village/narrative_menu.gd").new()
+	_narrative_menu.name = "NarrativeJournal"
+	layer.add_child(_narrative_menu)
+	_narrative_menu.connect("action_requested", func(action: String) -> void: _send_intent("narrative", [action]))
+	_objective_label = Label.new()
+	_objective_label.name = "NarrativeObjective"
+	_objective_label.position = Vector2(20, 170)
+	_objective_label.size = Vector2(360, 60)
+	_objective_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_objective_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_objective_label.add_theme_font_size_override("font_size", 14)
+	_objective_label.add_theme_color_override("font_color", Color("b7d8d1"))
+	_objective_label.add_theme_color_override("font_outline_color", Color("12111a"))
+	_objective_label.add_theme_constant_override("outline_size", 3)
+	layer.add_child(_objective_label)
 	_village_log_label = Label.new()
 	_village_log_label.name = "VillageLog"
 	_village_log_label.position = Vector2(20.0, 560.0)
@@ -2119,8 +2173,10 @@ func _build_interface() -> void:
 	_player_menu.support_attach_requested.connect(func(slot: int, support_id: String) -> void: _send_intent("support_add", [slot, support_id]))
 	_player_menu.support_detach_requested.connect(func(slot: int, support_id: String) -> void: _send_intent("support_remove", [slot, support_id]))
 	_player_menu.start_floor_requested.connect(func(floor_number: int) -> void: _send_intent("start_floor", [floor_number]))
+	_player_menu.journal_requested.connect(_open_journal)
 	_player_menu.gem_evolution_requested.connect(func(gem_id: String, choice_id: String) -> void: _send_intent("gem_evolution", [gem_id, choice_id]))
 	layer.add_child(_player_menu)
+	layer.move_child(_narrative_menu, layer.get_child_count() - 1)
 	_milestone_choice = MilestoneChoiceScript.new() as Control
 	_milestone_choice.name = "MilestoneChoice"
 	_milestone_choice.choice_requested.connect(func(choice: StringName) -> void: _send_intent("milestone", [String(choice)]))
@@ -2233,11 +2289,14 @@ func _update_village_panel(zone: StringName, period: String) -> void:
 	_talk_hint.visible = false
 	_village_log_label.visible = in_village
 	if not in_village:
+		if _near_narrative_marker() and not _input_blocked():
+			_talk_hint.visible = true
+			_talk_hint.text = "%s: Examinar marca de rota" % BindingsScript.label("interact")
 		return
 	var npc := _nearest_npc(110.0)
 	if not npc.is_empty() and not _input_blocked():
 		_talk_hint.visible = true
-		var has_service := not preload("res://src/gameplay/world/village_services.gd").offers(String(npc["id"])).is_empty()
+		var has_service := String(npc["id"]) == "nara_quiral" or not preload("res://src/gameplay/world/village_services.gd").offers(String(npc["id"])).is_empty()
 		_talk_hint.text = "%s: %s · %s" % [BindingsScript.label("interact"), String(npc["name"]), String(npc["title"]) if has_service else "Conversar"]
 	var lines: Array[String] = ["%s  ·  MORADORES: %s%s" % [PERIOD_NAMES.get(period, period.to_upper()), "COM IA" if String(_view.get("npc_mode", "padrao")) == "ia" else "PADRAO", "  (%s alterna)" % BindingsScript.label("npc_mode") if _sim != null else ""]]
 	var log := _view.get("village_log", []) as Array
@@ -2277,6 +2336,32 @@ func _format_time(seconds: float) -> String:
 
 ## Interface proporcional à tela: a camada escala pela menor razão em relação a 1280×720 e cada
 ## bloco se prende à sua borda no espaço resultante (decisão 564).
+func _near_narrative_marker() -> bool:
+	var model := _view.get("narrative", {}) as Dictionary
+	return _local_zone() == &"tower" and model.has("marker_position") and not _local().is_empty() and (_local()["position"] as Vector2).distance_to(model["marker_position"] as Vector2) <= 90.0
+
+
+func _open_journal() -> void:
+	_player_menu.call("close")
+	_send_move(_local().get("position", Vector2.ZERO) as Vector2)
+	_narrative_menu.call("open", _conversation_model(""), false)
+
+
+func _conversation_model(npc_id: String) -> Dictionary:
+	var model := (_view.get("narrative", {}) as Dictionary).duplicate(true)
+	var conversations := model.get("conversations", {}) as Dictionary
+	if npc_id != "nara_quiral" and not npc_id.is_empty():
+		model.erase("action")
+		model.erase("action_label")
+		model.erase("secondary_action")
+		model.erase("secondary_action_label")
+		model.merge(conversations.get(npc_id, {}) as Dictionary, true)
+	if npc_id in ["alda_serrin", "nara_quiral"]:
+		model["reaction"] = (model.get("reactions", {}) as Dictionary).get(String(_local().get("character_id", "")), "")
+	model["preparation"] = _local().get("expedition_preparation", [])
+	return model
+
+
 func _layout_interface() -> void:
 	var viewport := get_viewport().get_visible_rect().size
 	var ui_scale := clampf(minf(viewport.x / 1280.0, viewport.y / 720.0), 0.75, 2.0)
@@ -2302,7 +2387,8 @@ func _layout_interface() -> void:
 	var hud_scale := maxf(1.0, 0.75 / (ui_scale * screen_scale))
 	_combat_hud.scale = Vector2.ONE * hud_scale
 	_combat_hud.size = size / hud_scale
-	for full in [_player_menu, _character_panel]:
+	_objective_label.size.x = minf(360.0, size.x - 40.0)
+	for full in [_player_menu, _character_panel, _narrative_menu, _service_menu]:
 		(full as Control).set_anchors_preset(Control.PRESET_TOP_LEFT)
 		(full as Control).position = Vector2.ZERO
 		(full as Control).size = size
@@ -2310,6 +2396,15 @@ func _layout_interface() -> void:
 
 func _update_interface() -> void:
 	var zone := _local_zone()
+	var story := _view.get("narrative", {}) as Dictionary
+	_objective_label.text = String(story.get("objective", ""))
+	if zone == &"village":
+		for npc: Dictionary in _view.get("npcs", []):
+			if String(npc["id"]) == String(story.get("target_npc", "")):
+				var offset := (npc["position"] as Vector2) - _display_position(_local_peer)
+				var direction := "leste" if absf(offset.x) > absf(offset.y) and offset.x > 0 else "oeste" if absf(offset.x) > absf(offset.y) else "sul" if offset.y > 0 else "norte"
+				_objective_label.text += "\n%s: %d m, %s" % [String(npc["name"]), int(offset.length() / 32.0), direction]
+	_objective_label.visible = story.get("stage", "") != "completed"
 	var arena := _in_arena(zone)
 	_ambient.color = {&"village": Color(1.0, 0.97, 0.9), &"house": Color(0.78, 0.7, 0.62)}.get(zone, Color(0.36, 0.38, 0.5)) as Color
 	var period := String(_view.get("village_period", "manha"))
@@ -2381,7 +2476,7 @@ func _update_interface() -> void:
 		cooldowns, max_cooldowns,
 		int(local.get("carried_stone", 0)), enemy_positions.size(), int(local.get("quick_items", 0)),
 		_display_position(_local_peer), enemy_positions, (_floor_layout.get("size", Vector2(1280.0, 720.0)) as Vector2),
-		(_floor_layout["stairs"] as Rect2).get_center() if bool(floor_view.get("stairs_open", false)) and not _floor_layout.is_empty() else ((_floor_layout["return_portal"] as Rect2).get_center() if not _floor_layout.is_empty() else Vector2.ZERO),
+		(story["marker_position"] as Vector2) if story.has("marker_position") else ((_floor_layout["stairs"] as Rect2).get_center() if bool(floor_view.get("stairs_open", false)) and not _floor_layout.is_empty() else ((_floor_layout["return_portal"] as Rect2).get_center() if not _floor_layout.is_empty() else Vector2.ZERO)),
 		int(local.get("level", 1)), int(local.get("experience", 0)), int(local.get("experience_required", 60)),
 		bool(local.get("pending_milestone", false))
 	)

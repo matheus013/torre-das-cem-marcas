@@ -22,7 +22,7 @@ for test in tests/*.gd; do
 	fi
 done
 
-for script in tests/network_smoke.sh tests/village_online_smoke.sh; do
+for script in tests/network_smoke.sh tests/village_online_smoke.sh tests/narrative_online_smoke.sh; do
 	name="$(basename "$script" .sh)"
 	if sh "$script" >"$LOG" 2>&1; then
 		passed=$((passed + 1))

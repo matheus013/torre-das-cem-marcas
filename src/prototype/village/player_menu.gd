@@ -14,6 +14,7 @@ signal gem_slot_requested(slot: int, gem_id: String)
 signal support_attach_requested(slot: int, support_id: String)
 signal support_detach_requested(slot: int, support_id: String)
 signal start_floor_requested(floor_number: int)
+signal journal_requested
 signal gem_evolution_requested(gem_id: String, choice_id: String)
 
 const SpriteLibraryScript := preload("res://src/presentation/art/sprite_library.gd")
@@ -90,6 +91,12 @@ func _build_shell() -> void:
 	_title.add_theme_color_override("font_color", GOLD)
 	_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	header.add_child(_title)
+	var journal_button := Button.new()
+	journal_button.name = "Journal"
+	journal_button.text = "Diario"
+	journal_button.custom_minimum_size = Vector2(80, 34)
+	journal_button.pressed.connect(func() -> void: journal_requested.emit())
+	header.add_child(journal_button)
 	var close_button := Button.new()
 	close_button.text = "X"
 	close_button.tooltip_text = "Fechar"

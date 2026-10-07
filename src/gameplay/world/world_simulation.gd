@@ -64,7 +64,8 @@ const AREA_MULTIPLIER_CAP := 2.0
 ## Campos de tamanho de efeito que a Área amplia; alcance é distância, não área, e fica de fora.
 const AREA_KEYS: Array[String] = ["radius", "impact_area", "collision_radius", "width", "arrival_area"]
 const CRIT_MULTIPLIER := 1.75
-const SAVE_VERSION := 9
+const SAVE_VERSION := 11
+const NarrativeProgress := preload("res://src/gameplay/world/narrative_progress.gd")
 const CONTENT_PATH := "res://data/generated/dev_content.json"
 const BETA_PATH := "res://data/beta/beta_content.json"
 const CHARACTER_IDS: Array[StringName] = [&"eloa", &"sena", &"cira", &"rui"]
@@ -163,6 +164,7 @@ var _hazard_timer := 6.0
 var _floor_random := RandomNumberGenerator.new()
 ## Moradores de Aresta (decisão 560).
 var village_life: RefCounted
+var narrative := NarrativeProgress.new()
 var banked_stone := 0
 var banked_loot: Dictionary = {}
 var village_progress := 0
@@ -1225,6 +1227,8 @@ func enter_tower(peer_id: int) -> void:
 
 func leave_tower(peer_id: int) -> void:
 	var state := player(peer_id)
+	if state.get("zone", &"") == &"tower":
+		narrative.record_return("retreat")
 	state["falls"] = 0
 	state["wounds"] = 0
 	state["downed"] = false
@@ -1251,6 +1255,67 @@ func leave_tower(peer_id: int) -> void:
 
 
 ## Fatos verdadeiros e jogadores visíveis entregues aos moradores.
+func narrative_marker() -> Vector2:
+	return (FloorLayoutScript.generate(1)["route"] as Array)[1] as Vector2
+
+
+func narrative_action(peer_id: int, action: String) -> bool:
+	var state := player(peer_id)
+	if state.is_empty() or not bool(state.get("connected", false)) or bool(state.get("downed", false)):
+		return false
+	if action == "inspect":
+		if state["zone"] != &"tower" or current_floor != 1 or (state["position"] as Vector2).distance_to(narrative_marker()) > 90.0:
+			return false
+		if not narrative.inspect():
+			return false
+		_status(peer_id, "Observacao registrada no diario. Retorne a Aresta.")
+		return true
+	var npc_id := "alda_serrin" if action == "acknowledge_crisis" else "nara_quiral"
+	var npc: Dictionary = village_life.call("find", npc_id)
+	if state["zone"] != &"village" or npc.is_empty() or (state["position"] as Vector2).distance_to(npc["position"] as Vector2) > 110.0:
+		return false
+	if action == "acknowledge_crisis" and narrative.acknowledge_crisis():
+		_status(peer_id, "Pedido de Alda registrado. Nara recebe o grupo na Casa das Expedicoes.")
+		return true
+	if action == "prepare_first_floor" and narrative.stage == "active":
+		return set_start_floor(peer_id, 1)
+	if action == "accept" and narrative.accept():
+		_status(peer_id, "Pedido aceito: registro da primeira rota, andar 1.")
+		return true
+	if action == "report" and narrative.report():
+		var reward: Dictionary = narrative.catalog()["reward"]
+		var item_id := String(reward["item_id"])
+		banked_loot[item_id] = int(banked_loot.get(item_id, 0)) + int(reward["quantity"])
+		_status(peer_id, "Relato entregue. Musgo de Orientacao armazenado.")
+		return true
+	return false
+
+
+func narrative_view() -> Dictionary:
+	var model := narrative.view()
+	if narrative.stage == "active" and current_floor == 1:
+		model["marker_position"] = narrative_marker()
+	return model
+
+
+func expedition_preparation(peer_id: int) -> Array[String]:
+	var state := player(peer_id)
+	if state.is_empty():
+		return []
+	var integrity := 1.0
+	var gear := _gear(peer_id)
+	for spec: Array in LayoutScript.equipment_slot_specs():
+		var item := (gear["equipment"] as EquipmentLoadout).get_equipped(spec[1], int(spec[2]))
+		if item != null:
+			integrity = minf(integrity, item.integrity)
+	return [
+		"Condicao: Vida %d/%d; ferimentos %d. Enfermaria: Maura." % [int(state["health"]), int(max_health(peer_id)), int(state.get("wounds", 0))],
+		"Suprimentos de cura: %d/9. Comercio: Cassio; alquimia: Sira." % int(state["quick_items"]),
+		"Menor integridade equipada: %d%%. Oficina: Dalia." % int(round(integrity * 100.0)),
+		"Proxima entrada: andar %d. Portao junto ao posto da guarda." % tower_start_floor,
+	]
+
+
 func _village_context() -> Dictionary:
 	var visible := {}
 	for peer_id: int in players:
@@ -2474,6 +2539,8 @@ func stability_at(zone: StringName, position: Vector2) -> float:
 
 func _handle_defeat(peer_id: int) -> void:
 	var state := player(peer_id)
+	if state.get("zone", &"") == &"tower":
+		narrative.record_return("defeat")
 	state["downed"] = false
 	state["falls"] = 0
 	state["wounds"] = 0
@@ -3638,6 +3705,7 @@ func view_snapshot() -> Dictionary:
 			"skill_tooltips": skill_tooltips(peer_id),
 			"skill_costs": skill_costs(peer_id),
 			"quick_items": state["quick_items"],
+			"expedition_preparation": expedition_preparation(peer_id) if state["zone"] == &"village" else [],
 			"silver": int(_gear(peer_id).get("silver", 0)),
 			"carried_stone": state["carried_stone"],
 			"level": level,
@@ -3679,6 +3747,7 @@ func view_snapshot() -> Dictionary:
 	return {
 		"players": player_views,
 		"milestone_peers": pending_milestone_peers(),
+		"narrative": narrative_view(),
 		"arena_zone": String(arena_zone()),
 		"party_size": party_size(),
 		"party_budget": float(party_scaling()["budget"]),
@@ -4207,6 +4276,7 @@ func save_data(host_peer: int) -> Dictionary:
 	var host := player(host_peer)
 	return {
 		"version": SAVE_VERSION,
+		"narrative": narrative.snapshot(),
 		"zone": String(host.get("zone", "village")),
 		"player_position": _vector_array(host.get("position", LayoutScript.WORLD_SPAWN) as Vector2),
 		"target_position": _vector_array(host.get("target", LayoutScript.WORLD_SPAWN) as Vector2),
@@ -4240,7 +4310,16 @@ func save_data(host_peer: int) -> Dictionary:
 
 
 static func validate_save(data: Dictionary) -> Error:
-	return preload("res://src/core/persistence/world_save_schema.gd").validate(data, SAVE_VERSION)
+	var schema_error: Error = preload("res://src/core/persistence/world_save_schema.gd").validate(data, SAVE_VERSION)
+	if schema_error != OK:
+		return schema_error
+	if int(data["version"]) >= 10 and (not data.has("narrative") or (data["narrative"] is Dictionary and data["narrative"].is_empty())):
+		return ERR_FILE_CORRUPT
+	if int(data["version"]) >= 11 and (not data["narrative"] is Dictionary or not data["narrative"].has("opening_known")):
+		return ERR_FILE_CORRUPT
+	if not NarrativeProgress.valid(data.get("narrative", {})):
+		return ERR_FILE_CORRUPT
+	return OK
 
 
 func load_data(data: Dictionary, host_peer: int) -> bool:
@@ -4253,6 +4332,7 @@ func load_data(data: Dictionary, host_peer: int) -> bool:
 	if zone not in [&"village", &"house", &"tower", &"boss_room"]:
 		return false
 	encounter_seed = int(data.get("encounter_seed", 7301))
+	narrative.restore(data.get("narrative", {}))
 	_configure_directors()
 	var respawn_data: Variant = data.get("respawn", {})
 	if respawn_data is Dictionary:
