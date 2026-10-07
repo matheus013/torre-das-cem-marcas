@@ -34,6 +34,10 @@ func worker_step(npc: Dictionary, delta: float, night: bool) -> void:
 	var cargo := int(npc.get("cargo", 0))
 	var phase := String(npc.get("job_phase", "buscar"))
 	var slot := Vector2(float(posmod(String(npc["id"]).hash(), 5) - 2) * 16.0, 24.0)
+	if night and cargo > 0 and int(stock[resource]) >= CAPACITY:
+		npc["target"] = npc["home"]
+		npc["action_label"] = "em casa com carga"
+		return
 	if cargo >= LOAD or phase == "entregar" or (night and cargo > 0):
 		npc["job_phase"] = "entregar"
 		npc["target"] = warehouse + slot

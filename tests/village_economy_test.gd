@@ -40,6 +40,16 @@ func _run() -> void:
 	for resource in life.economy.RESOURCES:
 		if int(life.economy.stock[resource]) < int(stock_before[resource]):
 			return _fail("Night lost stock")
+	for npc: Dictionary in copy.npcs:
+		var resource := String(npc["resource"])
+		if resource.is_empty():
+			continue
+		copy.economy.stock[resource] = copy.economy.CAPACITY
+		npc["cargo"] = 6
+		npc["job_phase"] = "entregar"
+		copy.economy.worker_step(npc, 1.0, true)
+		if npc["target"] != npc["home"] or int(npc["cargo"]) != 6 or int(copy.economy.stock[resource]) != copy.economy.CAPACITY:
+			return _fail("Full warehouse must preserve cargo and allow returning home at night")
 	print("VILLAGE_ECONOMY_OK: %d residents, fixed homes/services, collection, deliveries, night and persistence: " % life.npcs.size(), stock_before)
 	quit(0)
 
