@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.9.0](https://github.com/matheus013/torre-das-cem-marcas/compare/v0.8.0...v0.9.0) (2026-10-07)
+
+### Novidades
+
+* progresso narrativo da primeira rota (Renovacao Antecipada) ([a2ff74c](https://github.com/matheus013/torre-das-cem-marcas/commit/a2ff74cf3df35996f8371b9dc39335ed2591c07e))
+
 ## [0.8.0](https://github.com/matheus013/torre-das-cem-marcas/compare/v0.7.1...v0.8.0) (2026-10-07)
 
 ### Novidades
