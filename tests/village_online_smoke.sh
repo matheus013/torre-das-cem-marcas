@@ -4,6 +4,8 @@ set -eu
 # Marco 1: host autoritativo de Aresta com três clientes em processos separados, piloto
 # automático na Torre e verificação de personagens únicos, reconexão com a mesma personagem
 # e salvamento consistente. O cliente 3 cai e reconecta no meio da sessão.
+# Clientes têm 13 s: a vila maior (2880x1620 -> 3840x2400) deixou a caminhada até a Torre perto
+# de 6 s, e no CI (2 núcleos, 5 processos Godot) 9 s não bastavam para conectar e chegar.
 
 PORT="${1:-17991}"
 SCENE="res://src/prototype/village/village_exploration.tscn"
@@ -18,7 +20,7 @@ cleanup() {
 }
 trap cleanup EXIT INT TERM
 
-godot --headless --path . "$SCENE" -- --host-session --session-port="$PORT" --autopilot --test-duration=14 >"$LOG_DIR/host.log" 2>&1 &
+godot --headless --path . "$SCENE" -- --host-session --session-port="$PORT" --autopilot --test-duration=18 >"$LOG_DIR/host.log" 2>&1 &
 HOST_PID=$!
 PIDS="$HOST_PID"
 
@@ -37,7 +39,7 @@ for index in 1 2 3; do
 	if [ "$index" -eq 3 ]; then
 		EXTRA="--reconnect-at=4"
 	fi
-	godot --headless --path . "$SCENE" -- --join-session=127.0.0.1 --session-port="$PORT" --profile="smoke-client-$index" --autopilot --test-duration=9 $EXTRA >"$LOG_DIR/client$index.log" 2>&1 &
+	godot --headless --path . "$SCENE" -- --join-session=127.0.0.1 --session-port="$PORT" --profile="smoke-client-$index" --autopilot --test-duration=13 $EXTRA >"$LOG_DIR/client$index.log" 2>&1 &
 	PIDS="$PIDS $!"
 done
 
