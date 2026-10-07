@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.10.0](https://github.com/matheus013/torre-das-cem-marcas/compare/v0.9.0...v0.10.0) (2026-10-07)
+
+### Novidades
+
+* chefes voltam sempre que o grupo entra no andar ([c2c5f5b](https://github.com/matheus013/torre-das-cem-marcas/commit/c2c5f5b9014fca88d39fe38ca629837750322c9b))
+* maestria das gemas em 21 niveis com requisitos e modificadores ([5c4e02e](https://github.com/matheus013/torre-das-cem-marcas/commit/5c4e02e9e106ea852cf475f14b044db15b76f2e2))
+
 ## [0.9.0](https://github.com/matheus013/torre-das-cem-marcas/compare/v0.8.0...v0.9.0) (2026-10-07)
 
 ### Novidades
