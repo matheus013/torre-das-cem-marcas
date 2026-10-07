@@ -13,6 +13,14 @@ const ANIM_ROOT := "vfx/anim/"
 ## Tiras horizontais de quadros quadrados em assets/sprites/vfx/anim. Sem a arte,
 ## a animação simplesmente não aparece e os traços procedurais continuam valendo.
 const ANIMS := {
+	"sk_flame_field": {"fps": 8.0},
+	"sk_acid_pool": {"fps": 6.0},
+	"sk_gravity_field": {"fps": 8.0},
+	"sk_root_field": {"fps": 5.0},
+	"sk_holy_field": {"fps": 6.0},
+	"sk_living_field": {"fps": 5.0},
+	"sk_steel_blade": {"fps": 8.0},
+	"sk_ice_crystal": {"fps": 8.0},
 	"hit": {"fps": 24.0, "spin": true},
 	"crit": {"fps": 20.0, "scale": 1.5},
 	"burst": {"fps": 20.0},
@@ -172,7 +180,7 @@ func beam(from: Vector2, to: Vector2, width: float) -> void:
 func target_ring(position: Vector2, radius: float, duration: float) -> void:
 	_add({"kind": "target_ring", "position": position, "radius": radius, "duration": duration, "tint": _tint()})
 	# Cometa caindo durante o aviso: a folha já vem inclinada, cabeça embaixo à esquerda.
-	if anim_frames("sh_comet") > 0:
+	if String(_theme().get("telegraph", "")) == "sh_comet" and anim_frames("sh_comet") > 0:
 		var config := ANIMS["sh_comet"] as Dictionary
 		_add({"kind": "projectile", "sprite": ANIM_ROOT + String(config["sprite"]), "from": position + Vector2(130.0, -240.0), "to": position,
 			"frames": anim_frames("sh_comet"), "frame_width": 64.0, "frame_height": 64.0, "row": _row("sh_comet"), "tint": _sheet_tint("sh_comet"),
@@ -320,15 +328,19 @@ func _fit(key: String, radius: float) -> float:
 	return clampf(snappedf(radius * 1.8 / float((ANIMS[key] as Dictionary).get("extent", 48.0)), 0.25), 0.5, 2.5)
 
 
-## Quadro atual de uma folha de 9 cores, para desenhos persistentes no chão (órbitas, minas).
+## Quadros de folhas elementais ou tiras individuais para efeitos persistentes.
 static func sheet_frame(key: String, theme_id: String, time: float) -> Dictionary:
 	var config := ANIMS.get(key, {}) as Dictionary
 	var texture := SpriteLibraryScript.texture(ANIM_ROOT + String(config.get("sprite", key)))
 	if texture == null:
 		return {}
-	var frames := maxi(1, int(texture.get_width() / 64))
+	var width := _frame_width(key)
+	var height := _frame_height(key)
+	var frames := maxi(1, int(texture.get_width() / width))
 	var frame := int(time * float(config.get("fps", 12.0))) % frames
-	return {"texture": texture, "region": Rect2(frame * 64.0, SkillThemesScript.row(theme_id) * 64.0, 64.0, 64.0), "tint": SkillThemesScript.sheet_tint(theme_id)}
+	var row := SkillThemesScript.row(theme_id) if bool(config.get("sheet", false)) else 0
+	var tint := SkillThemesScript.sheet_tint(theme_id) if bool(config.get("sheet", false)) else Color.WHITE
+	return {"texture": texture, "region": Rect2(frame * width, row * height, width, height), "tint": tint}
 
 
 func _theme() -> Dictionary:

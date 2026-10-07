@@ -38,6 +38,21 @@ const GEMS := {
 const ROWS := {"fire": 0, "arcane": 1, "ice": 2, "acid": 3, "nature": 3, "earth": 4, "holy": 5, "lightning": 5, "dark": 8}
 const NEUTRAL_ROW := 2
 
+const SKILL_ROLES := {
+	"brasa_persistente": {"ground": "sk_flame_field"},
+	"pantano_acido": {"ground": "sk_acid_pool"},
+	"poca_de_veneno": {"ground": "sk_acid_pool"},
+	"prisao_gravitica": {"ground": "sk_gravity_field"},
+	"raizes_presas": {"ground": "sk_root_field"},
+	"circulo_de_reparo": {"ground": "sk_holy_field"},
+	"semeadura_vital": {"ground": "sk_living_field"},
+	"abrigo_de_escora": {"ground": "sk_living_field"},
+	"laminas_orbitais": {"orbit": "sk_steel_blade"},
+	"satelites_de_geada": {"orbit": "sk_ice_crystal"},
+	"chuva_ferral": {"telegraph": "sh_comet"},
+	"cometa_de_vidro": {"telegraph": "sh_comet"},
+}
+
 
 ## Elemento do tema: id de gema, ou "element:<nome>" para efeitos que trocam de elemento (flechas).
 static func element_of(theme: String) -> String:
@@ -48,7 +63,9 @@ static func element_of(theme: String) -> String:
 
 ## Tema da gema, ou vazio quando ela não tem elemento.
 static func for_gem(gem_id: String) -> Dictionary:
-	return ELEMENTS.get(element_of(gem_id), {}) as Dictionary
+	var result := (ELEMENTS.get(element_of(gem_id), {}) as Dictionary).duplicate()
+	result.merge(SKILL_ROLES.get(gem_id, {}) as Dictionary, true)
+	return result
 
 
 static func row(theme: String) -> int:

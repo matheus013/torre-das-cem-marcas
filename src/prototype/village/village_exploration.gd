@@ -1604,7 +1604,14 @@ func _draw_player(state: Dictionary, peer_id: Variant) -> void:
 		tint = Color(0.8, 1.0, 1.0, 0.55)
 	var character_id := String(state.get("character_id", "eloa"))
 	var direction := state.get("facing_direction", Vector2.LEFT if bool(state.get("facing_left", false)) else Vector2.DOWN) as Vector2
-	var frame := SpriteLibraryScript.character_frame(character_id, direction, bool(state.get("moving", false)), _locomotion.elapsed("player:%s" % peer_id))
+	var spin := state.get("volley_spin", {}) as Dictionary
+	var animation_time := _locomotion.elapsed("player:%s" % peer_id)
+	if not spin.is_empty():
+		direction = Vector2.RIGHT.rotated(float(spin["phase"]))
+		animation_time = float(spin["elapsed"])
+		# Turn through the directional poses rather than rotating the whole sprite flat.
+		draw_arc(feet, 20.0, float(spin["phase"]) - 1.1, float(spin["phase"]), 12, Color("c8f2f0", 0.55), 2.0)
+	var frame := SpriteLibraryScript.character_frame(character_id, direction, bool(state.get("moving", false)) or not spin.is_empty(), animation_time)
 	if frame != null:
 		draw_texture(frame, (feet - SpriteLibraryScript.CHARACTER_FOOT_ANCHOR).round(), tint)
 	elif not _draw_sprite("characters/" + character_id, feet, bool(state.get("facing_left", false)), tint, lift):
@@ -1733,8 +1740,8 @@ func _draw_ground_effect(effect: Dictionary) -> void:
 	var radius := float(effect.get("radius", 40.0))
 	var gem_id := String(effect.get("gem_id", ""))
 	if String(effect.get("mechanic", "")) == "orbit":
-		# Lâminas como estrelas girando, na cor do elemento da gema.
-		var star := VfxLayerScript.sheet_frame("sh_star", gem_id, _anim_time)
+		var orbit := String(SkillThemesScript.for_gem(gem_id).get("orbit", "sh_star"))
+		var star := VfxLayerScript.sheet_frame(orbit, gem_id, _anim_time)
 		for point: Vector2 in effect.get("points", []) as Array:
 			if star.is_empty():
 				_draw_sprite("vfx/needle", point, false, Color("c8f2f0"))
@@ -1769,9 +1776,16 @@ func _draw_ground_effect(effect: Dictionary) -> void:
 	var sanctuary := String(effect.get("mechanic", "")) == "sanctuary"
 	var remaining := clampf(float(effect.get("duration", 1.0)), 0.0, 1.0)
 	var tint := SkillThemesScript.tint(String(effect.get("gem_id", "")), Color("93c25a") if sanctuary else Color("b05ad9"))
+	var ground := String(SkillThemesScript.for_gem(gem_id).get("ground", ""))
+	var field := VfxLayerScript.sheet_frame(ground, gem_id, _anim_time) if not ground.is_empty() else {}
 	var circle := SpriteLibraryScript.texture("vfx/anim/el_magic_circle")
 	var texture := SpriteLibraryScript.texture("vfx/sanctuary" if sanctuary else "vfx/gravity")
-	if circle != null:
+	if not field.is_empty():
+		# Keep the field inside its gameplay radius; its own palette conveys the mechanic.
+		draw_set_transform(position.round(), 0.0, Vector2.ONE * radius * 2.0 / 64.0)
+		draw_texture_rect_region(field["texture"] as Texture2D, Rect2(-32.0, -32.0, 64.0, 64.0), field["region"] as Rect2, Color(1.0, 1.0, 1.0, 0.65 * remaining))
+		draw_set_transform(Vector2.ZERO)
+	elif circle != null:
 		# Círculo mágico animado, girando devagar, na cor do elemento da gema.
 		var side := float(circle.get_height())
 		var frame := int(_anim_time * 10.0) % maxi(1, int(circle.get_width() / side))

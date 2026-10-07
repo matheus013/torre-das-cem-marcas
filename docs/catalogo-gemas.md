@@ -71,7 +71,7 @@ Valores sao ponto de partida de balanceamento, nao prova de viabilidade equivale
 | Raizes Presas | `field` | Raizes brotam na mira e prendem a horda com lentidao forte. |
 | Pilar Sagrado | `meteor` | Coluna de luz cai na mira apos breve aviso. |
 | Esfera de Gelo | `projectile` | Esfera gelada que estilhaca no impacto e desacelera em area. |
-| Saraivada de Flechas | `volley` | Enquanto ativa, dispara flechas que atravessam um inimigo para todos os lados enquanto voce anda; fogo, gelo e raio se alternam a cada rajada. Consome Folego por segundo e segura a regeneracao; usar de novo encerra. |
+| Saraivada de Flechas | `volley` | Enquanto ativa, voce gira disparando flechas em sequencia muito rapida, mesmo andando. Cada volta alterna fogo, gelo e raio; as flechas atravessam um inimigo. Consome Folego por segundo e segura a regeneracao; usar de novo encerra. |
 | Trovao Descendente | `meteor` | Dois raios caem rapido ao redor da mira. |
 
 ## 20 suportes mecanicos

@@ -1,0 +1,57 @@
+{
+  "date": "2026-10-07",
+  "generator": "Built-in imagegen (no Forge)",
+  "sources": [
+    {
+      "file": "icons.png",
+      "prompt": "Use case: stylized-concept. Asset type: production RPG pixel art skill icon atlas. Generate ONE transparent PNG sheet, exactly 4 columns by 2 rows, evenly spaced equal square cells, no text, no grid lines. Eight separate icons. Style: detailed crisp hand-pixelled 32-bit fantasy skill icons, dark outlines, strong silhouette readable at 48px, not painterly or 3D, no decorative borders. Each icon centered in its cell, occupies 75% of cell, generous transparent padding, no shadows outside cell. Read left to right: row 1: (1) icy glass comet with faceted translucent cyan-white crystal head and frozen pale blue tail, absolutely NO fire/orange; (2) corrosive acid bubble, round green translucent toxic bubble with bright lime droplets and small dark green bubbles, NO purple; (3) ice orb, floating spherical pale blue crystal and snowflake sparks, NO fire or orange; (4) prismatic HOLY beam, a straight brilliant white-gold light ray shooting diagonally upward-right with tiny rainbow facets, NOT a comet, NO fire. Row 2: (1) PHYSICAL wide cleave, one broad silver steel crescent slash with gray metallic blade motion, NO fire; (2) earthquake rupture, cracked rugged gray-brown stone pieces thrust upward in circular seismic shock, NO lava or fire; (3) residual lightning chain, three connected distinct electric yellow-white nodes with blue branching arcs; (4) earth protective barrier, sturdy semicircular stone wall with shield silhouette, cyan defensive rune highlights, NO helmet. Truly transparent background. Keep every icon entirely inside its own equal cell."
+    },
+    {
+      "file": "fields.png",
+      "prompt": "Use case: stylized-concept. Asset type: game VFX animation atlas, transparent pixel-art PNG. EXACTLY 4 columns and 4 rows, regular equal-sized square cells, no labels, no borders. Four frame LOOP animation in each ROW, frames read left to right. Fixed view directly overhead, flat circular fields, not camera perspective. Each field centered at exactly the center of its cell, same diameter in all four frames, 76 percent cell diameter, transparent padding ALL sides; no pixels cross cell boundaries. Clear RPG pixel art, crisp pixels, readable at 64px. Row 1: active flaming ground field, circular dark red embers, small orange yellow flames dancing at rim and interior, frames flicker subtly, transparent gaps so terrain visible. Row 2: corrosive acid pool, circular green slime puddle, vivid lime bubbles and darker green rim, bubbles animate and ripple, no purple. Row 3: gravitational prison, circular violet-black vortex with lilac curved spirals swirling clockwise, dark center mostly translucent, moving swirl arms, NOT a black opaque disk. Row 4: entangling roots, circular network of woody brown twisting roots with sparse green leaves, transparent gaps, small shoots moving subtly. These are enduring ACTIVE LOOPING fields, no build-up or fade sequence. Frames must retain matching size and center, with real animation variations. No characters, no weapons, no lettering, no checkerboard, no floor/background, genuinely transparent RGBA.",
+      "bands": [
+        [
+          0,
+          291
+        ],
+        [
+          296,
+          589
+        ],
+        [
+          592,
+          891
+        ],
+        [
+          896,
+          1187
+        ]
+      ]
+    },
+    {
+      "file": "support.png",
+      "prompt": "Use case: stylized-concept. Asset type: RPG game animation sprite atlas, crisp pixel art, genuinely transparent PNG. EXACT regular grid FOUR columns FOUR rows. Every cell square, equal size. FOUR LOOP animation frames per row from left to right. All objects centered precisely, fixed maximum dimensions 70 percent cell width and height, TRANSPARENT 15 percent padding on EVERY cell side. No labels or grid lines. Row ONE: top-down holy healing ground field, delicate gold-white circular sigil, luminous cross/star and soft golden sparks, gaps transparent to terrain, same radius every frame, spark positions pulse subtly. Row TWO: top-down living healing grove circular field, graceful fresh green shoots, leaves and tiny turquoise healing lights in an open circular arrangement, transparent gaps, no tree trunk, gentle four frame growth pulse at fixed radius. Row THREE: individual orbiting steel BLADE, a curved silver iron blade with sharp crescent silhouette and dark handle, four frames glittering edge light changing, identical blade orientation pointing right in every frame (game rotates the sprite), no flames or colored spell effects, mostly silver-gray metal. Row FOUR: individual orbiting ice crystal, translucent angular cyan-white icicle shard pointing right, same size/position/orientation every frame with varying frosty sparkles, blue-white not purple, NO fire. Clean fantasy pixel art readable after reducing each cell to 64x64, sharp silhouettes, no painted background, no black fill, no perspective floor. Maintain exact even grid and padding, NO object touching another cell, no words, no numbers.",
+      "bands": [
+        [
+          0,
+          288
+        ],
+        [
+          292,
+          598
+        ],
+        [
+          603,
+          784
+        ],
+        [
+          790,
+          1024
+        ]
+      ]
+    }
+  ],
+  "importer": "godot --headless --path . --script tools/art/import_skill_assets.gd",
+  "runtime": "8 HUD icons (64x64) and 8 VFX strips (256x64, 4 frames); original alpha retained; shared row scale and transparent frame padding",
+  "backup": "/Users/matheus/Documents/projects/backups/game-dev-2026-10-07-before-skill-assets.tar.gz"
+}

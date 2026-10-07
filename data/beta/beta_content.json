@@ -1092,7 +1092,7 @@
     {
       "id": "saraivada_de_flechas",
       "name": "Saraivada de Flechas",
-      "description": "Enquanto ativa, dispara flechas que atravessam um inimigo para todos os lados enquanto voce anda; fogo, gelo e raio se alternam a cada rajada. Consome Folego por segundo e segura a regeneracao; usar de novo encerra.",
+      "description": "Enquanto ativa, voce gira disparando flechas em sequencia muito rapida, mesmo andando. Cada volta alterna fogo, gelo e raio; as flechas atravessam um inimigo. Consome Folego por segundo e segura a regeneracao; usar de novo encerra.",
       "mechanic": "volley",
       "tags": ["projectile", "magic", "duration", "damage"],
       "cooldown": 1.5,

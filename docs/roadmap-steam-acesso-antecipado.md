@@ -8,6 +8,12 @@ de playtests e aprovacoes, nao de estimativas de porcentagem.
 
 ## Situacao atual
 
+[Revisao visual das skills](revisao-assets-skills.md), 2026-10-07: 46 icones
+revisados, oito corrigidos e oito novas animacoes de quatro quadros para
+campos e orbitas. Avisos de raio/pilar nao exibem mais cometas indevidos.
+Suite do checkout compartilhado: 70 testes aprovados; pranchas de GPU
+inspecionadas. Legibilidade em hordas densas continua pendente.
+
 [Correcao de locomocao](correcao-locomocao.md), 2026-10-07: quatro protagonistas
 e 17 modelos de NPC com repouso separado, quatro direcoes e caminhada por
 distancia percorrida. Fontes v3 preservam identidade/armas; backup v2 mantido.

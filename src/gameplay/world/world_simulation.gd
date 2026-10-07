@@ -2837,9 +2837,11 @@ func _update_persistent_effects(delta: float) -> void:
 				persistent_effects.erase(effect)
 				continue
 			archer["breath"] = float(archer["breath"]) - cost
+			effect["elapsed"] = float(effect.get("elapsed", 0.0)) + delta
 			effect["tick_timer"] = float(effect["tick_timer"]) - delta
-			if float(effect["tick_timer"]) <= 0.0:
-				effect["tick_timer"] = float(effect["tick_interval"])
+			var shot_interval := maxf(0.001, float(effect["tick_interval"]) / float(effect["arrow_count"]))
+			while float(effect["tick_timer"]) <= 0.0:
+				effect["tick_timer"] = float(effect["tick_timer"]) + shot_interval
 				_fire_volley(effect)
 			continue
 		if mechanic == "mine":
@@ -2909,13 +2911,13 @@ func _toggle_volley(peer_id: int, effect: Dictionary, hit: Dictionary) -> void:
 		"tick_interval": float(effect.get("tick_interval", 0.4)), "tick_timer": 0.0,
 		"arrow_count": clampi(int(effect.get("arrow_count", 24)), 1, 48),
 		"breath_per_second": float(effect.get("breath_per_second", 9.0)), "volley_index": 0, "hit": hit,
+		"elapsed": 0.0, "start_angle": (player(peer_id).get("facing_direction", Vector2.DOWN) as Vector2).angle(),
 		"pierce": clampi(int(effect.get("pierce", 0)), 0, 6),
 	})
 
 
-## Uma rajada: flechas em círculo, girando meio passo a cada rajada; cada uma acerta o primeiro
-## inimigo no caminho e atravessa tantos outros quanto a perfuração. O elemento alterna entre rajadas: fogo bate mais forte, gelo desacelera,
-## raio deixa vulnerável.
+## Um disparo por passo angular: uma volta conserva a quantidade e o tempo da antiga
+## rajada. O acumulador preserva a cadencia mesmo quando cabem varias flechas num frame.
 func _fire_volley(effect: Dictionary) -> void:
 	var peer_id := int(effect["owner_peer"])
 	var state := player(peer_id)
@@ -2923,19 +2925,27 @@ func _fire_volley(effect: Dictionary) -> void:
 	var count := int(effect["arrow_count"])
 	var index := int(effect["volley_index"])
 	effect["volley_index"] = index + 1
-	var element := VOLLEY_ELEMENTS[index % VOLLEY_ELEMENTS.size()] as Dictionary
+	var element := VOLLEY_ELEMENTS[(index / count) % VOLLEY_ELEMENTS.size()] as Dictionary
 	var hit := (effect["hit"] as Dictionary).duplicate()
 	for key: String in element:
 		if key != "id" and key != "power_multiplier":
 			hit[key] = maxf(float(hit.get(key, 0.0)), float(element[key]))
 	var previous_theme := _vfx_theme
 	_vfx_theme = "element:" + String(element["id"])
-	for arrow in range(count):
-		var direction := Vector2.RIGHT.rotated(TAU * (float(arrow) + 0.5 * float(index % 2)) / float(count))
-		var end := origin + direction * float(effect["range"])
-		_vfx(state["zone"], "travel", ["vfx/arrow", origin, end, 0.22, 14.0])
-		_damage_segment(peer_id, origin, end, 16.0, float(effect["power"]) * float(element.get("power_multiplier", 1.0)), 1 + int(effect.get("pierce", 0)), hit)
+	var direction := Vector2.RIGHT.rotated(float(effect.get("start_angle", 0.0)) + TAU * float(index % count) / float(count))
+	var end := origin + direction * float(effect["range"])
+	_vfx(state["zone"], "travel", ["vfx/arrow", origin + direction * 18.0, end, 0.22, 14.0])
+	_damage_segment(peer_id, origin, end, 16.0, float(effect["power"]) * float(element.get("power_multiplier", 1.0)), 1 + int(effect.get("pierce", 0)), hit)
 	_vfx_theme = previous_theme
+
+
+func _volley_spin(peer_id: int) -> Dictionary:
+	for effect in persistent_effects:
+		if effect["mechanic"] == "volley" and int(effect["owner_peer"]) == peer_id:
+			var elapsed := float(effect.get("elapsed", 0.0))
+			var speed := TAU / maxf(0.001, float(effect["tick_interval"]))
+			return {"phase": fposmod(float(effect.get("start_angle", 0.0)) + elapsed * speed, TAU), "elapsed": elapsed}
+	return {}
 
 
 func _summon_target(effect: Dictionary) -> int:
@@ -3491,6 +3501,7 @@ func view_snapshot() -> Dictionary:
 			"position": state["position"],
 			"facing_left": state["facing_left"],
 			"facing_direction": state.get("facing_direction", Vector2.DOWN),
+			"volley_spin": _volley_spin(peer_id),
 			"moving": state["moving"],
 			"health": state["health"],
 			"max_health": max_health(peer_id),
