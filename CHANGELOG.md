@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.10.1](https://github.com/matheus013/torre-das-cem-marcas/compare/v0.10.0...v0.10.1) (2026-10-08)
+
+### Correcoes
+
+* vila travando (~7 FPS) por bordas de grama desenhadas uma a uma ([2269c61](https://github.com/matheus013/torre-das-cem-marcas/commit/2269c61203429d22e5a614bc4fa54bd83af05fbe))
+
 ## [0.10.0](https://github.com/matheus013/torre-das-cem-marcas/compare/v0.9.0...v0.10.0) (2026-10-07)
 
 ### Novidades
