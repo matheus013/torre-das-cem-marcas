@@ -72,7 +72,7 @@ Valores sao ponto de partida de balanceamento, nao prova de viabilidade equivale
 | Pilar Sagrado | `meteor` | Coluna de luz cai na mira apos breve aviso. |
 | Esfera de Gelo | `projectile` | Esfera gelada que estilhaca no impacto e desacelera em area. |
 | Saraivada de Flechas | `volley` | Enquanto ativa, voce gira disparando flechas em sequencia muito rapida, mesmo andando. Cada volta alterna fogo, gelo e raio; as flechas atravessam um inimigo. Consome Folego por segundo e segura a regeneracao; usar de novo encerra. |
-| Esporos | `spores` | Infecta um unico alvo com esporos: nao causa dano direto; o veneno comeca em 5 por segundo, cresce 20% a cada tick e nao escala com atributos. Quando o alvo morre, os esporos passam, com o dano atual, aos inimigos proximos. |
+| Esporos | `spores` | Infecta um unico alvo com esporos: nao causa dano direto; o veneno comeca em 5 por segundo, cresce 20% a cada tick e o dano nao escala com atributos. Quando o alvo morre, os esporos passam, com o dano atual, aos inimigos proximos; o raio dessa explosao cresce com a Inteligencia (ate o dobro). |
 | Poca de Veneno | `poison_pool` | Cria uma poca de toxina que dura 20 s. Inimigos dentro ficam envenenados (dano constante por segundo que escala com Inteligencia e dura 2 s apos sair). |
 | Trovao Descendente | `meteor` | Dois raios caem rapido ao redor da mira. |
 

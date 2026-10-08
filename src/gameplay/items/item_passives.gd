@@ -219,7 +219,7 @@ static func step_burns(sim: RefCounted, delta: float) -> void:
 		enemy["burn_tick"] = BURN_TICK
 		var peer_id := int(enemy.get("burn_peer", 0))
 		if (sim.get("players") as Dictionary).has(peer_id):
-			sim.call("damage_enemy", peer_id, index, float(enemy.get("burn_dps", 0.0)) * BURN_TICK, {"passive": true, "damage_type": "arcane", "element": "fire"})
+			sim.call("damage_enemy", peer_id, index, float(enemy.get("burn_dps", 0.0)) * BURN_TICK, {"passive": true, "dot": true, "damage_type": "arcane", "element": "fire"})
 
 
 # ---------------------------------------------------------------- regras

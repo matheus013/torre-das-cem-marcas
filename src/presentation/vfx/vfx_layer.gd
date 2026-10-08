@@ -489,6 +489,9 @@ func _draw_number(effect: Dictionary, progress: float) -> void:
 	elif style == "poison":
 		font_size = 15
 		color = Color("8fe05a")
+	elif style == "burn":
+		font_size = 15
+		color = Color("ff9a3c")
 	var font := ThemeDB.fallback_font
 	var text := String(effect["text"])
 	var width := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x

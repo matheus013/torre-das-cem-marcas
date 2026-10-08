@@ -1112,7 +1112,7 @@
     {
       "id": "esporos",
       "name": "Esporos",
-      "description": "Infecta um unico alvo com esporos: nao causa dano direto; o veneno comeca em 5 por segundo, cresce 20% a cada tick e nao escala com atributos. Quando o alvo morre, os esporos passam, com o dano atual, aos inimigos proximos.",
+      "description": "Infecta um unico alvo com esporos: nao causa dano direto; o veneno comeca em 5 por segundo, cresce 20% a cada tick e o dano nao escala com atributos. Quando o alvo morre, os esporos passam, com o dano atual, aos inimigos proximos; o raio dessa explosao cresce com a Inteligencia (ate o dobro).",
       "mechanic": "spores",
       "tags": ["poison", "precision", "duration", "damage"],
       "cooldown": 6,

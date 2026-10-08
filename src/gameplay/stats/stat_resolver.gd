@@ -4,6 +4,9 @@ extends RefCounted
 const FIRST_SOFT_CAP := 100.0
 const SECOND_SOFT_CAP := 200.0
 const THIRD_SOFT_CAP := 300.0
+## Inteligência amplia o raio da explosão de esporos: +0,4% por ponto efetivo, até +100%.
+const SPORE_SPREAD_PER_INTELLIGENCE := 0.004
+const SPORE_SPREAD_CAP := 1.0
 
 
 static func effective_primary(raw_value: float) -> float:
@@ -43,6 +46,7 @@ static func resolve(raw_stats: Dictionary) -> Dictionary:
 		"magical_power": intelligence,
 		"barrier_multiplier": 1.0 + minf(intelligence * 0.002, 0.60),
 		"healing_multiplier": 1.0 + minf(intelligence * 0.0015, 0.45),
+		"spore_spread_multiplier": 1.0 + minf(intelligence * SPORE_SPREAD_PER_INTELLIGENCE, SPORE_SPREAD_CAP),
 		"movement_speed_multiplier": 1.0 + minf(agility * 0.001, 0.25),
 		"dodge_recovery_multiplier": 1.0 + minf(agility * 0.0015, 0.35),
 		"automatic_attack_rate_multiplier": 1.0 + minf(agility * 0.001, 0.25),

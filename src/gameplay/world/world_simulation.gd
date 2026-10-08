@@ -2371,7 +2371,10 @@ func _damage_enemy(peer_id: int, index: int, damage: float, hit: Dictionary) -> 
 	var zone := arena_zone()
 	var enemy := enemies[index]
 	var enemy_position := enemy["position"] as Vector2
-	if int(enemy.get("shield_hits", 0)) > 0:
+	var dot := bool(hit.get("dot", false))
+	# Dano contínuo (veneno, queimadura) não é bloqueável nem esquivável: ignora escudos e não
+	# consome cargas de bloqueio (regressão de 2026-10-07).
+	if not dot and int(enemy.get("shield_hits", 0)) > 0:
 		enemy["shield_hits"] = int(enemy["shield_hits"]) - 1
 		_vfx(zone, "label", [enemy_position, "BLOQUEIO", Color("c9d4d6"), "block"])
 		return
@@ -2395,8 +2398,8 @@ func _damage_enemy(peer_id: int, index: int, damage: float, hit: Dictionary) -> 
 	var race_trait := String(enemy.get("race_trait", ""))
 	if race_trait == "stone_skin" and String(hit.get("damage_type", "physical")) == "physical":
 		damage *= 0.85
-	if bool(hit.get("dot", false)):
-		_vfx(zone, "number", [enemy_position, damage, false, "poison"])
+	if dot:
+		_vfx(zone, "number", [enemy_position, damage, false, "poison" if hit.has("poison") else "burn"])
 	else:
 		_vfx(zone, "number", [enemy_position, damage, critical])
 		_vfx(zone, "spark", [enemy_position])
@@ -2436,8 +2439,10 @@ func _damage_enemy(peer_id: int, index: int, damage: float, hit: Dictionary) -> 
 	if float(hit.get("vulnerable", 0.0)) > 0.0:
 		enemy["vulnerable_amount"] = float(hit["vulnerable"])
 		enemy["vulnerable_timer"] = maxf(float(enemy.get("vulnerable_timer", 0.0)), float(hit.get("vulnerable_duration", 3.0)))
-	enemy["hits_received"] = int(enemy.get("hits_received", 0)) + 1
-	if race_trait == "adaptive_shell" and int(enemy["hits_received"]) % 3 == 0:
+	# Ticks de dano contínuo não contam como golpes: a Casca Adaptável não cria escudo com eles.
+	if not dot:
+		enemy["hits_received"] = int(enemy.get("hits_received", 0)) + 1
+	if not dot and race_trait == "adaptive_shell" and int(enemy["hits_received"]) % 3 == 0:
 		enemy["shield_hits"] = int(enemy.get("shield_hits", 0)) + 1
 	if float(enemy["health"]) > 0.0:
 		return
@@ -3120,8 +3125,8 @@ func _spread_poisons(defeated: Dictionary) -> void:
 		return
 	var origin := defeated["position"] as Vector2
 	var spread := 0
-	# Alcance de proliferação (afixo da Presa da Serpente) amplia o raio de quem aplicou.
-	var radius := float(spore["spread_radius"]) * (_mod(int(spore["peer"]), "poison_spread_mult") if players.has(int(spore["peer"])) else 1.0)
+	# Alcance de proliferação (afixo da Presa da Serpente) e Inteligência de quem aplicou ampliam o raio.
+	var radius := float(spore["spread_radius"]) * (spore_spread_multiplier(int(spore["peer"])) if players.has(int(spore["peer"])) else 1.0)
 	_vfx(arena_zone(), "ring", [origin, radius])
 	for enemy in enemies:
 		if spread >= SPORE_SPREAD_LIMIT:
@@ -3133,6 +3138,11 @@ func _spread_poisons(defeated: Dictionary) -> void:
 			if float(copy["damage"]) >= float((poisons.get("esporo", {}) as Dictionary).get("damage", 0.0)):
 				poisons["esporo"] = copy
 			spread += 1
+
+
+## Multiplicador do raio da explosão de esporos: Inteligência (StatResolver) vezes afixos e passivas.
+func spore_spread_multiplier(peer_id: int) -> float:
+	return float(derived_stats(peer_id).get("spore_spread_multiplier", 1.0)) * _mod(peer_id, "poison_spread_mult")
 
 
 ## Saraivada: usar de novo encerra; senão acompanha a portadora disparando em círculo.
@@ -4077,6 +4087,7 @@ func detailed_stats(peer_id: int) -> Dictionary:
 		["Dano recebido (marcos e itens)", "x%.2f" % _mod(peer_id, "damage_taken_mult")],
 		["Roubo de Vida", "%.1f%%" % (_mod(peer_id, "life_steal_add") * 100.0)],
 		["Alcance de proliferacao de veneno", "+%.0f%%" % ((_mod(peer_id, "poison_spread_mult") - 1.0) * 100.0)],
+		["Raio da explosao de esporos (Inteligencia)", "+%.0f%% (teto +%.0f%%)" % [(float(derived.get("spore_spread_multiplier", 1.0)) - 1.0) * 100.0, StatResolver.SPORE_SPREAD_CAP * 100.0]],
 	]
 	var damage: Array[Array] = []
 	for row in DAMAGE_BONUS_ROWS:
