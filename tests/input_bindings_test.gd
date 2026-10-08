@@ -74,23 +74,23 @@ func _run() -> void:
 	if (dialog.get("_bindings") as Dictionary)["skill_1"] != KEY_Z:
 		return _fail("Window input routing did not deliver a captured key")
 	dialog.call("_begin_capture", "inventory")
-	dialog.call("_input", _key(KEY_B))
+	dialog.call("_input", _key(KEY_N))
 	dialog.call("_begin_capture", "move_right")
 	dialog.call("_input", _key(KEY_D))
 	if Bindings.label("skill_1") != "Q":
 		return _fail("Pending controls affected gameplay before Apply")
 	dialog.call("_apply")
-	if Bindings.label("skill_1") != "Z" or Bindings.read(PATH)["inventory"] != KEY_B or not Bindings.pressed(_key(KEY_B), "inventory") or Bindings.pressed(_key(KEY_I), "inventory"):
+	if Bindings.label("skill_1") != "Z" or Bindings.read(PATH)["inventory"] != KEY_N or not Bindings.pressed(_key(KEY_N), "inventory") or Bindings.pressed(_key(KEY_I), "inventory"):
 		return _fail("Apply did not persist and replace keyboard actions")
 	title.queue_free()
 	await process_frame
 	var village := (load("res://src/prototype/village/village_exploration.tscn") as PackedScene).instantiate()
 	root.add_child(village)
 	(village.get("_character_panel") as Control).hide()
-	village.call("_unhandled_input", _key(KEY_B))
+	village.call("_unhandled_input", _key(KEY_N))
 	if not (village.get("_player_menu") as Control).visible:
 		return _fail("Remapped inventory key did not open the live menu")
-	village.call("_unhandled_input", _key(KEY_B))
+	village.call("_unhandled_input", _key(KEY_N))
 	if (village.get("_player_menu") as Control).visible:
 		return _fail("Remapped inventory key did not close the live menu")
 	Input.action_press("aresta_move_right")

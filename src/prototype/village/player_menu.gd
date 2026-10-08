@@ -4,10 +4,12 @@ extends Control
 const BindingsScript := preload("res://src/core/app/input_bindings.gd")
 
 signal stat_requested(stat: StringName)
+signal stats_reset_requested
 signal milestone_requested(choice_id: StringName)
 signal equip_requested(instance_id: StringName)
 signal unequip_requested(slot: int, index: int)
 signal sell_requested(instance_id: StringName)
+signal sell_all_requested
 signal loot_filter_requested(tier: String)
 signal auto_sell_requested(tier: String)
 signal gem_slot_requested(slot: int, gem_id: String)
@@ -34,6 +36,9 @@ var _tab_buttons: Dictionary = {}
 var _scroll: ScrollContainer
 var _sell_dialog: ConfirmationDialog
 var _pending_sell: StringName = &""
+var _sell_all_dialog: ConfirmationDialog
+var _reset_dialog: ConfirmationDialog
+var _bestiary_selected := ""
 var _show_details := false
 
 
@@ -107,11 +112,12 @@ func _build_shell() -> void:
 	var tabs := HBoxContainer.new()
 	tabs.add_theme_constant_override("separation", 6)
 	root_column.add_child(tabs)
-	for spec in [["inventory", "INVENTARIO"], ["character", "PERSONAGEM"], ["skills", "SKILLS"], ["tower", "TORRE"]]:
+	for spec in [["inventory", "INVENTARIO"], ["character", "PERSONAGEM"], ["skills", "SKILLS"], ["tower", "TORRE"], ["bestiary", "BESTIARIO"]]:
 		var button := Button.new()
 		button.text = spec[1]
 		button.toggle_mode = true
 		button.custom_minimum_size = Vector2(150.0, 36.0)
+		button.name = "Tab_%s" % spec[0]
 		button.pressed.connect(_select_tab.bind(spec[0]))
 		tabs.add_child(button)
 		_tab_buttons[spec[0]] = button
@@ -145,6 +151,7 @@ func _rebuild() -> void:
 		"character": _build_character()
 		"skills": _build_skills()
 		"tower": _build_tower()
+		"bestiary": _build_bestiary()
 		_: _build_inventory()
 
 
@@ -176,7 +183,16 @@ func _build_inventory() -> void:
 	right.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	top.add_child(right)
 	var available: Array = _model.get("inventory_equipment", []) as Array
-	right.add_child(_header_label("MOCHILA", "%d pecas  |  %d P" % [available.size(), int(_model.get("silver", 0))]))
+	var backpack_header := _header_label("MOCHILA", "%d pecas  |  %d P" % [available.size(), int(_model.get("silver", 0))])
+	var sell_all := Button.new()
+	sell_all.name = "SellAll"
+	var preview := _model.get("sell_all", {}) as Dictionary
+	sell_all.text = "VENDER TUDO"
+	sell_all.disabled = int(preview.get("count", 0)) == 0
+	sell_all.tooltip_text = "Vende %d pecas da mochila por %d P. Pecas equipadas, lendarias e armas unicas ficam." % [int(preview.get("count", 0)), int(preview.get("price", 0))]
+	sell_all.pressed.connect(_confirm_sell_all)
+	backpack_header.add_child(sell_all)
+	right.add_child(backpack_header)
 	var grid := GridContainer.new()
 	grid.name = "Backpack"
 	grid.columns = BACKPACK_COLUMNS
@@ -349,6 +365,157 @@ func _confirm_sell(entry: Dictionary) -> void:
 	_sell_dialog.popup_centered()
 
 
+func _confirm_reset_stats() -> void:
+	if _reset_dialog == null:
+		_reset_dialog = ConfirmationDialog.new()
+		_reset_dialog.name = "ResetStatsDialog"
+		_reset_dialog.title = "Resetar atributos"
+		_reset_dialog.ok_button_text = "Resetar"
+		_reset_dialog.cancel_button_text = "Manter"
+		_reset_dialog.dialog_text = "Devolver todos os pontos distribuidos para redistribuir?\nGemas podem agir num nivel menor ate os requisitos voltarem a ser cumpridos."
+		_reset_dialog.confirmed.connect(func() -> void: stats_reset_requested.emit())
+		add_child(_reset_dialog)
+	_reset_dialog.popup_centered()
+
+
+## Vender tudo pede confirmação com quantidade e valor; lendários e armas únicas nunca entram.
+func _confirm_sell_all() -> void:
+	if _sell_all_dialog == null:
+		_sell_all_dialog = ConfirmationDialog.new()
+		_sell_all_dialog.name = "SellAllDialog"
+		_sell_all_dialog.title = "Vender tudo"
+		_sell_all_dialog.ok_button_text = "Vender tudo"
+		_sell_all_dialog.cancel_button_text = "Manter"
+		_sell_all_dialog.confirmed.connect(func() -> void: sell_all_requested.emit())
+		add_child(_sell_all_dialog)
+	var preview := _model.get("sell_all", {}) as Dictionary
+	_sell_all_dialog.dialog_text = "Vender %d pecas da mochila por %d P?\nPecas equipadas, lendarias e armas unicas ficam." % [int(preview.get("count", 0)), int(preview.get("price", 0))]
+	_sell_all_dialog.popup_centered()
+
+
+## Bestiário (decisão 593): lista por bioma à esquerda e ficha do monstro à direita. Cada nível de
+## conhecimento, conquistado por abates, revela uma seção da ficha.
+func _build_bestiary() -> void:
+	var book := _model.get("bestiary", {}) as Dictionary
+	var entries := book.get("entries", []) as Array
+	_content.add_child(_header_label("BESTIARIO", "%d de %d descobertos" % [int(book.get("discovered", 0)), int(book.get("total", 0))]))
+	if entries.is_empty():
+		_add_text("Nenhum monstro catalogado.", MUTED)
+		return
+	var selected := {}
+	for entry: Dictionary in entries:
+		if String(entry["id"]) == _bestiary_selected:
+			selected = entry
+	if selected.is_empty():
+		for entry: Dictionary in entries:
+			if int(entry["level"]) > 0:
+				selected = entry
+				break
+	if selected.is_empty():
+		selected = entries[0] as Dictionary
+	_bestiary_selected = String(selected["id"])
+	var columns := HBoxContainer.new()
+	columns.add_theme_constant_override("separation", 16)
+	_content.add_child(columns)
+	var list := VBoxContainer.new()
+	list.name = "BestiaryList"
+	list.custom_minimum_size = Vector2(290.0, 0.0)
+	list.add_theme_constant_override("separation", 3)
+	columns.add_child(list)
+	var biome := ""
+	for entry: Dictionary in entries:
+		if String(entry["biome"]) != biome:
+			biome = String(entry["biome"])
+			var title := Label.new()
+			title.text = biome.to_upper()
+			title.add_theme_color_override("font_color", BORDER)
+			title.add_theme_font_size_override("font_size", 12)
+			list.add_child(title)
+		var button := Button.new()
+		button.name = "Beast_%s" % String(entry["id"])
+		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		button.toggle_mode = true
+		button.button_pressed = entry == selected
+		button.text = "%s  %s%s" % [_stars(int(entry["level"])), String(entry["name"]), "  [%s]" % String(entry["class_name"]) if String(entry["class"]) != "common" else ""]
+		button.tooltip_text = "%s: %d abates" % [String(entry["level_name"]), int(entry["kills"])]
+		var enemy_id := String(entry["id"])
+		button.pressed.connect(func() -> void:
+			_bestiary_selected = enemy_id
+			_rebuild())
+		list.add_child(button)
+	var detail := VBoxContainer.new()
+	detail.name = "BestiaryDetail"
+	detail.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	detail.add_theme_constant_override("separation", 6)
+	columns.add_child(detail)
+	var head := HBoxContainer.new()
+	head.add_theme_constant_override("separation", 12)
+	detail.add_child(head)
+	var portrait := TextureRect.new()
+	portrait.custom_minimum_size = Vector2(72.0, 72.0)
+	portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	portrait.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	if not String(selected["portrait"]).is_empty():
+		var key := "enemies/" + String(selected["portrait"])
+		portrait.texture = SpriteLibraryScript.actor_frame(key, Vector2.DOWN, false, 0.0)
+		if portrait.texture == null:
+			portrait.texture = SpriteLibraryScript.texture(key)
+	else:
+		portrait.modulate = Color(0.0, 0.0, 0.0, 0.6)
+	head.add_child(portrait)
+	var names := VBoxContainer.new()
+	head.add_child(names)
+	var name_label := Label.new()
+	name_label.name = "BeastName"
+	name_label.text = String(selected["name"])
+	name_label.add_theme_font_size_override("font_size", 20)
+	name_label.add_theme_color_override("font_color", GOLD)
+	names.add_child(name_label)
+	var knowledge := Label.new()
+	knowledge.name = "BeastKnowledge"
+	knowledge.text = "%s  %s  |  %d abates" % [_stars(int(selected["level"])), String(selected["level_name"]), int(selected["kills"])]
+	knowledge.add_theme_color_override("font_color", TEXT)
+	names.add_child(knowledge)
+	var progress := Label.new()
+	progress.name = "BeastNext"
+	progress.add_theme_color_override("font_color", MUTED)
+	if int(selected["next"]) > 0:
+		progress.text = "Abata mais %d para revelar: %s" % [int(selected["next"]) - int(selected["kills"]), String(selected["next_section"])]
+	else:
+		progress.text = "Conhecimento completo."
+	names.add_child(progress)
+	for section: Dictionary in selected.get("sections", []) as Array:
+		var title := Label.new()
+		title.text = String(section["title"]).to_upper()
+		title.add_theme_color_override("font_color", GOLD)
+		title.add_theme_font_size_override("font_size", 14)
+		detail.add_child(title)
+		var grid := GridContainer.new()
+		grid.columns = 2
+		grid.add_theme_constant_override("h_separation", 14)
+		grid.add_theme_constant_override("v_separation", 3)
+		detail.add_child(grid)
+		for row: Array in section["rows"] as Array:
+			var key_label := Label.new()
+			key_label.text = String(row[0])
+			key_label.add_theme_color_override("font_color", MUTED)
+			key_label.custom_minimum_size = Vector2(150.0, 0.0)
+			key_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			grid.add_child(key_label)
+			var value_label := Label.new()
+			value_label.text = String(row[1])
+			value_label.add_theme_color_override("font_color", TEXT)
+			value_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			value_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			value_label.custom_minimum_size = Vector2(260.0, 0.0)
+			grid.add_child(value_label)
+
+
+static func _stars(level: int) -> String:
+	return "★".repeat(level) + "☆".repeat(5 - level)
+
+
 func _loot_rows(loot: Dictionary, empty_text: String) -> void:
 	if loot.is_empty():
 		_add_text(empty_text, MUTED)
@@ -400,6 +567,14 @@ func _build_character() -> void:
 		add_button.pressed.connect(func() -> void: stat_requested.emit(StringName(stat_id)))
 		row.add_child(add_button)
 		_content.add_child(row)
+	var reset := Button.new()
+	reset.name = "ResetStats"
+	reset.text = "RESETAR ATRIBUTOS"
+	reset.tooltip_text = "Devolve todos os pontos distribuidos para redistribuir. Bonus das evolucoes e do equipamento ficam."
+	reset.custom_minimum_size = Vector2(200.0, 32.0)
+	reset.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	reset.pressed.connect(_confirm_reset_stats)
+	_content.add_child(reset)
 	_build_detailed_stats()
 	var derived := _model.get("derived_stats", {}) as Dictionary
 	_section("VALORES DE COMBATE", "atributos e equipamento")

@@ -95,6 +95,36 @@ func allocate_stat(stat: StringName, amount: int) -> bool:
 	return true
 
 
+## Pontos de atributo ganhos até o nível atual: 5 no nível 1 e 5 por nível que não é de evolução.
+func earned_stat_points() -> int:
+	var points := STAT_POINTS_PER_REGULAR_LEVEL
+	for reached in range(2, level + 1):
+		if reached % EVOLUTION_INTERVAL != 0:
+			points += STAT_POINTS_PER_REGULAR_LEVEL
+	return points
+
+
+## Atributos que vêm das evoluções escolhidas (não voltam no reset).
+func milestone_stat_bonus() -> Dictionary:
+	var bonus := {}
+	for milestone_level: Variant in selected_milestones:
+		for candidate_value: Variant in milestone_choices.get(milestone_level, []) as Array:
+			var choice := candidate_value as EvolutionChoice
+			if choice.id == selected_milestones[milestone_level]:
+				for stat: Variant in choice.stat_modifiers:
+					bonus[stat] = float(bonus.get(stat, 0.0)) + float(choice.stat_modifiers[stat])
+	return bonus
+
+
+## Devolve todos os pontos distribuídos; os bônus das evoluções ficam. Retorna os pontos livres.
+func reset_stats() -> int:
+	var bonus := milestone_stat_bonus()
+	for stat in PRIMARY_STATS:
+		base_stats[stat] = float(bonus.get(stat, 0.0))
+	unspent_stat_points = earned_stat_points()
+	return unspent_stat_points
+
+
 func derived_stats() -> Dictionary:
 	return StatResolver.resolve(base_stats)
 

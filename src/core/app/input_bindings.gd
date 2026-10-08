@@ -20,6 +20,7 @@ const SPECS := {
 	"character": ["Personagem", KEY_C, "all"],
 	"skills": ["Gemas", KEY_G, "all"],
 	"tower": ["Mapa da Torre", KEY_T, "all"],
+	"bestiary": ["Bestiário", KEY_B, "all"],
 	"switch_character": ["Trocar personagem", KEY_V, "village"],
 	"quick_item": ["Item rápido", KEY_1, "tower"],
 	"save": ["Salvar", KEY_F5, "all"],

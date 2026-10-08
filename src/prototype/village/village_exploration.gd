@@ -451,6 +451,10 @@ func _apply_intent(peer_id: int, kind: String, args: Array) -> void:
 		"sell":
 			if args.size() == 1 and args[0] is String:
 				_sim.call("sell_item", peer_id, StringName(String(args[0])))
+		"sell_all":
+			_sim.call("sell_all", peer_id)
+		"reset_stats":
+			_sim.call("reset_stats", peer_id)
 		"loot_filter":
 			if args.size() == 1 and args[0] is String:
 				_sim.call("set_loot_filter", peer_id, String(args[0]))
@@ -787,7 +791,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			get_viewport().set_input_as_handled()
 		return
 	if command and _player_menu != null and _player_menu.visible:
-		if event.is_action_pressed("ui_cancel") or BindingsScript.pressed(event, "pause") or BindingsScript.pressed(event, "inventory") or BindingsScript.pressed(event, "character") or BindingsScript.pressed(event, "skills") or BindingsScript.pressed(event, "tower"):
+		if event.is_action_pressed("ui_cancel") or BindingsScript.pressed(event, "pause") or BindingsScript.pressed(event, "inventory") or BindingsScript.pressed(event, "character") or BindingsScript.pressed(event, "skills") or BindingsScript.pressed(event, "tower") or BindingsScript.pressed(event, "bestiary"):
 			_player_menu.call("close")
 		get_viewport().set_input_as_handled()
 		return
@@ -829,6 +833,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			_open_player_menu("skills")
 		elif BindingsScript.pressed(event, "tower"):
 			_open_player_menu("tower")
+		elif BindingsScript.pressed(event, "bestiary"):
+			_open_player_menu("bestiary")
 		elif BindingsScript.pressed(event, "interact") and _local_zone() == &"village":
 			var npc := _nearest_npc(110.0)
 			if not npc.is_empty():
@@ -2264,6 +2270,8 @@ func _build_interface() -> void:
 	_player_menu.equip_requested.connect(func(instance_id: StringName) -> void: _send_intent("equip", [String(instance_id)]))
 	_player_menu.unequip_requested.connect(func(slot: int, index: int) -> void: _send_intent("unequip", [slot, index]))
 	_player_menu.sell_requested.connect(func(instance_id: StringName) -> void: _send_intent("sell", [String(instance_id)]))
+	_player_menu.sell_all_requested.connect(func() -> void: _send_intent("sell_all", []))
+	_player_menu.stats_reset_requested.connect(func() -> void: _send_intent("reset_stats", []))
 	_player_menu.loot_filter_requested.connect(func(tier: String) -> void: _send_intent("loot_filter", [tier]))
 	_player_menu.auto_sell_requested.connect(func(tier: String) -> void: _send_intent("auto_sell", [tier]))
 	_player_menu.gem_slot_requested.connect(func(slot: int, gem_id: String) -> void: _send_intent("gem_slot", [slot, gem_id]))

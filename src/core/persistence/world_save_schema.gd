@@ -33,6 +33,8 @@ const SHAPE := {
 		"slots": [TYPE_STRING], "supports": [[TYPE_STRING]],
 		"gems": {"*": {"level": TYPE_FLOAT, "experience": TYPE_FLOAT, "choices": {"*": TYPE_STRING}}},
 	}},
+	"character_bestiary": {"*": {"*": {"kills": TYPE_FLOAT, "min_health": TYPE_FLOAT, "max_health": TYPE_FLOAT,
+		"drops": {"*": TYPE_FLOAT}, "affixes": {"*": TYPE_FLOAT}}}},
 	"village_life": {
 		"period": TYPE_FLOAT, "minds": {"*": {"memories": [TYPE_DICTIONARY], "facts": TYPE_ARRAY}},
 		"economy": {"stock": {"*": TYPE_FLOAT}, "deliveries": TYPE_FLOAT,

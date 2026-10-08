@@ -162,6 +162,7 @@ const GEM_SCALING_WEIGHTS: Array[float] = [0.6, 0.4, 0.25]
 const PICKUP_RADIUS := 34.0
 const MAX_GROUND_ITEM_VIEWS := 120
 const AutoSupports := preload("res://src/gameplay/equipment/auto_attack_supports.gd")
+const BestiaryScript := preload("res://src/gameplay/content/bestiary.gd")
 const STACK_RADIUS := 18.0
 const GEM_SLOT_KEYS: Array[String] = ["Q", "W", "E", "R"]
 
@@ -195,6 +196,8 @@ var character_builds: Dictionary = {}
 var character_experience: Dictionary = {}
 var character_gear: Dictionary = {}
 var character_gems: Dictionary = {}
+## Bestiário por personagem: {personagem: {inimigo: {kills, min_health, max_health, drops, affixes}}}.
+var character_bestiary: Dictionary = {}
 var equipment_instance_sequence := 1
 var active_gems: Array[Dictionary] = []
 var skill_max_cooldowns: Array[float] = [1.5, 3.0, 5.0, 8.0]
@@ -971,6 +974,19 @@ func allocate_stat(peer_id: int, stat: StringName) -> void:
 		var state := player(peer_id)
 		state["health"] = minf(float(state["health"]), max_health(peer_id))
 		_status(peer_id, "Ponto atribuido a %s." % String(stat).replace("_", " ").capitalize())
+
+
+## Reset de atributos: todos os pontos distribuídos voltam a ficar livres (evoluções ficam).
+func reset_stats(peer_id: int) -> bool:
+	var build := character_build(peer_id)
+	if build == null:
+		return false
+	var points := build.reset_stats()
+	_milestone_cache.erase(String(player(peer_id).get("character_id", "")))
+	var state := player(peer_id)
+	state["health"] = minf(float(state["health"]), max_health(peer_id))
+	_status(peer_id, "Atributos resetados: %d pontos livres para distribuir." % points)
+	return true
 
 
 func choose_milestone(peer_id: int, choice_id: StringName) -> void:
@@ -2519,6 +2535,7 @@ func _damage_enemy(peer_id: int, index: int, damage: float, hit: Dictionary) -> 
 		var encounter_class := StringName(String(defeated.get("encounter_class", "common")))
 		respawn.call("register_defeat", StringName(String(defeated.get("definition_id", ""))), encounter_class, enemy_position)
 		threat.call("register_defeat", encounter_class)
+		_record_bestiary_kill(defeated)
 		_grant_loot(peer_id, defeated)
 		for member in _players_in_arena():
 			_grant_experience(member, defeated)
@@ -3471,6 +3488,7 @@ func _grant_loot(peer_id: int, enemy: Dictionary) -> void:
 		var unique := _pick_unique_weapon(peer_id, quality_random)
 		if not unique.is_empty():
 			drops.append({"item_id": unique, "quantity": 1})
+	_record_bestiary_drops(enemy, drops)
 	var origin := enemy.get("position", state["position"]) as Vector2
 	for drop_index in range(drops.size()):
 		var drop := drops[drop_index] as Dictionary
@@ -4483,6 +4501,8 @@ func menu_model(peer_id: int) -> Dictionary:
 		"carried_loot": (state.get("carried_loot", {}) as Dictionary).duplicate(),
 		"banked_loot": banked_loot.duplicate(),
 		"inventory_equipment": _inventory_model(gear, peer_id),
+		"sell_all": sell_all_preview(peer_id),
+		"bestiary": bestiary_model(peer_id),
 		"silver": int(gear.get("silver", 0)), "loot_filter": String(gear.get("loot_filter", "common")), "auto_sell": String(gear.get("auto_sell", "")),
 		"equipped_count": equipment.equipped_count() if equipment != null else 0,
 		"equipment_slots": _slots_model(equipment, peer_id),
@@ -4584,6 +4604,239 @@ func _slots_model(equipment: EquipmentLoadout, peer_id: int) -> Array[Dictionary
 	return result
 
 
+# ---------------------------------------------------------------- bestiário
+
+func _bestiary_entry(peer_id: int, enemy_id: String) -> Dictionary:
+	var book := character_bestiary.get_or_add(String(player(peer_id).get("character_id", "")), {}) as Dictionary
+	return book.get_or_add(enemy_id, {"kills": 0, "min_health": 0.0, "max_health": 0.0, "drops": {}, "affixes": {}}) as Dictionary
+
+
+## Todo abate conta para quem está na arena (o grupo inteiro aprende com a luta).
+func _record_bestiary_kill(enemy: Dictionary) -> void:
+	var enemy_id := String(enemy.get("definition_id", ""))
+	if enemy_id.is_empty():
+		return
+	for member in _players_in_arena():
+		if not is_connected_player(member):
+			continue
+		var entry := _bestiary_entry(member, enemy_id)
+		entry["kills"] = int(entry["kills"]) + 1
+		var health := float(enemy.get("max_health", 0.0))
+		entry["min_health"] = health if float(entry["min_health"]) <= 0.0 else minf(float(entry["min_health"]), health)
+		entry["max_health"] = maxf(float(entry["max_health"]), health)
+		for key: String in ["prefix_id", "suffix_id"]:
+			var affix := String(enemy.get(key, ""))
+			if not affix.is_empty():
+				var affixes := entry["affixes"] as Dictionary
+				affixes[affix] = int(affixes.get(affix, 0)) + 1
+
+
+## Cada item que caiu conta uma vez por abate (taxa observada = vezes / abates).
+func _record_bestiary_drops(enemy: Dictionary, drops: Array) -> void:
+	var enemy_id := String(enemy.get("definition_id", ""))
+	if enemy_id.is_empty():
+		return
+	var seen := {}
+	for drop: Dictionary in drops:
+		seen[String(drop.get("item_id", ""))] = true
+	seen.erase("")
+	for member in _players_in_arena():
+		if not is_connected_player(member):
+			continue
+		var counted := _bestiary_entry(member, enemy_id)["drops"] as Dictionary
+		for item_id: String in seen:
+			counted[item_id] = int(counted.get(item_id, 0)) + 1
+
+
+func _restore_bestiary(raw: Variant) -> void:
+	character_bestiary = {}
+	if not raw is Dictionary:
+		return
+	for character: Variant in raw:
+		if not raw[character] is Dictionary:
+			continue
+		var book := {}
+		for enemy_id: Variant in raw[character]:
+			var saved: Variant = raw[character][enemy_id]
+			if not saved is Dictionary:
+				continue
+			var entry := {"kills": maxi(0, int(saved.get("kills", 0))), "min_health": maxf(0.0, float(saved.get("min_health", 0.0))),
+				"max_health": maxf(0.0, float(saved.get("max_health", 0.0))), "drops": {}, "affixes": {}}
+			for key: String in ["drops", "affixes"]:
+				var counts: Variant = saved.get(key, {})
+				if counts is Dictionary:
+					for item: Variant in counts:
+						if (counts[item] is int or counts[item] is float) and int(counts[item]) > 0:
+							(entry[key] as Dictionary)[String(item)] = int(counts[item])
+			book[String(enemy_id)] = entry
+		character_bestiary[String(character)] = book
+
+
+## Monstros do bestiário em ordem de bioma: comuns, elites e o guardião de cada bioma.
+func _bestiary_catalog() -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	var biomes := TowerContentScript.collection("biomes")
+	biomes.sort_custom(func(left: Dictionary, right: Dictionary) -> bool: return int((left["floors"] as Array)[0]) < int((right["floors"] as Array)[0]))
+	var listed := {}
+	for biome in biomes:
+		var group: Array[Dictionary] = []
+		for enemy_id: Variant in biome.get("enemies", []) as Array:
+			var definition := _find(_collection("enemies"), String(enemy_id))
+			if not definition.is_empty() and not listed.has(String(enemy_id)):
+				group.append({"definition": definition, "biome": biome, "boss": {}})
+				listed[String(enemy_id)] = true
+		group.sort_custom(func(left: Dictionary, right: Dictionary) -> bool: return String((left["definition"] as Dictionary).get("encounter_class", "")) == "common" and String((right["definition"] as Dictionary).get("encounter_class", "")) != "common")
+		for boss in TowerContentScript.collection("bosses"):
+			if String(boss.get("biome", "")) == String(biome.get("id", "")) and not listed.has(String(boss["id"])):
+				var definition := _find(_collection("enemies"), String(boss["id"])).duplicate(true)
+				definition["id"] = String(boss["id"])
+				definition["name"] = String(boss.get("name", definition.get("name", "")))
+				definition["encounter_class"] = "boss"
+				definition["health"] = float(boss.get("health", definition.get("health", 900.0)))
+				definition["damage"] = float(boss.get("damage", definition.get("damage", 24.0)))
+				definition["speed"] = float(boss.get("speed", definition.get("speed", 36.0)))
+				group.append({"definition": definition, "biome": biome, "boss": boss})
+				listed[String(boss["id"])] = true
+		result.append_array(group)
+	return result
+
+
+static func _times(count: int) -> String:
+	return "%d %s" % [count, "vez" if count == 1 else "vezes"]
+
+
+func bestiary_model(peer_id: int) -> Dictionary:
+	var book := character_bestiary.get(String(player(peer_id).get("character_id", "")), {}) as Dictionary
+	var entries: Array = []
+	var discovered := 0
+	for record in _bestiary_catalog():
+		var definition := record["definition"] as Dictionary
+		var enemy_id := String(definition.get("id", ""))
+		var encounter := String(definition.get("encounter_class", "common"))
+		var known := book.get(enemy_id, {}) as Dictionary
+		var kills := int(known.get("kills", 0))
+		var level := BestiaryScript.level(kills, encounter)
+		if level > 0:
+			discovered += 1
+		var biome := record["biome"] as Dictionary
+		entries.append({
+			"id": enemy_id, "name": String(definition.get("name", enemy_id)) if level > 0 else "???",
+			"class": encounter, "class_name": String(BestiaryScript.CLASS_NAMES.get(encounter, "Comum")),
+			"biome": String(biome.get("name", "")), "floors": biome.get("floors", [0, 0]),
+			"kills": kills, "level": level, "level_name": BestiaryScript.LEVEL_NAMES[level],
+			"next": BestiaryScript.next_threshold(kills, encounter),
+			"next_section": BestiaryScript.SECTION_NAMES[mini(level + 1, 5)] if level < 5 else "",
+			"portrait": enemy_id if level > 0 else "",
+			"sections": _bestiary_sections(definition, record["boss"] as Dictionary, biome, known, level),
+		})
+	return {"entries": entries, "discovered": discovered, "total": entries.size()}
+
+
+func _bestiary_sections(definition: Dictionary, boss: Dictionary, biome: Dictionary, known: Dictionary, level: int) -> Array:
+	var sections: Array = []
+	if level <= 0:
+		return sections
+	var encounter := String(definition.get("encounter_class", "common"))
+	var race := _find(_collection("monster_races"), String(definition.get("race_id", "")))
+	var rank := _find(_collection("enemy_ranks"), String(definition.get("rank_id", "")))
+	var floors := biome.get("floors", [0, 0]) as Array
+	sections.append({"title": BestiaryScript.SECTION_NAMES[1], "rows": [
+		["Raca", "%s. %s" % [String(race.get("name", "?")), String(race.get("description", ""))]],
+		["Patente", String(rank.get("name", "-"))],
+		["Classe", String(BestiaryScript.CLASS_NAMES.get(encounter, "Comum"))],
+		["Habitat", "%s (andares %d a %d)" % [String(biome.get("name", "")), int(floors[0]), int(floors[1])] if boss.is_empty() else "%s (andar %d)" % [String(biome.get("name", "")), int(boss.get("floor", 0))]],
+		["Abates", str(int(known.get("kills", 0)))],
+	]})
+	if not String(definition.get("lore", "")).is_empty():
+		(sections[0]["rows"] as Array).append(["Registro", String(definition["lore"])])
+	if level < 2:
+		return sections
+	var profile := race.get("stat_profile", {}) as Dictionary
+	var rank_factor := func(key: String) -> float: return maxf(0.05, float(rank.get(key, 1.0))) if boss.is_empty() else 1.0
+	var base_health := float(definition.get("health", 60.0)) * float(profile.get("health", 1.0)) * float(rank_factor.call("health_multiplier"))
+	var base_damage := float(definition.get("damage", 12.0)) * float(profile.get("damage", 1.0)) * float(rank_factor.call("damage_multiplier"))
+	var stats := [
+		["Vida base", "%d (cresce com o andar)" % roundi(base_health)],
+		["Vida observada", "%d a %d" % [roundi(float(known.get("min_health", 0.0))), roundi(float(known.get("max_health", 0.0)))]],
+		["Dano base", "%d" % roundi(base_damage)],
+		["Velocidade", "%d" % roundi(float(definition.get("speed", 42.0)) * float(profile.get("speed", 1.0)) * float(rank_factor.call("speed_multiplier")))],
+		["Intervalo de ataque", "%.2f s" % (float(definition.get("attack_interval", 0.8)) * float(profile.get("attack_interval", 1.0)))],
+		["EXP de gema por abate", str(int(EXPERIENCE_REWARDS.get(encounter, 12)))],
+	]
+	if not boss.is_empty():
+		stats.append(["Furia", "apos %d s de luta" % int(boss.get("enrage", 200))])
+	sections.append({"title": BestiaryScript.SECTION_NAMES[2], "rows": stats})
+	if level < 3:
+		return sections
+	var trait_id := String(race.get("trait", ""))
+	var resistances := PackedStringArray()
+	var trait_resistances := BestiaryScript.TRAIT_RESISTANCES.get(trait_id, {}) as Dictionary
+	for kind: String in trait_resistances:
+		resistances.append("%s %s" % [kind, BestiaryScript.percent(float(trait_resistances[kind]))])
+	var behaviour := [
+		["Mecanica", String(BestiaryScript.MECHANICS.get(String(definition.get("mechanic", "swarm")) if boss.is_empty() else "boss_kit", "Ataca corpo a corpo."))],
+		["Traco da raca", String(BestiaryScript.TRAITS.get(trait_id, "Nenhum traco especial."))],
+		["Resistencias", ", ".join(resistances) if not resistances.is_empty() else "Nenhuma"],
+		["Afixos", "%d a %d por exemplar" % [int(rank.get("minimum_affixes", 0)), int(rank.get("maximum_affixes", 0))] if bool(definition.get("allow_affixes", true)) and boss.is_empty() else "Nao recebe afixos"],
+	]
+	for ability: Dictionary in boss.get("abilities", []) as Array:
+		var detail := PackedStringArray()
+		if ability.has("damage"):
+			detail.append("dano %d" % int(ability["damage"]))
+		if ability.has("radius"):
+			detail.append("raio %d" % int(ability["radius"]))
+		if ability.has("count"):
+			detail.append("%d invocacoes" % int(ability["count"]))
+		if ability.has("cooldown"):
+			detail.append("a cada %.1f s" % float(ability["cooldown"]))
+		if int(ability.get("phase", 1)) > 1:
+			detail.append("a partir da fase %d" % int(ability["phase"]))
+		behaviour.append(["Habilidade", "%s: %s" % [String(BestiaryScript.ABILITIES.get(String(ability.get("type", "")), String(ability.get("type", "")))), ", ".join(detail)]])
+	if not boss.is_empty():
+		var phases := PackedStringArray()
+		for threshold: Variant in boss.get("phases", []) as Array:
+			phases.append("%d%%" % roundi(float(threshold) * 100.0))
+		behaviour.append(["Fases", "muda de fase com %s da Vida" % ", ".join(phases) if not phases.is_empty() else "fase unica"])
+	sections.append({"title": BestiaryScript.SECTION_NAMES[3], "rows": behaviour})
+	if level < 4:
+		return sections
+	var difficulty := LootDifficultyScript.score({"encounter_class": encounter, "rank_id": String(definition.get("rank_id", "maduro"))})
+	var loot := [] as Array
+	var table := _find(_collection("loot_tables"), String(boss.get("loot_table_id", definition.get("loot_table_id", ""))))
+	for drop: Dictionary in table.get("entries", []) as Array:
+		var chance := minf(1.0, float(drop.get("chance", 0.0)) * LootDifficultyScript.chance_multiplier(difficulty))
+		var amount := "%d" % int(drop.get("minimum", 1)) if int(drop.get("minimum", 1)) == int(drop.get("maximum", 1)) else "%d a %d" % [int(drop.get("minimum", 1)), int(drop.get("maximum", 1))]
+		loot.append([item_display_name(String(drop.get("item_id", ""))), "%s (x%s)" % [BestiaryScript.percent(chance), amount]])
+	loot.append(["Equipamento bonus", BestiaryScript.percent(LootDifficultyScript.bonus_chance(difficulty)) + (" (pode ser Reliquia)" if encounter in ["boss", "raid"] else "")])
+	loot.append(["Arma unica (de uma gema equipada)", BestiaryScript.percent(float(UNIQUE_WEAPON_CHANCE.get(encounter, 0.0)))])
+	loot.append(["Observacao", "Afixos no monstro aumentam as chances e as quantidades."])
+	sections.append({"title": BestiaryScript.SECTION_NAMES[4], "rows": loot})
+	if level < 5:
+		return sections
+	var kills := maxi(1, int(known.get("kills", 0)))
+	var field := [] as Array
+	var drops := known.get("drops", {}) as Dictionary
+	var drop_ids := drops.keys()
+	drop_ids.sort_custom(func(left: Variant, right: Variant) -> bool: return int(drops[left]) > int(drops[right]))
+	# Materiais um a um; equipamentos somados (cada peça é sorteada de uma lista grande).
+	var equipment := 0
+	for item_id: Variant in drop_ids:
+		if _is_equipment(String(item_id)):
+			equipment += int(drops[item_id])
+			continue
+		field.append(["Caiu: %s" % item_display_name(String(item_id)), "%s (%s dos abates)" % [_times(int(drops[item_id])), BestiaryScript.percent(float(drops[item_id]) / float(kills))]])
+	if equipment > 0:
+		field.append(["Caiu: equipamentos", "%d %s (%.2f por abate)" % [equipment, "peca" if equipment == 1 else "pecas", float(equipment) / float(kills)]])
+	var affixes := known.get("affixes", {}) as Dictionary
+	for affix_id: Variant in affixes:
+		var modifier := _find(_enemy_modifiers(), String(affix_id))
+		field.append(["Afixo visto: %s" % String(modifier.get("name", affix_id)), _times(int(affixes[affix_id]))])
+	if field.is_empty():
+		field.append(["Registro", "Nenhum saque observado ainda."])
+	sections.append({"title": BestiaryScript.SECTION_NAMES[5], "rows": field})
+	return sections
+
+
 # ---------------------------------------------------------------- salvamento
 
 ## Mundo do host. Somente o estado da jogadora local (host) é guardado como posição e carga.
@@ -4625,6 +4878,7 @@ func save_data(host_peer: int) -> Dictionary:
 		"character_progress": progress,
 		"character_gear": gear_data,
 		"character_gems": character_gems.duplicate(true),
+		"character_bestiary": character_bestiary.duplicate(true),
 		"equipment_instance_sequence": equipment_instance_sequence,
 	}
 
@@ -4684,6 +4938,7 @@ func load_data(data: Dictionary, host_peer: int) -> bool:
 	_restore_progress(data.get("character_progress", {}))
 	_restore_gear(data, StringName(String(data.get("character_id", "eloa"))))
 	_restore_gems(data.get("character_gems", {}), version)
+	_restore_bestiary(data.get("character_bestiary", {}))
 	var host := player(host_peer)
 	_milestone_cache.clear()
 	for peer_id: int in players:
@@ -4876,6 +5131,44 @@ func sell_item(peer_id: int, instance_id: StringName) -> int:
 	gear["silver"] = int(gear["silver"]) + price
 	_status(peer_id, "%s vendido por %d P." % [item_display_name(String(item.definition.id)), price])
 	return price
+
+
+## Peças que "Vender tudo" vende: todo o inventário fora o equipado, lendários e armas únicas.
+func _sellable_items(peer_id: int) -> Array[EquipmentItemInstance]:
+	var result: Array[EquipmentItemInstance] = []
+	var gear := _gear(peer_id)
+	if gear.is_empty():
+		return result
+	var legendary := TIER_ORDER.find("legendary")
+	for item: EquipmentItemInstance in (gear["inventory"] as ItemInventory).items.values():
+		if int(item.tier) >= legendary or _is_equipped(gear, item) or _find(_collection("items"), String(item.definition.id)).has("unique_gem"):
+			continue
+		result.append(item)
+	return result
+
+
+func sell_all_preview(peer_id: int) -> Dictionary:
+	var price := 0
+	var items := _sellable_items(peer_id)
+	for item in items:
+		price += item_sell_price(item)
+	return {"count": items.size(), "price": price}
+
+
+## Vende de uma vez tudo o que sell_all_preview conta. Devolve a prata recebida.
+func sell_all(peer_id: int) -> int:
+	var gear := _gear(peer_id)
+	var items := _sellable_items(peer_id)
+	if items.is_empty():
+		_status(peer_id, "Nada para vender: pecas equipadas, lendarias e armas unicas ficam.")
+		return 0
+	var earned := 0
+	for item in items:
+		earned += item_sell_price(item)
+		(gear["inventory"] as ItemInventory).remove(item.instance_id)
+	gear["silver"] = int(gear["silver"]) + earned
+	_status(peer_id, "Vendidas %d %s por %d P." % [items.size(), "peca" if items.size() == 1 else "pecas", earned])
+	return earned
 
 
 ## Filtro de saque: equipamentos abaixo desta raridade ficam no chão. "common" recolhe tudo.
