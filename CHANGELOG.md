@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.14.0](https://github.com/matheus013/torre-das-cem-marcas/compare/v0.13.0...v0.14.0) (2026-10-08)
+
+### Novidades
+
+* bestiario por abates, vender tudo e reset de atributos ([2eb4c10](https://github.com/matheus013/torre-das-cem-marcas/commit/2eb4c10ab8dc0b762823f511f22eca90c7c05ec9))
+* loja de equipamentos na Forja da Dalia ([6827e65](https://github.com/matheus013/torre-das-cem-marcas/commit/6827e6569ac520c2ab003b657350c6d617d4b0d8))
+
+### Correcoes
+
+* equipamentos fantasma no armazem da vila ([c91a33b](https://github.com/matheus013/torre-das-cem-marcas/commit/c91a33bd6e0a178111b6c510d314444408fc690b))
+
+### Testes
+
+* carga sem equipamentos no teste de preservacao do saque ([71aa623](https://github.com/matheus013/torre-das-cem-marcas/commit/71aa623b23ecbf126689fcc89e093771f49c616b))
+
 ## [0.13.0](https://github.com/matheus013/torre-das-cem-marcas/compare/v0.12.0...v0.13.0) (2026-10-08)
 
 ### Novidades
