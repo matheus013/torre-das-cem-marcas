@@ -71,7 +71,7 @@ Valores sao ponto de partida de balanceamento, nao prova de viabilidade equivale
 | Raizes Presas | `field` | Raizes brotam na mira e prendem a horda com lentidao forte. |
 | Pilar Sagrado | `meteor` | Coluna de luz cai na mira apos breve aviso. |
 | Esfera de Gelo | `projectile` | Esfera gelada que estilhaca no impacto e desacelera em area. |
-| Saraivada de Flechas | `volley` | Enquanto ativa, voce gira disparando flechas em sequencia muito rapida, mesmo andando. Cada volta alterna fogo, gelo e raio; as flechas atravessam um inimigo. Consome Folego por segundo e segura a regeneracao; usar de novo encerra. |
+| Saraivada de Flechas | `volley` | Enquanto ativa, voce gira disparando flechas em sequencia muito rapida, mesmo andando. Cada volta alterna fogo, gelo e raio; as flechas atravessam um inimigo. Consome Folego por segundo e segura a regeneracao; nao acaba sozinha: so termina ao usar de novo ou quando o Folego acaba. |
 | Esporos | `spores` | Infecta um unico alvo com uma colonia de esporos: nao causa dano direto. Cada tick causa 5 mais 0,5% da Vida maxima do alvo (0,25% em elites, 0,05% em chefes) e a colonia cresce 20% por tick ate x25 (a Sabedoria leva o teto ate x40). Quando o alvo morre, os esporos saltam aos inimigos proximos mantendo o acumulo, +10% por salto; o raio cresce com a Inteligencia. Novas infeccoes herdam metade do maior acumulo do andar (Cepa). |
 | Poca de Veneno | `poison_pool` | Cria uma poca de toxina que dura 20 s. Inimigos dentro ficam envenenados (dano constante por segundo que escala com Inteligencia e dura 2 s apos sair). |
 | Trovao Descendente | `meteor` | Dois raios caem rapido ao redor da mira. |

@@ -156,7 +156,7 @@ SYNERGY = {
         ("Flechas Perfurantes", {"pierce_add": 1}),
         ("Rajadas Rapidas", {"tick_interval_multiplier": 0.8}),
         ("Pulmoes Fortes", {"breath_per_second_multiplier": 0.7}),
-        ("Saraivada Longa", {"duration_multiplier": 1.4}),
+        ("Pontas Largas", {"radius_multiplier": 1.5}),
         ("Alcance do Arco", {"range_multiplier": 1.3}),
         ("Ponta Critica", {"critical_chance_add": 0.1}),
     ],
@@ -241,8 +241,7 @@ def generic(gem):
         ("Reserva Profunda", {"extra_charge": 1}),
         ("Alcance Treinado", {"range_multiplier": 1.2}),
         ("Golpe Certeiro", {"critical_chance_add": 0.08}),
-        ("Duracao Estendida", {"duration_multiplier": 1.3}),
-    ]
+    ] + ([("Duracao Estendida", {"duration_multiplier": 1.3})] if gem.get("duration") else [])
 
 
 def mastery(gem):

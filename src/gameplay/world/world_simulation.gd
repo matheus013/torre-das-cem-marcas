@@ -3090,7 +3090,8 @@ func _update_persistent_effects(delta: float) -> void:
 		if mechanic == "volley":
 			var archer := player(owner_peer)
 			var cost := float(effect["breath_per_second"]) * delta
-			if archer.is_empty() or archer["zone"] not in ARENA_ZONES or bool(archer.get("downed", false)) or float(archer["breath"]) < cost or float(effect["duration"]) <= 0.0:
+			# Sem limite de tempo: só acaba ao lançar de novo, sem Fôlego, caída ou fora da arena.
+			if archer.is_empty() or archer["zone"] not in ARENA_ZONES or bool(archer.get("downed", false)) or float(archer["breath"]) < cost:
 				if not archer.is_empty() and float(archer.get("breath", 0.0)) < cost:
 					_status(owner_peer, "Folego esgotado: Saraivada encerrada.")
 				persistent_effects.erase(effect)
@@ -3286,7 +3287,8 @@ func _toggle_volley(peer_id: int, effect: Dictionary, hit: Dictionary) -> void:
 			return
 	persistent_effects.append({
 		"mechanic": "volley", "gem_id": gem_id, "owner_peer": peer_id, "position": player(peer_id)["position"],
-		"follows": true, "duration": float(effect.get("duration", 8.0)), "max_duration": float(effect.get("duration", 8.0)), "radius": float(effect.get("range", 300.0)),
+		"follows": true, "timed": false, "duration": 0.0, "radius": float(effect.get("range", 300.0)),
+		"arrow_width": float(effect.get("radius", 16.0)),
 		"power": float(effect.get("power", 0.0)), "range": float(effect.get("range", 300.0)),
 		"tick_interval": float(effect.get("tick_interval", 0.4)), "tick_timer": 0.0,
 		"arrow_count": clampi(int(effect.get("arrow_count", 24)), 1, 48),
@@ -3315,7 +3317,7 @@ func _fire_volley(effect: Dictionary) -> void:
 	var direction := Vector2.RIGHT.rotated(float(effect.get("start_angle", 0.0)) + TAU * float(index % count) / float(count))
 	var end := origin + direction * float(effect["range"])
 	_vfx(state["zone"], "travel", ["vfx/arrow", origin + direction * 18.0, end, 0.22, 14.0])
-	_damage_segment(peer_id, origin, end, 16.0, float(effect["power"]) * float(element.get("power_multiplier", 1.0)), 1 + int(effect.get("pierce", 0)), hit)
+	_damage_segment(peer_id, origin, end, float(effect.get("arrow_width", 16.0)), float(effect["power"]) * float(element.get("power_multiplier", 1.0)), 1 + int(effect.get("pierce", 0)), hit)
 	_vfx_theme = previous_theme
 
 
@@ -4351,7 +4353,9 @@ func player_status_effects(peer_id: int) -> Array[Dictionary]:
 			result.append({"id":"slow", "kind":"debuff", "name":"Lentidao", "icon":"anel_de_geada", "remaining":slow_time, "description":"Movimento reduzido em %.0f%% enquanto estiver na zona." % (slow * 100.0)})
 	for effect in persistent_effects:
 		if String(effect.get("mechanic", "")) == "volley" and int(effect.get("owner_peer", 0)) == peer_id:
-			result.append({"id":"volley", "kind":"buff", "name":"Saraivada", "icon":"saraivada_de_flechas", "remaining":float(effect.get("duration", 0.0)), "duration":float(effect.get("max_duration", effect.get("duration", 0.0))), "description":"Disparando flechas e consumindo Folego. Lance de novo para encerrar."})
+			# Sem duração: o ícone mostra quanto Fôlego ainda sustenta a Saraivada.
+			var per_second := maxf(0.001, float(effect.get("breath_per_second", 9.0)))
+			result.append({"id":"volley", "kind":"buff", "name":"Saraivada", "icon":"saraivada_de_flechas", "remaining":float(player(peer_id).get("breath", 0.0)) / per_second, "duration":max_breath(peer_id) / per_second, "description":"Disparando flechas enquanto houver Folego. Lance de novo para encerrar."})
 	result.append_array(ItemPassivesScript.status_effects(self, peer_id))
 	var wounds := int(state.get("wounds", 0))
 	if wounds > 0:

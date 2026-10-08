@@ -58,6 +58,25 @@ func _run() -> void:
 	if not ((sim.view_snapshot()["players"] as Dictionary)[1]["volley_spin"] as Dictionary).is_empty():
 		return _fail("Stopping Saraivada must restore the normal character animation")
 
+	# Regressão (2026-10-08): a Saraivada acabava sozinha em 8 s. Agora só termina ao lançar de novo
+	# ou sem Fôlego: com Fôlego sobrando, segue ativa por muito mais tempo, e o ícone mostra o Fôlego.
+	(state["cooldowns"] as Array)[0] = 0.0
+	(state["charges"] as Array)[0] = 1
+	sim.use_skill(1, 0, state["position"] as Vector2)
+	for _second in range(30):
+		state["breath"] = sim.max_breath(1)
+		for _frame in range(30):
+			sim.step(1.0 / 30.0)
+		sim.drain_events()
+	if not (sim.get("persistent_effects") as Array).any(func(effect: Dictionary) -> bool: return effect["mechanic"] == "volley"):
+		return _fail("Saraivada must not end by time while there is Breath")
+	var icon: Array = sim.player_status_effects(1).filter(func(effect: Dictionary) -> bool: return String(effect["id"]) == "volley")
+	if icon.is_empty() or not is_equal_approx(float(icon[0]["remaining"]), float(state["breath"]) / 9.0):
+		return _fail("The Saraivada icon must show how long the Breath lasts: %s" % [icon])
+	(state["cooldowns"] as Array)[0] = 0.0
+	(state["charges"] as Array)[0] = 1
+	sim.use_skill(1, 0, state["position"] as Vector2)
+
 	# Sem Fôlego, ela se encerra sozinha.
 	(state["cooldowns"] as Array)[0] = 0.0
 	(state["charges"] as Array)[0] = 1
@@ -85,7 +104,7 @@ func _run() -> void:
 		var effect := (check.get("persistent_effects") as Array)[0] as Dictionary
 		if absi(int(effect["volley_index"]) - 60) > 1:
 			return _fail("Cadence changes with frame rate: %d FPS, %d arrows" % [fps, effect["volley_index"]])
-	print("VOLLEY_OK: %d arrows in %d directions, alternating elements, breath drain, toggle, exhaustion and breath on kill" % [arrows, directions.size()])
+	print("VOLLEY_OK: %d arrows in %d directions, alternating elements, breath drain, no time limit, toggle, exhaustion and breath on kill" % [arrows, directions.size()])
 	quit(0)
 
 
