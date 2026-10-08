@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.11.0](https://github.com/matheus013/torre-das-cem-marcas/compare/v0.10.1...v0.11.0) (2026-10-08)
+
+### Novidades
+
+* status detalhados, bonus de equipamento e previas de modificadores ([2f16f8b](https://github.com/matheus013/torre-das-cem-marcas/commit/2f16f8b816ca072e5a0f5b1aa8d2c52328ca8ee4))
+
+### Correcoes
+
+* investigar na Torre disparava a Gema 3 (tecla E repetida) ([53ea3bb](https://github.com/matheus013/torre-das-cem-marcas/commit/53ea3bb59ee0f55f034cad493fa0fcf1f4d7a335))
+
 ## [0.10.1](https://github.com/matheus013/torre-das-cem-marcas/compare/v0.10.0...v0.10.1) (2026-10-08)
 
 ### Correcoes
