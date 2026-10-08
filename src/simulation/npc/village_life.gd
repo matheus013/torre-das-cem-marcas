@@ -132,7 +132,7 @@ func step(delta: float, context: Dictionary) -> void:
 		_apply(npc, _choose_default(npc, candidates), "", context)
 
 
-## Jogador inicia conversa (tecla E). Responde na hora no modo padrão, ou pede ao modelo.
+## Jogador inicia conversa (tecla de conversar, F por padrão). Responde na hora no modo padrão, ou pede ao modelo.
 func talk(npc_id: String, peer_id: int, context: Dictionary) -> bool:
 	var npc := find(npc_id)
 	var players := context.get("players", {}) as Dictionary

@@ -19,8 +19,32 @@ func _key(code: Key) -> InputEventKey:
 func _run() -> void:
 	_clean()
 	var defaults := Bindings.defaults()
-	if not Bindings.valid(defaults) or not Bindings.conflict(defaults, "skill_1", KEY_E) == "skill_3" or not Bindings.conflict(defaults, "interact", KEY_Q).is_empty():
-		return _fail("Context-aware conflict rules are incorrect")
+	if not Bindings.valid(defaults) or not Bindings.conflict(defaults, "skill_1", KEY_E) == "skill_3" or Bindings.conflict(defaults, "interact", KEY_Q) != "skill_1":
+		return _fail("Any repeated key must conflict, whatever the context")
+	# Regressão (2026-10-07): Gema 3 e Conversar/Investigar dividiam o E; na Torre a missão manda
+	# investigar e o E disparava a gema. Nenhuma tecla nem botão de controle pode repetir.
+	var seen_keys := {}
+	for action: String in defaults:
+		if seen_keys.has(defaults[action]):
+			return _fail("Default key repeated: %s and %s" % [seen_keys[defaults[action]], action])
+		seen_keys[defaults[action]] = action
+	var seen_buttons := {}
+	for action: String in Bindings.PAD_BUTTONS:
+		if seen_buttons.has(Bindings.PAD_BUTTONS[action]):
+			return _fail("Pad button repeated: %s and %s" % [seen_buttons[Bindings.PAD_BUTTONS[action]], action])
+		seen_buttons[Bindings.PAD_BUTTONS[action]] = action
+	if defaults["interact"] == defaults["skill_3"] or defaults["interact"] != KEY_F:
+		return _fail("Investigate/talk must not share the skill key")
+	var old := ConfigFile.new()
+	for action: String in defaults:
+		old.set_value("controls", action, defaults[action])
+	old.set_value("controls", "interact", KEY_E)
+	old.set_value("controls", "inventory", KEY_K)
+	old.save(PATH)
+	var migrated := Bindings.read(PATH)
+	if migrated["interact"] != KEY_F or migrated["skill_3"] != KEY_E or migrated["inventory"] != KEY_K:
+		return _fail("Old settings with talk on E must move it to F and keep other custom keys: %s" % [migrated])
+	_clean()
 	var invalid := defaults.duplicate()
 	invalid["inventory"] = null
 	if Bindings.valid(invalid) or Bindings.allowed(KEY_ESCAPE) or Bindings.allowed(KEY_F12):

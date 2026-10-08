@@ -14,7 +14,7 @@ const SPECS := {
 	"skill_2": ["Gema 2", KEY_W, "tower"],
 	"skill_3": ["Gema 3", KEY_E, "tower"],
 	"skill_4": ["Gema 4", KEY_R, "tower"],
-	"interact": ["Conversar", KEY_E, "village"],
+	"interact": ["Conversar / Investigar", KEY_F, "all"],
 	"inventory": ["Inventário", KEY_I, "all"],
 	"character": ["Personagem", KEY_C, "all"],
 	"skills": ["Gemas", KEY_G, "all"],
@@ -39,15 +39,24 @@ static func allowed(key: int) -> bool:
 	return (key >= KEY_A and key <= KEY_Z) or (key >= KEY_0 and key <= KEY_9) or (key >= KEY_F1 and key <= KEY_F11 and key != KEY_F7) or key in [KEY_LEFT, KEY_RIGHT, KEY_UP, KEY_DOWN, KEY_SPACE, KEY_TAB, KEY_BACKSPACE, KEY_INSERT, KEY_DELETE, KEY_HOME, KEY_END, KEY_PAGEUP, KEY_PAGEDOWN]
 
 
+## Nenhuma tecla pode servir a duas ações, mesmo em contextos diferentes (regressão de 2026-10-07:
+## Gema 3 e Conversar dividiam o E; quando a missão passou a investigar na Torre, o E disparava a gema).
 static func conflict(values: Dictionary, action: String, key: int) -> String:
 	for other: String in SPECS:
-		if other == action or int(values.get(other, SPECS[other][1])) != key:
-			continue
-		var context := String(SPECS[action][2])
-		var other_context := String(SPECS[other][2])
-		if context == "all" or other_context == "all" or context == other_context:
+		if other != action and int(values.get(other, SPECS[other][1])) == key:
 			return other
 	return ""
+
+
+## Atalhos salvos com tecla repetida ou inválida: cada ação em conflito volta ao padrão, sem apagar
+## o resto da configuração da pessoa (ex.: saves com Conversar no E ganham o F).
+static func repair(values: Dictionary) -> Dictionary:
+	var fixed := values.duplicate()
+	for action: String in SPECS:
+		var key: Variant = fixed.get(action)
+		if not key is int or not allowed(key) or not conflict(fixed, action, int(key)).is_empty():
+			fixed[action] = int(SPECS[action][1])
+	return fixed
 
 
 static func valid(values: Dictionary) -> bool:
@@ -68,6 +77,8 @@ static func read(path: String = PATH) -> Dictionary:
 	if result["error"] == OK:
 		for action: String in SPECS:
 			values[action] = config.get_value("controls", action, values[action])
+	if not valid(values):
+		values = repair(values)
 	return values if valid(values) else defaults()
 
 
