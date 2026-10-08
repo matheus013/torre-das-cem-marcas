@@ -115,10 +115,12 @@ Base pronta: decisao 580 (todo lendario e arma unica tem passiva exclusiva, fort
 para uma unica peca levar a personagem ate o fim da historia). Ainda nao implementado:
 
 - [ ] G6.1: cinco dificuldades da campanha. A 1 e a historia; as seguintes reescalam Vida, dano, populacao e tabelas de saque, com registro proprio de recordes e regra de desbloqueio (concluir a anterior). Definir se cada dificuldade e por mundo ou por personagem e como o co-op mistura dificuldades.
-- [ ] G6.2: armas unicas so caem da dificuldade 3 em diante. Hoje (beta, sem dificuldades) chefes garantem uma unica de uma gema equipada, elites tem 5% e comuns 1% (decisao 574); ao entrar G6.1, essa regra passa a valer so na 3+.
-- [ ] G6.3: itens divinos (nova raridade acima de lendario, cor e som proprios) so na dificuldade 5. Extremamente fortes: duas passivas, ou uma passiva que muda regras (ex.: gema sem recarga, todos os elementos ao mesmo tempo, Saraivada permanente). Definir quantidade, slots, fonte (chefes do pos-jogo, receitas) e regra de partilha no co-op.
+- [ ] G6.2: armas unicas so caem da dificuldade 2 em diante (revisto em 2026-10-07, plano no documento 76). Hoje (beta, sem dificuldades) chefes garantem uma unica de uma gema equipada, elites tem 5% e comuns 1% (decisao 574); ao entrar G6.1, essa regra passa a valer so na 2+.
+- [ ] G6.3: itens divinos (nova raridade acima de lendario, cor e som proprios) so na dificuldade 4 (revisto em 2026-10-07, plano no documento 76). Extremamente fortes: duas passivas, ou uma passiva que muda regras (ex.: gema sem recarga, todos os elementos ao mesmo tempo, Saraivada permanente). Definir quantidade, slots, fonte (chefes do pos-jogo, receitas) e regra de partilha no co-op.
 - [ ] G6.4: balancear as dificuldades 3 a 5 assumindo pelo menos um lendario ou unico equipado, com a sonda `tools/bench/balance_probe.gd --item=` como base.
 - [ ] G6.5: UI de colecao de lendarios, unicos e divinos (encontrados e faltantes, de onde vem cada um).
+- [ ] G6.6: lendarios, unicas e Reliquias revolucionarios: cada passiva muda uma regra (gema, categoria ou jogo) e passa no "teste da revolucao" do documento 76; reescrever as 46 unicas e 18 lendarios atuais, que hoje mais amplificam do que transformam.
+- [ ] G6.7: resistencias, mares (hordas especiais), mutadores de andar e Paragon conforme o documento 76.
 
 Aceite: cada dificuldade tem saque e desafio distintos medidos pela sonda; um jogador
 sem lendarios conclui a historia e um jogador com um lendario sente que ele e essencial

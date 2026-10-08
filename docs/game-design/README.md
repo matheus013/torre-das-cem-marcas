@@ -100,6 +100,7 @@ A transição técnica só poderá começar após a frase:
 74. [Ecologia e Atributos de Inimigos](73-ecologia-e-atributos-de-inimigos.md)
 75. [Árvores de Evolução 1 a 100](74-arvores-de-evolucao-1-a-100.md)
 76. [Torre: Andares, Biomas e Chefes](75-torre-andares-biomas-e-chefes.md)
+77. [Dificuldades, Dia e Noite e Paragon](76-dificuldades-dia-e-noite-e-paragon.md)
 
 ## Identidade resumida
 
