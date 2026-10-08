@@ -2,6 +2,9 @@ extends Control
 
 signal purchase_requested(npc_id: String, offer_id: String)
 signal talk_requested(npc_id: String)
+signal shop_requested
+## Moradores com loja de equipamentos (decisão 594).
+const SHOP_NPCS := ["dalia_ferral"]
 const Services := preload("res://src/gameplay/world/village_services.gd")
 var npc_id := ""
 var _title: Label
@@ -88,6 +91,14 @@ func open(npc: Dictionary, state: Dictionary, warehouse: Dictionary, narrative_c
 		_rows.add_child(button)
 		_buttons[offer["id"]] = button
 		button.pressed.connect(func() -> void: purchase_requested.emit(npc_id, String(offer["id"])))
+	if npc_id in SHOP_NPCS:
+		var shop := Button.new()
+		shop.name = "OpenShop"
+		shop.custom_minimum_size.y = 48
+		shop.text = "Ver equipamentos a venda"
+		shop.tooltip_text = "Pecas da forja com afixos ja sorteados, pagas em prata."
+		shop.pressed.connect(func() -> void: shop_requested.emit())
+		_rows.add_child(shop)
 	visible = true
 	refresh(state, warehouse, "", narrative_context)
 	_close.grab_focus.call_deferred()

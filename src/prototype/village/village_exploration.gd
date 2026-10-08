@@ -88,6 +88,9 @@ var _npc_settings: Dictionary = {}
 var _village_lights: Node2D
 var _talk_hint: Label
 var _service_menu: Control
+var _shop_menu: Control
+## Último modelo de menu recebido (a loja abre com ele).
+var _menu_model: Dictionary = {}
 var _narrative_menu: Control
 var _objective_label: Label
 var _village_log_label: Label
@@ -385,7 +388,7 @@ func receive_events(events: Array) -> void:
 @rpc("authority", "call_remote", "reliable")
 func receive_menu_model(model: Dictionary) -> void:
 	_agent_model = model
-	_player_menu.call("refresh", model)
+	_refresh_menus(model)
 
 
 func _send_move(target: Vector2) -> void:
@@ -455,6 +458,11 @@ func _apply_intent(peer_id: int, kind: String, args: Array) -> void:
 			_sim.call("sell_all", peer_id)
 		"reset_stats":
 			_sim.call("reset_stats", peer_id)
+		"shop_buy":
+			if args.size() == 1 and args[0] is int:
+				_sim.call("buy_shop_item", peer_id, int(args[0]))
+		"shop_reroll":
+			_sim.call("reroll_shop", peer_id)
 		"loot_filter":
 			if args.size() == 1 and args[0] is String:
 				_sim.call("set_loot_filter", peer_id, String(args[0]))
@@ -494,10 +502,23 @@ func _apply_intent(peer_id: int, kind: String, args: Array) -> void:
 		_send_menu_model(peer_id)
 
 
+func _refresh_menus(model: Dictionary) -> void:
+	_menu_model = model
+	_player_menu.call("refresh", model)
+	if _shop_menu != null:
+		_shop_menu.call("refresh", model.get("shop", {}))
+
+
+func _open_shop() -> void:
+	if _menu_model.is_empty() and _sim != null:
+		_menu_model = _sim.call("menu_model", _local_peer)
+	_shop_menu.call("open", _menu_model.get("shop", {}))
+
+
 func _send_menu_model(peer_id: int) -> void:
 	var model: Dictionary = _sim.call("menu_model", peer_id)
 	if peer_id == _local_peer:
-		_player_menu.call("refresh", model)
+		_refresh_menus(model)
 	elif _is_connected():
 		receive_menu_model.rpc_id(peer_id, model)
 
@@ -631,7 +652,7 @@ func _on_pad_connection_changed(device: int, connected: bool) -> void:
 func _input_blocked() -> bool:
 	if _narrative_menu != null and _narrative_menu.visible:
 		return true
-	return (_service_menu != null and _service_menu.visible) or (_milestone_choice != null and _milestone_choice.visible) or (_player_menu != null and _player_menu.visible) or (_character_panel != null and _character_panel.visible) or (_settings_dialog != null and _settings_dialog.visible)
+	return (_service_menu != null and _service_menu.visible) or (_shop_menu != null and _shop_menu.visible) or (_milestone_choice != null and _milestone_choice.visible) or (_player_menu != null and _player_menu.visible) or (_character_panel != null and _character_panel.visible) or (_settings_dialog != null and _settings_dialog.visible)
 
 
 func _update_display(delta: float) -> void:
@@ -788,6 +809,11 @@ func _unhandled_input(event: InputEvent) -> void:
 	if command and _service_menu != null and _service_menu.visible:
 		if event.is_action_pressed("ui_cancel") or BindingsScript.pressed(event, "pause"):
 			_service_menu.call("close")
+			get_viewport().set_input_as_handled()
+		return
+	if command and _shop_menu != null and _shop_menu.visible:
+		if event.is_action_pressed("ui_cancel") or BindingsScript.pressed(event, "pause"):
+			_shop_menu.call("close")
 			get_viewport().set_input_as_handled()
 		return
 	if command and _player_menu != null and _player_menu.visible:
@@ -2187,6 +2213,14 @@ func _build_interface() -> void:
 	_service_menu.name = "VillageServices"
 	layer.add_child(_service_menu)
 	_service_menu.connect("purchase_requested", func(npc_id: String, offer_id: String) -> void: _send_intent("service", [npc_id, offer_id]))
+	_service_menu.connect("shop_requested", func() -> void:
+		_service_menu.call("close")
+		_open_shop())
+	_shop_menu = preload("res://src/prototype/village/shop_menu.gd").new()
+	_shop_menu.name = "VillageShop"
+	layer.add_child(_shop_menu)
+	_shop_menu.connect("buy_requested", func(index: int) -> void: _send_intent("shop_buy", [index]))
+	_shop_menu.connect("reroll_requested", func() -> void: _send_intent("shop_reroll", []))
 	_service_menu.connect("talk_requested", func(npc_id: String) -> void:
 		if ((_view.get("narrative", {}) as Dictionary).get("conversations", {}) as Dictionary).has(npc_id):
 			_narrative_menu.call("open", _conversation_model(npc_id), true)
@@ -2382,7 +2416,7 @@ func _show_character_panel(visible_now: bool) -> void:
 
 func _open_player_menu(tab: String) -> void:
 	if _sim != null:
-		_player_menu.call("refresh", _sim.call("menu_model", _local_peer))
+		_refresh_menus(_sim.call("menu_model", _local_peer))
 	else:
 		_send_intent("menu", [])
 	_player_menu.call("open", tab)
@@ -2500,7 +2534,7 @@ func _layout_interface() -> void:
 	_combat_hud.scale = Vector2.ONE * hud_scale
 	_combat_hud.size = size / hud_scale
 	_objective_label.size.x = minf(360.0, size.x - 40.0)
-	for full in [_player_menu, _character_panel, _narrative_menu, _service_menu]:
+	for full in [_player_menu, _character_panel, _narrative_menu, _service_menu, _shop_menu]:
 		(full as Control).set_anchors_preset(Control.PRESET_TOP_LEFT)
 		(full as Control).position = Vector2.ZERO
 		(full as Control).size = size

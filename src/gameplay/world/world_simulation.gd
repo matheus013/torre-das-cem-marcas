@@ -36,6 +36,12 @@ const CRIT_CHANCE := 0.12
 ## multiplicado pela fabricação. Filtro e autovenda usam a ordem das raridades.
 const STARTING_SILVER := 120
 const SELL_PRICES := {"common": 8, "uncommon": 20, "rare": 45, "epic": 90, "legendary": 180}
+## Loja de equipamentos da Forja (decisão 594): estoque renovado a cada volta da Torre, até épico,
+## melhor quanto mais fundo o grupo já foi; compra custa SHOP_MARKUP vezes o preço de venda.
+const SHOP_NPC := "dalia_ferral"
+const SHOP_SIZE := 8
+const SHOP_MARKUP := 5
+const SHOP_REROLL_PRICE := 25
 const TIER_ORDER: Array[String] = ["common", "uncommon", "rare", "epic", "legendary"]
 ## Elementos alternados da Saraivada de Flechas, uma rajada de cada.
 const VOLLEY_ELEMENTS := [
@@ -198,6 +204,10 @@ var character_gear: Dictionary = {}
 var character_gems: Dictionary = {}
 ## Bestiário por personagem: {personagem: {inimigo: {kills, min_health, max_health, drops, affixes}}}.
 var character_bestiary: Dictionary = {}
+## Loja: o estoque sai de (semente do mundo, rodada); vendidos guardam o índice da vaga.
+var shop_sequence := 0
+var shop_sold: Array[int] = []
+var _shop_cache: Dictionary = {}
 var equipment_instance_sequence := 1
 var active_gems: Array[Dictionary] = []
 var skill_max_cooldowns: Array[float] = [1.5, 3.0, 5.0, 8.0]
@@ -1389,6 +1399,7 @@ func leave_tower(peer_id: int) -> void:
 	_event({"type": "clear_vfx", "peer": peer_id})
 	if _players_in_arena().is_empty():
 		village_life.call("advance_period")
+		_restock_shop()
 	village_life.call("remember_event", "retorno", "%s voltou da Torre trazendo %d pedras; o grupo chegou ao andar %d" % [String(state["character_name"]), delivered, deepest_floor], 0.4, String(state["character_id"]))
 	if banked_stone >= 3 and village_progress == 0:
 		village_progress = 1
@@ -4516,6 +4527,7 @@ func menu_model(peer_id: int) -> Dictionary:
 		"banked_loot": banked_loot.duplicate(),
 		"inventory_equipment": _inventory_model(gear, peer_id),
 		"sell_all": sell_all_preview(peer_id),
+		"shop": shop_model(peer_id),
 		"bestiary": bestiary_model(peer_id),
 		"silver": int(gear.get("silver", 0)), "loot_filter": String(gear.get("loot_filter", "common")), "auto_sell": String(gear.get("auto_sell", "")),
 		"equipped_count": equipment.equipped_count() if equipment != null else 0,
@@ -4893,6 +4905,8 @@ func save_data(host_peer: int) -> Dictionary:
 		"character_gear": gear_data,
 		"character_gems": character_gems.duplicate(true),
 		"character_bestiary": character_bestiary.duplicate(true),
+		"shop_sequence": shop_sequence,
+		"shop_sold": shop_sold.duplicate(),
 		"equipment_instance_sequence": equipment_instance_sequence,
 	}
 
@@ -4953,6 +4967,12 @@ func load_data(data: Dictionary, host_peer: int) -> bool:
 	_restore_gear(data, StringName(String(data.get("character_id", "eloa"))))
 	_restore_gems(data.get("character_gems", {}), version)
 	_restore_bestiary(data.get("character_bestiary", {}))
+	shop_sequence = maxi(0, int(data.get("shop_sequence", 0)))
+	shop_sold.clear()
+	for index: Variant in data.get("shop_sold", []) as Array:
+		if (index is int or index is float) and int(index) >= 0 and int(index) < SHOP_SIZE and int(index) not in shop_sold:
+			shop_sold.append(int(index))
+	_shop_cache.clear()
 	var host := player(host_peer)
 	_milestone_cache.clear()
 	for peer_id: int in players:
@@ -5145,6 +5165,117 @@ func sell_item(peer_id: int, instance_id: StringName) -> int:
 	gear["silver"] = int(gear["silver"]) + price
 	_status(peer_id, "%s vendido por %d P." % [item_display_name(String(item.definition.id)), price])
 	return price
+
+
+# ---------------------------------------------------------------- loja
+
+## Estoque atual (instâncias sem dono, só para exibir e vender). Mesma rodada, mesmo estoque.
+func shop_stock() -> Array[EquipmentItemInstance]:
+	var key := "%d:%d:%d" % [encounter_seed, shop_sequence, deepest_floor]
+	if _shop_cache.has(key):
+		return _shop_cache[key] as Array[EquipmentItemInstance]
+	var random := RandomNumberGenerator.new()
+	random.seed = hash([encounter_seed, shop_sequence, "shop"])
+	var difficulty := 1.0 + float(deepest_floor) / 12.0
+	var level := maxi(1, deepest_floor)
+	var factory: RefCounted = BetaItemFactoryScript.new()
+	var stock: Array[EquipmentItemInstance] = []
+	var catalog: Array[Dictionary] = []
+	for entry in _collection("items"):
+		if String(entry.get("tier", "common")) != "legendary":
+			catalog.append(entry)
+	for index in range(SHOP_SIZE):
+		var item_id := LootDifficultyScript.pick_bonus_item(catalog, difficulty, false, random)
+		var definition := _find(_collection("items"), item_id)
+		var item: EquipmentItemInstance = factory.call("instance_from_data", definition, StringName("loja_%d" % index)) if not definition.is_empty() else null
+		if item == null:
+			continue
+		item.quality = StringName(LootDifficultyScript.pick_weighted(LootDifficultyScript.fabrication_weights(difficulty), random))
+		item.item_level = clampi(level, 1, ItemAffixesScript.MAX_ITEM_LEVEL)
+		item.affixes = ItemAffixesScript.roll_fixed(definition.get("fixed_affixes", []) as Array, random)
+		item.affixes.append_array(ItemAffixesScript.roll(ItemTier.key(item.tier), random, item.item_level))
+		item.set_meta("shop_index", index)
+		stock.append(item)
+	_shop_cache.clear()
+	_shop_cache[key] = stock
+	return stock
+
+
+func shop_price(item: EquipmentItemInstance) -> int:
+	return item_sell_price(item) * SHOP_MARKUP
+
+
+func _near_shop(peer_id: int) -> bool:
+	var state := player(peer_id)
+	var npc := village_life.call("find", SHOP_NPC) as Dictionary
+	return not state.is_empty() and not npc.is_empty() and state["zone"] == &"village" and (state["position"] as Vector2).distance_to(npc["position"] as Vector2) <= 110.0
+
+
+func shop_model(peer_id: int) -> Dictionary:
+	var items: Array = []
+	var silver := int(_gear(peer_id).get("silver", 0))
+	for item in shop_stock():
+		var index := int(item.get_meta("shop_index"))
+		var price := shop_price(item)
+		items.append({
+			"index": index, "item_id": String(item.definition.id), "name": item_display_name(String(item.definition.id)),
+			"tier": ItemTier.label(item.tier), "tier_id": ItemTier.key(item.tier), "price": price,
+			"sold": index in shop_sold, "affordable": silver >= price, "affix_count": item.affixes.size(),
+			"rich_tooltip": _equipment_rich_tooltip(item, peer_id, "Comprar por %d P" % price),
+		})
+	return {"items": items, "silver": silver, "reroll_price": SHOP_REROLL_PRICE, "npc": SHOP_NPC}
+
+
+## Compra a peça da vaga `index`: vira uma peça nova, igual à da vitrine, na mochila de quem comprou.
+func buy_shop_item(peer_id: int, index: int) -> bool:
+	var gear := _gear(peer_id)
+	if gear.is_empty() or not _near_shop(peer_id) or index in shop_sold:
+		return false
+	var offer: EquipmentItemInstance = null
+	for item in shop_stock():
+		if int(item.get_meta("shop_index")) == index:
+			offer = item
+	if offer == null:
+		return false
+	var price := shop_price(offer)
+	if int(gear["silver"]) < price:
+		_status(peer_id, "Prata insuficiente: %s custa %d P." % [item_display_name(String(offer.definition.id)), price])
+		return false
+	var factory: RefCounted = BetaItemFactoryScript.new()
+	var player_id := player(peer_id)["character_id"] as StringName
+	var instance_id := StringName("%s_%d" % [String(offer.definition.id), equipment_instance_sequence])
+	var bought: EquipmentItemInstance = factory.call("instance_from_data", _find(_collection("items"), String(offer.definition.id)), instance_id, player_id)
+	if bought == null:
+		return false
+	bought.quality = offer.quality
+	bought.item_level = offer.item_level
+	bought.affixes = offer.affixes.duplicate(true)
+	if not (gear["inventory"] as ItemInventory).add(bought):
+		return false
+	equipment_instance_sequence += 1
+	gear["silver"] = int(gear["silver"]) - price
+	shop_sold.append(index)
+	_status(peer_id, "Comprado: %s por %d P." % [item_display_name(String(offer.definition.id)), price])
+	return true
+
+
+## Renova a vitrine na hora, pagando prata.
+func reroll_shop(peer_id: int) -> bool:
+	var gear := _gear(peer_id)
+	if gear.is_empty() or not _near_shop(peer_id):
+		return false
+	if int(gear["silver"]) < SHOP_REROLL_PRICE:
+		_status(peer_id, "Prata insuficiente para renovar o estoque (%d P)." % SHOP_REROLL_PRICE)
+		return false
+	gear["silver"] = int(gear["silver"]) - SHOP_REROLL_PRICE
+	_restock_shop()
+	_status(peer_id, "Dalia trouxe pecas novas da forja.")
+	return true
+
+
+func _restock_shop() -> void:
+	shop_sequence += 1
+	shop_sold.clear()
 
 
 ## Peças que "Vender tudo" vende: todo o inventário fora o equipado, lendários e armas únicas.

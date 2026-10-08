@@ -35,6 +35,7 @@ const SHAPE := {
 	}},
 	"character_bestiary": {"*": {"*": {"kills": TYPE_FLOAT, "min_health": TYPE_FLOAT, "max_health": TYPE_FLOAT,
 		"drops": {"*": TYPE_FLOAT}, "affixes": {"*": TYPE_FLOAT}}}},
+	"shop_sequence": TYPE_FLOAT, "shop_sold": [TYPE_FLOAT],
 	"village_life": {
 		"period": TYPE_FLOAT, "minds": {"*": {"memories": [TYPE_DICTIONARY], "facts": TYPE_ARRAY}},
 		"economy": {"stock": {"*": TYPE_FLOAT}, "deliveries": TYPE_FLOAT,
