@@ -63,8 +63,9 @@ func _run() -> void:
 	if not restored.ground_items.is_empty():
 		return _fail("Hidden drops could not be recovered")
 	var carried := (state["carried_loot"] as Dictionary).duplicate()
-	if int(carried.get("pedra_regenerativa", 0)) != 20233 or int(carried.get("reliquia_coracao_de_junta", 0)) != 178 or int(carried.get("reliquia_molde_sem_dono", 0)) != 1 or int(carried.get("reliquia_lastro_partido", 0)) != 2:
-		return _fail("Recovery did not conserve the full loot ledger")
+	# Materiais ficam na carga; relíquias e outros equipamentos só na mochila (conferidos abaixo).
+	if int(carried.get("pedra_regenerativa", 0)) != 20233 or carried.has("reliquia_coracao_de_junta") or carried.has("reliquia_molde_sem_dono") or carried.has("reliquia_lastro_partido"):
+		return _fail("Recovery did not conserve the full loot ledger: %s" % [carried])
 	var gear: Dictionary = restored.save_data(1)["character_gear"][String(state["character_id"])]
 	var recovered := 0
 	var masterwork := 0
