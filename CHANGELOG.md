@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.12.0](https://github.com/matheus013/torre-das-cem-marcas/compare/v0.11.1...v0.12.0) (2026-10-08)
+
+### Novidades
+
+* colonia de esporos com fracao da Vida, teto, Cepa e mutacao ([86671e4](https://github.com/matheus013/torre-das-cem-marcas/commit/86671e4f60150f9e2d73ea287cc770f1f3d8edb7))
+
 ## [0.11.1](https://github.com/matheus013/torre-das-cem-marcas/compare/v0.11.0...v0.11.1) (2026-10-08)
 
 ### Correcoes
