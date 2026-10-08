@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.15.0](https://github.com/matheus013/torre-das-cem-marcas/compare/v0.14.0...v0.15.0) (2026-10-08)
+
+### Novidades
+
+* Saraivada so termina ao lancar de novo ou sem Folego ([1d28d46](https://github.com/matheus013/torre-das-cem-marcas/commit/1d28d4641fbfc3da5403432fe6fc85f7347d0f7b))
+
 ## [0.14.0](https://github.com/matheus013/torre-das-cem-marcas/compare/v0.13.0...v0.14.0) (2026-10-08)
 
 ### Novidades
