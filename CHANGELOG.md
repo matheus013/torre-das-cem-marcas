@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.11.1](https://github.com/matheus013/torre-das-cem-marcas/compare/v0.11.0...v0.11.1) (2026-10-08)
+
+### Correcoes
+
+* dano continuo ignorava bloqueio so de golpes; esporos escalam raio com Inteligencia ([8ff619a](https://github.com/matheus013/torre-das-cem-marcas/commit/8ff619a3b266869d32ffe63794010ad49b41af51))
+
+### Documentacao
+
+* plano de dificuldades, dia e noite, resistencias, mares, Paragon e itens revolucionarios ([301de89](https://github.com/matheus013/torre-das-cem-marcas/commit/301de89da74f426cc4e45f70882e93d7b2672105))
+
 ## [0.11.0](https://github.com/matheus013/torre-das-cem-marcas/compare/v0.10.1...v0.11.0) (2026-10-08)
 
 ### Novidades
