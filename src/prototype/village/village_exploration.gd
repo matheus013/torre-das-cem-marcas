@@ -114,6 +114,12 @@ var _character_hint: Label
 var _pad_aim := Vector2.RIGHT
 var _trigger_held: Dictionary = {}
 var _pad_was_moving := false
+## Ataque normal no clique: segurar o botão (ou a tecla) renova o pedido a cada ATTACK_RESEND s.
+const ATTACK_RESEND := 0.1
+var _attack_held := false
+var _attack_send_timer := 0.0
+## A preferência de ataque automático vai ao host sempre que a personagem entra na Torre.
+var _auto_attack_synced := false
 
 
 func _ready() -> void:
@@ -419,6 +425,14 @@ func _apply_intent(peer_id: int, kind: String, args: Array) -> void:
 		"quick":
 			_sim.call("use_quick_item", peer_id)
 			refresh_menu = false
+		"attack":
+			if args.size() == 1 and args[0] is Vector2:
+				_sim.call("request_attack", peer_id, args[0])
+			refresh_menu = false
+		"auto_attack":
+			if args.size() == 1 and args[0] is bool:
+				_sim.call("set_auto_attack", peer_id, bool(args[0]))
+			refresh_menu = false
 		"character":
 			if args.size() == 1 and args[0] is String and String(args[0]) in CHARACTER_IDS:
 				_sim.call("select_character", peer_id, StringName(String(args[0])))
@@ -515,7 +529,9 @@ func _apply_events(events: Array) -> void:
 func _physics_process(delta: float) -> void:
 	if (_view.get("milestone_peers", []) as Array).is_empty():
 		_anim_time += delta
+	_attack_send_timer = maxf(0.0, _attack_send_timer - delta)
 	_gather_keyboard()
+	_sync_auto_attack()
 	if _sim != null:
 		_sim.call("step", delta)
 		if _npc_client != null:
@@ -587,6 +603,8 @@ func _gather_keyboard() -> void:
 	var aim := Input.get_vector("aresta_aim_left", "aresta_aim_right", "aresta_aim_up", "aresta_aim_down", 0.25)
 	if aim != Vector2.ZERO:
 		_pad_aim = aim.normalized()
+	if (_attack_held or Input.is_action_pressed("aresta_attack")) and _in_arena(_local_zone()) and _attack_send_timer <= 0.0:
+		_send_attack()
 	var direction := Input.get_vector("aresta_move_left", "aresta_move_right", "aresta_move_up", "aresta_move_down")
 	var local := _local()
 	if direction != Vector2.ZERO and not local.is_empty():
@@ -669,6 +687,8 @@ func _sync_floor() -> void:
 
 func _input(event: InputEvent) -> void:
 	BindingsScript.track(event)
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and not event.pressed:
+		_attack_held = false
 	if BindingsScript.pad_device >= 0 and event is InputEventJoypadMotion and event.axis in [JOY_AXIS_RIGHT_X, JOY_AXIS_RIGHT_Y]:
 		var aim := Input.get_vector("aresta_aim_left", "aresta_aim_right", "aresta_aim_up", "aresta_aim_down", 0.25)
 		if aim != Vector2.ZERO:
@@ -712,6 +732,30 @@ func _nearest_enemy() -> Dictionary:
 	return nearest
 
 
+func _send_attack() -> void:
+	_attack_send_timer = ATTACK_RESEND
+	_send_intent("attack", [_skill_target()])
+
+
+func _toggle_auto_attack(path: String = SettingsScript.PATH) -> void:
+	var error := SettingsScript.toggle_auto_attack(path)
+	_status = "Ataque automático ligado." if SettingsScript.auto_attack else "Ataque automático desligado: ataque com clique esquerdo ou %s." % BindingsScript.label("attack")
+	if error != OK:
+		_status += " Não foi possível guardar a preferência."
+	_auto_attack_synced = false
+	_sync_auto_attack()
+
+
+## Envia a preferência de ataque automático ao entrar na Torre ou ao trocá-la.
+func _sync_auto_attack() -> void:
+	if not _in_arena(_local_zone()):
+		_auto_attack_synced = false
+		return
+	if not _auto_attack_synced and not _local().is_empty():
+		_send_intent("auto_attack", [SettingsScript.auto_attack])
+		_auto_attack_synced = true
+
+
 func _toggle_auto_aim(path: String = SettingsScript.PATH) -> void:
 	var error := SettingsScript.toggle_auto_aim(path)
 	_status = "Mira automática ligada." if SettingsScript.auto_aim else "Mira automática desligada."
@@ -724,6 +768,10 @@ func _unhandled_input(event: InputEvent) -> void:
 	var command := _command_event(event)
 	if command and BindingsScript.pressed(event, "auto_aim"):
 		_toggle_auto_aim()
+		get_viewport().set_input_as_handled()
+		return
+	if command and BindingsScript.pressed(event, "auto_attack"):
+		_toggle_auto_attack()
 		get_viewport().set_input_as_handled()
 		return
 	if _milestone_choice != null and _milestone_choice.visible:
@@ -745,7 +793,11 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if _input_blocked():
 		return
-	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed and _in_arena(_local_zone()):
+		_attack_held = true
+		_send_attack()
+		get_viewport().set_input_as_handled()
+	elif event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
 		_send_move(_screen_to_world(event.position))
 		get_viewport().set_input_as_handled()
 	elif event is InputEventMouseMotion and Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT):
@@ -2395,7 +2447,14 @@ func _open_journal() -> void:
 func _conversation_model(npc_id: String) -> Dictionary:
 	var model := (_view.get("narrative", {}) as Dictionary).duplicate(true)
 	var conversations := model.get("conversations", {}) as Dictionary
+	if npc_id == "nara_quiral":
+		model["objective"] = model.get("contract_objective", model.get("objective", ""))
+		model["secondary_enabled"] = int(_view.get("tower_start_floor", 1)) != 1
+		if model.has("secondary_action") and not model["secondary_enabled"]:
+			model["secondary_action_label"] = "Andar 1 selecionado"
 	if npc_id != "nara_quiral" and not npc_id.is_empty():
+		if not conversations.has(npc_id):
+			return {}
 		model.erase("action")
 		model.erase("action_label")
 		model.erase("secondary_action")
@@ -2448,7 +2507,7 @@ func _update_interface() -> void:
 			if String(npc["id"]) == String(story.get("target_npc", "")):
 				var offset := (npc["position"] as Vector2) - _display_position(_local_peer)
 				var direction := "leste" if absf(offset.x) > absf(offset.y) and offset.x > 0 else "oeste" if absf(offset.x) > absf(offset.y) else "sul" if offset.y > 0 else "norte"
-				_objective_label.text += "\n%s: %d m, %s" % [String(npc["name"]), int(offset.length() / 32.0), direction]
+				_objective_label.text += "\n%s · %s" % [String(npc["name"]), direction]
 	_objective_label.visible = story.get("stage", "") != "completed"
 	var arena := _in_arena(zone)
 	_ambient.color = {&"village": Color(1.0, 0.97, 0.9), &"house": Color(0.78, 0.7, 0.62)}.get(zone, Color(0.36, 0.38, 0.5)) as Color
@@ -2488,6 +2547,7 @@ func _update_interface() -> void:
 		return
 	_combat_label.visible = false
 	_combat_hud.visible = true
+	_combat_hud.set("auto_attack", SettingsScript.auto_attack)
 	_combat_hud.call("set_context", local, players, _local_peer, SettingsScript.auto_aim, _nearest_enemy() if SettingsScript.auto_aim else {}, floor_view)
 	var gem_ids := local.get("gem_ids", []) as Array
 	var gem_key := ",".join(PackedStringArray(gem_ids))

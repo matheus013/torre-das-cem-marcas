@@ -58,6 +58,8 @@ const POISON_TYPES := {
 	"toxina": {"name": "Toxina", "color": "8fe05a"},
 }
 const SPORE_SPREAD_LIMIT := 12
+## Ataque normal no clique: o pedido vale por este tempo (segurar o botão renova).
+const ATTACK_REQUEST_WINDOW := 0.25
 ## Colônia de esporos (decisão 591): o tick é (base fixa + fração da Vida máxima do alvo) × acúmulo.
 ## A fração acompanha qualquer escala de Vida (andar, dificuldade); o acúmulo cresce a cada tick até
 ## um teto (Sabedoria o amplia); a Cepa guarda o maior acúmulo do andar e infecções novas herdam
@@ -255,6 +257,9 @@ func add_player(peer_id: int, character_id: StringName = &"", profile_id: String
 		"health": PLAYER_MAX_HEALTH,
 		"breath": PLAYER_MAX_BREATH,
 		"cooldowns": [0.0, 0.0, 0.0, 0.0] as Array[float],
+		"auto_attack": true,
+		"attack_request": Vector2.ZERO,
+		"attack_request_timer": 0.0,
 		"recharge": [1.0, 1.0, 1.0, 1.0] as Array[float],
 		"charges": [1, 1, 1, 1] as Array[int],
 		"charge_caps": [1, 1, 1, 1] as Array[int],
@@ -1149,12 +1154,27 @@ func _step_player(peer_id: int, delta: float) -> void:
 	passive.call("tick", delta)
 	_apply_passive_requests(peer_id, passive.call("on_player_moved", state["position"]) as Array)
 	state["attack_timer"] = float(state["attack_timer"]) - delta
+	state["attack_request_timer"] = maxf(0.0, float(state.get("attack_request_timer", 0.0)) - delta)
 	if float(state["attack_timer"]) <= 0.0:
 		var weapon := weapon_attack_model(peer_id)
-		var nearest := nearest_enemy_to(state["position"] as Vector2, float(weapon["range"]))
-		if nearest >= 0 and float(state["breath"]) >= float(weapon.get("breath_cost", 0.0)):
+		# Ataque normal: no clique (ou tecla), mirando o ponto pedido, ou automático no inimigo mais
+		# próximo quando a personagem deixa o ataque automático ligado.
+		var manual := float(state["attack_request_timer"]) > 0.0
+		var nearest := -1
+		var aim := Vector2.ZERO
+		if manual:
+			aim = state["attack_request"] as Vector2
+			nearest = _enemy_near_aim(state["position"] as Vector2, aim, float(weapon["range"]))
+		elif bool(state.get("auto_attack", true)):
+			nearest = nearest_enemy_to(state["position"] as Vector2, float(weapon["range"]))
+		if (nearest >= 0 or manual) and float(state["breath"]) >= float(weapon.get("breath_cost", 0.0)):
 			state["breath"] = float(state["breath"]) - float(weapon.get("breath_cost", 0.0))
-			var first := enemies[nearest]["position"] as Vector2
+			# Sem inimigo ao alcance, o golpe manual sai na direção mirada até o alcance da arma.
+			var first := (state["position"] as Vector2) + (state.get("facing_direction", Vector2.RIGHT) as Vector2) * float(weapon["range"])
+			if nearest >= 0:
+				first = enemies[nearest]["position"] as Vector2
+			elif aim.distance_to(state["position"] as Vector2) >= 1.0:
+				first = (state["position"] as Vector2) + (state["position"] as Vector2).direction_to(aim) * float(weapon["range"])
 			_vfx(state["zone"], "travel", ["vfx/bolt", (state["position"] as Vector2) - Vector2(0.0, 14.0), first, 0.07, 9.0])
 			var damage := float(weapon["damage"])
 			var imprint := {"crit_add": weapon["crit_add"], "damage_type": weapon["damage_type"], "knockback": weapon.get("knockback", 0.0), "vulnerable": weapon.get("vulnerable", 0.0), "vulnerable_duration": weapon.get("vulnerable_duration", 0.0)}
@@ -1186,7 +1206,7 @@ func _step_player(peer_id: int, delta: float) -> void:
 				_:
 					if int(weapon.get("projectile_count", 0)) > 0 or int(weapon.get("pierce", 0)) > 0 or int(weapon.get("ricochet", 0)) > 0 or bool(weapon.get("return_projectile", false)) or int(weapon.get("fork_count", 0)) > 0 or float(weapon.get("impact_area", 0.0)) > 0.0:
 						_cast_projectiles(peer_id, weapon, first, imprint)
-					else:
+					elif nearest >= 0:
 						damage_enemy(peer_id, nearest, damage, imprint)
 			for spot in extra_targets:
 				var chained := nearest_enemy_to(spot, 4.0)
@@ -1194,6 +1214,38 @@ func _step_player(peer_id: int, delta: float) -> void:
 					_vfx(state["zone"], "chain", [[first, spot] as Array[Vector2]])
 					damage_enemy(peer_id, chained, damage * float(_mechanics(peer_id, "auto_chain")[0].get("ratio", 0.5)), imprint)
 			state["attack_timer"] = float(weapon["interval"])
+
+
+## Liga ou desliga o ataque normal automático da personagem (preferência de cada jogador).
+func set_auto_attack(peer_id: int, enabled: bool) -> void:
+	var state := player(peer_id)
+	if not state.is_empty():
+		state["auto_attack"] = enabled
+
+
+## Pede um ataque normal mirando um ponto (clique ou tecla). Segurar renova o pedido; o golpe sai
+## quando a cadência da arma permite.
+func request_attack(peer_id: int, aim: Vector2) -> void:
+	var state := player(peer_id)
+	if state.is_empty() or not aim.is_finite():
+		return
+	state["attack_request"] = aim
+	state["attack_request_timer"] = ATTACK_REQUEST_WINDOW
+
+
+## Inimigo ao alcance da arma mais próximo do ponto mirado (-1 se nenhum).
+func _enemy_near_aim(origin: Vector2, aim: Vector2, reach: float) -> int:
+	var result := -1
+	var best := INF
+	for index in range(enemies.size()):
+		var spot := enemies[index]["position"] as Vector2
+		if origin.distance_to(spot) > reach:
+			continue
+		var distance := aim.distance_squared_to(spot)
+		if distance < best:
+			best = distance
+			result = index
+	return result
 
 
 # ---------------------------------------------------------------- movimento e zonas
@@ -1384,12 +1436,15 @@ func expedition_preparation(peer_id: int) -> Array[String]:
 		var item := (gear["equipment"] as EquipmentLoadout).get_equipped(spec[1], int(spec[2]))
 		if item != null:
 			integrity = minf(integrity, item.integrity)
-	return [
-		"Condicao: Vida %d/%d; ferimentos %d. Enfermaria: Maura." % [int(state["health"]), int(max_health(peer_id)), int(state.get("wounds", 0))],
+	var preparation: Array[String] = [
+		"Condicao: Vida %d/%d; Folego %d/%d; ferimentos %d. Enfermaria: Maura." % [int(state["health"]), int(max_health(peer_id)), int(state["breath"]), int(max_breath(peer_id)), int(state.get("wounds", 0))],
 		"Suprimentos de cura: %d/9. Comercio: Cassio; alquimia: Sira." % int(state["quick_items"]),
 		"Menor integridade equipada: %d%%. Oficina: Dalia." % int(round(integrity * 100.0)),
 		"Proxima entrada: andar %d. Portao junto ao posto da guarda." % tower_start_floor,
 	]
+	if not _players_in_arena().is_empty():
+		preparation.append("Grupo na Torre: andar %d. O andar escolhido vale quando a Torre estiver vazia; entrar agora acompanha o grupo." % current_floor)
+	return preparation
 
 
 func _village_context() -> Dictionary:

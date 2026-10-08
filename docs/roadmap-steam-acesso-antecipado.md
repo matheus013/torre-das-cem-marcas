@@ -17,6 +17,12 @@ cobre comandos duplicados, reconexao e entrada tardia. Ver
 [entrega N1](lore-n1-estado-narrativo.md). Arco completo e playtests continuam
 pendentes; nao encerra EA2 ou EA4.
 
+[Abertura N2](lore-n2-abertura-e-preparacao.md), 2026-10-07: Alda apresenta
+a crise, Nara orienta partida/retorno e exibe preparo individual, tres servicos
+recebem contexto, quatro protagonistas reagem e rumores sao identificados.
+Contexto persistente e compartilhado; abertura e compras nao bloqueiam a Torre.
+Compreensao por jogadores novos e controles fisicos continuam pendentes.
+
 [Revisao visual das skills](revisao-assets-skills.md), 2026-10-07: 46 icones
 revisados, oito corrigidos e oito novas animacoes de quatro quadros para
 campos e orbitas. Avisos de raio/pilar nao exibem mais cometas indevidos.

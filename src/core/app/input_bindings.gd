@@ -3,13 +3,14 @@ extends RefCounted
 const ConfigStore := preload("res://src/core/persistence/config_store.gd")
 
 const PATH := "user://aresta_settings.cfg"
-const PAD_BUTTONS := {"skill_1": JOY_BUTTON_LEFT_SHOULDER, "skill_2": JOY_BUTTON_RIGHT_SHOULDER, "skill_3": JOY_BUTTON_X, "skill_4": JOY_BUTTON_Y, "interact": JOY_BUTTON_A, "inventory": JOY_BUTTON_BACK, "character": JOY_BUTTON_DPAD_UP, "skills": JOY_BUTTON_DPAD_LEFT, "tower": JOY_BUTTON_DPAD_DOWN, "switch_character": JOY_BUTTON_DPAD_RIGHT, "auto_aim": JOY_BUTTON_LEFT_STICK}
+const PAD_BUTTONS := {"skill_1": JOY_BUTTON_LEFT_SHOULDER, "skill_2": JOY_BUTTON_RIGHT_SHOULDER, "skill_3": JOY_BUTTON_X, "skill_4": JOY_BUTTON_Y, "interact": JOY_BUTTON_A, "inventory": JOY_BUTTON_BACK, "character": JOY_BUTTON_DPAD_UP, "skills": JOY_BUTTON_DPAD_LEFT, "tower": JOY_BUTTON_DPAD_DOWN, "switch_character": JOY_BUTTON_DPAD_RIGHT, "auto_aim": JOY_BUTTON_LEFT_STICK, "attack": JOY_BUTTON_B}
 static var pad_device := -1
 const SPECS := {
 	"move_left": ["Mover à esquerda", KEY_LEFT, "all"],
 	"move_right": ["Mover à direita", KEY_RIGHT, "all"],
 	"move_up": ["Mover para cima", KEY_UP, "all"],
 	"move_down": ["Mover para baixo", KEY_DOWN, "all"],
+	"attack": ["Ataque normal (ou clique esquerdo)", KEY_SPACE, "tower"],
 	"skill_1": ["Gema 1", KEY_Q, "tower"],
 	"skill_2": ["Gema 2", KEY_W, "tower"],
 	"skill_3": ["Gema 3", KEY_E, "tower"],
@@ -25,6 +26,7 @@ const SPECS := {
 	"load": ["Carregar", KEY_F9, "all"],
 	"npc_mode": ["Modo dos moradores", KEY_F6, "all"],
 	"auto_aim": ["Alternar mira automática", KEY_H, "all"],
+	"auto_attack": ["Alternar ataque automático", KEY_J, "all"],
 }
 
 
@@ -163,6 +165,8 @@ static func label(action: String) -> String:
 	if pad_device >= 0:
 		if action == "auto_aim":
 			return "L3"
+		if action == "attack":
+			return "○" if playstation() else "B"
 		if action == "quick_item":
 			return "R2" if playstation() else "RT"
 		if PAD_BUTTONS.has(action):

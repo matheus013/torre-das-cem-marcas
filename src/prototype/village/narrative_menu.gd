@@ -54,6 +54,8 @@ func _ready() -> void:
 	_reward = _label(text, 14)
 	for label: Label in [_dialogue, _reaction, _rumor, _objective, _preparation, _journal, _reward]:
 		label.focus_mode = Control.FOCUS_ALL
+		label.focus_entered.connect(func() -> void: label.modulate = Color("e8b84a"))
+		label.focus_exited.connect(func() -> void: label.modulate = Color.WHITE)
 	_action = Button.new()
 	_action.custom_minimum_size.y = 46
 	_action.pressed.connect(func() -> void: action_requested.emit(_selected_action))
@@ -91,7 +93,7 @@ func open(model: Dictionary, near_npc: bool) -> void:
 	_layout()
 	if _action.visible:
 		_action.grab_focus.call_deferred()
-	elif _secondary.visible:
+	elif _secondary.visible and not _secondary.disabled:
 		_secondary.grab_focus.call_deferred()
 	else:
 		_close.grab_focus.call_deferred()
@@ -123,7 +125,7 @@ func refresh(model: Dictionary, in_range: bool = true) -> void:
 	var secondary_focus := _secondary.has_focus()
 	_secondary.visible = not npc_id.is_empty() and not _secondary_action.is_empty()
 	_secondary.text = String(model.get("secondary_action_label", ""))
-	_secondary.disabled = not in_range
+	_secondary.disabled = not in_range or not bool(model.get("secondary_enabled", true))
 	_secondary.tooltip_text = _action.tooltip_text
 	if had_focus and (not _action.visible or _action.disabled):
 		_close.grab_focus()

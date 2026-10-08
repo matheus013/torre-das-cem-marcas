@@ -32,7 +32,7 @@ PIDS="$PIDS $LATE"
 wait "$LATE" || { cat "$LOG_DIR/late.log"; exit 1; }
 wait "$HOST" || { cat "$LOG_DIR/host.log"; exit 1; }
 PIDS=""
-for log in client reconnect late; do grep -q NARRATIVE_CLIENT_OK "$LOG_DIR/$log.log"; done
+for log in client reconnect late; do grep -q 'NARRATIVE_CLIENT_OK.*opening_known=true' "$LOG_DIR/$log.log"; done
 grep -q NARRATIVE_HOST_OK "$LOG_DIR/host.log"
 grep -q VILLAGE_PEER_RECONNECTED "$LOG_DIR/host.log"
 if grep -q 'SCRIPT ERROR\|ERROR:' "$LOG_DIR"/*.log; then cat "$LOG_DIR"/*.log; exit 1; fi

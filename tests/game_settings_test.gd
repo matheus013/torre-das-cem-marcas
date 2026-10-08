@@ -16,7 +16,7 @@ func _run() -> void:
 	var config := ConfigFile.new()
 	config.set_value("app", "dev_mode", false)
 	config.save(TEST_PATH)
-	var chosen := {"fullscreen": true, "resolution": 2, "fps": 120, "vsync": false, "master": 0.0, "music": 35.0, "effects": 70.0, "auto_aim": false}
+	var chosen := {"fullscreen": true, "resolution": 2, "fps": 120, "vsync": false, "master": 0.0, "music": 35.0, "effects": 70.0, "auto_aim": false, "auto_attack": false}
 	if SettingsScript.save(chosen, TEST_PATH) != OK or SettingsScript.read(TEST_PATH) != chosen:
 		return _fail("Settings did not survive a disk round trip")
 	config.load(TEST_PATH)

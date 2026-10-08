@@ -7,8 +7,10 @@ const PATH := "user://aresta_settings.cfg"
 const SECTION := "game"
 const RESOLUTIONS: Array[Vector2i] = [Vector2i(1280, 720), Vector2i(1600, 900), Vector2i(1920, 1080), Vector2i(2560, 1440)]
 const FPS_LIMITS: Array[int] = [0, 30, 60, 120, 144]
-const DEFAULTS := {"fullscreen": false, "resolution": 0, "fps": 60, "vsync": true, "master": 100.0, "music": 100.0, "effects": 100.0, "auto_aim": false}
+const DEFAULTS := {"fullscreen": false, "resolution": 0, "fps": 60, "vsync": true, "master": 100.0, "music": 100.0, "effects": 100.0, "auto_aim": false, "auto_attack": true}
 static var auto_aim := false
+## Ataque normal automático no inimigo mais próximo; desligado, o ataque sai só no clique ou na tecla.
+static var auto_attack := true
 
 
 static func read(path: String = PATH) -> Dictionary:
@@ -28,6 +30,13 @@ static func toggle_auto_aim(path: String = PATH) -> Error:
 	return save(values, path)
 
 
+static func toggle_auto_attack(path: String = PATH) -> Error:
+	var values := read(path)
+	auto_attack = not auto_attack
+	values["auto_attack"] = auto_attack
+	return save(values, path)
+
+
 static func save(values: Dictionary, path: String = PATH, bindings: Dictionary = {}) -> Error:
 	if not bindings.is_empty() and not BindingsScript.valid(bindings):
 		return ERR_INVALID_PARAMETER
@@ -38,7 +47,7 @@ static func sanitize(values: Dictionary) -> Dictionary:
 	var clean := DEFAULTS.duplicate()
 	for key: String in DEFAULTS:
 		var value: Variant = values.get(key, DEFAULTS[key])
-		if key in ["fullscreen", "vsync", "auto_aim"]:
+		if key in ["fullscreen", "vsync", "auto_aim", "auto_attack"]:
 			if value is bool:
 				clean[key] = value
 		elif value is int or value is float:
@@ -57,6 +66,7 @@ static func sanitize(values: Dictionary) -> Dictionary:
 static func apply(values: Dictionary) -> void:
 	var clean := sanitize(values)
 	auto_aim = bool(clean["auto_aim"])
+	auto_attack = bool(clean["auto_attack"])
 	Engine.max_fps = int(clean["fps"])
 	for key: String in ["master", "music", "effects"]:
 		var bus_name := {"master": "Master", "music": "Music", "effects": "Effects"}[key] as String

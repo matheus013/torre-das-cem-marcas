@@ -38,6 +38,7 @@ var downed := false
 var downed_seconds := 0.0
 var rescue_progress := 0.0
 var auto_aim := false
+var auto_attack := true
 var selected_target: Dictionary = {}
 var effects: Array = []
 ## Ícones de efeito na faixa acima da barra (decisão 581): bônus, penalidades e recargas de passivas.
@@ -404,6 +405,7 @@ func _draw_context() -> void:
 		_draw_effect(effects[index] as Dictionary, effect_rect(index))
 	var aim_x := size.x - 196.0
 	draw_string(font, Vector2(aim_x, 220), "MIRA AUTO: " + ("LIGADA" if auto_aim else "DESLIGADA"), HORIZONTAL_ALIGNMENT_CENTER, 180, 12, GOLD if auto_aim else MUTED_COLOR)
+	draw_string(font, Vector2(aim_x, 204), "ATAQUE AUTO: " + ("LIGADO" if auto_attack else "DESLIGADO"), HORIZONTAL_ALIGNMENT_CENTER, 180, 12, GOLD if auto_attack else MUTED_COLOR)
 	if auto_aim and not selected_target.is_empty():
 		draw_string(font, Vector2(aim_x, 238), _fit_text(String(selected_target.get("name", "ALVO")), 180), HORIZONTAL_ALIGNMENT_CENTER, 180, 12, TEXT)
 		var rect := Rect2(aim_x, 245, 180, 5)
@@ -493,31 +495,49 @@ func _draw_passive(rect: Rect2) -> void:
 			draw_circle(meter.end + Vector2(8.0, -5.0), 4.0, GOLD)
 
 
-## Orbe de vidro escuro com líquido ondulando, menisco claro e reflexo.
-func _draw_orb(center: Vector2, radius: float, value: float, maximum: float, color: Color, label_text: String, time: float) -> void:
-	var ratio := clampf(value / maximum, 0.0, 1.0) if maximum > 0.0 else 0.0
-	draw_circle(center + Vector2(0.0, 3.0), radius + 8.0, Color(0.0, 0.0, 0.0, 0.35))
-	draw_circle(center, radius + 6.0, FRAME_DARK)
-	draw_circle(center, radius, Color(0.06, 0.06, 0.09))
+## Polígonos do líquido do orbe: [corpo, núcleo, superfície]. Só devolve polígonos que triangulam:
+## com o orbe quase vazio, o núcleo descia abaixo do fundo e a interseção gerava lascas degeneradas
+## ("triangulation failed" a cada quadro; regressão de 2026-10-08).
+static func orb_liquid(center: Vector2, radius: float, ratio: float, time: float) -> Array:
 	var circle := PackedVector2Array()
 	for index in range(48):
 		var angle := TAU * float(index) / 48.0
 		circle.append(center + Vector2(cos(angle), sin(angle)) * radius)
+	var bottom := center.y + radius + 1.0
 	var level := center.y + radius - radius * 2.0 * ratio
 	var surface := PackedVector2Array()
 	for step in range(17):
 		var x := center.x - radius - 1.0 + (radius * 2.0 + 2.0) * float(step) / 16.0
 		surface.append(Vector2(x, level + sin(time * 2.4 + float(step) * 0.7) * (2.0 if 0.02 < ratio and ratio < 0.98 else 0.0)))
 	var liquid := surface.duplicate()
-	liquid.append(Vector2(center.x + radius + 1.0, center.y + radius + 1.0))
-	liquid.append(Vector2(center.x - radius - 1.0, center.y + radius + 1.0))
-	for fill in Geometry2D.intersect_polygons(circle, liquid):
-		draw_colored_polygon(fill, color.darkened(0.25))
+	liquid.append(Vector2(center.x + radius + 1.0, bottom))
+	liquid.append(Vector2(center.x - radius - 1.0, bottom))
 	var core := liquid.duplicate()
-	for index in range(core.size()):
-		core[index] = core[index] + Vector2(0.0, 5.0) if index < surface.size() else core[index]
-	for fill in Geometry2D.intersect_polygons(circle, core):
+	for index in range(surface.size()):
+		core[index] = Vector2(core[index].x, minf(core[index].y + 5.0, bottom - 0.5))
+	return [_drawable(Geometry2D.intersect_polygons(circle, liquid)), _drawable(Geometry2D.intersect_polygons(circle, core)), surface]
+
+
+static func _drawable(polygons: Array[PackedVector2Array]) -> Array[PackedVector2Array]:
+	var result: Array[PackedVector2Array] = []
+	for polygon in polygons:
+		if polygon.size() >= 3 and not Geometry2D.triangulate_polygon(polygon).is_empty():
+			result.append(polygon)
+	return result
+
+
+## Orbe de vidro escuro com líquido ondulando, menisco claro e reflexo.
+func _draw_orb(center: Vector2, radius: float, value: float, maximum: float, color: Color, label_text: String, time: float) -> void:
+	var ratio := clampf(value / maximum, 0.0, 1.0) if maximum > 0.0 else 0.0
+	draw_circle(center + Vector2(0.0, 3.0), radius + 8.0, Color(0.0, 0.0, 0.0, 0.35))
+	draw_circle(center, radius + 6.0, FRAME_DARK)
+	draw_circle(center, radius, Color(0.06, 0.06, 0.09))
+	var layers := orb_liquid(center, radius, ratio, time)
+	for fill: PackedVector2Array in layers[0]:
+		draw_colored_polygon(fill, color.darkened(0.25))
+	for fill: PackedVector2Array in layers[1]:
 		draw_colored_polygon(fill, color)
+	var surface := layers[2] as PackedVector2Array
 	if 0.02 < ratio and ratio < 0.98:
 		var meniscus := PackedVector2Array()
 		for point in surface:

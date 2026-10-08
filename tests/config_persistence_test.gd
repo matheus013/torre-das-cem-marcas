@@ -21,7 +21,7 @@ func _run() -> void:
 	legacy.set_value("extension", "untouched", ["keep", 42])
 	legacy.save(PATH)
 	var keys := Bindings.defaults()
-	keys["auto_aim"] = KEY_J
+	keys["auto_aim"] = KEY_K
 	var values := Settings.DEFAULTS.duplicate()
 	values["auto_aim"] = true
 	values["music"] = 23.0

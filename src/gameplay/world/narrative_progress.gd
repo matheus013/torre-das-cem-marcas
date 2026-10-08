@@ -67,6 +67,7 @@ func view() -> Dictionary:
 	var model: Dictionary = (_catalog["stages"][stage] as Dictionary).duplicate(true)
 	model.merge({"id": _catalog["id"], "npc_id": _catalog["npc_id"], "title": _catalog["title"], "stage": stage, "reward": _catalog["reward"].duplicate(true)})
 	model["npc_name"] = "Nara Quiral"
+	model["contract_objective"] = model["objective"]
 	model["opening_known"] = opening_known
 	if stage == "available" and not opening_known:
 		model["objective"] = _opening["objective"]

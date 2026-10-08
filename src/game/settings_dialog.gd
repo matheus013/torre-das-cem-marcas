@@ -19,6 +19,7 @@ var _bindings: Dictionary = {}
 var _binding_buttons: Dictionary = {}
 var _capturing := ""
 var _auto_aim: CheckButton
+var _auto_attack: CheckButton
 var _session_buttons: Array[Button] = []
 
 
@@ -81,6 +82,9 @@ func _ready() -> void:
 	_auto_aim = CheckButton.new()
 	_auto_aim.name = "AutoAim"
 	_add_row(controls, "Mira automática", _auto_aim)
+	_auto_attack = CheckButton.new()
+	_auto_attack.name = "AutoAttack"
+	_add_row(controls, "Ataque automático", _auto_attack)
 	for action: String in BindingsScript.SPECS:
 		var button := Button.new()
 		button.name = action
@@ -160,6 +164,7 @@ func _fill(values: Dictionary) -> void:
 	_fps.select(SettingsScript.FPS_LIMITS.find(int(values["fps"])))
 	_vsync.set_pressed_no_signal(bool(values["vsync"]))
 	_auto_aim.set_pressed_no_signal(bool(values["auto_aim"]))
+	_auto_attack.set_pressed_no_signal(bool(values["auto_attack"]))
 	for key: String in _volumes:
 		(_volumes[key] as HSlider).value = float(values[key])
 
@@ -167,6 +172,7 @@ func _fill(values: Dictionary) -> void:
 func _apply() -> void:
 	var values := {"fullscreen": _fullscreen.button_pressed, "resolution": _resolution.selected, "fps": _fps.get_selected_id(), "vsync": _vsync.button_pressed}
 	values["auto_aim"] = _auto_aim.button_pressed
+	values["auto_attack"] = _auto_attack.button_pressed
 	for key: String in _volumes:
 		values[key] = (_volumes[key] as HSlider).value
 	if not _capturing.is_empty():
@@ -228,6 +234,12 @@ func _input(event: InputEvent) -> void:
 		var error := SettingsScript.toggle_auto_aim(_settings_path)
 		_auto_aim.set_pressed_no_signal(SettingsScript.auto_aim)
 		_error.text = "Não foi possível guardar a preferência de mira." if error != OK else ""
+		set_input_as_handled()
+		return
+	if _capturing.is_empty() and event.is_action_pressed("aresta_auto_attack"):
+		var error := SettingsScript.toggle_auto_attack(_settings_path)
+		_auto_attack.set_pressed_no_signal(SettingsScript.auto_attack)
+		_error.text = "Não foi possível guardar a preferência de ataque." if error != OK else ""
 		set_input_as_handled()
 		return
 	if _capturing.is_empty() and event.is_action_pressed("aresta_pause"):

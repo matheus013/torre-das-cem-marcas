@@ -15,6 +15,7 @@
   "conversations": {
     "alda_serrin": {
       "npc_name": "Alda Serrin",
+      "title": "Renovacao Antecipada",
       "dialogue": "As Galerias Refeitas estao se renovando antes do esperado. Se os caminhos mudarem, Aresta perde acesso ao trabalho e aos materiais de que depende. Precisamos de relatos verificaveis, nao de uma conclusao apressada. Nara coordena o primeiro registro na Casa das Expedicoes.",
       "summary": "Nara recebe os registros de campo. A causa da renovacao ainda nao esta estabelecida; proteger as rotas protege Aresta.",
       "action": "acknowledge_crisis",

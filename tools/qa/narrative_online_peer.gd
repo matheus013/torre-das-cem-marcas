@@ -16,7 +16,8 @@ class Game:
 				var state: Dictionary = _sim.player(peer)
 				if stage in ["available", "report_ready"]:
 					state["zone"] = &"village"
-					state["position"] = _sim.village_life.call("find", "nara_quiral")["position"]
+					var destination := "alda_serrin" if stage == "available" and not _sim.narrative.opening_known else "nara_quiral"
+					state["position"] = _sim.village_life.call("find", destination)["position"]
 					state["target"] = state["position"]
 				elif stage == "active":
 					if state["zone"] != &"tower":
@@ -32,30 +33,33 @@ class Game:
 					get_tree().quit(1)
 				if completed_at < 0:
 					completed_at = elapsed
-					print("NARRATIVE_HOST_COMPLETED reward=1")
+					print("NARRATIVE_HOST_COMPLETED reward=1 opening_known=%s" % _sim.narrative.opening_known)
 				if elapsed - completed_at > 6:
 					print("NARRATIVE_HOST_OK reward=1")
 					get_tree().quit(0)
 		else:
 			var model := _view.get("narrative", {}) as Dictionary
 			var stage := String(model.get("stage", ""))
-			if stage != last_sent and not _local().is_empty():
+			var phase := stage + (":opening" if stage == "available" and not model.get("opening_known", false) else "")
+			if phase != last_sent and not _local().is_empty():
 				var action := ""
 				if stage in ["available", "report_ready"] and _local_zone() == &"village":
 					var npc := _nearest_npc(110)
-					if npc.get("id", "") == "nara_quiral":
+					if npc.get("id", "") == "alda_serrin" and not model.get("opening_known", false):
+						action = "acknowledge_crisis"
+					elif npc.get("id", "") == "nara_quiral":
 						action = "accept" if stage == "available" else "report"
 				elif stage == "active" and _near_narrative_marker():
 					action = "inspect"
 				if not action.is_empty():
 					_send_intent("narrative", [action])
 					_send_intent("narrative", [action])
-					last_sent = stage
+					last_sent = phase
 			if stage == "completed":
-				if (model.get("journal", []) as Array).size() != 3:
+				if (model.get("journal", []) as Array).size() != 4 or not model.get("opening_known", false):
 					push_error("Network journal incomplete")
 					get_tree().quit(1)
-				print("NARRATIVE_CLIENT_OK stage=completed journal=3")
+				print("NARRATIVE_CLIENT_OK stage=completed journal=4 opening_known=true")
 				get_tree().quit(0)
 		if elapsed > 16:
 			push_error("Narrative network timed out")

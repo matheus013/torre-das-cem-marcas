@@ -51,7 +51,7 @@ Mudancas de canone ou novas regras irreversiveis exigem aprovacao do responsavel
 | --- | --- | --- | --- |
 | N0 | Matriz canone/runtime e roteiro do primeiro arco | Documentos existentes | Auditoria concluida em 2026-10-07; conflitos registrados |
 | N1 | Estado narrativo, persistencia e prova ponta a ponta | N0 | Prova implementada e validada em 2026-10-07 |
-| N2 | Abertura em Aresta e contrato de expedicao | N1 | Pendente |
+| N2 | Abertura em Aresta e contrato de expedicao | N1 | Implementado; playtest de compreensao pendente |
 | N3 | Eventos e descobertas dos andares 1 a 3 | N2 | Pendente |
 | N4 | Objeto, chefe e retirada do andar 4 | N3 | Pendente |
 | N5 | Relatorio, custodia e consequencias na vila | N4 | Pendente |
@@ -109,13 +109,17 @@ vezes ou reenviar comando nao duplica progresso, itens ou recompensas.
 
 ## N2: Aresta e motivo para partir
 
-- [ ] Alda apresenta a Renovacao Antecipada como problema concreto da vila.
-- [ ] Nara oferece o contrato, explica risco e encaminha preparacao/retorno.
-- [ ] Oficina, enfermaria e comercio fornecem falas contextuais curtas,
+Entrega: [abertura e preparacao](lore-n2-abertura-e-preparacao.md).
+Falas autorais, preparo individual, direcao de moradores e contexto persistente.
+Meta de compreensao em cinco minutos ainda depende de playtest externo.
+
+- [x] Alda apresenta a Renovacao Antecipada como problema concreto da vila.
+- [x] Nara oferece o contrato, explica risco e encaminha preparacao/retorno.
+- [x] Oficina, enfermaria e comercio fornecem falas contextuais curtas,
   preservando acesso aos atendimentos existentes.
-- [ ] Eloa, Sena, Cira e Rui recebem reacoes coerentes com seus vinculos;
+- [x] Eloa, Sena, Cira e Rui recebem reacoes coerentes com seus vinculos;
   nenhuma personagem e obrigatoria para concluir a historia.
-- [ ] Introduzir rumores divergentes como relatos, nao como verdade absoluta.
+- [x] Introduzir rumores divergentes como relatos, nao como verdade absoluta.
 
 **Saida:** jogador novo identifica objetivo e destino sem ler um compendio.
 Alvo proposto de playtest: conseguir explicar a primeira missao em ate 5
@@ -219,8 +223,8 @@ andares pode continuar disponivel para teste, sem anunciar campanha concluida.
 
 ## Proximo passo executavel
 
-N1 validado: avancar para N2, com abertura em Aresta, contexto com Alda e
-preparacao de expedicao, reutilizando o contrato e diario agora jogaveis.
+N2 implementado: avancar para N3, com pedido de ajuda e acontecimentos nos
+andares 1 a 3, usando as validacoes, contrato, preparo e diario existentes.
 Ao concluir cada marco, atualizar este roadmap com testes, capturas, lacunas
 e alteracoes reais. Publicacao continua subordinada ao
 [roadmap de acesso antecipado](roadmap-steam-acesso-antecipado.md).
