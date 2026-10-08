@@ -3979,6 +3979,7 @@ func _skills_model(peer_id: int) -> Array[Dictionary]:
 		var definition := gem_definition(gem_id)
 		var progress := (gems["gems"] as Dictionary)[gem_id] as Dictionary
 		var level := int(progress["level"])
+		var current := resolve_slot(peer_id, slot)
 		var attached: Array[Dictionary] = []
 		for support_id: Variant in (gems["supports"] as Array)[slot]:
 			var support := support_definition(String(support_id))
@@ -3991,11 +3992,15 @@ func _skills_model(peer_id: int) -> Array[Dictionary]:
 				if (other as Array).has(support_id):
 					in_use = true
 			if not in_use and bool(resolver.call("supports", definition, support)):
-				available.append({"id": support_id, "name": String(support.get("name", support_id)), "drain": int(support.get("drain", 0)), "category": support.get("category", "buff"), "description": support.get("description", "")})
+				var with_support: Dictionary = resolver.call("resolve", current, [support] as Array[Dictionary])
+				available.append({"id": support_id, "name": String(support.get("name", support_id)), "drain": int(support.get("drain", 0)), "category": support.get("category", "buff"), "description": support.get("description", ""),
+					"preview": skill_change_preview(peer_id, current, with_support)})
 		var pending: Array[Dictionary] = []
 		var pending_tier := pending_evolution_tier(progress)
 		for option in _evolution_options(gem_id, pending_tier):
-			pending.append({"id": String(option.get("id", "")), "name": String(option.get("name", "")), "modifiers": option.get("modifiers", {})})
+			var with_option: Dictionary = resolver.call("resolve", current, [] as Array[Dictionary], [option.get("modifiers", {}) as Dictionary] as Array[Dictionary])
+			pending.append({"id": String(option.get("id", "")), "name": String(option.get("name", "")), "modifiers": option.get("modifiers", {}),
+				"preview": skill_change_preview(peer_id, current, with_option)})
 		var chosen: Array[String] = []
 		for chosen_level in GEM_MASTERY_LEVELS:
 			var choice_id := String((progress["choices"] as Dictionary).get(str(chosen_level), ""))
@@ -4030,6 +4035,132 @@ func _skills_model(peer_id: int) -> Array[Dictionary]:
 			"cooldown": float(resolved.get("cooldown", 0.0)) / maxf(0.01, float(derived_stats(peer_id).get("cooldown_recovery_multiplier", 1.0))),
 		})
 	return result
+
+
+## Status detalhados no estilo de Dofus (decisão 589): cada atributo separado em base (pontos e
+## marcos), equipamento, total e efetivo (depois dos redutores acima de 100); números de combate;
+## e bônus de dano por tipo e elemento, somando marcos, passivas de itens e afixos.
+const DAMAGE_BONUS_ROWS: Array[Array] = [
+	["power_mult", "Potencia geral"], ["auto_damage_mult", "Autoataque"], ["power_physical_mult", "Dano fisico"],
+	["power_magic_mult", "Dano magico"], ["power_fire_mult", "Fogo"], ["power_ice_mult", "Gelo"], ["power_lightning_mult", "Raio"],
+	["power_acid_mult", "Acido"], ["power_nature_mult", "Natureza"], ["power_dark_mult", "Trevas"], ["power_holy_mult", "Sagrado"],
+	["power_earth_mult", "Terra"], ["power_arcane_mult", "Arcano"], ["power_summon_mult", "Invocacoes"],
+]
+
+
+func detailed_stats(peer_id: int) -> Dictionary:
+	var build := character_build(peer_id)
+	if build == null:
+		return {}
+	var derived := derived_stats(peer_id)
+	var effective := derived.get("effective_primaries", {}) as Dictionary
+	var attributes: Array[Dictionary] = []
+	for stat in CharacterBuild.PRIMARY_STATS:
+		var base := float(build.base_stats.get(stat, 0.0))
+		var total := raw_stat(peer_id, String(stat))
+		attributes.append({"stat": String(stat), "base": base, "equipment": total - base, "total": total, "effective": float(effective.get(stat, total))})
+	var weapon := weapon_attack_model(peer_id)
+	var combat: Array[Array] = [
+		["Vida maxima", "%d" % roundi(max_health(peer_id))],
+		["Folego maximo", "%d" % roundi(max_breath(peer_id))],
+		["Regeneracao de Folego", "%d/s" % roundi(18.0 * _mod(peer_id, "breath_regen_mult"))],
+		["Potencia do nivel", "x%.2f" % level_power(peer_id)],
+		["Dano do autoataque", "%.1f a cada %.2f s" % [float(weapon.get("damage", 0.0)), float(weapon.get("interval", 1.0))]],
+		["Chance critica", "%.1f%%" % (float(derived.get("critical_chance", CRIT_CHANCE)) * 100.0)],
+		["Dano critico", "x%.2f" % minf(2.0, CRIT_MULTIPLIER + float(derived.get("critical_damage_bonus", 0.0)))],
+		["Reducao de recarga", "%.0f%% (teto %.0f%%)" % [float(derived.get("cooldown_reduction", 0.0)) * 100.0, (1.0 - 1.0 / COOLDOWN_RECOVERY_CAP) * 100.0]],
+		["Area", "+%.0f%% (teto +%.0f%%)" % [(float(derived.get("area_multiplier", 1.0)) - 1.0) * 100.0, (AREA_MULTIPLIER_CAP - 1.0) * 100.0]],
+		["Velocidade de movimento", "%.0f%%" % (float(derived.get("movement_speed_multiplier", 1.0)) * 100.0)],
+		["Cadencia de ataque", "%.0f%%" % (float(derived.get("automatic_attack_rate_multiplier", 1.0)) * 100.0)],
+		["Defesa (reducao de dano)", "%.1f%% (teto 50%%)" % (float(derived.get("damage_reduction", 0.0)) * 100.0)],
+		["Guarda da arma", "%.0f%%" % (float(weapon.get("guard", 0.0)) * 100.0)],
+		["Dano recebido (marcos e itens)", "x%.2f" % _mod(peer_id, "damage_taken_mult")],
+		["Roubo de Vida", "%.1f%%" % (_mod(peer_id, "life_steal_add") * 100.0)],
+		["Alcance de proliferacao de veneno", "+%.0f%%" % ((_mod(peer_id, "poison_spread_mult") - 1.0) * 100.0)],
+	]
+	var damage: Array[Array] = []
+	for row in DAMAGE_BONUS_ROWS:
+		var value := _mod(peer_id, String(row[0]))
+		damage.append([String(row[1]), "%s%.0f%%" % ["+" if value >= 1.0 else "", (value - 1.0) * 100.0]])
+	return {"attributes": attributes, "combat": combat, "damage": damage}
+
+
+## Números de uma gema como o jogador os sente (decisão 589): dano, barreira e cura já com atributos,
+## nível e bônus; recarga com a Sabedoria; cargas; e os campos que mudam o comportamento.
+const PREVIEW_METRICS: Array[Array] = [
+	["power", "Dano", "scaled"], ["barrier", "Barreira", "scaled"], ["healing", "Cura", "scaled"],
+	["trail_damage", "Dano do rastro", "scaled"], ["arrival_damage", "Dano na chegada", "scaled"], ["arrival_barrier", "Barreira na chegada", "scaled"],
+	["cooldown", "Recarga", "seconds"], ["extra_charge", "Cargas", "charges"], ["breath_cost", "Folego", "number"],
+	["radius", "Raio", "number"], ["range", "Alcance", "number"], ["width", "Largura", "number"], ["angle", "Abertura", "angle"],
+	["duration", "Duracao", "seconds"], ["tick_interval", "Intervalo", "seconds"],
+	["projectile_count", "Projeteis", "plus_one"], ["pierce", "Perfuracao", "number"], ["ricochet", "Ricochetes", "number"],
+	["fork_count", "Bifurcacoes", "number"], ["chain_count", "Saltos", "number"], ["meteor_count", "Impactos", "number"],
+	["orbit_count", "Orbitas", "number"], ["arrow_count", "Flechas", "number"], ["summon_count", "Invocacoes", "number"],
+	["repeat_count", "Repeticoes", "number"], ["critical_chance", "Critico", "percent"], ["slow", "Lentidao", "percent"],
+	["damage_taken", "Vulnerabilidade", "percent"], ["life_steal", "Roubo de Vida", "percent"], ["poison_growth", "Crescimento do veneno", "percent"],
+	["spread_radius", "Espalhamento", "number"], ["impact_area", "Area do impacto", "number"], ["knockback", "Repulsao", "number"],
+	["expire_damage", "Dano ao expirar", "scaled"], ["contact_damage", "Dano de contato", "scaled"], ["stability", "Estabilidade", "percent"],
+	["expire_nova_damage", "Explosao ao expirar", "scaled"], ["chain_range", "Alcance do salto", "number"], ["heal_per_chain", "Cura por salto", "number"],
+	["angular_speed", "Rotacao", "number"], ["collision_radius", "Largura das laminas", "number"], ["arm_delay", "Tempo de armar", "seconds"],
+	["trigger_radius", "Gatilho", "number"], ["delay", "Atraso do impacto", "seconds"], ["poison_linger", "Toxina apos sair", "seconds"],
+	["breath_per_second", "Folego por segundo", "number"], ["breath_on_kill", "Folego por abate", "number"], ["breath_per_hit", "Folego por acerto", "number"],
+	["invulnerability", "Invulnerabilidade", "seconds"], ["distance", "Distancia", "number"], ["attack_interval", "Intervalo de ataque", "seconds"],
+	["pull_strength", "Atracao", "number"], ["inner_radius", "Centro vazio", "number"], ["allies_receive_barrier", "Barreira em aliados", "percent"],
+	["arrival_area", "Area na chegada", "number"], ["speed", "Velocidade", "number"], ["spread", "Espalhamento", "number"],
+]
+const PREVIEW_FLAGS := {
+	"homing": "teleguiado", "return_projectile": "retorna", "remote_nova": "pulso na mira", "field_follows_player": "segue o portador",
+	"summon_follows_player": "invocacao segue", "repeat_last_target": "repete no ultimo alvo", "overheal_barrier": "excesso vira barreira",
+}
+
+
+## Campos ausentes que o resolvedor trata como 1 quando um modificador os multiplica.
+const PREVIEW_DEFAULTS := {"speed": 1.0}
+
+
+func _preview_value(peer_id: int, effect: Dictionary, field: String, kind: String) -> float:
+	var value := float(effect.get(field, PREVIEW_DEFAULTS.get(field, 0.0)))
+	match kind:
+		"scaled":
+			return value * _skill_power_multiplier(peer_id, effect)
+		"seconds":
+			return value / maxf(0.01, float(derived_stats(peer_id).get("cooldown_recovery_multiplier", 1.0))) if field == "cooldown" else value
+		"charges":
+			return 1.0 + maxf(0.0, value)
+		"plus_one":
+			return 1.0 + value
+	return value
+
+
+## O que muda numa gema entre dois estados (modificador ou suporte): "Dano 120 -> 144 (+20%)".
+func skill_change_preview(peer_id: int, before: Dictionary, after: Dictionary) -> String:
+	var parts := PackedStringArray()
+	for metric in PREVIEW_METRICS:
+		var field := String(metric[0])
+		var kind := String(metric[2])
+		if not before.has(field) and not after.has(field):
+			continue
+		var old := _preview_value(peer_id, before, field, kind)
+		var new := _preview_value(peer_id, after, field, kind)
+		if is_equal_approx(old, new):
+			continue
+		var change := " (%s%d%%)" % ["+" if new > old else "", roundi((new / old - 1.0) * 100.0)] if absf(old) > 0.0001 and kind in ["scaled", "number", "seconds"] else ""
+		parts.append("%s %s -> %s%s" % [String(metric[1]), _preview_text(old, kind), _preview_text(new, kind), change])
+	for flag: String in PREVIEW_FLAGS:
+		if bool(after.get(flag, false)) and not bool(before.get(flag, false)):
+			parts.append("ganha: " + String(PREVIEW_FLAGS[flag]))
+	return ", ".join(parts) if not parts.is_empty() else "sem mudanca nos numeros principais"
+
+
+func _preview_text(value: float, kind: String) -> String:
+	match kind:
+		"seconds":
+			return "%.1f s" % value
+		"percent":
+			return "%d%%" % roundi(value * 100.0)
+		"angle":
+			return "%d graus" % roundi(rad_to_deg(value))
+	return str(roundi(value)) if absf(value - roundf(value)) < 0.05 or absf(value) >= 10.0 else "%.1f" % value
 
 
 func player_status_effects(peer_id: int) -> Array[Dictionary]:
@@ -4197,10 +4328,13 @@ func menu_model(peer_id: int) -> Dictionary:
 	var state := player(peer_id)
 	var build := character_build(peer_id)
 	var stats: Dictionary = {}
+	var stat_bonus: Dictionary = {}
 	var milestone_choices := _milestone_choices(peer_id)
 	if build != null:
 		for stat in CharacterBuild.PRIMARY_STATS:
 			stats[String(stat)] = int(build.base_stats.get(stat, 0))
+			# Bônus de equipamento e afixos, mostrado entre parênteses ao lado dos pontos.
+			stat_bonus[String(stat)] = int(round(raw_stat(peer_id, String(stat)) - float(build.base_stats.get(stat, 0))))
 	var skills := _skills_model(peer_id)
 	var definition := _find(_collection("playable_characters"), String(state.get("character_id", "")))
 	var chosen: Array[Dictionary] = []
@@ -4229,7 +4363,7 @@ func menu_model(peer_id: int) -> Dictionary:
 		"experience": int(character_experience.get(String(state.get("character_id", "")), 0)),
 		"experience_required": experience_required(build.level if build != null else 1),
 		"unspent_stat_points": build.unspent_stat_points if build != null else 0,
-		"stats": stats,
+		"stats": stats, "stat_bonus": stat_bonus, "detailed_stats": detailed_stats(peer_id),
 		"milestone_choices": milestone_choices,
 		"carried_loot": (state.get("carried_loot", {}) as Dictionary).duplicate(),
 		"banked_loot": banked_loot.duplicate(),

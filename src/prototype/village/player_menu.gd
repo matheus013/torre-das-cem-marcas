@@ -34,6 +34,7 @@ var _tab_buttons: Dictionary = {}
 var _scroll: ScrollContainer
 var _sell_dialog: ConfirmationDialog
 var _pending_sell: StringName = &""
+var _show_details := false
 
 
 func _ready() -> void:
@@ -263,6 +264,61 @@ func _build_doll() -> Control:
 	return doll
 
 
+## Status detalhados no estilo de Dofus (decisão 589), abertos por um botão: atributos separados em
+## base, equipamento, total e efetivo; números de combate; bônus de dano por tipo e elemento.
+func _build_detailed_stats() -> void:
+	var details := _model.get("detailed_stats", {}) as Dictionary
+	if details.is_empty():
+		return
+	var toggle := Button.new()
+	toggle.name = "DetailedStatsToggle"
+	toggle.text = ("v  STATUS DETALHADOS" if _show_details else ">  STATUS DETALHADOS")
+	toggle.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	toggle.add_theme_color_override("font_color", GOLD)
+	toggle.pressed.connect(func() -> void:
+		_show_details = not _show_details
+		var scroll := _scroll.scroll_vertical
+		_rebuild()
+		_scroll.set_deferred("scroll_vertical", scroll))
+	_content.add_child(toggle)
+	if not _show_details:
+		return
+	var table := GridContainer.new()
+	table.name = "DetailedAttributes"
+	table.columns = 5
+	table.add_theme_constant_override("h_separation", 26)
+	_content.add_child(table)
+	for header in ["ATRIBUTO", "BASE", "EQUIPAMENTO", "TOTAL", "EFETIVO"]:
+		table.add_child(_detail_cell(header, GOLD))
+	for row: Dictionary in details.get("attributes", []) as Array:
+		table.add_child(_detail_cell(_stat_label(String(row["stat"])), TEXT))
+		table.add_child(_detail_cell("%d" % roundi(float(row["base"])), TEXT))
+		var bonus := roundi(float(row["equipment"]))
+		table.add_child(_detail_cell(("+%d" % bonus) if bonus > 0 else str(bonus), Color("7fb0ff") if bonus != 0 else MUTED))
+		table.add_child(_detail_cell("%d" % roundi(float(row["total"])), TEXT))
+		var effective := float(row["effective"])
+		table.add_child(_detail_cell("%.0f" % effective, Color("e8b84a") if effective < float(row["total"]) - 0.5 else TEXT))
+	_add_text("Efetivo: valor usado pelas formulas, com redutores acima de 100 pontos.", MUTED)
+	for group: Array in [["COMBATE", details.get("combat", [])], ["BONUS DE DANO", details.get("damage", [])]]:
+		var title := _detail_cell(String(group[0]), GOLD)
+		_content.add_child(title)
+		var grid := GridContainer.new()
+		grid.columns = 4
+		grid.add_theme_constant_override("h_separation", 26)
+		_content.add_child(grid)
+		for entry: Array in group[1] as Array:
+			grid.add_child(_detail_cell(String(entry[0]), MUTED))
+			var value := String(entry[1])
+			grid.add_child(_detail_cell(value, TEXT if not (value.begins_with("+0") or value == "0%") else MUTED))
+
+
+func _detail_cell(text: String, color: Color) -> Label:
+	var label := Label.new()
+	label.text = text
+	label.add_theme_color_override("font_color", color)
+	return label
+
+
 func _header_label(title: String, detail: String) -> Control:
 	var row := HBoxContainer.new()
 	var label := Label.new()
@@ -328,7 +384,11 @@ func _build_character() -> void:
 	for stat_id in ["vitality", "strength", "intelligence", "agility", "fortune", "wisdom"]:
 		var row := HBoxContainer.new()
 		var label := Label.new()
-		label.text = "%s   %d" % [_stat_label(stat_id), int(stats.get(stat_id, 0))]
+		var bonus := int((_model.get("stat_bonus", {}) as Dictionary).get(stat_id, 0))
+		label.text = "%s   %d%s" % [_stat_label(stat_id), int(stats.get(stat_id, 0)), "  (%s%d)" % ["+" if bonus > 0 else "", bonus] if bonus != 0 else ""]
+		if bonus != 0:
+			label.tooltip_text = "%d dos pontos e marcos %s %d do equipamento = %d" % [int(stats.get(stat_id, 0)), "+" if bonus > 0 else "-", absi(bonus), int(stats.get(stat_id, 0)) + bonus]
+			label.mouse_filter = Control.MOUSE_FILTER_PASS
 		label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		label.add_theme_color_override("font_color", TEXT)
 		row.add_child(label)
@@ -340,6 +400,7 @@ func _build_character() -> void:
 		add_button.pressed.connect(func() -> void: stat_requested.emit(StringName(stat_id)))
 		row.add_child(add_button)
 		_content.add_child(row)
+	_build_detailed_stats()
 	var derived := _model.get("derived_stats", {}) as Dictionary
 	_section("VALORES DE COMBATE", "atributos e equipamento")
 	_add_text("VIDA %.0f   MOVIMENTO %.0f%%   CRITICO %.1f%%   RECARGA -%.0f%%   AREA +%.0f%%   DEFESA -%.0f%%" % [
@@ -530,7 +591,7 @@ func _build_skill_card(skill: Dictionary, gem_options: Array, safe: bool) -> voi
 
 	var stats := Label.new()
 	var values := PackedStringArray()
-	for spec in [["power", "Potencia"], ["barrier", "Barreira"], ["healing", "Cura por pulso"]]:
+	for spec in [["power", "Dano por acerto"], ["barrier", "Barreira"], ["healing", "Cura por pulso"]]:
 		if float(skill.get(spec[0], 0.0)) > 0.0:
 			values.append("%s %.0f" % [spec[1], float(skill[spec[0]])])
 	values.append("Recarga %.1f s" % float(skill.get("cooldown", 0.0)))
@@ -609,11 +670,12 @@ func _build_skill_controls(column: VBoxContainer, skill: Dictionary, safe: bool)
 		add.set_item_metadata(0, "")
 		for index in range(available.size()):
 			var support := available[index] as Dictionary
-			add.add_item("%s | %s (%d)" % ["Mecanica" if String(support.get("category", "")) == "mechanic" else "Buff", String(support.get("name", "")), int(support.get("drain", 0))])
+			var first_change := String(support.get("preview", "")).split(", ")[0]
+			add.add_item("%s | %s (%d)   %s" % ["Mecanica" if String(support.get("category", "")) == "mechanic" else "Buff", String(support.get("name", "")), int(support.get("drain", 0)), first_change])
 			add.set_item_metadata(index + 1, String(support.get("id", "")))
 			var fits := int(support.get("drain", 0)) <= int(skill.get("capacity", 3)) - int(skill.get("capacity_used", 0))
 			add.set_item_disabled(index + 1, not fits)
-			add.get_popup().set_item_tooltip(index + 1, String(support.get("description", "")) + ("" if fits else "\nCapacidade insuficiente"))
+			add.get_popup().set_item_tooltip(index + 1, String(support.get("description", "")) + "\nNesta gema: " + String(support.get("preview", "")) + ("" if fits else "\nCapacidade insuficiente"))
 		add.item_selected.connect(func(index: int) -> void:
 			var support_id := String(add.get_item_metadata(index))
 			if not support_id.is_empty():
@@ -633,8 +695,12 @@ func _build_skill_controls(column: VBoxContainer, skill: Dictionary, safe: bool)
 		column.add_child(choices_row)
 		for choice: Dictionary in pending:
 			var button := Button.new()
-			button.text = "%s\n%s" % [String(choice.get("name", "")), _describe_modifiers(choice.get("modifiers", {}) as Dictionary)]
-			button.custom_minimum_size = Vector2(250.0, 48.0)
+			# Prévia (decisão 589): o que muda na gema com este modificador, já com seus atributos.
+			button.text = "%s\n%s" % [String(choice.get("name", "")), String(choice.get("preview", _describe_modifiers(choice.get("modifiers", {}) as Dictionary)))]
+			button.tooltip_text = "%s\n%s" % [_describe_modifiers(choice.get("modifiers", {}) as Dictionary), String(choice.get("preview", ""))]
+			button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			button.custom_minimum_size = Vector2(250.0, 64.0)
+			button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 			button.disabled = not safe
 			var choice_id := String(choice.get("id", ""))
 			button.pressed.connect(func() -> void: gem_evolution_requested.emit(gem_id, choice_id))
