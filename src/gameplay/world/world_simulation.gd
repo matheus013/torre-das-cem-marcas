@@ -3564,8 +3564,11 @@ func _collect_ground_items(peer_id: int) -> void:
 
 func _receive_item(peer_id: int, item_id: String, quantity: int, quality: String = "") -> void:
 	var state := player(peer_id)
-	var carried := state["carried_loot"] as Dictionary
-	carried[item_id] = int(carried.get(item_id, 0)) + quantity
+	# Equipamento vira peça na mochila e não entra na carga (antes também entrava e chegava ao
+	# armazém como cópia fantasma; regressão de 2026-10-08).
+	if not _is_equipment(item_id):
+		var carried := state["carried_loot"] as Dictionary
+		carried[item_id] = int(carried.get(item_id, 0)) + quantity
 	if item_id == "pedra_regenerativa":
 		state["carried_stone"] = int(state["carried_stone"]) + quantity
 	if _is_equipment(item_id):
@@ -3597,7 +3600,18 @@ func _drop_carried(peer_id: int, zone: StringName, position: Vector2) -> int:
 
 func _merge_loot(destination: Dictionary, source: Dictionary) -> void:
 	for item_id: String in source:
-		destination[item_id] = int(destination.get(item_id, 0)) + maxi(0, int(source[item_id]))
+		if not _is_equipment(item_id):
+			destination[item_id] = int(destination.get(item_id, 0)) + maxi(0, int(source[item_id]))
+
+
+## Saves antigos guardavam cópias de equipamentos na carga e no armazém; as peças reais já estão
+## na mochila, então os contadores são descartados ao carregar.
+func _without_equipment(loot: Dictionary) -> Dictionary:
+	var clean := {}
+	for item_id: Variant in loot:
+		if not _is_equipment(String(item_id)):
+			clean[String(item_id)] = loot[item_id]
+	return clean
 
 
 func _grant_experience(peer_id: int, enemy: Dictionary) -> void:
@@ -4930,7 +4944,7 @@ func load_data(data: Dictionary, host_peer: int) -> bool:
 	enemy_projectiles.clear()
 	persistent_effects.clear()
 	banked_stone = maxi(0, int(data.get("banked_stone", 0)))
-	banked_loot = (data.get("banked_loot", {}) as Dictionary).duplicate(true)
+	banked_loot = _without_equipment((data.get("banked_loot", {}) as Dictionary).duplicate(true))
 	if banked_loot.is_empty() and banked_stone > 0:
 		banked_loot["pedra_regenerativa"] = banked_stone
 	loot_kill_sequence = maxi(0, int(data.get("loot_kill_sequence", 0)))
@@ -4959,7 +4973,7 @@ func load_data(data: Dictionary, host_peer: int) -> bool:
 	host["breath"] = maxf(0.0, float(data.get("player_breath", PLAYER_MAX_BREATH)))
 	host["quick_items"] = clampi(int(data.get("quick_items", 2)), 0, 9)
 	host["carried_stone"] = maxi(0, int(data.get("carried_stone", 0)))
-	host["carried_loot"] = (data.get("carried_loot", {}) as Dictionary).duplicate(true)
+	host["carried_loot"] = _without_equipment((data.get("carried_loot", {}) as Dictionary).duplicate(true))
 	if (host["carried_loot"] as Dictionary).is_empty() and int(host["carried_stone"]) > 0:
 		(host["carried_loot"] as Dictionary)["pedra_regenerativa"] = host["carried_stone"]
 	host["transition_cooldown"] = 0.5
