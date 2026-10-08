@@ -58,6 +58,7 @@ var _status := "Explore Aresta e entre na casa de teto vermelho."
 var _anim_time := 0.0
 var _locomotion := preload("res://src/presentation/art/actor_locomotion.gd").new()
 var _road_edges: Array[PackedVector2Array] = []
+var _road_edge_mesh: ArrayMesh
 var _last_zone: StringName = &""
 var _last_gem_key := ""
 var _session_port := SessionLaunchScript.DEFAULT_PORT
@@ -1282,13 +1283,8 @@ func _draw_ground(zone: StringName) -> void:
 				_draw_tiled(String(district["tile"]), district["rect"] as Rect2, Color("8f7a6a"))
 			for road in LayoutScript.VILLAGE_ROADS:
 				_draw_tiled("tiles/road", road, Color("8f7a6a"))
-			var grass := SpriteLibraryScript.texture("tiles/grass")
-			if grass != null:
-				for blob in _road_edges:
-					var uvs := PackedVector2Array()
-					for point in blob:
-						uvs.append(point / grass.get_size())
-					draw_colored_polygon(blob, Color.WHITE, uvs, grass)
+			if _road_edge_mesh != null:
+				draw_mesh(_road_edge_mesh, SpriteLibraryScript.texture("tiles/grass"))
 			_draw_door_hint(LayoutScript.HOUSE_DOOR)
 			_draw_door_hint(LayoutScript.TOWER_DOOR)
 		&"house":
@@ -1937,6 +1933,31 @@ func _build_lights() -> void:
 	add_child(_tower_lights)
 
 
+## Orçamento de luzes (regressão de 2026-10-07): no renderizador de compatibilidade cada luz 2D
+## redesenha tudo o que alcança; com os ~43 postes da vila acesos à noite o quadro passava de
+## 140 ms. Só ficam acesas as luzes que alcançam a tela, no máximo LIGHT_BUDGET, as mais próximas.
+const LIGHT_BUDGET := 8
+
+
+func _cull_lights(container: Node2D) -> void:
+	if not container.visible:
+		return
+	var view := _visible_world_rect()
+	var center := view.get_center()
+	var candidates: Array[PointLight2D] = []
+	for child in container.get_children():
+		var light := child as PointLight2D
+		if light == null:
+			continue
+		light.enabled = false
+		var reach := float(light.texture.get_width() if light.texture != null else 256) * 0.5 * light.texture_scale
+		if view.grow(reach).has_point(light.position):
+			candidates.append(light)
+	candidates.sort_custom(func(left: PointLight2D, right: PointLight2D) -> bool: return left.position.distance_squared_to(center) < right.position.distance_squared_to(center))
+	for index in range(mini(LIGHT_BUDGET, candidates.size())):
+		candidates[index].enabled = true
+
+
 ## Luzes do andar: pontos do layout na cor do bioma, portal e escada.
 func _rebuild_floor_lights() -> void:
 	for child in _tower_lights.get_children():
@@ -1981,6 +2002,30 @@ func _build_road_edges() -> void:
 					var angle := TAU * float(index) / 8.0
 					blob.append((center + Vector2(cos(angle), sin(angle)) * radius * random.randf_range(0.7, 1.15)).round())
 				_road_edges.append(blob)
+	_build_road_edge_mesh()
+
+
+## Regressão (2026-10-07): as ~1.600 bordas de grama eram desenhadas como polígonos soltos, triangulados
+## a cada quadro (52 ms de CPU e 1.600 chamadas de desenho; a vila rodava a ~7 FPS). Agora viram uma
+## só malha triangulada uma vez, desenhada com uma chamada.
+func _build_road_edge_mesh() -> void:
+	_road_edge_mesh = null
+	var grass := SpriteLibraryScript.texture("tiles/grass")
+	if grass == null or _road_edges.is_empty():
+		return
+	var vertices := PackedVector2Array()
+	var uvs := PackedVector2Array()
+	for blob in _road_edges:
+		for index in range(1, blob.size() - 1):
+			for point in [blob[0], blob[index], blob[index + 1]]:
+				vertices.append(point)
+				uvs.append(point / grass.get_size())
+	var arrays := []
+	arrays.resize(Mesh.ARRAY_MAX)
+	arrays[Mesh.ARRAY_VERTEX] = vertices
+	arrays[Mesh.ARRAY_TEX_UV] = uvs
+	_road_edge_mesh = ArrayMesh.new()
+	_road_edge_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
 
 
 func _update_camera_limits() -> void:
@@ -2418,6 +2463,8 @@ func _update_interface() -> void:
 	_player_light.enabled = zone != &"village" or period == "noite"
 	_player_light.color = Color(1.0, 0.85, 0.6) if zone == &"house" else Color(0.85, 0.97, 1.0)
 	_tower_lights.visible = zone == &"tower"
+	_cull_lights(_village_lights)
+	_cull_lights(_tower_lights)
 	for light: Node in _tower_lights.get_children():
 		(light as PointLight2D).enabled = zone == &"tower"
 	_location_label.text = {
