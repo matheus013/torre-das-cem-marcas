@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.13.0](https://github.com/matheus013/torre-das-cem-marcas/compare/v0.12.0...v0.13.0) (2026-10-08)
+
+### Novidades
+
+* ataque normal no clique e ataque automatico alternavel; fix orbes quase vazios ([2eaa41d](https://github.com/matheus013/torre-das-cem-marcas/commit/2eaa41d0edae1f93dad7016a2bb8a7d525f8b7db))
+
 ## [0.12.0](https://github.com/matheus013/torre-das-cem-marcas/compare/v0.11.1...v0.12.0) (2026-10-08)
 
 ### Novidades
