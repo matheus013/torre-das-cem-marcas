@@ -58,6 +58,14 @@ const POISON_TYPES := {
 	"toxina": {"name": "Toxina", "color": "8fe05a"},
 }
 const SPORE_SPREAD_LIMIT := 12
+## Colônia de esporos (decisão 591): o tick é (base fixa + fração da Vida máxima do alvo) × acúmulo.
+## A fração acompanha qualquer escala de Vida (andar, dificuldade); o acúmulo cresce a cada tick até
+## um teto (Sabedoria o amplia); a Cepa guarda o maior acúmulo do andar e infecções novas herdam
+## metade; cada salto ao espalhar muta +10%.
+const SPORE_HEALTH_SHARE := {"common": 0.005, "elite": 0.0025, "boss": 0.0005}
+const SPORE_STACK_CAP := 25.0
+const SPORE_STRAIN_INHERIT := 0.5
+const SPORE_MUTATION := 0.10
 ## Tetos de redução de recarga (60%) e de área (+100%): acima disso as gemas viram spam contínuo.
 const COOLDOWN_RECOVERY_CAP := 2.5
 const AREA_MULTIPLIER_CAP := 2.0
@@ -2738,6 +2746,8 @@ func _execute_gem_effect(peer_id: int, effect: Dictionary, target: Vector2) -> v
 				apply_poison(peer_id, victim, "esporo", {
 					"damage": power, "growth": float(effect.get("poison_growth", 0.2)), "interval": float(effect.get("tick_interval", 1.0)),
 					"remaining": -1.0, "spread_radius": float(effect.get("spread_radius", 130.0)), "gem_id": String(effect.get("gem_id", "")),
+					"share": spore_health_share(victim), "stack": maxf(1.0, spore_strain(peer_id) * SPORE_STRAIN_INHERIT),
+					"cap": spore_stack_cap(peer_id),
 				})
 		"field", "sanctuary", "orbit", "mine", "poison_pool":
 			var effect_position := position if mechanic == "sanctuary" else target
@@ -3082,8 +3092,40 @@ func apply_poison(peer_id: int, enemy: Dictionary, poison_type: String, data: Di
 		"lasting": float(data.get("remaining", 1.0)) < 0.0,
 		"remaining": maxf(float(data.get("remaining", 1.0)), float(current.get("remaining", 0.0))),
 		"spread_radius": float(data.get("spread_radius", current.get("spread_radius", 0.0))),
+		"share": maxf(float(data.get("share", 0.0)), float(current.get("share", 0.0))),
+		"stack": maxf(float(data.get("stack", 1.0)), float(current.get("stack", 1.0))),
+		"cap": maxf(float(data.get("cap", 1.0)), float(current.get("cap", 1.0))),
 	}
 	poisons[poison_type] = entry
+
+
+## Dano do próximo tick de um veneno neste inimigo: (base + fração da Vida máxima) × acúmulo.
+func poison_tick_damage(enemy: Dictionary, entry: Dictionary) -> float:
+	return (float(entry["damage"]) + float(entry.get("share", 0.0)) * float(enemy.get("max_health", 0.0))) * float(entry.get("stack", 1.0))
+
+
+## Fração da Vida máxima por tick de esporo, menor em elites e chefes.
+func spore_health_share(enemy: Dictionary) -> float:
+	var encounter := String(enemy.get("encounter_class", "common"))
+	if bool(enemy.get("floor_boss", false)) or encounter in ["boss", "raid"]:
+		return float(SPORE_HEALTH_SHARE["boss"])
+	return float(SPORE_HEALTH_SHARE["elite" if encounter == "elite" else "common"])
+
+
+## Teto do acúmulo dos esporos: x25, ampliado pela Sabedoria (até x40).
+func spore_stack_cap(peer_id: int) -> float:
+	return SPORE_STACK_CAP * float(derived_stats(peer_id).get("spore_cap_multiplier", 1.0))
+
+
+## Cepa: maior acúmulo de esporo que a personagem alcançou neste andar (0 em outro andar).
+func spore_strain(peer_id: int) -> float:
+	var strain := player(peer_id).get("spore_strain", {}) as Dictionary
+	return float(strain.get("stack", 0.0)) if int(strain.get("floor", -1)) == current_floor else 0.0
+
+
+func _record_spore_strain(peer_id: int, stack: float) -> void:
+	if players.has(peer_id) and stack > spore_strain(peer_id):
+		player(peer_id)["spore_strain"] = {"floor": current_floor, "stack": stack}
 
 
 func is_poisoned(enemy: Dictionary) -> bool:
@@ -3093,7 +3135,7 @@ func is_poisoned(enemy: Dictionary) -> bool:
 func poison_view(enemy: Dictionary) -> Array:
 	var result := []
 	for entry: Dictionary in (enemy.get("poisons", {}) as Dictionary).values():
-		result.append({"type": entry["type"], "damage": float(entry["damage"]) / float(entry["interval"])})
+		result.append({"type": entry["type"], "damage": poison_tick_damage(enemy, entry) / float(entry["interval"])})
 	return result
 
 
@@ -3110,8 +3152,10 @@ func _step_poisons(delta: float) -> void:
 				entry["timer"] = float(entry["timer"]) + float(entry["interval"])
 				var index := enemies.find(enemy)
 				if index >= 0 and players.has(int(entry["peer"])):
-					damage_enemy(int(entry["peer"]), index, float(entry["damage"]), {"gem": true, "gem_id": entry["gem_id"], "dot": true, "damage_type": "arcane", "poison": poison_type})
-				entry["damage"] = float(entry["damage"]) * (1.0 + float(entry["growth"]))
+					damage_enemy(int(entry["peer"]), index, poison_tick_damage(enemy, entry), {"gem": true, "gem_id": entry["gem_id"], "dot": true, "damage_type": "arcane", "poison": poison_type})
+				entry["stack"] = minf(float(entry.get("cap", 1.0)), float(entry.get("stack", 1.0)) * (1.0 + float(entry["growth"])))
+				if poison_type == "esporo":
+					_record_spore_strain(int(entry["peer"]), float(entry["stack"]))
 			if not bool(entry.get("lasting", false)) and float(entry["remaining"]) <= 0.0:
 				poisons.erase(poison_type)
 		if poisons.is_empty():
@@ -3132,11 +3176,15 @@ func _spread_poisons(defeated: Dictionary) -> void:
 		if spread >= SPORE_SPREAD_LIMIT:
 			break
 		if (enemy["position"] as Vector2).distance_to(origin) <= radius:
+			# A fração da Vida é do novo alvo; o acúmulo segue e muta +10% a cada salto.
 			var copy := spore.duplicate()
 			copy["timer"] = float(spore["interval"])
+			copy["share"] = spore_health_share(enemy)
+			copy["stack"] = minf(float(spore.get("cap", 1.0)), float(spore.get("stack", 1.0)) * (1.0 + SPORE_MUTATION))
 			var poisons := enemy.get_or_add("poisons", {}) as Dictionary
-			if float(copy["damage"]) >= float((poisons.get("esporo", {}) as Dictionary).get("damage", 0.0)):
+			if float(copy["stack"]) >= float((poisons.get("esporo", {}) as Dictionary).get("stack", 0.0)):
 				poisons["esporo"] = copy
+				_record_spore_strain(int(spore["peer"]), float(copy["stack"]))
 			spread += 1
 
 
@@ -4087,6 +4135,7 @@ func detailed_stats(peer_id: int) -> Dictionary:
 		["Dano recebido (marcos e itens)", "x%.2f" % _mod(peer_id, "damage_taken_mult")],
 		["Roubo de Vida", "%.1f%%" % (_mod(peer_id, "life_steal_add") * 100.0)],
 		["Alcance de proliferacao de veneno", "+%.0f%%" % ((_mod(peer_id, "poison_spread_mult") - 1.0) * 100.0)],
+		["Teto do acumulo de esporos (Sabedoria)", "x%.1f" % spore_stack_cap(peer_id)],
 		["Raio da explosao de esporos (Inteligencia)", "+%.0f%% (teto +%.0f%%)" % [(float(derived.get("spore_spread_multiplier", 1.0)) - 1.0) * 100.0, StatResolver.SPORE_SPREAD_CAP * 100.0]],
 	]
 	var damage: Array[Array] = []

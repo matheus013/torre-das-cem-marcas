@@ -1,7 +1,7 @@
 extends SceneTree
 
-## Decisão 586: venenos de tipos diferentes. Esporo começa em 5, cresce 20% a cada tick, não escala
-## e se espalha na morte; toxina da poça escala com Inteligência e não cresce; ticks de veneno são
+## Decisão 586 (esporo revisto na 591): venenos de tipos diferentes. Esporo é uma colônia que cresce,
+## não escala com atributos e se espalha na morte; toxina da poça escala com Inteligência e não cresce; ticks de veneno são
 ## verdes e não criticam; Presa da Serpente explode qualquer inimigo envenenado e deixa uma poça.
 
 const Simulation := preload("res://src/gameplay/world/world_simulation.gd")
@@ -64,27 +64,29 @@ func _poison_numbers(events: Array) -> Array:
 
 
 func _run() -> void:
-	# Esporos: sem dano direto; 5, 6, 7.2... por tick de 1 s; mesma conta com 0 ou 300 de Inteligência.
+	# Esporos (decisão 591): sem dano direto; tick = (5 + fração da Vida máxima) × acúmulo, que cresce
+	# 20% por tick; mesma conta com 0 ou 300 de Inteligência.
 	for intelligence in [0.0, 300.0]:
 		var spore := _world(intelligence, ["esporos"])
 		var target := spore.enemies[0]
 		if not spore.use_skill(1, 0, target["position"]) or float(target["health"]) != 1.0e6:
 			return _fail("Spores must infect without direct damage")
 		var poison := (target["poisons"] as Dictionary)["esporo"] as Dictionary
-		if not is_equal_approx(float(poison["damage"]), 5.0):
-			return _fail("Spore poison starts at 5 and ignores Intelligence, got %.2f" % float(poison["damage"]))
+		if not is_equal_approx(float(poison["damage"]), 5.0) or not is_equal_approx(float(poison["stack"]), 1.0):
+			return _fail("Spore poison starts at 5 x1 and ignores Intelligence, got %.2f x%.2f" % [float(poison["damage"]), float(poison["stack"])])
+		var first := 5.0 + spore.spore_health_share(target) * 1.0e6
 		var events := _step(spore, 2.05)
 		var ticks := _poison_numbers(events)
-		if ticks.size() != 2 or not is_equal_approx(float(ticks[0]["args"][1]), 5.0) or not is_equal_approx(float(ticks[1]["args"][1]), 6.0):
-			return _fail("Spore ticks must be 5 then 6 (+20%%), got %s" % [ticks.map(func(event: Dictionary) -> float: return float(event["args"][1]))])
+		if ticks.size() != 2 or not is_equal_approx(float(ticks[0]["args"][1]), first) or not is_equal_approx(float(ticks[1]["args"][1]), first * 1.2):
+			return _fail("Spore ticks must be %.0f then x1.2, got %s" % [first, ticks.map(func(event: Dictionary) -> float: return float(event["args"][1]))])
 		if ticks.any(func(event: Dictionary) -> bool: return bool(event["args"][2])):
 			return _fail("Poison ticks never crit")
 
-	# Espalhamento: o alvo morre e os vizinhos recebem esporos com o dano atual.
+	# Espalhamento: o alvo morre e os vizinhos recebem esporos com o acúmulo atual, mutado +10%.
 	var spread := _world(0.0, ["esporos"])
 	spread.use_skill(1, 0, spread.enemies[0]["position"])
 	_step(spread, 3.05)
-	var current := float((spread.enemies[0]["poisons"] as Dictionary)["esporo"]["damage"])
+	var current := float((spread.enemies[0]["poisons"] as Dictionary)["esporo"]["stack"])
 	var dying := spread.enemies[0]
 	var neighbours := [spread.enemies[1], spread.enemies[2]]
 	dying["health"] = 1.0
@@ -93,8 +95,8 @@ func _run() -> void:
 		return _fail("Spored target must die from its tick")
 	for enemy: Dictionary in neighbours:
 		var inherited := (enemy.get("poisons", {}) as Dictionary).get("esporo", {}) as Dictionary
-		if inherited.is_empty() or float(inherited["damage"]) < current:
-			return _fail("Spores spread to neighbours keeping the grown damage")
+		if inherited.is_empty() or float(inherited["stack"]) < current * 1.1:
+			return _fail("Spores spread to neighbours keeping the grown stack")
 
 	# Poça: toxina constante (não cresce) que escala com Inteligência e dura 2 s depois de sair.
 	var weak := _world(0.0, ["poca_de_veneno"])

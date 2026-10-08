@@ -7,6 +7,9 @@ const THIRD_SOFT_CAP := 300.0
 ## Inteligência amplia o raio da explosão de esporos: +0,4% por ponto efetivo, até +100%.
 const SPORE_SPREAD_PER_INTELLIGENCE := 0.004
 const SPORE_SPREAD_CAP := 1.0
+## Sabedoria amplia o teto do acúmulo dos esporos: +0,4% por ponto efetivo, até +60% (x25 a x40).
+const SPORE_CAP_PER_WISDOM := 0.004
+const SPORE_CAP_BONUS := 0.6
 
 
 static func effective_primary(raw_value: float) -> float:
@@ -54,6 +57,7 @@ static func resolve(raw_stats: Dictionary) -> Dictionary:
 		"critical_damage_multiplier": minf(1.50 + fortune * 0.001, 2.0),
 		"conditional_effect_multiplier": 1.0 + minf(fortune * 0.002, 0.60),
 		"cooldown_recovery_multiplier": 1.0 + minf(wisdom * 0.0015, 0.50),
+		"spore_cap_multiplier": 1.0 + minf(wisdom * SPORE_CAP_PER_WISDOM, SPORE_CAP_BONUS),
 		"resource_efficiency_multiplier": 1.0 + minf(wisdom * 0.0015, 0.50),
 		"control_resistance": minf(wisdom * 0.0015, 0.45),
 	}

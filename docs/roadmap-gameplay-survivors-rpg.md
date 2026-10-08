@@ -160,6 +160,8 @@ abertas na secao 10 do documento). Detalha G6 e G7.1 a G7.4. Fases, em ordem:
 - [ ] G8.10: chefes por dificuldade: habilidade extra (2), fase nova abaixo de 30% (3), forma ascendida (4), teste de dano com escudo cronometrado (5); Guardioes da Cicatriz e Pactos na 5.
 - [ ] G8.11: sondas por dificuldade e calibragem ate as metas (1: 95% com build simples; 2: 85% com 1 unica; 3: 70% com Paragon 0 a 50; 4: 50% com Paragon 100 e 1 divino; 5: 30% com Paragon 150+ e build otimizada); playtests (G6.4).
 - [ ] G8.12: UI de colecao de lendarios, unicos, Reliquias e divinos (G6.5).
+- [ ] G8.13: escala exponencial de numeros (bilhoes de Vida e dano na dificuldade 5, secao 3.1 do documento 76): fontes de poder multiplicativas, efeitos por fracao de Vida e numeros abreviados (mil, mi, bi) na HUD e nos menus.
+- [ ] G8.14: itens de suporte para a colonia de esporos (decisao 591) que a tornem viavel na dificuldade 5 (ex.: teto do acumulo, heranca da Cepa, mutacao por salto, fracao em chefes).
 
 Estimativa: 9 a 12 semanas. G8.1 e G8.3 podem comecar em paralelo.
 

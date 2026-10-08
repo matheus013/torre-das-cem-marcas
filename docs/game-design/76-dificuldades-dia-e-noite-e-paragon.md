@@ -105,7 +105,7 @@ e progresso de andar são guardados por dificuldade.
 | | I. Expedição | II. Veterana | III. Mestra | IV. Mítica | V. Cicatriz |
 |---|---|---|---|---|---|
 | Para quem | História | Primeiro pós-jogo | Build pensada | Build otimizada | Build no limite |
-| Vida / dano dos inimigos | x1 / x1 | x1,6 / x1,3 | x2,6 / x1,7 | x4 / x2,2 | x6 / x2,8 |
+| Vida e dano dos inimigos (ordem de grandeza, seção 3.1) | x1 | ~x100 | ~x10 mil | ~x1 milhão | bilhões no andar 100 |
 | Resistência dos inimigos | raça e bioma | +10 | +20 | +30 e adaptação | +40 e adaptação |
 | Penalidade às suas resistências | 0 | 0 | -20% | -40% | -60% |
 | Afixos de elite | 1 | 1 ou 2 | 2 | 2 ou 3 | 3 |
@@ -115,6 +115,27 @@ e progresso de andar são guardados por dificuldade.
 | Itens | até lendário | **armas únicas** | únicas mais comuns | **divinos** | divinos mais comuns |
 | Paragon | não | não | sim | sim, EXP x1,5 | sim, EXP x2 |
 | Meta de sucesso da sonda | 95% (build simples) | 85% com 1 única | 70% (Paragon 0 a 50) | 50% (Paragon 100 e 1 divino) | 30% (Paragon 150+, build otimizada) |
+
+### 3.1 Escala de números
+
+Direção do responsável (2026-10-07): na dificuldade 5 os inimigos têm **bilhões** de Vida e de dano.
+A escala é exponencial entre dificuldades (ordem de grandeza na tabela acima), e o poder da
+personagem acompanha por fontes multiplicativas: Paragon, itens únicos e divinos, maestria e
+sinergias de build. Isso não contradiz o princípio 1: o número sobe, mas o que separa quem passa de
+quem não passa são as mecânicas de cada dificuldade.
+
+Consequências de projeto:
+
+- **Efeitos por fração de Vida não envelhecem.** Venenos, execuções e explosões que usam porcentagem
+  da Vida do alvo valem igual em qualquer escala. Primeiro caso: a colônia de esporos (decisão 591).
+  Chefes recebem frações menores para não ficarem triviais.
+- **Bônus aditivos pequenos somem.** "+5 de dano" não existe na 5; afixos e Paragon precisam
+  escalar por porcentagem ou multiplicar.
+- **Defesa da personagem:** com golpes de bilhões, Vida plana não segura. Resistências, redução de
+  dano, barreira por fração da Vida e esquiva/invulnerabilidade carregam a sobrevivência.
+- **Apresentação:** números grandes abreviados (12,4 mil; 3,2 mi; 1,7 bi) nos números de dano,
+  barras e status. Os cálculos já usam números de 64 bits.
+- **Calibragem:** os multiplicadores exatos saem das sondas (fase 9).
 
 ### Mecânicas por dificuldade
 
@@ -356,5 +377,5 @@ como as anteriores.
 5. **Mutadores cruéis na 5:** obrigatórios (1 por andar) ou só via Pactos opcionais?
 6. **Reescrita das únicas e lendários atuais:** substituir as passivas de hoje (proposta) ou manter
    as atuais e criar itens novos ao lado?
-7. **Números da tabela** (Vida e dano por dificuldade) são o ponto de partida; a calibragem final vem
+7. **Multiplicadores exatos** da escala exponencial (seção 3.1) são o ponto de partida; a calibragem final vem
    das sondas.
