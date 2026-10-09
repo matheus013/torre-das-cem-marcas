@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.16.0](https://github.com/matheus013/torre-das-cem-marcas/compare/v0.15.0...v0.16.0) (2026-10-09)
+
+### Novidades
+
+* 2 aneis, respawn 2x, escada por 10 min, monstros 10x Vida e 4 lendarios ([f278bdf](https://github.com/matheus013/torre-das-cem-marcas/commit/f278bdfbbb16b240da8b06d926693fc14cd5d467))
+
 ## [0.15.0](https://github.com/matheus013/torre-das-cem-marcas/compare/v0.14.0...v0.15.0) (2026-10-08)
 
 ### Novidades
