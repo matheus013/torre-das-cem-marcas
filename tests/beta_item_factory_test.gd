@@ -36,10 +36,10 @@ func _init() -> void:
 				push_error("Beta relic tier is below epic")
 				quit(1)
 				return
-	# 24 equipamentos base + 18 lendarios genericos + 46 armas unicas.
-	if equipment_count != 88 or relic_count != 5:
+	# 24 equipamentos base + 22 lendarios genericos + 46 armas unicas.
+	if equipment_count != 92 or relic_count != 6:
 		push_error("Unexpected beta equipment composition")
 		quit(1)
 		return
-	print("BETA_ITEMS_OK: 88 equipment definitions (46 unique weapons, 18 generic legendaries) and 5 mechanical relics instantiated")
+	print("BETA_ITEMS_OK: 92 equipment definitions (46 unique weapons, 22 generic legendaries) and 6 mechanical relics instantiated")
 	quit(0)

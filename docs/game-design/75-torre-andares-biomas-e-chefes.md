@@ -7,7 +7,7 @@
 ## Estrutura
 
 - Cem andares em dez biomas, seguindo a divisao do documento 05 e os documentos 28 a 37.
-- **Andares comuns** sao mapas grandes (3200x2400 no andar 1 ate 4800x3600 a partir do andar 61) com matilhas que patrulham, cristas de obstaculos, portal de retorno na entrada e escada no extremo oposto. A escada abre ao cumprir a cota de abates (`30 + 0,6 x andar`).
+- **Andares comuns** sao mapas grandes (3200x2400 no andar 1 ate 4800x3600 a partir do andar 61) com matilhas que patrulham, cristas de obstaculos, portal de retorno na entrada e escada no extremo oposto. A escada abre depois de o grupo sobreviver 10 minutos no andar (decisao 596; antes, cota de abates `30 + 0,6 x andar`).
 - **Andares de chefe** sao arenas circulares pequenas (raio 430). A saida fica selada enquanto o chefe vive; a vitoria abre a escada. O chefe derrotado volta depois de 20 minutos; ate la o andar e passagem.
 - O grupo atravessa os andares junto. Com a Torre vazia, a proxima entrada comeca no andar de partida escolhido no mapa da Torre (ate o mais fundo ja alcancado).
 - Profundidade: comuns e elites ganham `1 + 0,085 x (andar - 1)` de Vida e `1 + 0,03 x (andar - 1)` de dano; perigos, `1 + 0,04 x (andar - 1)`. Chefes usam numeros proprios, calibrados para cerca de 75 s em solo no nivel do andar.

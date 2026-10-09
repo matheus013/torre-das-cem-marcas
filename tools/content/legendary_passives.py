@@ -180,6 +180,10 @@ def legendary_items():
         "lendario_couraca_do_colosso": "Placa arrancada do peito de um colosso que nunca caiu.",
         "lendario_botas_do_cacador": "Botas leves que aceleram a cada presa abatida.",
         "lendario_presa_da_serpente": "Presa de uma serpente do brejo, ainda pingando veneno.",
+        "lendario_botas_do_vendaval": "Botas costuradas com o couro de quem atravessou o Bosque contra o vento.",
+        "lendario_anel_da_corda_infinita": "Anel de arqueira cuja corda gravada nunca termina de vibrar.",
+        "lendario_anel_do_furor": "Anel trancado que esquenta a cada volta da chuva de flechas.",
+        "lendario_sino_do_folego_leve": "Sino de bronze que, ao tocar, faz o ar pesar menos nos pulmoes.",
     }
 
     def item(identifier, name, slot, item_type, stats, passive, power=50, fixed_affixes=None):
@@ -287,6 +291,23 @@ def legendary_items():
              {"movement_speed": 12, "agility": 10, "strength": 7},
              P("Frenesi da Caca", "Cada abate da +8% de potencia e +4% de velocidade por 6 s, acumulando ate 6 vezes.",
                T("kill", A("buff", id="frenesi", mods={"power_mult": 1.08, "move_speed_mult": 1.04}, duration=6.0, stacks=6)))),
+        # Pedidos de 2026-10-08 (decisao 596)
+        item("lendario_botas_do_vendaval", "Botas do Vendaval", "boots", "armor",
+             {"movement_speed": 25, "agility": 12, "vitality": 6},
+             P("Passo de Vendaval", "Velocidade de movimento +60%.",
+               mods={"move_speed_mult": 1.6})),
+        item("lendario_anel_da_corda_infinita", "Anel da Corda Infinita", "ring", "accessory",
+             {"agility": 12, "intelligence": 11, "cooldown_recovery": 6},
+             P("Rajada Sem Fim", "Cada volta completa da Saraivada de Flechas lanca de graca a gema do W no inimigo mais proximo, ignorando a recarga e o Folego.",
+               T("volley", A("cast", slot=1, at="nearest", power=1.0)))),
+        item("lendario_anel_do_furor", "Anel do Furor", "ring", "accessory",
+             {"agility": 12, "vitality": 12, "strength": 11},
+             P("Furor do Arqueiro", "Cada volta completa da Saraivada de Flechas da 1 acumulo por 10 s (ganhar outro renova todos): +2% de velocidade, +4% de dano e -1,5% de dano recebido por acumulo, ate 25 (+50%, +100% e -37,5%).",
+               T("volley", A("buff", id="furor_do_arqueiro", mods={"move_speed_mult": 1.02, "power_mult": 1.04, "damage_taken_mult": 0.985}, duration=10.0, stacks=25)))),
+        item("lendario_sino_do_folego_leve", "Sino do Folego Leve", "relic", "relic",
+             {"breath": 30, "wisdom": 12, "vitality": 8},
+             P("Ar Leve", "Todas as gemas custam 50% menos Folego, inclusive o custo por segundo da Saraivada de Flechas.",
+               mods={"breath_cost_mult": 0.5})),
     ]
 
 

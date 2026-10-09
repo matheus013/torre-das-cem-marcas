@@ -162,7 +162,7 @@ const AUTO_SELL_OPTIONS := [["", "Desligada"], ["uncommon", "Vender comuns"], ["
 ## Inventário no estilo de Hero Siege (decisão 584): boneco da personagem com os encaixes em volta,
 ## mochila em grade de ícones com a cor da raridade e saque como ícones com quantidade.
 ## Clique na mochila equipa; botão direito vende (com confirmação); clique no boneco desequipa.
-const DOLL_SIZE := Vector2(380.0, 420.0)
+const DOLL_SIZE := Vector2(380.0, 376.0)
 const DOLL_SLOTS := {
 	"AMULETO": Vector2(164, 0), "ARMA": Vector2(20, 64), "OFFHAND": Vector2(308, 64),
 	"ARMADURA": Vector2(20, 126), "CALCA": Vector2(308, 126), "LUVAS": Vector2(20, 188), "BOTAS": Vector2(308, 188),
@@ -177,7 +177,7 @@ func _build_inventory() -> void:
 	_content.add_child(top)
 	var left := VBoxContainer.new()
 	top.add_child(left)
-	left.add_child(_header_label("EQUIPAMENTO", "%d / 21" % int(_model.get("equipped_count", 0))))
+	left.add_child(_header_label("EQUIPAMENTO", "%d / %d" % [int(_model.get("equipped_count", 0)), (_model.get("equipment_slots", []) as Array).size()]))
 	left.add_child(_build_doll())
 	var right := VBoxContainer.new()
 	right.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -258,11 +258,11 @@ func _build_doll() -> Control:
 		if DOLL_SLOTS.has(label):
 			position = DOLL_SLOTS[label] as Vector2
 		elif label.begins_with("ANEL"):
-			position = Vector2(50 + (rings % 5) * 56, 252 + (rings / 5) * 56)
+			position = Vector2(134 + rings * 56, 260)
 			caption = "ANEL"
 			rings += 1
 		else:
-			position = Vector2(78 + relics * 56, 364)
+			position = Vector2(78 + relics * 56, 320)
 			caption = "RELIQ."
 			relics += 1
 		var cell := ItemCell.new()

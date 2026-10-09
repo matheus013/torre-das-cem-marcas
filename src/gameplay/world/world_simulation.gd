@@ -137,10 +137,17 @@ const AGGRO_RADIUS := 520.0
 const LEASH_RADIUS := 1100.0
 const WANDER_RADIUS := 220.0
 ## Respawn acelera com o tempo no andar: intervalo = base / (1 + tempo / aceleração).
-const RESPAWN_BASE_INTERVAL := 14.0
-const RESPAWN_MIN_INTERVAL := 2.5
+## Decisão 596: duas vezes mais rápido que antes (base 14 s e mínimo 2,5 s), mesma aceleração.
+const RESPAWN_BASE_INTERVAL := 7.0
+const RESPAWN_MIN_INTERVAL := 1.25
 const RESPAWN_ACCELERATION := 120.0
 const RESPAWN_MIN_DISTANCE := 480.0
+## Decisão 596: nos andares comuns, a escada só se abre depois de o grupo sobreviver 10 minutos no
+## andar (substitui a cota de abates, que segue contada para estatística).
+const FLOOR_SURVIVAL_SECONDS := 600.0
+## Decisão 596: todos os monstros (chefes inclusive) com 10x a Vida e 50% mais velocidade.
+const ENEMY_HEALTH_MULT := 10.0
+const ENEMY_SPEED_MULT := 1.5
 ## Chefe derrotado só volta depois da recarga (decisão 526); enquanto isso o andar é passagem.
 ## Alcance do golpe corpo a corpo dos chefes; o resto do dano vem das mecânicas anunciadas.
 const BOSS_MELEE_RANGE := 75.0
@@ -874,7 +881,7 @@ func use_skill(peer_id: int, slot: int, target: Vector2) -> bool:
 	var effect := resolve_slot(peer_id, slot)
 	if effect.is_empty():
 		return false
-	var breath_cost := float(effect.get("breath_cost", 0.0))
+	var breath_cost := float(effect.get("breath_cost", 0.0)) * _mod(peer_id, "breath_cost_mult")
 	if float(state["breath"]) < breath_cost:
 		_status(peer_id, "Folego insuficiente.")
 		return false
@@ -1675,6 +1682,10 @@ func _step_floor(delta: float) -> void:
 		return
 	if not bool(floor_run.get("recorded", false)):
 		floor_run["time"] = float(floor_run["time"]) + delta
+	if is_explore_floor() and not bool(floor_run.get("stairs_open", false)) and survival_left() <= 0.0:
+		floor_run["stairs_open"] = true
+		_announce_stairs()
+		_status(0, "Voces sobreviveram %d minutos. A escada para o andar %d se abriu." % [int(FLOOR_SURVIVAL_SECONDS / 60.0), mini(current_floor + 1, TowerContentScript.MAX_FLOOR)])
 	_note_party_peak()
 	_update_telegraphs(delta)
 	_update_hazard_zones(delta)
@@ -1708,10 +1719,11 @@ func _register_floor_kill(enemy: Dictionary) -> void:
 		_status(0, "Guardiao vencido em %s. A passagem se abriu." % format_time(float(floor_run["time"])))
 		return
 	floor_run["kills"] = int(floor_run["kills"]) + 1
-	if is_explore_floor() and not bool(floor_run["stairs_open"]) and int(floor_run["kills"]) >= int(floor_run["quota"]):
-		floor_run["stairs_open"] = true
-		_announce_stairs()
-		_status(0, "Cota do andar cumprida. A escada para o andar %d se abriu." % mini(current_floor + 1, TowerContentScript.MAX_FLOOR))
+
+
+## Segundos que faltam para a escada de um andar comum se abrir (0 quando já pode).
+func survival_left() -> float:
+	return maxf(0.0, FLOOR_SURVIVAL_SECONDS - float(floor_run.get("time", 0.0)))
 
 
 ## Desce com todo o grupo do andar. O tempo dos andares comuns vai até a descida.
@@ -1799,7 +1811,7 @@ func _players_in_arena() -> Array[int]:
 func create_enemy(definition: Dictionary, position: Vector2, roll_index: int) -> Dictionary:
 	var race := _find(_collection("monster_races"), String(definition.get("race_id", "juntideo")))
 	var rank := _find(_collection("enemy_ranks"), String(definition.get("rank_id", "maduro")))
-	var maximum_health := maxf(1.0, float(definition.get("health", 60.0)))
+	var maximum_health := maxf(1.0, float(definition.get("health", 60.0)) * ENEMY_HEALTH_MULT)
 	var enemy := {
 		"definition_id": String(definition.get("id", "raspador_padrao")),
 		"display_name": String(definition.get("name", "Raspador")),
@@ -1812,7 +1824,7 @@ func create_enemy(definition: Dictionary, position: Vector2, roll_index: int) ->
 		"position": position,
 		"health": maximum_health,
 		"max_health": maximum_health,
-		"speed": maxf(0.0, float(definition.get("speed", 42.0))),
+		"speed": maxf(0.0, float(definition.get("speed", 42.0)) * ENEMY_SPEED_MULT),
 		"damage": maxf(0.0, float(definition.get("damage", 12.0))),
 		"attack_interval": maxf(0.05, float(definition.get("attack_interval", 0.8))),
 		"loot_value": maxi(0, int(definition.get("loot_value", 1))),
@@ -1922,7 +1934,7 @@ func _configure_directors() -> void:
 	_mechanic_random.seed = encounter_seed + 29
 	respawn = EnemyRespawnDirectorScript.new()
 	respawn.call("configure", {
-		"interval": 12.0, "variance": 3.0, "maximum_alive": 6, "batch_size": 1,
+		"interval": RESPAWN_BASE_INTERVAL, "variance": 1.5, "maximum_alive": 6, "batch_size": 1,
 		"minimum_player_distance": 220.0, "minimum_enemy_distance": 48.0,
 		"eligible_classes": ["common", "elite"], "seed": encounter_seed,
 	})
@@ -3089,7 +3101,7 @@ func _update_persistent_effects(delta: float) -> void:
 			effect["phase"] = fmod(float(effect.get("phase", 0.0)) + float(effect["angular_speed"]) * delta, TAU)
 		if mechanic == "volley":
 			var archer := player(owner_peer)
-			var cost := float(effect["breath_per_second"]) * delta
+			var cost := float(effect["breath_per_second"]) * _mod(owner_peer, "breath_cost_mult") * delta
 			# Sem limite de tempo: só acaba ao lançar de novo, sem Fôlego, caída ou fora da arena.
 			if archer.is_empty() or archer["zone"] not in ARENA_ZONES or bool(archer.get("downed", false)) or float(archer["breath"]) < cost:
 				if not archer.is_empty() and float(archer.get("breath", 0.0)) < cost:
@@ -3307,6 +3319,8 @@ func _fire_volley(effect: Dictionary) -> void:
 	var count := int(effect["arrow_count"])
 	var index := int(effect["volley_index"])
 	effect["volley_index"] = index + 1
+	if (index + 1) % count == 0:
+		ItemPassivesScript.on_volley_turn(self, peer_id, effect)
 	var element := VOLLEY_ELEMENTS[(index / count) % VOLLEY_ELEMENTS.size()] as Dictionary
 	var hit := (effect["hit"] as Dictionary).duplicate()
 	for key: String in element:
@@ -4012,6 +4026,7 @@ func _floor_view() -> Dictionary:
 		"kind": String(definition.get("kind", "explore")), "time": float(floor_run.get("time", 0.0)),
 		"kills": int(floor_run.get("kills", 0)), "quota": int(floor_run.get("quota", 0)),
 		"stairs_open": bool(floor_run.get("stairs_open", false)), "mode": mode, "best": best_time(current_floor, mode),
+		"survival_left": survival_left() if is_explore_floor() else 0.0,
 		"respawn_interval": respawn_interval(), "boss_ratio": boss_ratio, "boss_name": boss_name,
 		"recorded": bool(floor_run.get("recorded", false)),
 	}
@@ -4189,7 +4204,7 @@ func _skills_model(peer_id: int) -> Array[Dictionary]:
 			"power": float(resolved.get("power", 0.0)) * scale, "barrier": float(resolved.get("barrier", 0.0)) * scale, "healing": float(resolved.get("healing", 0.0)) * scale,
 			"base_power": float(resolved.get("power", 0.0)), "power_multiplier": scale, "scaling": gem_scaling_view(peer_id, gem_id),
 			"unique_weapon": String(unique_weapon_for(peer_id, gem_id).get("description", "")),
-			"breath_cost": float(resolved.get("breath_cost", 0.0)), "charges": 1 + maxi(0, int(resolved.get("extra_charge", 0))),
+			"breath_cost": float(resolved.get("breath_cost", 0.0)) * _mod(peer_id, "breath_cost_mult"), "charges": 1 + maxi(0, int(resolved.get("extra_charge", 0))),
 			"cooldown": float(resolved.get("cooldown", 0.0)) / maxf(0.01, float(derived_stats(peer_id).get("cooldown_recovery_multiplier", 1.0))),
 		})
 	return result
@@ -4354,7 +4369,7 @@ func player_status_effects(peer_id: int) -> Array[Dictionary]:
 	for effect in persistent_effects:
 		if String(effect.get("mechanic", "")) == "volley" and int(effect.get("owner_peer", 0)) == peer_id:
 			# Sem duração: o ícone mostra quanto Fôlego ainda sustenta a Saraivada.
-			var per_second := maxf(0.001, float(effect.get("breath_per_second", 9.0)))
+			var per_second := maxf(0.001, float(effect.get("breath_per_second", 9.0)) * _mod(peer_id, "breath_cost_mult"))
 			result.append({"id":"volley", "kind":"buff", "name":"Saraivada", "icon":"saraivada_de_flechas", "remaining":float(player(peer_id).get("breath", 0.0)) / per_second, "duration":max_breath(peer_id) / per_second, "description":"Disparando flechas enquanto houver Folego. Lance de novo para encerrar."})
 	result.append_array(ItemPassivesScript.status_effects(self, peer_id))
 	var wounds := int(state.get("wounds", 0))
@@ -4366,7 +4381,7 @@ func player_status_effects(peer_id: int) -> Array[Dictionary]:
 func skill_costs(peer_id: int) -> Array[float]:
 	var result: Array[float] = []
 	for slot in range(4):
-		result.append(float(resolve_slot(peer_id, slot).get("breath_cost", 0.0)))
+		result.append(float(resolve_slot(peer_id, slot).get("breath_cost", 0.0)) * _mod(peer_id, "breath_cost_mult"))
 	return result
 
 
@@ -4783,13 +4798,13 @@ func _bestiary_sections(definition: Dictionary, boss: Dictionary, biome: Diction
 		return sections
 	var profile := race.get("stat_profile", {}) as Dictionary
 	var rank_factor := func(key: String) -> float: return maxf(0.05, float(rank.get(key, 1.0))) if boss.is_empty() else 1.0
-	var base_health := float(definition.get("health", 60.0)) * float(profile.get("health", 1.0)) * float(rank_factor.call("health_multiplier"))
+	var base_health := float(definition.get("health", 60.0)) * ENEMY_HEALTH_MULT * float(profile.get("health", 1.0)) * float(rank_factor.call("health_multiplier"))
 	var base_damage := float(definition.get("damage", 12.0)) * float(profile.get("damage", 1.0)) * float(rank_factor.call("damage_multiplier"))
 	var stats := [
 		["Vida base", "%d (cresce com o andar)" % roundi(base_health)],
 		["Vida observada", "%d a %d" % [roundi(float(known.get("min_health", 0.0))), roundi(float(known.get("max_health", 0.0)))]],
 		["Dano base", "%d" % roundi(base_damage)],
-		["Velocidade", "%d" % roundi(float(definition.get("speed", 42.0)) * float(profile.get("speed", 1.0)) * float(rank_factor.call("speed_multiplier")))],
+		["Velocidade", "%d" % roundi(float(definition.get("speed", 42.0)) * ENEMY_SPEED_MULT * float(profile.get("speed", 1.0)) * float(rank_factor.call("speed_multiplier")))],
 		["Intervalo de ataque", "%.2f s" % (float(definition.get("attack_interval", 0.8)) * float(profile.get("attack_interval", 1.0)))],
 		["EXP de gema por abate", str(int(EXPERIENCE_REWARDS.get(encounter, 12)))],
 	]

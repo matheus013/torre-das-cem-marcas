@@ -1394,7 +1394,7 @@ func _draw_ground(zone: StringName) -> void:
 
 
 ## Chão do andar: tile do bioma, borda escurecida, arena circular nos andares de chefe,
-## portal de retorno (selado durante o chefe) e escada para o próximo andar (fechada até a cota).
+## portal de retorno (selado durante o chefe) e escada para o próximo andar (fechada até o grupo sobreviver 10 minutos).
 func _draw_floor_ground() -> void:
 	if _floor_layout.is_empty():
 		return
@@ -2445,7 +2445,7 @@ func _update_village_panel(zone: StringName, period: String) -> void:
 	_village_log_label.text = "\n".join(PackedStringArray(lines))
 
 
-## Painel do andar (tempo, cota, recorde do modo e respawn) e barra do chefe.
+## Painel do andar (tempo, contagem da escada, recorde do modo e respawn) e barra do chefe.
 func _update_floor_panel(zone: StringName, floor_view: Dictionary) -> void:
 	var in_tower := zone == &"tower" and not floor_view.is_empty()
 	_floor_label.visible = in_tower
@@ -2454,7 +2454,7 @@ func _update_floor_panel(zone: StringName, floor_view: Dictionary) -> void:
 		return
 	var best := float(floor_view.get("best", -1.0))
 	var mode := String(floor_view.get("mode", "solo")).to_upper()
-	var goal := "CHEFE" if String(floor_view.get("kind", "")) == "boss" else "ABATES %d/%d" % [int(floor_view.get("kills", 0)), int(floor_view.get("quota", 0))]
+	var goal := "CHEFE" if String(floor_view.get("kind", "")) == "boss" else "SOBREVIVA %s" % _format_countdown(float(floor_view.get("survival_left", 0.0)))
 	if bool(floor_view.get("stairs_open", false)):
 		goal = "ESCADA ABERTA"
 	_floor_label.text = "%s   TEMPO %s   RECORDE %s %s   ·   %s   ·   RESPAWN %.1f s" % [
@@ -2463,7 +2463,7 @@ func _update_floor_panel(zone: StringName, floor_view: Dictionary) -> void:
 		goal, float(floor_view.get("respawn_interval", 0.0)),
 	]
 	_combat_hud.set("minimap_title", "ANDAR %d" % int(floor_view.get("number", 0)))
-	_combat_hud.set("minimap_hint", "ESCADA ABERTA" if bool(floor_view.get("stairs_open", false)) else ("DERROTE O GUARDIAO" if String(floor_view.get("kind", "")) == "boss" else "ABATES %d/%d" % [int(floor_view.get("kills", 0)), int(floor_view.get("quota", 0))]))
+	_combat_hud.set("minimap_hint", "ESCADA ABERTA" if bool(floor_view.get("stairs_open", false)) else ("DERROTE O GUARDIAO" if String(floor_view.get("kind", "")) == "boss" else "ESCADA EM %s" % _format_countdown(float(floor_view.get("survival_left", 0.0)))))
 	if _boss_bar.visible:
 		(_boss_bar.get_node("Fill") as ColorRect).size.x = float(_boss_bar.get_meta("fill_width", 596.0)) * clampf(float(floor_view["boss_ratio"]), 0.0, 1.0)
 		(_boss_bar.get_node("Name") as Label).text = String(floor_view.get("boss_name", "")).to_upper()
@@ -2471,6 +2471,11 @@ func _update_floor_panel(zone: StringName, floor_view: Dictionary) -> void:
 
 func _format_time(seconds: float) -> String:
 	return "%d:%05.2f" % [int(seconds) / 60, fmod(seconds, 60.0)]
+
+func _format_countdown(seconds: float) -> String:
+	var whole := int(ceil(seconds))
+	return "%d:%02d" % [whole / 60, whole % 60]
+
 
 
 ## Interface proporcional à tela: a camada escala pela menor razão em relação a 1280×720 e cada

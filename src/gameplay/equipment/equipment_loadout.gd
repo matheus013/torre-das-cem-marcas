@@ -4,7 +4,8 @@ extends RefCounted
 const LootDifficultyScript := preload("res://src/gameplay/loot/loot_difficulty.gd")
 const ItemAffixesScript := preload("res://src/gameplay/items/item_affixes.gd")
 
-const RING_SLOT_COUNT := 10
+## Dois anéis (decisão 596; antes 10). Anéis de saves antigos acima do segundo voltam à mochila.
+const RING_SLOT_COUNT := 2
 const RELIC_SLOT_COUNT := 4
 
 var weapon: EquipmentItemInstance

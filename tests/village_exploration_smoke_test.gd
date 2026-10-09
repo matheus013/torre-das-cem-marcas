@@ -81,7 +81,8 @@ func _run() -> void:
 			evolved = enemy
 	if nascent.is_empty() or nascent.get("race_id", "") != "juntideo":
 		return _fail("Enemy race and rank were not resolved from the beta catalog")
-	if float(nascent.get("speed", 0.0)) <= 62.0 or float(nascent.get("max_health", 0.0)) >= 35.0:
+	# Decisão 596: monstros com 10x a Vida e +50% de velocidade.
+	if float(nascent.get("speed", 0.0)) <= 62.0 * 1.5 or float(nascent.get("max_health", 0.0)) >= 350.0:
 		return _fail("Race and hierarchy did not compose lore-consistent enemy attributes")
 	if nascent.get("prefix_id", "") != "" or nascent.get("suffix_id", "") != "":
 		return _fail("Nascent enemies must not receive random affixes")
@@ -183,7 +184,7 @@ func _run() -> void:
 	if int(eloa.base_stats.get(&"strength", 0)) != 1:
 		return _fail("Character panel could not allocate a stat point")
 	var menu := sim.call("menu_model", PEER) as Dictionary
-	if (menu.get("equipment_slots", []) as Array).size() != 21 or (menu.get("skills", []) as Array).size() != 4 or (menu.get("floors", []) as Array).size() != 4:
+	if (menu.get("equipment_slots", []) as Array).size() != 13 or (menu.get("skills", []) as Array).size() != 4 or (menu.get("floors", []) as Array).size() != 4:
 		return _fail("Player menu does not expose equipment, skills and the tower map")
 	sim.call("descend", PEER)
 	if int(sim.get("current_floor")) != 5 or int(sim.get("deepest_floor")) != 5:

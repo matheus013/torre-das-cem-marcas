@@ -121,7 +121,7 @@ func _initialize_equipment() -> void:
 		var tier := ItemTier.Value.RARE if index >= 7 else ItemTier.Value.UNCOMMON
 		_create_catalog_item(
 			"Anel %d" % (index + 1), StringName("ring_%d" % index),
-			EquipmentItemDefinition.Slot.RING, tier, index, index < 4
+			EquipmentItemDefinition.Slot.RING, tier, index, index < 1
 		)
 	for index in EquipmentLoadout.RELIC_SLOT_COUNT:
 		var tier := ItemTier.Value.LEGENDARY if index == 3 else ItemTier.Value.EPIC
@@ -403,7 +403,7 @@ func _build_equipment_tab() -> void:
 	column.name = "EquipmentTab"
 	column.add_theme_constant_override("separation", 12)
 	_content.add_child(column)
-	_add_section_title(column, "Equipamentos", "%d / 21 equipados • clique para equipar ou retirar" % _equipment.equipped_count())
+	_add_section_title(column, "Equipamentos", "%d / %d equipados • clique para equipar ou retirar" % [_equipment.equipped_count(), 7 + EquipmentLoadout.RING_SLOT_COUNT + EquipmentLoadout.RELIC_SLOT_COUNT])
 	var scroll := ScrollContainer.new()
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	column.add_child(scroll)

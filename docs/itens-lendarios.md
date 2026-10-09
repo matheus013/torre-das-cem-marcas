@@ -27,6 +27,10 @@ da historia; as dificuldades do pos-jogo (backlog G6) vao exigi-las. Valores pro
 | Couraca do Colosso | Armadura | **Colosso**: Dano recebido -25%; ao ser ferida, ganha barreira de 15% da Vida (a cada 6 s). |
 | Presa da Serpente | Amuleto | **Mordida Final**: Inimigo envenenado (qualquer veneno) que morre explode com 20% da propria Vida maxima em volta e deixa uma Poca de Veneno: com todas as melhorias se a gema estiver equipada; senao, de nivel 1. Toda Presa traz alcance de proliferacao de veneno de +30% a +100%, que amplia a explosao, a poca e o espalhamento dos esporos. |
 | Botas do Cacador | Botas | **Frenesi da Caca**: Cada abate da +8% de potencia e +4% de velocidade por 6 s, acumulando ate 6 vezes. |
+| Botas do Vendaval | Botas | **Passo de Vendaval**: Velocidade de movimento +60%. |
+| Anel da Corda Infinita | Anel | **Rajada Sem Fim**: Cada volta completa da Saraivada de Flechas lanca de graca a gema do W no inimigo mais proximo, ignorando a recarga e o Folego. |
+| Anel do Furor | Anel | **Furor do Arqueiro**: Cada volta completa da Saraivada de Flechas da 1 acumulo por 10 s (ganhar outro renova todos): +2% de velocidade, +4% de dano e -1,5% de dano recebido por acumulo, ate 25 (+50%, +100% e -37,5%). |
+| Sino do Folego Leve | Reliquia | **Ar Leve**: Todas as gemas custam 50% menos Folego, inclusive o custo por segundo da Saraivada de Flechas. |
 | Lastro Partido | Reliquia | **Peso Vetorial**: Toda gema de movimento abre uma Prisao Gravitica no ponto de chegada com 120% da potencia. Velocidade +10%. |
 
 ## Armas unicas (uma por gema)

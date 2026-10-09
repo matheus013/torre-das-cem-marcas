@@ -2,7 +2,7 @@
 
 ## Implementação no protótipo
 
-- O menu principal apresenta e opera os sete slots fixos, dez anéis e quatro Relíquias.
+- O menu principal apresenta e opera os sete slots fixos, dois anéis e quatro Relíquias (decisão 596; antes dez anéis).
 - A mesma instância é movida atomicamente entre inventário e loadout; falha de encaixe não remove nem duplica o item.
 - O protótipo começa com quatro peças, duas equipadas e duas disponíveis, permitindo testar imediatamente equipar e retirar.
 - Equipamentos sorteados por tabelas de inimigos tornam-se instâncias únicas no inventário além do registro de saque da expedição.
@@ -12,7 +12,7 @@
 
 ## Estado
 
-**Definido:** o personagem possui 21 espaços de equipamento. As variações de magia usam princípios de modificadores com capacidade, contrapartidas e transformações condicionais, inspirados por Warframe e Vampire Survivors sem reproduzir seus sistemas literalmente.
+**Definido:** o personagem possui 13 espaços de equipamento (21 até a decisão 596, que reduziu os anéis de 10 para 2). As variações de magia usam princípios de modificadores com capacidade, contrapartidas e transformações condicionais, inspirados por Warframe e Vampire Survivors sem reproduzir seus sistemas literalmente.
 
 ## Espaços de equipamento
 
@@ -25,9 +25,9 @@
 | Luvas | 1 |
 | Botas | 1 |
 | Calça | 1 |
-| Anéis | 10 |
+| Anéis | 2 |
 | Relíquias | 4 |
-| **Total** | **21** |
+| **Total** | **13** |
 
 Armas de duas mãos ocupam funcionalmente arma e offhand. O jogador precisa liberar o offhand antes de equipá-las.
 
@@ -54,15 +54,15 @@ Afeta relações entre atributos, gemas, condições e recursos. É o espaço co
 
 Essas tendências organizam loot, mas não proíbem propriedades incomuns justificadas por material e fabricação.
 
-### Dez anéis
+### Dois anéis
 
 - Anéis são a camada granular da build.
 - Dez é a capacidade máxima, não a quantidade comum esperada durante a campanha.
-- O alvo inicial é que um jogador médio mantenha aproximadamente quatro anéis equipados.
+- Com dois encaixes, o jogador médio mantém os dois ocupados.
 - Slots vazios são um estado normal e não aplicam penalidade.
 - Preencher os dez espaços representa progressão longa, coleção dedicada ou construção excepcional.
 - Cada anel normalmente oferece poucos atributos, uma condição ou uma sinergia limitada.
-- Dez anéis permitem especializar vários detalhes sem transformar cada peça em um pacote enorme.
+- Dois anéis (decisão 596; eram dez) deixam cada escolha de anel pesar na build.
 - Efeitos idênticos podem sofrer retorno decrescente, limite compartilhado ou regra de unicidade.
 - Um anel não deve sozinho reescrever completamente uma magia; esse espaço pertence às Relíquias.
 

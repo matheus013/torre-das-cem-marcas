@@ -71,13 +71,13 @@ func _init() -> void:
 	var equipment := instance.get("_equipment") as EquipmentLoadout
 	var inventory := instance.get("_inventory") as ItemInventory
 	instance.call(
-		"_toggle_equipment", EquipmentItemDefinition.Slot.RING, 4, &"instance_ring_4"
+		"_toggle_equipment", EquipmentItemDefinition.Slot.RING, 1, &"instance_ring_1"
 	)
-	if equipment.get_equipped(EquipmentItemDefinition.Slot.RING, 4) == null:
-		push_error("Equipment interface did not equip the fifth ring")
+	if equipment.get_equipped(EquipmentItemDefinition.Slot.RING, 1) == null:
+		push_error("Equipment interface did not equip the second ring")
 		quit(1)
 		return
-	if inventory.has(&"instance_ring_4"):
+	if inventory.has(&"instance_ring_1"):
 		push_error("Equipped ring remained duplicated in inventory")
 		quit(1)
 		return

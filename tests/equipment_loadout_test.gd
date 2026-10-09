@@ -45,11 +45,11 @@ func _init() -> void:
 			_fail("Loadout rejected relic slot %d" % index)
 			return
 
-	if loadout.equipped_count() != 21:
-		_fail("Complete equipment layout did not contain exactly 21 slots")
+	if loadout.equipped_count() != 13:
+		_fail("Complete equipment layout did not contain exactly 13 slots (7 + 2 rings + 4 relics)")
 		return
-	if float(loadout.combined_stat_modifiers()[&"fortune"]) != 10.0:
-		_fail("Ten rings did not contribute to the combined build")
+	if float(loadout.combined_stat_modifiers()[&"fortune"]) != float(EquipmentLoadout.RING_SLOT_COUNT):
+		_fail("Both rings must contribute to the combined build")
 		return
 	if loadout.active_mechanic_changes().size() != 4:
 		_fail("Four relic mechanics were not exposed to the build")
@@ -79,7 +79,7 @@ func _init() -> void:
 		_fail("Could not atomically return an equipped ring to inventory")
 		return
 
-	print("EQUIPMENT_OK: seven fixed slots, ten rings and four mechanical relics")
+	print("EQUIPMENT_OK: seven fixed slots, two rings and four mechanical relics")
 	quit(0)
 
 

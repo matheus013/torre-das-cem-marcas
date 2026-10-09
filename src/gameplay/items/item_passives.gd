@@ -7,7 +7,8 @@ extends RefCounted
 ## Dano, lançamento e cura causados por passiva não disparam outros gatilhos de acerto e abate,
 ## para que nenhuma combinação vire uma cadeia infinita.
 
-const TRIGGERS: Array[String] = ["cast", "hit", "kill", "hurt", "lethal", "interval"]
+## "volley": cada volta completa da Saraivada de Flechas (decisão 596).
+const TRIGGERS: Array[String] = ["cast", "hit", "kill", "hurt", "lethal", "interval", "volley"]
 const ACTIONS: Array[String] = [
 	"cast", "burst", "burn", "freeze", "vulnerable", "heal", "barrier", "breath",
 	"refund", "buff", "invulnerable", "recast", "execute", "revive",
@@ -19,7 +20,7 @@ const FILTERS: Array[String] = [
 ## Chaves de `mods` e de bônus temporários: as mesmas lidas por `_mod` na simulação.
 const MOD_KEYS: Array[String] = [
 	"power_mult", "auto_damage_mult", "auto_rate_mult", "damage_taken_mult", "breath_regen_mult",
-	"move_speed_mult", "cooldown_mult", "radius_mult", "barrier_mult", "duration_mult",
+	"move_speed_mult", "cooldown_mult", "radius_mult", "barrier_mult", "duration_mult", "breath_cost_mult",
 	"crit_chance_add", "crit_damage_add", "max_health_add", "max_breath_add", "life_steal_add",
 	"heal_on_kill_add", "breath_on_kill_add", "healing_mult", "barrier_on_skill_add", "poison_spread_mult",
 	"power_physical_mult", "power_magic_mult", "power_fire_mult", "power_ice_mult",
@@ -156,6 +157,12 @@ static func on_kill(sim: RefCounted, peer_id: int, enemy: Dictionary, damage: fl
 	if bool(hit.get("passive", false)):
 		return
 	_fire(sim, peer_id, "kill", _hit_context(enemy, damage, hit, false))
+
+
+## Volta completa da Saraivada de Flechas (cada `arrow_count` flechas).
+static func on_volley_turn(sim: RefCounted, peer_id: int, effect: Dictionary) -> void:
+	var state := sim.call("player", peer_id) as Dictionary
+	_fire(sim, peer_id, "volley", {"gem_id": String(effect.get("gem_id", "")), "source": "gem", "position": state["position"], "target": state["position"]})
 
 
 static func on_hurt(sim: RefCounted, peer_id: int, amount: float) -> void:
