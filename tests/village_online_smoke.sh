@@ -20,7 +20,7 @@ cleanup() {
 }
 trap cleanup EXIT INT TERM
 
-godot --headless --path . "$SCENE" -- --host-session --session-port="$PORT" --autopilot --test-duration=18 >"$LOG_DIR/host.log" 2>&1 &
+godot --headless --path . "$SCENE" -- --host-session --session-port="$PORT" --autopilot --test-duration=26 >"$LOG_DIR/host.log" 2>&1 &
 HOST_PID=$!
 PIDS="$HOST_PID"
 
@@ -34,12 +34,14 @@ while ! grep -q "VILLAGE_HOST_READY" "$LOG_DIR/host.log"; do
 	sleep 0.1
 done
 
+# Folga de tempo (2026-10-11): no runner do CI o cliente que reconecta aos 4 s as vezes nao voltava
+# a Torre em 13 s; nenhuma verificacao mudou, so a duracao.
 for index in 1 2 3; do
 	EXTRA=""
 	if [ "$index" -eq 3 ]; then
 		EXTRA="--reconnect-at=4"
 	fi
-	godot --headless --path . "$SCENE" -- --join-session=127.0.0.1 --session-port="$PORT" --profile="smoke-client-$index" --autopilot --test-duration=13 $EXTRA >"$LOG_DIR/client$index.log" 2>&1 &
+	godot --headless --path . "$SCENE" -- --join-session=127.0.0.1 --session-port="$PORT" --profile="smoke-client-$index" --autopilot --test-duration=20 $EXTRA >"$LOG_DIR/client$index.log" 2>&1 &
 	PIDS="$PIDS $!"
 done
 
