@@ -7,7 +7,7 @@ Complementa, nao substitui, o [roadmap Steam EA](roadmap-steam-acesso-antecipado
 Status em 2026-10-11 (faxina feita: G0 conferido contra os testes, G6/G7 unidos ao G8 sem
 contagem dupla, entregas recentes registradas abaixo): frente ativa junto de cenarios/UI. Lore, fechamento
 do MVP e publicacao Steam ficam em backlog; preservar saves, rede e CI.
-Priorizar G0, legibilidade de builds/itemizacao em G3 e ritmo em G4.
+Foco atual (2026-10-11): epico E1, que une o restante de G0, G3, G6 e G8. Depois, ritmo em G4.
 G1 sem expansao narrativa; G2/G6-G8 dependem das decisoes registradas.
 G5 e requisitos comerciais ficam em backlog. Correcoes e prototipos abaixo
 nao sao considerados concluidos apenas porque existem sistemas relacionados.
@@ -35,6 +35,68 @@ dos gates acima (a contagem de % considera so os itens com caixa):
 - Vila e menus: autosave e CONTINUAR, bestiario, vender tudo, reset de atributos, loja da Forja e
   armazem so de materiais (582, 593, 594); skin de interface e revisao visual dos cenarios.
 - Plano: documento 76 aprovado (597, 598).
+
+## E1: pos-jogo e builds (epico, foco a partir de 2026-10-11)
+
+Une o que resta de G0, G3, G6 e G8 numa ordem que evita retrabalho (pedido do responsavel). Os
+itens mantem o codigo original e saem das secoes de origem, que passam a apontar para ca; a
+contagem de % considera cada item uma unica vez. Plano de design: documentos 76 e 77.
+
+### Fase 0: fundacao
+
+Antes de qualquer sistema novo: cada comando novo do epico nasce validado e coberto pelo CI.
+
+- [ ] G0.6: validar vetores finitos, limites, IDs e frequencia de comandos no host. Aceite: entradas invalidas nao alteram estado; comandos legitimos seguem funcionando em solo/co-op. Parcial (2026-10-11): intencoes de rede validam tipos e a mira do ataque rejeita vetores nao finitos; falta limitar a frequencia de comandos no host.
+- [ ] G0.7: transformar probes confirmados em regressao no runner/CI. Aceite: suite e auditoria estrita passam; nao remover checks para fazer o gate ficar verde. Parcial (2026-10-11): o CI (`.github/workflows/tests.yml`) roda a suite inteira; falta a auditoria estrita no runner.
+
+### Fase 1: escala de numeros e resistencias
+
+Mudam todos os numeros do jogo; vem antes de qualquer balanceamento.
+
+- [ ] G8.13: escala exponencial de numeros (bilhoes de Vida e dano na dificuldade 5, secao 3.1 do documento 76): fontes de poder multiplicativas, efeitos por fracao de Vida e numeros abreviados (mil, mi, bi) na HUD e nos menus.
+- [ ] G8.3: resistencias: fisico e 9 elementos, resistencia dos inimigos por raca, bioma e dificuldade (-50% a +75%), penetracao, Quebra elemental, adaptacao (dificuldades 4 e 5), resistencias da personagem com teto 75% e penalidade por dificuldade (0/0/-20/-40/-60), icones de fraqueza na HUD e numeros "RESISTIU".
+
+### Fase 2: dificuldades e pipeline unico de saque
+
+Um so lugar define chances e quantidades de drop por dificuldade, fonte e evento; noite e mares so encaixam nele.
+
+- [ ] G8.5: estrutura das cinco dificuldades (G6.1): dificuldade do mundo, escolhida pelo host no portal entre as liberadas; concluir o andar 100 libera a seguinte naquele mundo; tabela de Vida/dano/resistencia/afixos, recordes e saque por dificuldade; unicas a partir da 2 (G6.2).
+- [ ] G3.3: fontes direcionadas por inimigo/contrato e uma receita garantida de marco, com regra de partilha visivel; nao prometer drop aleatorio garantido.
+
+### Fase 3: dia e noite
+
+Usa o pipeline de saque da fase 2.
+
+- [ ] G8.1: relogio de dia e noite (2 h; manha 30 min, tarde 30, entardecer 20, noite 40) na vila e na Torre, do host, no snapshot e no save; HUD com hora e avisos; noite com EXP +25%, saque +30% e inimigos +10%; Lua da Cicatriz a cada 3 noites.
+- [ ] G8.2: noite com mecanica: raio de luz como atributo, inimigos fora da luz semi-invisiveis e fora da mira automatica, variantes noturnas por bioma, elites cacadores; monstros da aurora de manha; materiais por horario (Orvalho Negro, Polen Lunar, Ambar Solar).
+
+### Fase 4: afixos, mutadores e mares
+
+- [ ] G8.6: sete afixos de elite com comportamento (Refletor, Absorvente, Vinculado, Profanador, Cacador, Fissurador, Escudeiro) e mutadores de andar (8 normais a partir da 3, 3 crueis na 5) com bonus de saque.
+- [ ] G8.7: mares (Enxame, Cerco, Procissao, Avalanche, Vinculo, Eclipse e Lua da Cicatriz) com aviso, objetivo e recompensa; campeao em toda mare da 5.
+
+### Fase 5: Paragon, divinos e chefes
+
+- [ ] G8.8: Paragon da conta apos o nivel 100 (dificuldades 3 a 5, teto 200, EXP x1,5 na 4 e x2 na 5): nivel e EXP no perfil do jogador, somando todas as personagens e mundos; tabuleiro de 4 trilhas por personagem com todos os pontos da conta, nos notaveis a cada 10 pontos e respec em prata.
+- [ ] G8.9: itens divinos a partir da 4 (G6.3): raridade nova, 12 itens que quebram duas regras, receita de ascensao (3 unicas da mesma gema e material raro), saque individual no co-op.
+- [ ] G8.10: chefes por dificuldade: habilidade extra (2), fase nova abaixo de 30% (3), forma ascendida (4), teste de dano com escudo cronometrado (5); Guardioes da Cicatriz e Pactos na 5.
+
+### Fase 6: telas de itens
+
+Colecao, inventario (origem, favoritos, filtros, ordenacao), tabela de itens e suprimentos numa so passada de interface.
+
+- [ ] G8.12: UI de colecao de lendarios, unicos, Reliquias e divinos (G6.5).
+- [ ] G3.4: comparacao de efeito final, unidades, origem, favoritos, filtros e ordenar; navegacao completa sem mouse. Parcial: comparacao do efeito final pronta (`equipment_comparison_test.gd`); faltam origem, favoritos, filtros e ordenacao.
+- [ ] G3.6: tabela de itens implementados/propostos/adiados; efeitos adicionais so entram na promessa comercial apos teste/UI/save/rede.
+- [ ] G3.5: suprimentos com item/quantidade/efeito real, evitando nomes diferentes para a mesma cura generica.
+
+### Fase 7: calibragem final
+
+Por ultimo de proposito: calibrar antes das fases 1 a 5 seria refeito.
+
+- [ ] G8.11: sondas por dificuldade e calibragem ate as metas (1: 95% com build simples; 2: 85% com 1 unica; 3: 70% com Paragon 0 a 50; 4: 50% com Paragon 100 e 1 divino; 5: 30% com Paragon 150+ e build otimizada); playtests (G6.4).
+- [ ] G3.2: validar builds de perfuracao, controle, invocacao e resgate com gemas/suportes atuais; cada personagem tem ao menos duas opcoes viaveis.
+- [ ] G8.14: itens de suporte para a colonia de esporos (decisao 591) que a tornem viavel na dificuldade 5 (ex.: teto do acumulo, heranca da Cepa, mutacao por salto, fracao em chefes).
 
 ## G0: confiar no combate e no loot
 
@@ -81,8 +143,8 @@ pendentes de suas evidencias de aceitacao, sem declarar G0 concluido.
 - [x] G0.3: registrar cada atributo equipado e seu consumidor. Aceite: cada bonus exibido altera uma medida observavel, ou fica explicitamente indisponivel no beta. Evidencia: `balance_rules_test.gd` falha se algum item tiver atributo sem efeito; atributos ainda sem consumidor aparecem como indisponiveis na descricao.
 - [x] G0.4: conectar mecanicas de itens a eventos/resolvedores com limites de procs. Aceite: teste de comportamento por efeito habilitado, sem recursao, duplicacao de carga ou acumulo ao reequipar. Evidencia: motor de passivas (decisoes 580 e 599) com testes por efeito em `item_passives_test.gd`, `revolution_uniques_test.gd` e `revolution_legendaries_test.gd`; passivas nao disparam passivas, sem recursao nem acumulo ao reequipar.
 - [x] G0.5: proteger reliquias e carga perdida do limite de drops. Aceite: exceder 120 entradas preserva propriedade e recuperacao, inclusive apos save/reload; cap de representacao nao destroi estado. Evidencia: `ground_loot_preservation_test.gd`; partilha existente preservada, sem introduzir propriedade individual nova.
-- [ ] G0.6: validar vetores finitos, limites, IDs e frequencia de comandos no host. Aceite: entradas invalidas nao alteram estado; comandos legitimos seguem funcionando em solo/co-op. Parcial (2026-10-11): intencoes de rede validam tipos e a mira do ataque rejeita vetores nao finitos; falta limitar a frequencia de comandos no host.
-- [ ] G0.7: transformar probes confirmados em regressao no runner/CI. Aceite: suite e auditoria estrita passam; nao remover checks para fazer o gate ficar verde. Parcial (2026-10-11): o CI (`.github/workflows/tests.yml`) roda a suite inteira; falta a auditoria estrita no runner.
+- G0.6 -> E1, fase 0.
+- G0.7 -> E1, fase 0.
 
 Risco: efeitos mudam balanceamento; protecao de loot pode aumentar memoria.
 Medir carga e testar saves existentes. Nao exigir que todo efeito proposto seja
@@ -131,11 +193,11 @@ Ver [ciclo visual/gameplay 1](visual-gameplay-ciclo-1.md).
 Dependencia: G0/G1; G2 nao e necessario para craft basico.
 
 - [x] G3.1: primeira colecao testada. Superada: 23 lendarios, 46 armas unicas e 7 reliquias com passivas exclusivas e testes por efeito (decisoes 580, 596 e 599), com 13 encaixes (decisao 596, 2 aneis) e saves antigos preservados.
-- [ ] G3.2: validar builds de perfuracao, controle, invocacao e resgate com gemas/suportes atuais; cada personagem tem ao menos duas opcoes viaveis.
-- [ ] G3.3: fontes direcionadas por inimigo/contrato e uma receita garantida de marco, com regra de partilha visivel; nao prometer drop aleatorio garantido.
-- [ ] G3.4: comparacao de efeito final, unidades, origem, favoritos, filtros e ordenar; navegacao completa sem mouse. Parcial: comparacao do efeito final pronta (`equipment_comparison_test.gd`); faltam origem, favoritos, filtros e ordenacao.
-- [ ] G3.5: suprimentos com item/quantidade/efeito real, evitando nomes diferentes para a mesma cura generica.
-- [ ] G3.6: tabela de itens implementados/propostos/adiados; efeitos adicionais so entram na promessa comercial apos teste/UI/save/rede.
+- G3.2 -> E1, fase 7.
+- G3.3 -> E1, fase 2.
+- G3.4 -> E1, fase 6.
+- G3.5 -> E1, fase 6.
+- G3.6 -> E1, fase 6.
 
 Aceite: jogador identifica um item desejado, onde encontra e como ele muda sua
 build. Equipar/desequipar/reabrir nao duplica efeitos. Adiar sets, multiplos
@@ -180,20 +242,20 @@ Plano completo em `game-design/76-dificuldades-dia-e-noite-e-paragon.md` (em dis
 abertas na secao 10 do documento). Detalha G6 e G7.1 a G7.4. Fases, em ordem:
 
 - [x] G8.0: aprovar o documento 76. Decisoes 597 e 598 (2026-10-11): dia de 2 h, dificuldade do mundo, Paragon da conta, proxima dificuldade ao concluir o andar 100, mutadores crueis obrigatorios na 5 e revisao das passivas pelo teste da revolucao.
-- [ ] G8.1: relogio de dia e noite (2 h; manha 30 min, tarde 30, entardecer 20, noite 40) na vila e na Torre, do host, no snapshot e no save; HUD com hora e avisos; noite com EXP +25%, saque +30% e inimigos +10%; Lua da Cicatriz a cada 3 noites.
-- [ ] G8.2: noite com mecanica: raio de luz como atributo, inimigos fora da luz semi-invisiveis e fora da mira automatica, variantes noturnas por bioma, elites cacadores; monstros da aurora de manha; materiais por horario (Orvalho Negro, Polen Lunar, Ambar Solar).
-- [ ] G8.3: resistencias: fisico e 9 elementos, resistencia dos inimigos por raca, bioma e dificuldade (-50% a +75%), penetracao, Quebra elemental, adaptacao (dificuldades 4 e 5), resistencias da personagem com teto 75% e penalidade por dificuldade (0/0/-20/-40/-60), icones de fraqueza na HUD e numeros "RESISTIU".
+- G8.1 -> E1, fase 3.
+- G8.2 -> E1, fase 3.
+- G8.3 -> E1, fase 1.
 - [x] G8.4: itens revolucionarios (G6.6): acoes novas no motor de passivas, reescrita das 46 unicas e 18 lendarios, Reliquias de regra, etiqueta de regra no gerador e teste que reprova passiva so numerica. Feito em 2026-10-11 (decisao 599, documento 77).
-- [ ] G8.5: estrutura das cinco dificuldades (G6.1): dificuldade do mundo, escolhida pelo host no portal entre as liberadas; concluir o andar 100 libera a seguinte naquele mundo; tabela de Vida/dano/resistencia/afixos, recordes e saque por dificuldade; unicas a partir da 2 (G6.2).
-- [ ] G8.6: sete afixos de elite com comportamento (Refletor, Absorvente, Vinculado, Profanador, Cacador, Fissurador, Escudeiro) e mutadores de andar (8 normais a partir da 3, 3 crueis na 5) com bonus de saque.
-- [ ] G8.7: mares (Enxame, Cerco, Procissao, Avalanche, Vinculo, Eclipse e Lua da Cicatriz) com aviso, objetivo e recompensa; campeao em toda mare da 5.
-- [ ] G8.8: Paragon da conta apos o nivel 100 (dificuldades 3 a 5, teto 200, EXP x1,5 na 4 e x2 na 5): nivel e EXP no perfil do jogador, somando todas as personagens e mundos; tabuleiro de 4 trilhas por personagem com todos os pontos da conta, nos notaveis a cada 10 pontos e respec em prata.
-- [ ] G8.9: itens divinos a partir da 4 (G6.3): raridade nova, 12 itens que quebram duas regras, receita de ascensao (3 unicas da mesma gema e material raro), saque individual no co-op.
-- [ ] G8.10: chefes por dificuldade: habilidade extra (2), fase nova abaixo de 30% (3), forma ascendida (4), teste de dano com escudo cronometrado (5); Guardioes da Cicatriz e Pactos na 5.
-- [ ] G8.11: sondas por dificuldade e calibragem ate as metas (1: 95% com build simples; 2: 85% com 1 unica; 3: 70% com Paragon 0 a 50; 4: 50% com Paragon 100 e 1 divino; 5: 30% com Paragon 150+ e build otimizada); playtests (G6.4).
-- [ ] G8.12: UI de colecao de lendarios, unicos, Reliquias e divinos (G6.5).
-- [ ] G8.13: escala exponencial de numeros (bilhoes de Vida e dano na dificuldade 5, secao 3.1 do documento 76): fontes de poder multiplicativas, efeitos por fracao de Vida e numeros abreviados (mil, mi, bi) na HUD e nos menus.
-- [ ] G8.14: itens de suporte para a colonia de esporos (decisao 591) que a tornem viavel na dificuldade 5 (ex.: teto do acumulo, heranca da Cepa, mutacao por salto, fracao em chefes).
+- G8.5 -> E1, fase 2.
+- G8.6 -> E1, fase 4.
+- G8.7 -> E1, fase 4.
+- G8.8 -> E1, fase 5.
+- G8.9 -> E1, fase 5.
+- G8.10 -> E1, fase 5.
+- G8.11 -> E1, fase 7.
+- G8.12 -> E1, fase 6.
+- G8.13 -> E1, fase 1.
+- G8.14 -> E1, fase 7.
 
 Estimativa: 9 a 12 semanas. G8.1 e G8.3 podem comecar em paralelo.
 
