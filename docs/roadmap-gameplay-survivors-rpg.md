@@ -77,7 +77,7 @@ Usa o pipeline de saque da fase 2.
 
 ### Fase 5: Paragon, divinos e chefes
 
-- [ ] G8.8: Paragon da conta apos o nivel 100 (dificuldades 3 a 5, teto 200, EXP x1,5 na 4 e x2 na 5): nivel e EXP no perfil do jogador, somando todas as personagens e mundos; tabuleiro de 4 trilhas por personagem com todos os pontos da conta, nos notaveis a cada 10 pontos e respec em prata.
+- [x] G8.8: Paragon da conta apos o nivel 100 (dificuldades 3 a 5, teto 200, EXP x1,5 na 4 e x2 na 5): nivel e EXP no perfil do jogador, somando todas as personagens e mundos; tabuleiro de 4 trilhas por personagem com todos os pontos da conta, nos notaveis a cada 10 pontos e respec em prata. Feito em 2026-10-11 (decisao 607): perfil de Paragon fora do save, quatro trilhas, 20 nos notaveis, respec em prata; EXP saneada no host. Regressao em `tests/paragon_test.gd`.
 - [ ] G8.9: itens divinos a partir da 4 (G6.3): raridade nova, 12 itens que quebram duas regras, receita de ascensao (3 unicas da mesma gema e material raro), saque individual no co-op. Composicao (decisao 600): atributos-base no maximo e Magistral, 7 afixos aleatorios no maximo, 1 afixo fixo por encaixe (botas: velocidade) e 1 ou 2 passivas divinas transformadoras.
 - [ ] G8.10: chefes por dificuldade: habilidade extra (2), fase nova abaixo de 30% (3), forma ascendida (4), teste de dano com escudo cronometrado (5); Guardioes da Cicatriz e Pactos na 5.
 

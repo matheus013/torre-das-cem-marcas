@@ -203,6 +203,7 @@ const BestiaryScript := preload("res://src/gameplay/content/bestiary.gd")
 const ResistancesScript := preload("res://src/gameplay/combat/resistances.gd")
 const WorldClockScript := preload("res://src/gameplay/world/world_clock.gd")
 const FloorRulesScript := preload("res://src/gameplay/world/floor_rules.gd")
+const ParagonScript := preload("res://src/gameplay/progression/paragon.gd")
 ## Dia e noite (épico E1, fase 3; G8.1 e G8.2; decisão 605). À noite só o que está na luz de alguma
 ## personagem aparece inteiro e entra no ataque automático; a luz é um atributo (afixo, gemas
 ## sagradas) e as variantes noturnas a disputam. Valores provisórios.
@@ -327,6 +328,8 @@ func add_player(peer_id: int, character_id: StringName = &"", profile_id: String
 	players[peer_id] = {
 		"peer": peer_id,
 		"profile": profile_id,
+		# Paragon da conta (decisão 607): vem do perfil de quem joga, não do save do mundo.
+		"paragon": ParagonScript.empty(),
 		"connected": true,
 		"reconnect_timer": 0.0,
 		"character_id": &"",
@@ -1202,6 +1205,124 @@ func allocate_stat(peer_id: int, stat: StringName) -> void:
 
 
 ## Reset de atributos: todos os pontos distribuídos voltam a ficar livres (evoluções ficam).
+# ---------------------------------------------------------------- Paragon (decisão 607)
+
+func paragon(peer_id: int) -> Dictionary:
+	var state := player(peer_id)
+	if state.is_empty():
+		return ParagonScript.empty()
+	if not state.has("paragon"):
+		state["paragon"] = ParagonScript.empty()
+	return state["paragon"] as Dictionary
+
+
+## Paragon do perfil de quem joga (disco no host, comando do cliente).
+func set_paragon(peer_id: int, data: Variant) -> void:
+	if player(peer_id).is_empty():
+		return
+	player(peer_id)["paragon"] = ParagonScript.sanitize(data)
+	_passive_cache.erase(peer_id)
+
+
+func set_paragon_progress(peer_id: int, level: int, experience: int) -> void:
+	var data := paragon(peer_id).duplicate(true)
+	data["level"] = level
+	data["experience"] = experience
+	set_paragon(peer_id, data)
+
+
+func set_paragon_board(peer_id: int, character_id: String, text: String) -> void:
+	var data := paragon(peer_id).duplicate(true)
+	(data["boards"] as Dictionary)[character_id] = ParagonScript.parse_board(text)
+	set_paragon(peer_id, data)
+
+
+## Tabuleiro da personagem atual (cada personagem tem o seu, com todos os pontos da conta).
+func paragon_board(peer_id: int) -> Dictionary:
+	var key := String(player(peer_id).get("character_id", ""))
+	var boards := paragon(peer_id)["boards"] as Dictionary
+	if not boards.has(key):
+		boards[key] = ParagonScript.sanitize_board({}, int(paragon(peer_id)["level"]))
+	return boards[key] as Dictionary
+
+
+func paragon_unspent(peer_id: int) -> int:
+	return int(paragon(peer_id)["level"]) - ParagonScript.spent(paragon_board(peer_id))
+
+
+func allocate_paragon(peer_id: int, track: String) -> bool:
+	if track not in ParagonScript.TRACKS or String(player(peer_id).get("character_id", "")).is_empty() or paragon_unspent(peer_id) <= 0:
+		return false
+	var board := paragon_board(peer_id)
+	board[track] = int(board.get(track, 0)) + 1
+	_passive_cache.erase(peer_id)
+	_status(peer_id, "Paragon %s: %d pontos." % [ParagonScript.TRACK_NAMES[track], int(board[track])])
+	return true
+
+
+## Refazer o tabuleiro: só em Aresta, pago em prata.
+func paragon_respec_cost(peer_id: int) -> int:
+	return ParagonScript.spent(paragon_board(peer_id)) * ParagonScript.RESPEC_SILVER_PER_POINT
+
+
+func respec_paragon(peer_id: int) -> bool:
+	var state := player(peer_id)
+	var cost := paragon_respec_cost(peer_id)
+	if state.is_empty() or state["zone"] != &"village" or cost <= 0:
+		return false
+	if int(_gear(peer_id).get("silver", 0)) < cost:
+		_status(peer_id, "Prata insuficiente para refazer o Paragon (%d)." % cost)
+		return false
+	_gear(peer_id)["silver"] = int(_gear(peer_id)["silver"]) - cost
+	var board := paragon_board(peer_id)
+	for track in ParagonScript.TRACKS:
+		board[track] = 0
+	_passive_cache.erase(peer_id)
+	_status(peer_id, "Paragon refeito por %d de prata." % cost)
+	return true
+
+
+## EXP Paragon: depois do nível 100, só nas dificuldades 3 a 5 (x1, x1,5 e x2).
+func _grant_paragon_experience(peer_id: int, reward: int) -> void:
+	var build := character_build(peer_id)
+	var mult := ParagonScript.EXP_MULT[clampi(difficulty, 1, ParagonScript.EXP_MULT.size()) - 1]
+	if build == null or build.level < ParagonScript.REQUIRED_CHARACTER_LEVEL or mult <= 0.0:
+		return
+	var levels := ParagonScript.gain(paragon(peer_id), int(round(float(reward) * mult)))
+	if levels > 0:
+		_status(peer_id, "Paragon %d: %d ponto(s) novo(s) para o tabuleiro." % [int(paragon(peer_id)["level"]), levels])
+
+
+## Passivas do tabuleiro para o motor de passivas (bônus por ponto e nós notáveis).
+func paragon_passives(peer_id: int) -> Array[Dictionary]:
+	if String(player(peer_id).get("character_id", "")).is_empty():
+		return []
+	return ParagonScript.passives(paragon_board(peer_id))
+
+
+func paragon_signature(peer_id: int) -> String:
+	return "%s:%s" % [String(player(peer_id).get("character_id", "")), ParagonScript.board_text(paragon_board(peer_id))] if not player(peer_id).is_empty() else ""
+
+
+func paragon_model(peer_id: int) -> Dictionary:
+	var data := paragon(peer_id)
+	var board := paragon_board(peer_id)
+	var tracks: Array = []
+	for track in ParagonScript.TRACKS:
+		var points := int(board.get(track, 0))
+		var notables: Array = []
+		var list := ParagonScript.NOTABLES[track] as Array
+		for index in range(list.size()):
+			notables.append({"name": String(list[index]["name"]), "description": String(list[index]["description"]), "points": (index + 1) * ParagonScript.NOTABLE_STEP, "unlocked": points >= (index + 1) * ParagonScript.NOTABLE_STEP})
+		tracks.append({"id": track, "name": String(ParagonScript.TRACK_NAMES[track]), "points": points, "per_point": String(ParagonScript.PER_POINT_TEXT[track]), "notables": notables})
+	var level := int(data["level"])
+	return {
+		"level": level, "experience": int(data["experience"]), "required": ParagonScript.required(level) if level < ParagonScript.MAX_LEVEL else 0,
+		"unspent": paragon_unspent(peer_id), "tracks": tracks, "respec_cost": paragon_respec_cost(peer_id),
+		"active": difficulty >= ParagonScript.MIN_DIFFICULTY, "max_level": ParagonScript.MAX_LEVEL,
+	}
+
+
 func reset_stats(peer_id: int) -> bool:
 	var build := character_build(peer_id)
 	if build == null:
@@ -4832,6 +4953,7 @@ func _grant_experience(peer_id: int, enemy: Dictionary) -> void:
 	var reward := int(round(float(EXPERIENCE_REWARDS.get(String(enemy.get("encounter_class", "common")), 12)) * float(difficulty_rules()["exp"]) * float(time_bonuses()["exp"])))
 	character_experience[key] = int(character_experience.get(key, 0)) + reward
 	_process_level_ups(peer_id)
+	_grant_paragon_experience(peer_id, reward)
 
 
 ## EXP direta (atalho de desenvolvimento): o mesmo caminho de níveis, marcos e gemas.
@@ -5170,6 +5292,7 @@ func view_snapshot() -> Dictionary:
 			"barrier": state["barrier"],
 			"barrier_timer": maxf(0.0, float(state.get("barrier_timer", 0.0))),
 			"light_radius": light_radius(peer_id),
+			"paragon_data": paragon(peer_id).duplicate(true),
 			"status_effects": player_status_effects(peer_id),
 			"invulnerable": float(state["invulnerable"]) > 0.0,
 			"downed": bool(state.get("downed", false)),
@@ -5794,6 +5917,7 @@ func menu_model(peer_id: int) -> Dictionary:
 		"clock": clock.call("view"),
 		"floor_mutators": _mutator_views() if current_floor > 0 else [],
 		"difficulty": difficulty_model(),
+		"paragon": paragon_model(peer_id),
 		"floors": _tower_map_model(),
 		"chosen_milestones": chosen,
 		"experience": int(character_experience.get(String(state.get("character_id", "")), 0)),

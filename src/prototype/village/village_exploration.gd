@@ -21,6 +21,8 @@ const SimulationScript := preload("res://src/gameplay/world/world_simulation.gd"
 const LayoutScript := preload("res://src/gameplay/world/world_layout.gd")
 const SessionLaunchScript := preload("res://src/core/net/session_launch.gd")
 const ProfileIdentityScript := preload("res://src/core/net/profile_identity.gd")
+const ParagonStoreScript := preload("res://src/core/persistence/paragon_store.gd")
+const ParagonScript := preload("res://src/gameplay/progression/paragon.gd")
 const TowerContentScript := preload("res://src/gameplay/world/tower_content.gd")
 const FloorLayoutScript := preload("res://src/gameplay/world/floor_layout.gd")
 const TelegraphScript := preload("res://src/gameplay/encounters/telegraph.gd")
@@ -51,6 +53,10 @@ const SAVE_PATH := SaveSlot.DEFAULT_PATH
 ## salvo quando um teste liga `autosave_forced`.
 const AUTOSAVE_INTERVAL := 60.0
 var autosave_forced := false
+## Paragon da conta (decisão 607): gravado no perfil local quando o snapshot muda. Desligado em
+## testes sem janela, salvo quando um teste liga `paragon_persist_forced`.
+var paragon_persist_forced := false
+var _paragon_saved := ""
 var _autosave_timer := 0.0
 var _autosave_key := ""
 var _autosave_flash := 0.0
@@ -291,6 +297,7 @@ func _start_authority() -> void:
 	_sim.call("setup", 7301)
 	_local_peer = multiplayer.get_unique_id()
 	_sim.call("add_player", _local_peer, StringName(_requested_character))
+	_sim.call("set_paragon", _local_peer, ParagonStoreScript.load_data())
 	_sim.set("records", _load_records())
 	_setup_npc_ai()
 	if _start_floor_arg > 0:
@@ -332,6 +339,7 @@ func _on_connected_to_server() -> void:
 	_local_peer = multiplayer.get_unique_id()
 	_status = "Conectado ao host. Aguardando o mundo..."
 	submit_intent.rpc_id(1, "hello", [ProfileIdentityScript.id(), _requested_character])
+	_send_paragon()
 	if _reconnecting:
 		_reconnecting = false
 		_reconnections += 1
@@ -340,6 +348,28 @@ func _on_connected_to_server() -> void:
 	print("VILLAGE_CLIENT_CONNECTED peer=%d" % _local_peer)
 	if _requested_character.is_empty() and "--skip-character-select" not in OS.get_cmdline_user_args() and _test_duration <= 0.0:
 		_show_character_panel(true)
+
+
+## Cliente: leva o Paragon do próprio perfil para o mundo do host.
+func _send_paragon() -> void:
+	var data := ParagonStoreScript.load_data()
+	submit_intent.rpc_id(1, "paragon_sync", [int(data["level"]), int(data["experience"])])
+	for character: String in data["boards"]:
+		submit_intent.rpc_id(1, "paragon_board", [character, ParagonScript.board_text(data["boards"][character] as Dictionary)])
+
+
+## Grava o Paragon do jogador local quando o snapshot traz mudança.
+func _persist_paragon() -> void:
+	if not paragon_persist_forced and (DisplayServer.get_name() == "headless" or _test_duration > 0.0 or _autopilot):
+		return
+	var data: Variant = _local().get("paragon_data", null)
+	if not data is Dictionary:
+		return
+	var text := JSON.stringify(data)
+	if text == _paragon_saved:
+		return
+	if ParagonStoreScript.save_data(data) == OK:
+		_paragon_saved = text
 
 
 func _on_connection_lost(message: String) -> void:
@@ -389,6 +419,7 @@ func receive_snapshot(packed: PackedByteArray, raw_size: int) -> void:
 	var decoded: Variant = bytes_to_var(packed.decompress(raw_size, FileAccess.COMPRESSION_ZSTD))
 	if decoded is Dictionary:
 		_view = decoded
+		_persist_paragon()
 
 
 func _send_snapshot(peer_id: int = 0) -> void:
@@ -484,6 +515,17 @@ func _apply_intent(peer_id: int, kind: String, args: Array) -> void:
 			_sim.call("sell_all", peer_id)
 		"reset_stats":
 			_sim.call("reset_stats", peer_id)
+		"paragon_sync":
+			if args.size() == 2 and args[0] is int and args[1] is int:
+				_sim.call("set_paragon_progress", peer_id, int(args[0]), int(args[1]))
+		"paragon_board":
+			if args.size() == 2 and args[0] is String and args[1] is String and String(args[0]) in CHARACTER_IDS:
+				_sim.call("set_paragon_board", peer_id, String(args[0]), String(args[1]))
+		"paragon_allocate":
+			if args.size() == 1 and args[0] is String:
+				_sim.call("allocate_paragon", peer_id, String(args[0]))
+		"paragon_respec":
+			_sim.call("respec_paragon", peer_id)
 		"shop_buy":
 			if args.size() == 1 and args[0] is int and int(args[0]) >= 0 and int(args[0]) < 64:
 				_sim.call("buy_shop_item", peer_id, int(args[0]))
@@ -597,6 +639,7 @@ func _physics_process(delta: float) -> void:
 		var events: Array = _sim.call("drain_events")
 		_apply_events(events)
 		_view = _sim.call("view_snapshot")
+		_persist_paragon()
 		if _mode == &"host" and not multiplayer.get_peers().is_empty():
 			if not events.is_empty():
 				receive_events.rpc(events)
@@ -2417,6 +2460,8 @@ func _build_interface() -> void:
 	_player_menu.sell_requested.connect(func(instance_id: StringName) -> void: _send_intent("sell", [String(instance_id)]))
 	_player_menu.sell_all_requested.connect(func() -> void: _send_intent("sell_all", []))
 	_player_menu.stats_reset_requested.connect(func() -> void: _send_intent("reset_stats", []))
+	_player_menu.paragon_allocate_requested.connect(func(track: String) -> void: _send_intent("paragon_allocate", [track]))
+	_player_menu.paragon_respec_requested.connect(func() -> void: _send_intent("paragon_respec", []))
 	_player_menu.loot_filter_requested.connect(func(tier: String) -> void: _send_intent("loot_filter", [tier]))
 	_player_menu.auto_sell_requested.connect(func(tier: String) -> void: _send_intent("auto_sell", [tier]))
 	_player_menu.gem_slot_requested.connect(func(slot: int, gem_id: String) -> void: _send_intent("gem_slot", [slot, gem_id]))

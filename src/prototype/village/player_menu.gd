@@ -7,6 +7,8 @@ const UiSkin := preload("res://src/presentation/ui/game_ui_skin.gd")
 
 signal stat_requested(stat: StringName)
 signal stats_reset_requested
+signal paragon_allocate_requested(track: String)
+signal paragon_respec_requested
 signal milestone_requested(choice_id: StringName)
 signal equip_requested(instance_id: StringName)
 signal unequip_requested(slot: int, index: int)
@@ -685,6 +687,7 @@ func _build_character() -> void:
 	reset.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	reset.pressed.connect(_confirm_reset_stats)
 	_content.add_child(reset)
+	_build_paragon()
 	_build_detailed_stats()
 	var derived := _model.get("derived_stats", {}) as Dictionary
 	_section("VALORES DE COMBATE", "atributos e equipamento")
@@ -723,6 +726,54 @@ func _build_character() -> void:
 			button.custom_minimum_size.y = 58.0
 			button.pressed.connect(func() -> void: milestone_requested.emit(StringName(String(choice.get("id", "")))))
 			_content.add_child(button)
+
+
+## Paragon da conta (decisão 607): nível e EXP do jogador, tabuleiro desta personagem em quatro
+## trilhas com nós notáveis a cada 10 pontos e respec pago em prata na vila.
+func _build_paragon() -> void:
+	var model := _model.get("paragon", {}) as Dictionary
+	if model.is_empty():
+		return
+	var level := int(model.get("level", 0))
+	_section("PARAGON %d / %d" % [level, int(model.get("max_level", 200))], "%d pontos livres  ·  da conta, todas as personagens" % int(model.get("unspent", 0)))
+	if level <= 0:
+		_add_text("Depois do nivel 100, a EXP das dificuldades 3 a 5 (x1,5 na 4 e x2 na 5) vira niveis Paragon. Cada nivel e 1 ponto para o tabuleiro de cada personagem.", MUTED)
+		return
+	if int(model.get("required", 0)) > 0:
+		_add_text("EXP PARAGON   %d / %d%s" % [int(model.get("experience", 0)), int(model.get("required", 1)), "" if bool(model.get("active", false)) else "   (ganho so nas dificuldades 3 a 5)"], GOLD)
+	var board := VBoxContainer.new()
+	board.name = "ParagonBoard"
+	_content.add_child(board)
+	for track: Dictionary in model.get("tracks", []) as Array:
+		var row := HBoxContainer.new()
+		row.name = "Paragon_%s" % String(track["id"])
+		var label := Label.new()
+		label.text = "%s   %d" % [String(track["name"]).to_upper(), int(track["points"])]
+		label.tooltip_text = String(track["per_point"])
+		label.mouse_filter = Control.MOUSE_FILTER_PASS
+		label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		label.add_theme_color_override("font_color", TEXT)
+		row.add_child(label)
+		var add_button := Button.new()
+		add_button.name = "Add"
+		add_button.text = "+"
+		add_button.custom_minimum_size = Vector2(36.0, 30.0)
+		add_button.disabled = int(model.get("unspent", 0)) <= 0
+		var track_id := String(track["id"])
+		add_button.pressed.connect(func() -> void: paragon_allocate_requested.emit(track_id))
+		row.add_child(add_button)
+		board.add_child(row)
+		for notable: Dictionary in track.get("notables", []) as Array:
+			if bool(notable["unlocked"]) or int(notable["points"]) <= int(track["points"]) + 10:
+				_add_text("%s %d · %s: %s" % ["ATIVO" if bool(notable["unlocked"]) else "EM", int(notable["points"]), String(notable["name"]), String(notable["description"])], GOLD if bool(notable["unlocked"]) else MUTED)
+	var respec := Button.new()
+	respec.name = "ParagonRespec"
+	respec.text = "REFAZER PARAGON (%d P)" % int(model.get("respec_cost", 0))
+	respec.tooltip_text = "Devolve os pontos deste tabuleiro. So em Aresta."
+	respec.disabled = int(model.get("respec_cost", 0)) <= 0 or not bool(_model.get("in_safe_area", true))
+	respec.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	respec.pressed.connect(func() -> void: paragon_respec_requested.emit())
+	_content.add_child(respec)
 
 
 ## Mapa da Torre e recordes: andares alcançados, melhor tempo por modo e escolha do andar de partida.

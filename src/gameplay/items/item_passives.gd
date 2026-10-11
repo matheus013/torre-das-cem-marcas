@@ -30,7 +30,7 @@ const MOD_KEYS: Array[String] = [
 	"burn_lasting", "breath_cost_lightning_mult", "health_cost_dark", "health_cost_all", "overheal_barrier",
 	"still_damage_reduction", "crit_cadence", "strength_physical_conversion", "max_health_mult", "slot_locked_q",
 	"summon_duration_mult", "cooldown_kill_only", "moving_free_cast", "contact_immunity", "no_healing",
-	"penetration_add", "resist_all_add", "resist_cap_add",
+	"penetration_add", "resist_all_add", "resist_cap_add", "light_radius_mult",
 ]
 const ItemAffixesScript := preload("res://src/gameplay/items/item_affixes.gd")
 const BURN_TICK := 0.5
@@ -50,11 +50,15 @@ static func active(sim: RefCounted, peer_id: int) -> Array[Dictionary]:
 	for item in equipment._all_items():
 		items.append(item)
 		key += String(item.instance_id) + ";"
+	# Tabuleiro de Paragon (decisão 607): entra no mesmo cache, com a alocação na chave.
+	key += "|" + String(sim.call("paragon_signature", peer_id)) if sim.has_method("paragon_signature") else ""
 	var cache := sim.get("_passive_cache") as Dictionary
 	var cached := cache.get(peer_id, {}) as Dictionary
 	if String(cached.get("key", "-")) == key:
 		return cached["passives"] as Array[Dictionary]
 	var data := _loadout_data(sim, items)
+	if sim.has_method("paragon_passives"):
+		(data["passives"] as Array).append_array(sim.call("paragon_passives", peer_id) as Array)
 	cache[peer_id] = {"key": key, "passives": data["passives"], "affix_mods": data["affix_mods"]}
 	return data["passives"]
 
@@ -442,7 +446,12 @@ static func _act(sim: RefCounted, peer_id: int, passive: Dictionary, action: Dic
 		"break":
 			# Quebra elemental: reduz a resistência do alvo a um tipo por alguns segundos.
 			if not enemy.is_empty():
-				Resistances.apply_break(enemy, String(action.get("element", "physical")), float(action.get("amount", 0.2)), float(action.get("duration", 4.0)))
+				var element := String(action.get("element", "physical"))
+				# "hit": o elemento da gema que acertou (físico se não tiver).
+				if element == "hit":
+					element = String((sim.call("gem_definition", String(context.get("gem_id", ""))) as Dictionary).get("element", ""))
+					element = element if not element.is_empty() else "physical"
+				Resistances.apply_break(enemy, element, float(action.get("amount", 0.2)), float(action.get("duration", 4.0)))
 		"poison":
 			# Toxina a partir do acerto: `ratio` do golpe ao longo de `duration` segundos.
 			if not enemy.is_empty():

@@ -22,6 +22,7 @@ func _init() -> void:
 
 func _run() -> void:
 	SaveSlot.path = "user://readme_shots_unused.json"
+	preload("res://src/core/persistence/paragon_store.gd").path = "user://readme_shots_paragon_unused.json"
 	root.content_scale_mode = Window.CONTENT_SCALE_MODE_DISABLED
 	root.size = SIZE
 	preview = Preview.new()
