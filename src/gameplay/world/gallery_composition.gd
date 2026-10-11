@@ -42,7 +42,7 @@ static func compose(layout: Dictionary, number: int) -> void:
 		(layout["landmarks"] as Array[Dictionary]).append({"center": center + Vector2(0, extent.y * 0.5 - 20), "sprite": landmark})
 		(layout["lights"] as Array[Vector2]).append(center + Vector2(0, -210))
 	var branch: Array = layout.get("side_route", [])
-	if branch.size() == 2:
+	if number == 1 and branch.size() == 2:
 		# Stone lips frame the optional passage outside its protected walkable strip.
 		for side: float in [-1.0, 1.0]:
 			for offset: float in [-150.0, -300.0]:
@@ -63,9 +63,9 @@ static func _add(layout: Dictionary, base: Vector2, sprite: String) -> void:
 	var footprint: Rect2 = FOOTPRINTS.get(sprite, Rect2(-26, -20, 52, 20))
 	var solid := Rect2(base + footprint.position, footprint.size)
 	var branch: Array = layout.get("side_route", [])
-	if branch.size() == 2:
+	for index in range(branch.size() - 1):
 		for corner: Vector2 in [solid.position, solid.end, Vector2(solid.position.x, solid.end.y), Vector2(solid.end.x, solid.position.y), solid.get_center()]:
-			if Geometry2D.get_closest_point_to_segment(corner, branch[0], branch[1]).distance_to(corner) < 150:
+			if Geometry2D.get_closest_point_to_segment(corner, branch[index], branch[index + 1]).distance_to(corner) < 150:
 				return
 	if not Rect2(Vector2(40, 80), (layout["size"] as Vector2) - Vector2(80, 120)).encloses(solid):
 		return

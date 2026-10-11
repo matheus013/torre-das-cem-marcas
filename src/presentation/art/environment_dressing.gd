@@ -75,9 +75,9 @@ static func _tower(result: Dictionary, floor: Dictionary, random: RandomNumberGe
 				result["details"].append({"sprite": profile[1 + detail % 2], "base": center + Vector2(random.randf_range(-65, 65), random.randf_range(-45, 45))})
 	if not arena:
 		var branch: Array = floor.get("side_route", [])
-		if branch.size() == 2:
+		for segment in range(branch.size() - 1):
 			for index in range(9):
-				var center: Vector2 = (branch[0] as Vector2).lerp(branch[1], index / 8.0)
+				var center: Vector2 = (branch[segment] as Vector2).lerp(branch[segment + 1], index / 8.0)
 				_patch(result, "tiles/floor_arquivo", Rect2(center - Vector2(40, 28), Vector2(80, 56)), Color(0.85, 0.91, 0.86, 0.4), random)
 		var route := floor["route"] as Array
 		for segment in range(route.size() - 1):

@@ -16,6 +16,32 @@ const PROP_FOOTPRINT := Rect2(-26.0, -16.0, 52.0, 28.0)
 const GRID := 128.0
 
 static var _cache: Dictionary = {}
+static var _cicatrized: Dictionary = {}
+
+
+static func cicatrization(number: int, closed: bool) -> Dictionary:
+	var original := generate(number)
+	if number != 2 or not closed:
+		return original
+	if not _cicatrized.is_empty():
+		return _cicatrized
+	# Never mutate the shared base map: clients derive this same collision variant.
+	var layout := original.duplicate(true)
+	var center: Vector2 = layout["cicatrization_center"]
+	var footprint := Rect2(-20, -115, 40, 110)
+	for offset: float in [-100.0, 0.0, 100.0]:
+		var base := center + Vector2(0, offset)
+		(layout["props"] as Array[Dictionary]).append({"sprite": "props/galeria_muro_lateral", "base": base, "solid": footprint, "solids": [footprint] as Array[Rect2]})
+		(layout["obstacles"] as Array[Rect2]).append(Rect2(base + footprint.position, footprint.size))
+	layout["grid"] = _build_grid(layout["obstacles"])
+	layout["cicatrized"] = true
+	_cicatrized = layout
+	return layout
+
+
+static func cicatrization_area() -> Rect2:
+	var center: Vector2 = generate(2)["cicatrization_center"]
+	return Rect2(center + Vector2(-20, -215), Vector2(40, 310))
 
 
 static func generate(number: int) -> Dictionary:
@@ -58,6 +84,10 @@ static func _explore(definition: Dictionary, biome: Dictionary) -> Dictionary:
 	if int(definition["floor"]) == 1:
 		var junction := route[1].lerp(route[2], 0.5)
 		layout["side_route"] = [junction, junction + Vector2(0, -420)] as Array[Vector2]
+	elif int(definition["floor"]) == 2:
+		var center := route[1].lerp(route[2], 0.5)
+		layout["cicatrization_center"] = center
+		layout["side_route"] = [center + Vector2(-240, 0), center + Vector2(-240, 240), center + Vector2(240, 240), center + Vector2(240, 0)] as Array[Vector2]
 	layout["landmarks"] = [] as Array[Dictionary]
 	if String(biome.get("id", "")) == "galerias":
 		Gallery.compose(layout, int(definition["floor"]))
@@ -140,8 +170,9 @@ static func _place_prop(layout: Dictionary, base: Vector2, sprite: String, keep_
 			return
 	var solid := Rect2(base + PROP_FOOTPRINT.position, PROP_FOOTPRINT.size)
 	var branch: Array = layout.get("side_route", [])
-	if branch.size() == 2 and Geometry2D.get_closest_point_to_segment(base, branch[0], branch[1]).distance_to(base) < 150:
-		return
+	for index in range(branch.size() - 1):
+		if Geometry2D.get_closest_point_to_segment(base, branch[index], branch[index + 1]).distance_to(base) < 150:
+			return
 	for other: Rect2 in layout["obstacles"]:
 		if other.grow(75.0).intersects(solid):
 			return

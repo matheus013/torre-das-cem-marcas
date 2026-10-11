@@ -16,6 +16,15 @@
     "evidence": "Dentro da fissura, uma junta recente cobre parte de um sulco antigo. E um segundo sinal de mudanca na pedra, nao uma prova de quando ou por que a renovacao ocorreu.",
     "reaction": "O sulco da fissura complementa a primeira marca. Vou comparar os dois registros; ainda nao sabemos a causa da mudanca."
   },
+  "cicatrization": {
+    "hint": "Examinar junta instavel (o trecho fechara; desvio ao sul)",
+    "warning": "Cicatrizacao em %.1f s. Saia da junta; o desvio ao sul preserva o retorno.",
+    "waiting": "A pedra esta se recompondo. Afaste personagens e inimigos da junta para liberar o fechamento; desvio ao sul.",
+    "closed": "A junta fechou. Siga o desvio ao sul para continuar ou retornar ao portal.",
+    "warning_journal": "No andar 2, a junta esta se recompondo. O grupo identificou um desvio ao sul antes do fechamento.",
+    "evidence": "No andar 2, a Cicatrizacao fechou o trecho central diante do grupo. O desvio ao sul manteve a passagem e o retorno; a observacao nao explica a origem da renovacao.",
+    "reaction": "O fechamento no segundo andar confirma que o caminho pode mudar durante a expedicao. Vou registrar o desvio, sem tratar uma passagem antiga como garantia de retorno."
+  },
   "stages": {
     "available": {"objective": "Falar com Nara em Aresta.", "dialogue": "Antes de confiarmos na primeira rota, precisamos de um registro de campo. Examine a junta no trecho central do primeiro andar e volte para me contar o que encontrou.", "action": "accept", "action_label": "Aceitar pedido"},
     "active": {"objective": "Examinar a marca de rota no trecho central do andar 1.", "dialogue": "Procure uma marca antiga na junta de pedra do trecho central. Registre o que estiver la, mesmo que nao consiga completar a expedicao."},

@@ -76,6 +76,7 @@ var _reconnecting := false
 var _reconnections := 0
 var _first_character := ""
 var _floor_number := 0
+var _floor_cicatrized := false
 var _floor_layout: Dictionary = {}
 var _light_texture: Texture2D
 var _floor_label: Label
@@ -705,10 +706,12 @@ func _in_arena(zone: StringName) -> bool:
 ## Acompanha o andar do snapshot e gera localmente o mesmo layout do host.
 func _sync_floor() -> void:
 	var number := int((_view.get("floor", {}) as Dictionary).get("number", 0))
-	if number == _floor_number:
+	var closed := number == 2 and String((_view.get("narrative", {}) as Dictionary).get("cicatrization_state", "unseen")) == "closed"
+	if number == _floor_number and closed == _floor_cicatrized:
 		return
 	_floor_number = number
-	_floor_layout = FloorLayoutScript.generate(number) if number > 0 else {}
+	_floor_cicatrized = closed
+	_floor_layout = FloorLayoutScript.cicatrization(number, closed) if number > 0 else {}
 	_rebuild_floor_lights()
 	_update_camera_limits()
 
@@ -1301,6 +1304,8 @@ func _draw() -> void:
 		_draw_sprite("props/rocks", marker, false, Color("b7d8d1"))
 		draw_arc(marker, 38.0, 0, TAU, 32, Color("e8b84a"), 2.0)
 	if zone == &"tower":
+		if _floor_number == 2 and story.has("cicatrization_area"):
+			_draw_cicatrization(story)
 		for marker: Dictionary in story.get("route_markers", []):
 			var base: Vector2 = marker["position"]
 			_draw_sprite(String(marker["sprite"]), base, false, Color("b7d8d1"))
@@ -1414,6 +1419,23 @@ func _draw_ground(zone: StringName) -> void:
 			_draw_door_hint(LayoutScript.BOSS_ROOM_EXIT)
 	if zone != &"tower":
 		DressingScript.draw_ground(self, DressingScript.plan(zone, _floor_layout), _visible_world_rect())
+
+
+func _draw_cicatrization(story: Dictionary) -> void:
+	var area: Rect2 = story["cicatrization_area"]
+	var phase := String(story.get("cicatrization_state", "unseen"))
+	if phase != "closed":
+		var opacity := 0.6 + 0.2 * sin(_anim_time * 4) if phase == "warning" else 0.45
+		for index in range(8):
+			var start := area.position + Vector2(10 if index % 2 == 0 else 30, index * 40)
+			draw_line(start, start + Vector2(20 if index % 2 == 0 else -20, 28), Color(0.66, 0.85, 0.8, opacity), 3)
+	var branch: Array = _floor_layout.get("side_route", [])
+	for index in range(branch.size() - 1):
+		draw_dashed_line(branch[index], branch[index + 1], Color(0.66, 0.85, 0.8, 0.55), 2, 12)
+	if branch.size() == 4:
+		var label: Vector2 = (branch[1] as Vector2).lerp(branch[2], 0.5) + Vector2(-130, -35)
+		draw_string(ThemeDB.fallback_font, label + Vector2.ONE, "DESVIO / RETORNO", HORIZONTAL_ALIGNMENT_CENTER, 260, 12, Color.BLACK)
+		draw_string(ThemeDB.fallback_font, label, "DESVIO / RETORNO", HORIZONTAL_ALIGNMENT_CENTER, 260, 12, Color("b7d8d1"))
 
 
 ## Chão do andar: tile do bioma, borda escurecida, arena circular nos andares de chefe,
@@ -2605,7 +2627,10 @@ func _update_interface() -> void:
 				_objective_label.text += "\n%s · %s" % [String(npc["name"]), direction]
 	_objective_label.visible = story.get("stage", "") != "completed"
 	if zone == &"tower" and story.has("field_objective"):
-		_objective_label.text += "\n" + String(story["field_objective"])
+		if _floor_number == 2:
+			_objective_label.text = String(story["field_objective"])
+		else:
+			_objective_label.text += "\n" + String(story["field_objective"])
 		_objective_label.visible = true
 	var arena := _in_arena(zone)
 	_ambient.color = {&"village": Color(1.0, 0.97, 0.9), &"house": Color(0.78, 0.7, 0.62)}.get(zone, Color(0.36, 0.38, 0.5)) as Color

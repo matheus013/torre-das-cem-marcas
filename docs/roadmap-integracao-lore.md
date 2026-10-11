@@ -1,6 +1,6 @@
 # Roadmap: integracao da lore ao jogo
 
-Atualizado em 2026-10-07. Objetivo: transformar a lore aprovada em objetivos,
+Atualizado em 2026-10-11. Objetivo: transformar a lore aprovada em objetivos,
 descobertas, escolhas e consequencias jogaveis, sem interromper o ciclo de
 hordas, preparacao, expedicao e retorno. Este documento planeja implementacao;
 registra entregas verificadas e pendencias; nao modifica o canone.
@@ -52,7 +52,7 @@ Mudancas de canone ou novas regras irreversiveis exigem aprovacao do responsavel
 | N0 | Matriz canone/runtime e roteiro do primeiro arco | Documentos existentes | Auditoria concluida em 2026-10-07; conflitos registrados |
 | N1 | Estado narrativo, persistencia e prova ponta a ponta | N0 | Prova implementada e validada em 2026-10-07 |
 | N2 | Abertura em Aresta e contrato de expedicao | N1 | Implementado; playtest de compreensao pendente |
-| N3 | Eventos e descobertas dos andares 1 a 3 | N2 | Parcial: socorro e fissura opcional no andar 1; andares 2 e 3 pendentes |
+| N3 | Eventos e descobertas dos andares 1 a 3 | N2 | Parcial: socorro/fissura no andar 1 e Cicatrizacao no andar 2; trabalhadores/coleta e andar 3 pendentes |
 | N4 | Objeto, chefe e retirada do andar 4 | N3 | Pendente |
 | N5 | Relatorio, custodia e consequencias na vila | N4 | Pendente |
 | N6 | Fracasso, repeticao, co-op e acessibilidade | Regras desde N0; validacao apos N5 | Pendente |
@@ -137,10 +137,19 @@ Ramal sinalizado, risco comunicado, dois inimigos adicionais e evidencia
 complementar persistente. Rota principal e retorno continuam abertos; nao
 conclui o pedido de ajuda com abandono/reputacao nem os eventos dos andares 2 e 3.
 
+Terceira entrega: [Cicatrizacao e desvio de retorno](lore-n3-cicatrizacao.md).
+Junta instavel, aviso de cinco segundos e fechamento real com desvio
+preservado. Diario/reacao de Nara, save v15 e geometria sincronizada em
+co-op, reconexao e entrada tardia. Trabalhadores/coleta do andar 2
+permanecem pendentes; nao concluir o segundo item abaixo antecipadamente.
+Validacao de N3.3: 93 testes aprovados sem falhas, incluindo co-op,
+reconexao e entrada tardia; nove capturas em tres resolucoes e teste de
+ausencia de scroll horizontal. Controles fisicos e playtest externo pendentes.
+
 - [ ] Andar 1: rota segura/fissura opcional e pedido de ajuda com desfecho.
 - [ ] Andar 2: trabalhadores, coleta e uma rota alterada pela Cicatrizacao;
   garantir caminho de retorno valido, sem prender o grupo por acidente.
-- [ ] Andar 3: escolher entre trabalhadores, equipamento e rota de retorno,k
+- [ ] Andar 3: escolher entre trabalhadores, equipamento e rota de retorno,
   com pressao ajustada ao solo e ao tamanho do grupo.
 - [ ] Inserir as recompensas previstas: pedra regenerativa, fragmentos de
   molde, musgo de orientacao e equipamento perdido com procedencia.
@@ -233,8 +242,8 @@ andares pode continuar disponivel para teste, sem anunciar campanha concluida.
 
 ## Proximo passo executavel
 
-N2 implementado: avancar para N3, com pedido de ajuda e acontecimentos nos
-andares 1 a 3, usando as validacoes, contrato, preparo e diario existentes.
+Continuar N3 com trabalhadores e coleta nas Vias de Extracao (andar 2),
+ligando recursos ao retorno e ao armazem, antes das prioridades do andar 3.
 Ao concluir cada marco, atualizar este roadmap com testes, capturas, lacunas
 e alteracoes reais. Publicacao continua subordinada ao
 [roadmap de acesso antecipado](roadmap-steam-acesso-antecipado.md).

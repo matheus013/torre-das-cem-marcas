@@ -80,7 +80,7 @@ const AREA_MULTIPLIER_CAP := 2.0
 ## Campos de tamanho de efeito que a Área amplia; alcance é distância, não área, e fica de fora.
 const AREA_KEYS: Array[String] = ["radius", "impact_area", "collision_radius", "width", "arrival_area"]
 const CRIT_MULTIPLIER := 1.75
-const SAVE_VERSION := 14
+const SAVE_VERSION := 15
 const NarrativeProgress := preload("res://src/gameplay/world/narrative_progress.gd")
 const CONTENT_PATH := "res://data/generated/dev_content.json"
 const BETA_PATH := "res://data/beta/beta_content.json"
@@ -1080,6 +1080,7 @@ func step(delta: float) -> void:
 			_update_reinforcements(delta)
 		_update_threat_spawn()
 	_step_narrative_rescue(delta)
+	_step_cicatrization(delta)
 
 
 func _run_scheduled(delta: float) -> void:
@@ -1426,6 +1427,15 @@ func narrative_action(peer_id: int, action: String) -> bool:
 	var state := player(peer_id)
 	if state.is_empty() or not bool(state.get("connected", false)) or bool(state.get("downed", false)):
 		return false
+	if action == "observe_cicatrization":
+		if narrative.stage == "available" or narrative.cicatrization_state != "unseen" or state["zone"] != &"tower" or current_floor != 2:
+			return false
+		if (state["position"] as Vector2).distance_to(cicatrization_marker()) > 90:
+			return false
+		narrative.cicatrization_state = "warning"
+		narrative.cicatrization_remaining = 5.0
+		_status(peer_id, "A junta vai fechar. Afaste-se da pedra; use o desvio ao sul para continuar ou retornar.")
+		return true
 	if action in ["choose_safe_route", "enter_fissure", "inspect_fissure"]:
 		return _narrative_route_action(peer_id, action)
 	if action == "rescue_worker":
@@ -1466,6 +1476,14 @@ func narrative_action(peer_id: int, action: String) -> bool:
 
 func narrative_view() -> Dictionary:
 	var model := narrative.view()
+	if narrative.stage != "available" and current_floor == 2:
+		var texts: Dictionary = narrative.catalog()["cicatrization"]
+		model["route_markers"] = [{"action": "observe_cicatrization", "position": cicatrization_marker(), "hint": texts["hint"], "label": "JUNTA INSTAVEL", "sprite": "deco/rock_4"}] if narrative.cicatrization_state == "unseen" else []
+		model["cicatrization_area"] = FloorLayoutScript.cicatrization_area()
+		match narrative.cicatrization_state:
+			"unseen": model["field_objective"] = "Examinar a junta instavel do andar 2. Desvio de retorno ao sul."
+			"warning": model["field_objective"] = String(texts["warning"]) % narrative.cicatrization_remaining if narrative.cicatrization_remaining > 0 else String(texts["waiting"])
+			"closed": model["field_objective"] = texts["closed"]
 	if narrative.stage == "active" and current_floor == 1:
 		model["marker_position"] = narrative_marker()
 	if narrative.stage != "available" and current_floor == 1:
@@ -1475,6 +1493,40 @@ func narrative_view() -> Dictionary:
 		model["field_worker"] = {"id": "ra_socorro", "name": "Trabalhador", "title": "Retirada pela rota registrada", "sprite": "npcs/comum_trabalhador", "position": position, "named": true, "moving": _narrative_rescue_can_move(position), "facing_direction": (_narrative_rescue_destination() - position).normalized(), "rescue_state": narrative.rescue_state}
 		model["field_objective"] = "Trabalhador pede ajuda perto da primeira marca. Acompanhar a retirada e opcional." if narrative.rescue_state == "waiting" else "Acompanhe o trabalhador ate o portal. Ele espera sem companhia ou com inimigos por perto."
 	return model
+
+
+func cicatrization_marker() -> Vector2:
+	return (FloorLayoutScript.generate(2)["cicatrization_center"] as Vector2) + Vector2(100, 0)
+
+
+func _step_cicatrization(delta: float) -> void:
+	if current_floor != 2 or narrative.cicatrization_state != "warning" or not is_finite(delta) or delta <= 0:
+		return
+	var present := false
+	for state: Dictionary in players.values():
+		if state["zone"] == &"tower" and state.get("connected", false):
+			present = true
+	if not present:
+		return
+	narrative.cicatrization_remaining = maxf(0, narrative.cicatrization_remaining - minf(delta, 0.25))
+	if narrative.cicatrization_remaining > 0:
+		return
+	var area := FloorLayoutScript.cicatrization_area().grow(PLAYER_RADIUS + 8)
+	# Also protect downed/disconnected bodies: closure must not invalidate a revive/rejoin.
+	for state: Dictionary in players.values():
+		if state["zone"] == &"tower" and area.has_point(state["position"]):
+			return
+	for enemy: Dictionary in enemies:
+		if float(enemy.get("health", 0)) > 0 and area.has_point(enemy["position"]):
+			return
+	floor_layout = FloorLayoutScript.cicatrization(2, true)
+	for item: Dictionary in ground_items:
+		if item["zone"] == &"tower" and not FloorLayoutScript.can_stand(floor_layout, item["position"], 12):
+			item["position"] = nearest_standable(&"tower", item["position"])
+	narrative.cicatrization_state = "closed"
+	for peer_id: int in players:
+		if players[peer_id]["zone"] == &"tower":
+			_status(peer_id, "Cicatrizacao registrada. O trecho fechou; o desvio ao sul continua aberto.")
 
 
 func narrative_route_markers() -> Array[Dictionary]:
@@ -1691,7 +1743,7 @@ func boss_alive() -> bool:
 func start_floor(number: int) -> void:
 	current_floor = clampi(number, 1, TowerContentScript.MAX_FLOOR)
 	deepest_floor = maxi(deepest_floor, current_floor)
-	floor_layout = FloorLayoutScript.generate(current_floor)
+	floor_layout = FloorLayoutScript.cicatrization(current_floor, narrative.cicatrization_state == "closed")
 	_floor_random.seed = hash([encounter_seed, current_floor, loot_kill_sequence])
 	enemies.clear()
 	enemy_projectiles.clear()
@@ -5054,6 +5106,8 @@ static func validate_save(data: Dictionary) -> Error:
 		return ERR_FILE_CORRUPT
 	if int(data["version"]) >= 14 and (not data["narrative"].has("route_choice") or not data["narrative"].has("fissure_found")):
 		return ERR_FILE_CORRUPT
+	if int(data["version"]) >= 15 and (not data["narrative"].has("cicatrization_state") or not data["narrative"].has("cicatrization_remaining")):
+		return ERR_FILE_CORRUPT
 	if not NarrativeProgress.valid(data.get("narrative", {})):
 		return ERR_FILE_CORRUPT
 	return OK
@@ -5084,7 +5138,7 @@ func load_data(data: Dictionary, host_peer: int) -> bool:
 	tower_start_floor = clampi(int(data.get("tower_start_floor", 1)), 1, deepest_floor)
 	# Saves antigos podem trazer "boss_cooldowns": ignorado, chefes não têm mais recarga.
 	current_floor = clampi(int(data.get("current_floor", 0)), 0, TowerContentScript.MAX_FLOOR)
-	floor_layout = FloorLayoutScript.generate(current_floor) if current_floor > 0 else {}
+	floor_layout = FloorLayoutScript.cicatrization(current_floor, narrative.cicatrization_state == "closed") if current_floor > 0 else {}
 	floor_run = (data.get("floor_run", {}) as Dictionary).duplicate(true) if current_floor > 0 else {}
 	telegraphs.clear()
 	hazard_zones.clear()

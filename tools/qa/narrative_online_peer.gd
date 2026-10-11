@@ -5,9 +5,14 @@ class Game:
 	var elapsed := 0.0
 	var completed_at := -1.0
 	var last_sent := ""
+	var cicatrization_started := false
+	var saw_warning := false
 
 	func _run_test_hooks(delta: float) -> void:
 		elapsed += delta
+		if "--cicatrization-proof" in OS.get_cmdline_user_args():
+			_run_cicatrization_proof()
+			return
 		if _sim != null:
 			var stage := String(_sim.narrative.stage)
 			for peer: int in _sim.players:
@@ -87,6 +92,53 @@ class Game:
 				get_tree().quit(0)
 		if elapsed > 16:
 			push_error("Narrative network timed out")
+			get_tree().quit(1)
+
+	func _run_cicatrization_proof() -> void:
+		if _sim != null:
+			if not cicatrization_started:
+				_sim.narrative.accept()
+				_sim.start_floor(2)
+				_sim.enemies.clear()
+				_sim.player(_local_peer)["zone"] = &"tower"
+				_sim.player(_local_peer)["position"] = _sim.floor_layout["entry"]
+				_sim.player(_local_peer)["target"] = _sim.floor_layout["entry"]
+				cicatrization_started = true
+			for peer: int in _sim.players:
+				if peer == _local_peer or not _sim.player(peer).get("connected", false):
+					continue
+				_sim.player(peer)["zone"] = &"tower"
+				_sim.player(peer)["position"] = _sim.cicatrization_marker()
+				_sim.player(peer)["target"] = _sim.cicatrization_marker()
+			if _sim.narrative.cicatrization_state == "closed":
+				if completed_at < 0:
+					completed_at = elapsed
+					print("NARRATIVE_HOST_COMPLETED cicatrization=closed")
+				if elapsed - completed_at > 6:
+					print("NARRATIVE_HOST_OK cicatrization=closed")
+					get_tree().quit(0)
+		else:
+			var model: Dictionary = _view.get("narrative", {})
+			var phase := String(model.get("cicatrization_state", ""))
+			_sync_floor()
+			if phase == "unseen" and last_sent.is_empty() and not _near_route_marker().is_empty():
+				_send_intent("narrative", ["observe_cicatrization"])
+				_send_intent("narrative", ["observe_cicatrization"])
+				last_sent = "observe_cicatrization"
+			if phase == "warning":
+				saw_warning = true
+				if _floor_cicatrized:
+					push_error("Client closed geometry before confirmed warning ended")
+					get_tree().quit(1)
+			if phase == "closed":
+				var center: Vector2 = _floor_layout.get("cicatrization_center", Vector2.ZERO)
+				if not _floor_cicatrized or FloorLayoutScript.can_stand(_floor_layout, center, 24) or (model.get("journal", []) as Array).size() != 1:
+					push_error("Client layout/journal differs from confirmed closure")
+					get_tree().quit(1)
+				print("NARRATIVE_CLIENT_OK cicatrization=closed warning_seen=%s" % saw_warning)
+				get_tree().quit(0)
+		if elapsed > 16:
+			push_error("Cicatrization network timed out")
 			get_tree().quit(1)
 
 func _init() -> void:
