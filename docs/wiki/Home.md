@@ -19,6 +19,7 @@ Aresta é um RPG de ação em pixel art (Godot 4) para até quatro jogadores. Vo
 - [Resistências](Resistencias)
 - [Dificuldades](Dificuldades)
 - [Dia e noite](Dia-e-Noite)
+- [Afixos de elite, mutadores e marés](Mutadores-e-Mares)
 - [Armas únicas](Armas-Unicas)
 - [Lendários e relíquias](Lendarios-e-Reliquias)
 - [Equipamentos, consumíveis e materiais](Equipamentos-e-Materiais)

@@ -332,3 +332,6 @@ item	lendario_pacto_de_sangue	dev 2/FantasyInventory.zip::FantasyInventory/Fanta
 item	orvalho_negro	dev 2/FantasyInventory.zip::FantasyInventory/FantasyInventorySpritesheet.png	crop=32:32:256:64,format=rgba,hue=h=60:s=1.3,eq=brightness=-0.32:contrast=1.15
 item	polen_lunar	dev 2/FantasyInventory.zip::FantasyInventory/FantasyInventorySpritesheet.png	crop=32:32:96:64,format=rgba,hue=h=170:s=0.55,eq=brightness=0.08
 item	ambar_solar	dev 2/FantasyInventory.zip::FantasyInventory/FantasyInventorySpritesheet.png	crop=32:32:288:32,format=rgba,hue=h=110:s=1.2
+# Recompensas de marés (decisão 606).
+item	ambar_da_mare	dev 2/FantasyInventory.zip::FantasyInventory/FantasyInventorySpritesheet.png	crop=32:32:224:32,format=rgba,hue=h=-20:s=1.4
+item	reliquia_da_lua	dev 2/FantasyInventory.zip::FantasyInventory/FantasyInventorySpritesheet.png	crop=32:32:288:0,format=rgba,hue=h=150:s=1.1

@@ -39,6 +39,11 @@ const SCAR_MOON_DIM := Color(0.55, 0.36, 0.42)
 const UNLIT_ALPHA := 0.22
 const NIGHT_VARIANT_TINT := Color(0.66, 0.52, 0.98)
 const DAWN_TINT := Color(1.0, 0.82, 0.42)
+## Afixos de comportamento (decisão 606): losango colorido sobre o monstro; auras no chão.
+const BEHAVIOR_COLORS := {
+	"refletor": Color("e8e070"), "absorvente": Color("7fd6e0"), "vinculado": Color("b05ad9"), "profanador": Color("b04a3a"),
+	"cacador": Color("f0873a"), "fissurador": Color("a07a50"), "escudeiro": Color("9fb8ff"),
+}
 
 const SAVE_PATH := SaveSlot.DEFAULT_PATH
 ## Salvamento automático (decisão 582): a cada minuto, ao entrar ou sair da Torre, ao trocar de
@@ -2014,6 +2019,9 @@ func _draw_enemy(enemy: Dictionary) -> void:
 	# Noite: fora da luz de qualquer personagem o monstro é só um vulto, sem barra nem marcas.
 	var unlit := not bool(enemy.get("lit", true))
 	if unlit:
+		# Eclipse (maré): fora da luz não se vê nada.
+		if bool((_view.get("floor", {}) as Dictionary).get("eclipse", false)):
+			return
 		alpha = minf(alpha, UNLIT_ALPHA)
 	_draw_shadow(feet, Vector2(maxf(10.0, height * 0.4), 5.0))
 	if bool(enemy.get("superior", false)):
@@ -2051,6 +2059,13 @@ func _draw_enemy(enemy: Dictionary) -> void:
 		draw_colored_polygon(PackedVector2Array([top + Vector2(-8.0, -6.0), top + Vector2(-2.0, -6.0), top + Vector2(-5.0, 0.0)]), Color("e8b84a"))
 	if not String(enemy.get("suffix_id", "")).is_empty():
 		draw_circle(top + Vector2(6.0, -3.0), 3.5, Color("8a5f9e"))
+	var behavior := String(enemy.get("behavior_id", ""))
+	if not behavior.is_empty():
+		var mark := BEHAVIOR_COLORS.get(behavior, Color.WHITE) as Color
+		draw_colored_polygon(PackedVector2Array([top + Vector2(0.0, -12.0), top + Vector2(4.0, -8.0), top + Vector2(0.0, -4.0), top + Vector2(-4.0, -8.0)]), mark)
+		if behavior in ["escudeiro", "profanador"]:
+			var reach := 220.0
+			draw_arc(feet, reach, 0.0, TAU, 48, Color(mark, 0.35), 2.0)
 	var health := float(enemy["health"])
 	var maximum := float(enemy.get("max_health", 60.0))
 	if health < maximum:
@@ -2566,6 +2581,17 @@ func _update_floor_panel(zone: StringName, floor_view: Dictionary) -> void:
 		_format_time(float(floor_view.get("time", 0.0))), mode, _format_time(best) if best >= 0.0 else "--",
 		goal, float(floor_view.get("respawn_interval", 0.0)),
 	]
+	# Mutadores do andar e maré em andamento (decisão 606).
+	var mutators := floor_view.get("mutators", []) as Array
+	if not mutators.is_empty():
+		_floor_label.text += "\nMUTADORES: " + ", ".join(PackedStringArray(mutators.map(func(entry: Dictionary) -> String: return ("%s (CRUEL)" if bool(entry.get("cruel", false)) else "%s") % String(entry["name"]).to_upper())))
+	var tide := floor_view.get("tide", {}) as Dictionary
+	if not tide.is_empty():
+		if String(tide.get("state", "")) == "warning":
+			_floor_label.text += "\nUMA MARE SE APROXIMA: %s EM %d s" % [String(tide["name"]).to_upper(), int(ceil(float(tide["time_left"])))]
+		else:
+			var progress := "" if int(tide.get("goal", 0)) <= 0 else "  %d/%d" % [int(tide["progress"]), int(tide["goal"])]
+			_floor_label.text += "\nMARE %s: %s%s  ·  %d s  ·  RECOMPENSA: %s" % [String(tide["name"]).to_upper(), String(tide["goal_text"]).to_upper(), progress, int(ceil(float(tide["time_left"]))), String(tide["reward"]).to_upper()]
 	_combat_hud.set("minimap_title", "ANDAR %d" % int(floor_view.get("number", 0)))
 	_combat_hud.set("minimap_hint", "ESCADA ABERTA" if bool(floor_view.get("stairs_open", false)) else ("DERROTE O GUARDIAO" if String(floor_view.get("kind", "")) == "boss" else "ESCADA EM %s" % _format_countdown(float(floor_view.get("survival_left", 0.0)))))
 	if _boss_bar.visible:
@@ -2694,7 +2720,7 @@ func _update_interface() -> void:
 	_update_village_panel(zone, period)
 	var floor_view := _view.get("floor", {}) as Dictionary
 	var clock := _view.get("clock", {}) as Dictionary
-	var night := bool(clock.get("night", false))
+	var night := bool(clock.get("night", false)) or bool(floor_view.get("dark", false))
 	if zone == &"tower" and not _floor_layout.is_empty():
 		_ambient.color = Color(String(TowerContentScript.biome(String(_floor_layout.get("biome", ""))).get("ambient", "5c6680"))).lightened(0.12)
 		if night:

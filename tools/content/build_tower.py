@@ -381,6 +381,11 @@ TIME_MATERIALS = [
      "description": "Polen palido carregado por elites e criaturas noturnas; brilha sob a lua."},
     {"id": "ambar_solar", "name": "Ambar Solar", "item_type": "material", "slot": "none", "tier": "uncommon",
      "description": "Resina dourada que os Coletores de Ambar juntam pela manha."},
+    # Recompensas de mares (decisao 606).
+    {"id": "ambar_da_mare", "name": "Ambar da Mare", "item_type": "material", "slot": "none", "tier": "rare",
+     "description": "Resina que endurece onde uma mare de Vinculo foi contida."},
+    {"id": "reliquia_da_lua", "name": "Reliquia da Lua", "item_type": "material", "slot": "none", "tier": "epic",
+     "description": "Fragmento deixado pela Lua da Cicatriz quando o grupo resiste a todas as mares da noite."},
 ]
 DAWN_ENEMY = {
     "id": "coletor_de_ambar", "name": "Coletor de Ambar", "race_id": "ventania", "rank_id": "maduro",

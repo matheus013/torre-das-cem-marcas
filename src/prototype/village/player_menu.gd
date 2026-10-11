@@ -760,6 +760,9 @@ func _build_tower() -> void:
 	var safe := bool(_model.get("in_safe_area", true))
 	_build_difficulty_picker(safe)
 	_section("MAPA DA TORRE", "andar mais fundo: %d   ·   proxima entrada: andar %d" % [deepest, start])
+	var floor_mutators := _model.get("floor_mutators", []) as Array
+	if not floor_mutators.is_empty():
+		_add_text("Mutadores do andar atual: " + "; ".join(PackedStringArray(floor_mutators.map(func(entry: Dictionary) -> String: return "%s%s: %s" % [String(entry["name"]), " (cruel)" if bool(entry.get("cruel", false)) else "", String(entry["description"])]))), GOLD)
 	var clock := _model.get("clock", {}) as Dictionary
 	if not clock.is_empty():
 		_add_text(WorldClockScript.describe(clock) + ("  ·  noite: inimigos +10%, EXP +25%, saque +30%; so o que esta na luz entra na mira automatica." if bool(clock.get("night", false)) else ""), GOLD if bool(clock.get("night", false)) else MUTED)

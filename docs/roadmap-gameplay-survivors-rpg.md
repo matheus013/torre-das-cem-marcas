@@ -72,8 +72,8 @@ Usa o pipeline de saque da fase 2.
 
 ### Fase 4: afixos, mutadores e mares
 
-- [ ] G8.6: sete afixos de elite com comportamento (Refletor, Absorvente, Vinculado, Profanador, Cacador, Fissurador, Escudeiro) e mutadores de andar (8 normais a partir da 3, 3 crueis na 5) com bonus de saque.
-- [ ] G8.7: mares (Enxame, Cerco, Procissao, Avalanche, Vinculo, Eclipse e Lua da Cicatriz) com aviso, objetivo e recompensa; campeao em toda mare da 5.
+- [x] G8.6: sete afixos de elite com comportamento (Refletor, Absorvente, Vinculado, Profanador, Cacador, Fissurador, Escudeiro) e mutadores de andar (8 normais a partir da 3, 3 crueis na 5) com bonus de saque. Feito em 2026-10-11 (decisao 606): afixos no terceiro espaco (dificuldade 2 em diante), mutadores 1/2/2+1 cruel na 3/4/5 com +15% e +40% de saque, visiveis na HUD e no mapa da Torre. Regressao em `tests/floor_events_test.gd`.
+- [x] G8.7: mares (Enxame, Cerco, Procissao, Avalanche, Vinculo, Eclipse e Lua da Cicatriz) com aviso, objetivo e recompensa; campeao em toda mare da 5. Feito em 2026-10-11 (decisao 606): seis mares com aviso de 5 s, objetivo, tempo e recompensa; Lua da Cicatriz encadeia todas e rende a Reliquia da Lua; campeao com tres afixos na 5. Pendente: chance de divino na Lua (fase 5).
 
 ### Fase 5: Paragon, divinos e chefes
 

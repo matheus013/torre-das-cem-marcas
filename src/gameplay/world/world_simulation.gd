@@ -202,6 +202,7 @@ const AutoSupports := preload("res://src/gameplay/equipment/auto_attack_supports
 const BestiaryScript := preload("res://src/gameplay/content/bestiary.gd")
 const ResistancesScript := preload("res://src/gameplay/combat/resistances.gd")
 const WorldClockScript := preload("res://src/gameplay/world/world_clock.gd")
+const FloorRulesScript := preload("res://src/gameplay/world/floor_rules.gd")
 ## Dia e noite (épico E1, fase 3; G8.1 e G8.2; decisão 605). À noite só o que está na luz de alguma
 ## personagem aparece inteiro e entra no ataque automático; a luz é um atributo (afixo, gemas
 ## sagradas) e as variantes noturnas a disputam. Valores provisórios.
@@ -256,6 +257,9 @@ var village_life: RefCounted
 var clock: RefCounted = WorldClockScript.new()
 var _time_random := RandomNumberGenerator.new()
 var _light_radii: Dictionary = {}
+## Identificador estável de inimigos (pares vinculados, carregador da Procissão).
+var _enemy_uid := 1
+var _storm_timer := FloorRulesScript.STORM_INTERVAL
 var narrative := NarrativeProgress.new()
 var banked_stone := 0
 var banked_loot: Dictionary = {}
@@ -958,6 +962,7 @@ func superior_definition(definition: Dictionary, minimum_affixes: int) -> Dictio
 	upgraded["rank_id"] = RANK_ORDER[mini(RANK_ORDER.size() - 1, maxi(0, rank_index) + 1)]
 	upgraded["allow_affixes"] = true
 	upgraded["minimum_affixes_override"] = minimum_affixes
+	upgraded["superior_member"] = true
 	return upgraded
 
 
@@ -1265,6 +1270,10 @@ func step(delta: float) -> void:
 		enemy["slow_timer"] = maxf(0.0, float(enemy.get("slow_timer", 0.0)) - delta)
 		ResistancesScript.step(enemy, delta)
 		enemy["vulnerable_timer"] = maxf(0.0, float(enemy.get("vulnerable_timer", 0.0)) - delta)
+		if enemy.has("absorb_timer"):
+			enemy["absorb_timer"] = maxf(0.0, float(enemy["absorb_timer"]) - delta)
+		if enemy.has("hurt_timer"):
+			enemy["hurt_timer"] = maxf(0.0, float(enemy["hurt_timer"]) - delta)
 	_run_scheduled(delta)
 	if is_milestone_paused():
 		return
@@ -1344,6 +1353,9 @@ func _step_player(peer_id: int, delta: float) -> void:
 	if float(state["since_damage"]) >= OUT_OF_COMBAT_DELAY and state["zone"] in ARENA_ZONES:
 		state["health"] = minf(max_health(peer_id), float(state["health"]) + max_health(peer_id) * OUT_OF_COMBAT_REGEN * delta)
 	var regen := 18.0 * delta * _mod(peer_id, "breath_regen_mult")
+	# Dívida (mutador cruel): o Fôlego só volta com abates.
+	if has_mutator("divida") and state["zone"] in ARENA_ZONES:
+		regen = 0.0
 	# Canalizar a Saraivada segura o fôlego: sem regenerar, o custo por segundo vale de verdade.
 	if persistent_effects.any(func(effect: Dictionary) -> bool: return effect["mechanic"] == "volley" and int(effect["owner_peer"]) == peer_id):
 		regen = 0.0
@@ -1568,6 +1580,9 @@ func _check_transition(peer_id: int) -> void:
 			if (floor_layout["return_portal"] as Rect2).grow(PLAYER_RADIUS).has_point(position):
 				if boss_alive():
 					_status(peer_id, "A arena permanece selada enquanto o chefe estiver de pe.")
+					state["transition_cooldown"] = 0.8
+				elif has_mutator("sem_retorno") and not bool(floor_run.get("stairs_open", false)):
+					_status(peer_id, "Sem Retorno: o portal so abre junto com a escada.")
 					state["transition_cooldown"] = 0.8
 				else:
 					leave_tower(peer_id)
@@ -1967,9 +1982,13 @@ func start_floor(number: int) -> void:
 		"floor": current_floor, "time": 0.0, "kills": 0, "party_peak": 1,
 		"quota": int(definition.get("kill_quota", 0)), "quota_base": int(definition.get("kill_quota", 0)), "stairs_open": false, "recorded": false,
 		"boss_fight": false,
+		"mutators": FloorRulesScript.roll_mutators(encounter_seed, difficulty, current_floor),
+		"tide": {},
 	}
+	_storm_timer = FloorRulesScript.STORM_INTERVAL
 	if is_explore_floor():
 		_spawn_floor_population()
+		_setup_tide()
 	else:
 		# Sem recarga (decisão 587): o guardião volta sempre que o grupo entra no andar.
 		_spawn_floor_boss()
@@ -2045,6 +2064,12 @@ func _spawn_floor_enemy(definition: Dictionary, position: Vector2, roll_index: i
 	enemy["max_health"] = float(enemy["max_health"]) * float(rules["health"])
 	enemy["damage"] = float(enemy["damage"]) * float(rules["damage"])
 	# Noite: Vida e dano +10% (+20% na Lua da Cicatriz) para quem nasce no escuro.
+	if has_mutator("pressa"):
+		enemy["speed"] = float(enemy["speed"]) * FloorRulesScript.HASTE_SPEED
+	if has_mutator("blindagem"):
+		var resistances := (enemy.get("resistances", {}) as Dictionary).duplicate()
+		resistances["physical"] = clampf(float(resistances.get("physical", 0.0)) + FloorRulesScript.PLATING_RESIST, ResistancesScript.MINIMUM, ResistancesScript.MAXIMUM)
+		enemy["resistances"] = resistances
 	var night_scale := float(time_bonuses()["enemy"])
 	enemy["health"] = float(enemy["health"]) * night_scale
 	enemy["max_health"] = float(enemy["max_health"]) * night_scale
@@ -2097,8 +2122,11 @@ func _step_floor(delta: float) -> void:
 		_hazard_timer -= delta
 		if _hazard_timer <= 0.0:
 			var hazard := TowerContentScript.biome(String(floor_def().get("biome", ""))).get("hazard", {}) as Dictionary
-			_hazard_timer = float(hazard.get("interval", 7.0)) * _floor_random.randf_range(0.8, 1.25)
+			_hazard_timer = float(hazard.get("interval", 7.0)) * _floor_random.randf_range(0.8, 1.25) * (0.5 if has_mutator("chao_vivo") else 1.0)
 			_cast_hazard(hazard)
+		_step_tide(delta)
+	if has_mutator("tempestade"):
+		_step_storm(delta)
 
 
 func _note_party_peak() -> void:
@@ -2268,7 +2296,51 @@ func create_enemy(definition: Dictionary, position: Vector2, roll_index: int) ->
 		enemy["minimum_affixes"] = maxi(int(enemy["minimum_affixes"]), int(definition["minimum_affixes_override"]))
 		enemy["maximum_affixes"] = maxi(int(enemy["maximum_affixes"]), int(enemy["minimum_affixes"]))
 	_roll_modifiers(enemy, _enemy_modifiers(), roll_index)
+	enemy["uid"] = _enemy_uid
+	_enemy_uid += 1
+	_roll_behavior(enemy, definition, roll_index)
 	return enemy
+
+
+## Terceiro espaço de afixo (decisão 606): comportamento de elite, da dificuldade 2 em diante, com
+## sorteio próprio (a sequência de prefixos e sufixos não muda).
+func _roll_behavior(enemy: Dictionary, definition: Dictionary, roll_index: int) -> void:
+	var level := clampi(difficulty, 1, DIFFICULTIES.size()) - 1
+	var chance := 0.0
+	if String(definition.get("encounter_class", "common")) == "elite":
+		chance = FloorRulesScript.BEHAVIOR_CHANCE[level]
+	if bool(definition.get("superior_member", false)):
+		chance = maxf(chance, FloorRulesScript.SUPERIOR_BEHAVIOR_CHANCE[level])
+	if definition.has("behavior"):
+		chance = 1.0
+	if chance <= 0.0 or not bool(enemy.get("allow_affixes", true)):
+		return
+	var random := RandomNumberGenerator.new()
+	random.seed = hash([encounter_seed, roll_index, current_floor, "behavior"])
+	if random.randf() >= chance:
+		return
+	var ids := FloorRulesScript.BEHAVIORS.keys()
+	var behavior := String(definition.get("behavior", ids[random.randi_range(0, ids.size() - 1)]))
+	apply_behavior(enemy, behavior, random)
+
+
+func apply_behavior(enemy: Dictionary, behavior: String, random: RandomNumberGenerator = null) -> void:
+	if not FloorRulesScript.BEHAVIORS.has(behavior):
+		return
+	if random == null:
+		random = _time_random
+	enemy["behavior_id"] = behavior
+	enemy["max_health"] = float(enemy["max_health"]) * FloorRulesScript.BEHAVIOR_HEALTH
+	enemy["health"] = enemy["max_health"]
+	enemy["loot_value"] = int(ceil(float(enemy.get("loot_value", 1)) * FloorRulesScript.BEHAVIOR_LOOT))
+	match behavior:
+		"refletor":
+			enemy["reflect_type"] = ResistancesScript.TYPES[random.randi_range(0, ResistancesScript.TYPES.size() - 1)]
+		"cacador":
+			var hunted := _players_in_arena()
+			enemy["hunt_peer"] = hunted[random.randi_range(0, hunted.size() - 1)] if not hunted.is_empty() else -1
+		"fissurador":
+			enemy["fissure_timer"] = FloorRulesScript.FISSURE_INTERVAL
 
 
 func _apply_rank(enemy: Dictionary, rank: Dictionary) -> void:
@@ -2531,7 +2603,16 @@ func _update_enemies(delta: float) -> void:
 			_step_boss(enemy, delta)
 			continue
 		enemy["provoked"] = maxf(0.0, float(enemy.get("provoked", 0.0)) - delta)
+		# Procissão: o carregador segue para a saída e foge quando ferido.
+		if String(enemy.get("base_mechanic", "")) == "carrier":
+			_step_carrier(enemy, delta)
+			continue
 		var target_peer := _nearest_player(enemy["position"] as Vector2)
+		# Caçador: persegue a personagem marcada, ignorando as outras.
+		var hunted := int(enemy.get("hunt_peer", -1))
+		if String(enemy.get("behavior_id", "")) == "cacador" and hunted in _players_in_arena() and is_connected_player(hunted):
+			target_peer = hunted
+			enemy["provoked"] = maxf(float(enemy["provoked"]), 1.0)
 		var distance := INF if target_peer < 0 else (enemy["position"] as Vector2).distance_to(player(target_peer)["position"] as Vector2)
 		var far_from_home := (enemy["position"] as Vector2).distance_to(enemy.get("home", enemy["position"]) as Vector2) > LEASH_RADIUS
 		var chasing := bool(enemy.get("chasing", false))
@@ -2549,6 +2630,15 @@ func _update_enemies(delta: float) -> void:
 		var enemy_position := enemy["position"] as Vector2
 		var offset := (target["position"] as Vector2) - enemy_position
 		enemy["action_timer"] = float(enemy.get("action_timer", 0.0)) - delta
+		# Fissurador: fendas que explodem depois de 2 s.
+		if String(enemy.get("behavior_id", "")) == "fissurador":
+			enemy["fissure_timer"] = float(enemy.get("fissure_timer", FloorRulesScript.FISSURE_INTERVAL)) - delta
+			if float(enemy["fissure_timer"]) <= 0.0:
+				enemy["fissure_timer"] = FloorRulesScript.FISSURE_INTERVAL
+				var fissure := TelegraphScript.circle(enemy_position, FloorRulesScript.FISSURE_RADIUS, FloorRulesScript.FISSURE_DELAY, float(enemy.get("damage", 10.0)) * FloorRulesScript.FISSURE_DAMAGE)
+				fissure["source"] = "fissure"
+				fissure["label"] = "Fenda"
+				telegraphs.append(fissure)
 		var mechanics: Array = enemy.get("modifier_mechanics", []) as Array
 		var base_mechanic := String(enemy.get("base_mechanic", "swarm"))
 		var race_trait := String(enemy.get("race_trait", ""))
@@ -2608,7 +2698,7 @@ func _update_enemies(delta: float) -> void:
 			var contact_damage := float(enemy.get("damage", 12.0))
 			if race_trait == "barrier_breaker" and float(target["barrier"]) > 0.0:
 				contact_damage *= 1.35
-			if "echo_attack" in mechanics:
+			if "echo_attack" in mechanics or has_mutator("ecos"):
 				contact_damage *= 1.35
 			if _mod(target_peer, "contact_immunity") <= 0.0:
 				take_damage(target_peer, contact_damage, String(enemy.get("damage_type", "physical")))
@@ -2783,7 +2873,7 @@ func _update_telegraphs(delta: float) -> void:
 		telegraphs.remove_at(index)
 		for peer_id in _players_in_arena():
 			var state := player(peer_id)
-			if not is_connected_player(peer_id) or not TelegraphScript.contains(telegraph, state["position"] as Vector2, PLAYER_RADIUS * 0.5):
+			if float(telegraph["damage"]) <= 0.0 or not is_connected_player(peer_id) or not TelegraphScript.contains(telegraph, state["position"] as Vector2, PLAYER_RADIUS * 0.5):
 				continue
 			take_damage(peer_id, float(telegraph["damage"]), biome_damage_type())
 			if not players.has(peer_id) or state["zone"] != &"tower":
@@ -2885,7 +2975,7 @@ func _update_enemy_projectiles(delta: float) -> void:
 
 ## Mais próximo entre os iluminados: à noite o ataque automático só pega o que está na luz.
 func nearest_lit_enemy_to(origin: Vector2, max_range: float) -> int:
-	if not is_night():
+	if not is_dark():
 		return nearest_enemy_to(origin, max_range)
 	var result := -1
 	var nearest_distance := max_range
@@ -2996,6 +3086,10 @@ func light_radius(peer_id: int) -> float:
 	var radius := LIGHT_RADIUS * _mod(peer_id, "light_radius_mult")
 	if float(state.get("holy_light_timer", 0.0)) > 0.0:
 		radius *= HOLY_LIGHT_MULT
+	if state["zone"] in ARENA_ZONES and has_mutator("escuridao"):
+		radius *= FloorRulesScript.DARKNESS_LIGHT
+	if state["zone"] in ARENA_ZONES and tide_active("eclipse"):
+		radius *= 0.6
 	if state["zone"] in ARENA_ZONES:
 		for enemy in enemies:
 			if String(enemy.get("base_mechanic", "")) == "light_eater" and (enemy["position"] as Vector2).distance_to(state["position"] as Vector2) <= LIGHT_EATER_RADIUS:
@@ -3007,7 +3101,7 @@ func light_radius(peer_id: int) -> float:
 
 ## De dia tudo está iluminado; à noite, só o que está na luz de alguma personagem (chefes sempre).
 func enemy_lit(enemy: Dictionary) -> bool:
-	if not is_night() or bool(enemy.get("floor_boss", false)):
+	if not is_dark() or bool(enemy.get("floor_boss", false)):
 		return true
 	for peer_id in _players_in_arena():
 		if (player(peer_id)["position"] as Vector2).distance_to(enemy["position"] as Vector2) <= light_radius(peer_id):
@@ -3033,6 +3127,400 @@ func _night_drops(enemy: Dictionary) -> Array[Dictionary]:
 ## Desenvolvimento: pula para o início do próximo período (com os avisos e trocas normais).
 func dev_advance_period() -> void:
 	_step_clock(float(clock.call("seconds_to_next_period")) + 0.01)
+
+
+# ---------------------------------------------------------------- afixos, mutadores e marés
+
+func has_mutator(mutator_id: String) -> bool:
+	return current_floor > 0 and mutator_id in (floor_run.get("mutators", []) as Array)
+
+
+## Andar escuro: noite, mutador Escuridão ou maré Eclipse.
+func is_dark() -> bool:
+	return is_night() or has_mutator("escuridao") or tide_active("eclipse")
+
+
+func wound_penalty() -> float:
+	return WOUND_PENALTY * (FloorRulesScript.SCAR_WOUNDS if has_mutator("cicatriz") else 1.0)
+
+
+## Cura recebida: Fome (mutador) e aura do Profanador.
+func _healing_factor(peer_id: int) -> float:
+	var state := player(peer_id)
+	if state.is_empty() or state["zone"] not in ARENA_ZONES:
+		return 1.0
+	var factor := FloorRulesScript.HUNGER_HEALING if has_mutator("fome") else 1.0
+	for enemy in enemies:
+		if String(enemy.get("behavior_id", "")) == "profanador" and (enemy["position"] as Vector2).distance_to(state["position"] as Vector2) <= FloorRulesScript.DESECRATE_RADIUS:
+			return factor * FloorRulesScript.DESECRATE_HEALING
+	return factor
+
+
+## Afixos de comportamento no dano recebido: Absorvente, Escudeiro, Vinculado e Refletor.
+func _behavior_damage(peer_id: int, enemy: Dictionary, damage: float, damage_kind: String, dot: bool) -> float:
+	var behavior := String(enemy.get("behavior_id", ""))
+	if behavior == "absorvente" and not dot:
+		if float(enemy.get("absorb_timer", 0.0)) > 0.0 and String(enemy.get("absorb_type", "")) == damage_kind:
+			return 0.0
+		enemy["absorb_type"] = damage_kind
+		enemy["absorb_timer"] = FloorRulesScript.ABSORB_SECONDS
+	for ally in enemies:
+		if ally != enemy and String(ally.get("behavior_id", "")) == "escudeiro" and (ally["position"] as Vector2).distance_to(enemy["position"] as Vector2) <= FloorRulesScript.SQUIRE_RADIUS:
+			damage *= 1.0 - FloorRulesScript.SQUIRE_REDUCTION
+			break
+	if behavior == "vinculado":
+		var nearest := {}
+		var best := FloorRulesScript.LINK_RANGE
+		for ally in enemies:
+			var distance := (ally["position"] as Vector2).distance_to(enemy["position"] as Vector2)
+			if ally != enemy and distance <= best and not bool(ally.get("floor_boss", false)):
+				best = distance
+				nearest = ally
+		if not nearest.is_empty():
+			var share := damage * FloorRulesScript.LINK_SHARE
+			nearest["health"] = maxf(1.0, float(nearest["health"]) - share)
+			damage -= share
+	if behavior == "refletor" and not dot and players.has(peer_id) and String(enemy.get("reflect_type", "")) == damage_kind:
+		take_damage(peer_id, minf(damage * FloorRulesScript.REFLECT_SHARE, max_health(peer_id) * FloorRulesScript.REFLECT_CAP), damage_kind)
+	return damage
+
+
+func _enemy_by_uid(uid: int) -> Dictionary:
+	if uid < 0:
+		return {}
+	for enemy in enemies:
+		if int(enemy.get("uid", -1)) == uid:
+			return enemy
+	return {}
+
+
+## Depois de uma morte: Enxertia, Dívida, par do Vínculo e progresso da maré.
+func _after_enemy_death(peer_id: int, defeated: Dictionary, position: Vector2) -> void:
+	if has_mutator("divida") and players.has(peer_id):
+		player(peer_id)["breath"] = minf(max_breath(peer_id), float(player(peer_id)["breath"]) + max_breath(peer_id) * FloorRulesScript.DEBT_REFUND)
+	if has_mutator("enxertia") and not bool(defeated.get("fragment", false)) and not bool(defeated.get("floor_boss", false)) and not bool(defeated.get("tide", false)):
+		var regrown := defeated.duplicate(true) as Dictionary
+		regrown["health"] = float(defeated["max_health"]) * 0.5
+		regrown["fragment"] = true
+		regrown["grafted"] = true
+		regrown["uid"] = _enemy_uid
+		_enemy_uid += 1
+		enemies.append(regrown)
+		_vfx(arena_zone(), "ring", [position, 40.0])
+	var partner := _enemy_by_uid(int(defeated.get("link_uid", -1)))
+	if not partner.is_empty():
+		partner.erase("link_uid")
+		partner["shield_hits"] = 0
+		partner["health"] = 0.0001
+		damage_enemy(peer_id, enemies.find(partner), 1.0, {"passive": true})
+
+
+func _step_storm(delta: float) -> void:
+	_storm_timer -= delta
+	if _storm_timer > 0.0:
+		return
+	_storm_timer = FloorRulesScript.STORM_INTERVAL
+	var members := _players_in_arena().filter(func(peer_id: int) -> bool: return is_connected_player(peer_id))
+	if members.is_empty():
+		return
+	var target := player(members[_time_random.randi_range(0, members.size() - 1)])["position"] as Vector2
+	var hazard := TowerContentScript.biome(String(floor_def().get("biome", ""))).get("hazard", {}) as Dictionary
+	var damage := float(hazard.get("damage", 12.0)) * float(floor_def().get("hazard_multiplier", 1.0)) * float(difficulty_rules()["damage"]) * 1.5
+	var bolt := TelegraphScript.circle(target, 80.0, 1.2, damage)
+	bolt["source"] = "storm"
+	bolt["label"] = "Raio"
+	telegraphs.append(bolt)
+
+
+func _mutator_views() -> Array:
+	var result: Array = []
+	for mutator_id: Variant in floor_run.get("mutators", []) as Array:
+		var definition := FloorRulesScript.MUTATORS.get(String(mutator_id), {}) as Dictionary
+		result.append({"id": String(mutator_id), "name": String(definition.get("name", mutator_id)), "cruel": bool(definition.get("cruel", false)), "description": String(definition.get("description", ""))})
+	return result
+
+
+## Maré do andar (G8.7): agenda no início do andar comum; a Lua da Cicatriz encadeia todas.
+func _setup_tide() -> void:
+	var rolled := FloorRulesScript.roll_tide(encounter_seed, difficulty, current_floor, is_night(), bool(clock.call("is_scar_moon")))
+	if rolled.is_empty():
+		floor_run["tide"] = {}
+		return
+	floor_run["tide"] = {"queue": rolled["queue"], "scar_moon": bool(rolled["scar_moon"]), "state": "waiting", "timer": float(rolled["start"]),
+		"id": "", "goal": 0, "progress": 0, "successes": 0, "center": [0.0, 0.0], "waves": 0, "wave_timer": 0.0}
+
+
+func tide_active(tide_id: String = "") -> bool:
+	var tide := floor_run.get("tide", {}) as Dictionary
+	return current_floor > 0 and String(tide.get("state", "")) == "active" and (tide_id.is_empty() or String(tide.get("id", "")) == tide_id)
+
+
+func tide_view() -> Dictionary:
+	var tide := floor_run.get("tide", {}) as Dictionary
+	if tide.is_empty() or String(tide.get("state", "")) in ["waiting", "done"]:
+		return {}
+	var definition := FloorRulesScript.TIDES.get(String(tide["id"]), {}) as Dictionary
+	return {"id": String(tide["id"]), "name": String(definition.get("name", "")), "goal_text": String(definition.get("goal", "")),
+		"state": String(tide["state"]), "time_left": maxf(0.0, float(tide["timer"])), "goal": int(tide.get("goal", 0)),
+		"progress": int(tide.get("progress", 0)), "reward": String(definition.get("reward", "")), "scar_moon": bool(tide.get("scar_moon", false))}
+
+
+func _step_tide(delta: float) -> void:
+	var tide := floor_run.get("tide", {}) as Dictionary
+	if tide.is_empty() or String(tide.get("state", "")) == "done":
+		return
+	tide["timer"] = float(tide["timer"]) - delta
+	match String(tide["state"]):
+		"waiting":
+			if float(tide["timer"]) <= 0.0:
+				_warn_tide(tide)
+		"warning":
+			if float(tide["timer"]) <= 0.0:
+				_start_tide(tide)
+		"active":
+			_update_active_tide(tide, delta)
+
+
+func _warn_tide(tide: Dictionary) -> void:
+	var queue := tide["queue"] as Array
+	var members := _players_in_arena().filter(func(peer_id: int) -> bool: return is_connected_player(peer_id))
+	if queue.is_empty() or members.is_empty():
+		tide["state"] = "done"
+		return
+	var tide_id := String(queue.pop_front())
+	# Eclipse só à noite; fora dela, a Lua da Cicatriz pula para a próxima.
+	if bool((FloorRulesScript.TIDES[tide_id] as Dictionary).get("night_only", false)) and not is_night():
+		if queue.is_empty():
+			_end_tide_sequence(tide)
+		return
+	var center := player(members[_time_random.randi_range(0, members.size() - 1)])["position"] as Vector2
+	tide["id"] = tide_id
+	tide["state"] = "warning"
+	tide["timer"] = FloorRulesScript.WARNING_SECONDS
+	tide["center"] = [center.x, center.y]
+	var mark := TelegraphScript.circle(center, 280.0, FloorRulesScript.WARNING_SECONDS, 0.0)
+	mark["source"] = "tide"
+	mark["label"] = String(FloorRulesScript.TIDES[tide_id]["name"])
+	telegraphs.append(mark)
+	_status(0, "Uma mare se aproxima: %s! %s." % [String(FloorRulesScript.TIDES[tide_id]["name"]), String(FloorRulesScript.TIDES[tide_id]["goal"])])
+
+
+func _tide_center(tide: Dictionary) -> Vector2:
+	var center := tide.get("center", [0.0, 0.0]) as Array
+	return Vector2(float(center[0]), float(center[1]))
+
+
+func _start_tide(tide: Dictionary) -> void:
+	var tide_id := String(tide["id"])
+	var center := _tide_center(tide)
+	tide["state"] = "active"
+	tide["timer"] = float(FloorRulesScript.TIDES[tide_id]["seconds"])
+	tide["progress"] = 0
+	tide["waves"] = 0
+	tide["wave_timer"] = 0.0
+	match tide_id:
+		"enxame":
+			tide["goal"] = 36
+			tide["waves"] = 3
+		"cerco":
+			tide["goal"] = 12
+			for index in range(12):
+				var spot := center + Vector2.RIGHT.rotated(TAU * index / 12.0) * 460.0
+				var shooter := _spawn_tide_enemy(_tide_definition(false), spot, {"health": 1.0})
+				shooter["base_mechanic"] = "telegraphed_shot"
+		"procissao":
+			tide["goal"] = 1
+			var points := floor_layout.get("spawn_points", []) as Array
+			var exit := center
+			for point: Vector2 in points:
+				if point.distance_to(center) > exit.distance_to(center):
+					exit = point
+			var carrier := _spawn_tide_enemy(_tide_definition(false), center + Vector2(260.0, 0.0), {"health": 8.0, "speed": 0.45, "damage": 0.0})
+			carrier["base_mechanic"] = "carrier"
+			carrier["display_name"] = "Carregador da Procissao"
+			carrier["carrier_exit"] = exit
+			tide["carrier_uid"] = int(carrier["uid"])
+			for escort in range(3):
+				_spawn_tide_enemy(_tide_definition(true), center + Vector2(260.0, 0.0) + Vector2.RIGHT.rotated(TAU * escort / 3.0) * 60.0, {"health": 1.5}, true)
+		"avalanche":
+			tide["goal"] = 14
+			var side := Vector2.RIGHT.rotated(_time_random.randf() * TAU)
+			for index in range(14):
+				var spot := center + side * 520.0 + side.orthogonal() * (index - 7) * 45.0
+				var heavy := _spawn_tide_enemy(_tide_definition(false), spot, {"health": 2.5, "speed": 0.55})
+				var resistances := (heavy.get("resistances", {}) as Dictionary).duplicate()
+				for kind in ResistancesScript.TYPES:
+					resistances[kind] = clampf(float(resistances.get(kind, 0.0)) + 0.4, ResistancesScript.MINIMUM, ResistancesScript.MAXIMUM)
+				heavy["resistances"] = resistances
+		"vinculo":
+			tide["goal"] = 12
+			for pair in range(6):
+				var spot := center + Vector2.RIGHT.rotated(TAU * pair / 6.0) * 380.0
+				var first := _spawn_tide_enemy(_tide_definition(false), spot, {"health": 1.5})
+				var second := _spawn_tide_enemy(_tide_definition(false), spot + Vector2(40.0, 0.0), {"health": 1.5})
+				var shared := maxf(float(first["max_health"]), float(second["max_health"]))
+				for member in [first, second]:
+					member["max_health"] = shared
+					member["health"] = shared
+				first["link_uid"] = int(second["uid"])
+				second["link_uid"] = int(first["uid"])
+		"eclipse":
+			tide["goal"] = 0
+			tide["waves"] = 2
+	# Dificuldade 5: toda maré traz um campeão com três afixos e saque próprio.
+	if difficulty >= 5:
+		var champion := _spawn_tide_enemy(_tide_definition(true), center + Vector2(0.0, -200.0), {"health": 4.0, "damage": 1.5}, true)
+		champion["display_name"] = "Campeao %s" % String(champion.get("display_name", ""))
+		champion["champion"] = true
+		champion["tide_champion"] = true
+		champion["tide_bonus"] = true
+		if String(champion.get("behavior_id", "")).is_empty():
+			apply_behavior(champion, FloorRulesScript.BEHAVIORS.keys()[_time_random.randi_range(0, FloorRulesScript.BEHAVIORS.size() - 1)])
+	_status(0, "%s: %s em %d s." % [String(FloorRulesScript.TIDES[tide_id]["name"]).to_upper(), String(FloorRulesScript.TIDES[tide_id]["goal"]), int(float(tide["timer"]))])
+
+
+func _update_active_tide(tide: Dictionary, delta: float) -> void:
+	var tide_id := String(tide["id"])
+	var center := _tide_center(tide)
+	if int(tide.get("waves", 0)) > 0:
+		tide["wave_timer"] = float(tide.get("wave_timer", 0.0)) - delta
+		if float(tide["wave_timer"]) <= 0.0:
+			tide["waves"] = int(tide["waves"]) - 1
+			tide["wave_timer"] = 6.0 if tide_id == "enxame" else 15.0
+			var count := 12 if tide_id == "enxame" else 10
+			for index in range(count):
+				var spot := center + Vector2.RIGHT.rotated(TAU * index / float(count) + _time_random.randf()) * 380.0
+				if tide_id == "enxame":
+					_spawn_tide_enemy(_tide_definition(false), spot, {"health": 0.35, "speed": 1.3, "damage": 0.6})
+				else:
+					_spawn_tide_enemy(_tide_definition(false), spot, {"health": 1.0})
+	var alive := enemies.filter(func(enemy: Dictionary) -> bool: return bool(enemy.get("tide", false)) and not bool(enemy.get("tide_bonus", false)))
+	match tide_id:
+		"procissao":
+			var carrier := _enemy_by_uid(int(tide.get("carrier_uid", -1)))
+			tide["progress"] = 1 if carrier.is_empty() else 0
+			if carrier.is_empty():
+				return _finish_tide(tide, true)
+			if bool(carrier.get("escaped", false)) or float(tide["timer"]) <= 0.0:
+				return _finish_tide(tide, false)
+		"eclipse":
+			if float(tide["timer"]) <= 0.0:
+				return _finish_tide(tide, not _players_in_arena().is_empty())
+		_:
+			tide["progress"] = maxi(0, int(tide["goal"]) - alive.size()) if int(tide.get("waves", 0)) <= 0 else int(tide.get("progress", 0))
+			if int(tide.get("waves", 0)) <= 0 and alive.is_empty():
+				return _finish_tide(tide, true)
+			if float(tide["timer"]) <= 0.0:
+				return _finish_tide(tide, false)
+
+
+func _finish_tide(tide: Dictionary, success: bool) -> void:
+	var tide_id := String(tide["id"])
+	var center := _tide_center(tide)
+	for index in range(enemies.size() - 1, -1, -1):
+		if bool(enemies[index].get("tide", false)) and not bool(enemies[index].get("tide_bonus", false)):
+			_vfx(arena_zone(), "ring", [enemies[index]["position"], 30.0])
+			enemies.remove_at(index)
+	if success:
+		tide["successes"] = int(tide.get("successes", 0)) + 1
+		_status(0, "Mare contida: %s. Recompensa: %s." % [String(FloorRulesScript.TIDES[tide_id]["name"]), String(FloorRulesScript.TIDES[tide_id]["reward"])])
+		_tide_reward(tide_id, center)
+	else:
+		_status(0, "A mare passou: %s." % String(FloorRulesScript.TIDES[tide_id]["name"]))
+	tide["id"] = ""
+	if (tide["queue"] as Array).is_empty():
+		_end_tide_sequence(tide)
+	else:
+		tide["state"] = "waiting"
+		tide["timer"] = FloorRulesScript.BREAK_SECONDS
+
+
+func _end_tide_sequence(tide: Dictionary) -> void:
+	tide["state"] = "done"
+	# Lua da Cicatriz: vencer a maioria das marés vale a Relíquia da Lua.
+	if bool(tide.get("scar_moon", false)) and int(tide.get("successes", 0)) >= 4:
+		var members := _players_in_arena()
+		var spot := (player(members[0])["position"] as Vector2) if not members.is_empty() else Vector2.ZERO
+		drop_item(arena_zone(), spot, "reliquia_da_lua", 1)
+		_status(0, "A Lua da Cicatriz recua. Uma Reliquia da Lua ficou no chao.")
+
+
+func _tide_reward(tide_id: String, center: Vector2) -> void:
+	var random := RandomNumberGenerator.new()
+	random.seed = hash([encounter_seed, current_floor, loot_kill_sequence, tide_id, "reward"])
+	var loot_level := 4.0 + float(difficulty_rules()["loot_score"])
+	match tide_id:
+		"enxame":
+			for index in range(3):
+				var item_id := LootDifficultyScript.pick_bonus_item(_collection("items"), loot_level, false, random)
+				if not item_id.is_empty():
+					drop_item(arena_zone(), center + Vector2.RIGHT.rotated(TAU * index / 3.0) * 24.0, item_id, 1, LootDifficultyScript.pick_weighted(LootDifficultyScript.fabrication_weights(loot_level), random))
+		"cerco":
+			for peer_id in _players_in_arena():
+				for gem_id: Variant in _gem_state(peer_id).get("slots", []) as Array:
+					if not String(gem_id).is_empty():
+						gain_gem_experience(peer_id, String(gem_id), 300)
+		"procissao":
+			var tier := ["rare", "epic", "legendary", "legendary", "legendary"][clampi(difficulty, 1, 5) - 1] as String
+			var pool := _collection("items").filter(func(item: Dictionary) -> bool: return String(item.get("tier", "")) == tier and String(item.get("slot", "none")) != "none" and not item.has("unique_gem"))
+			if not pool.is_empty():
+				drop_item(arena_zone(), center, String(pool[random.randi_range(0, pool.size() - 1)]["id"]), 1, "refined")
+		"avalanche":
+			var materials := TowerContentScript.biome(String(floor_def().get("biome", ""))).get("materials", []) as Array
+			if materials.size() < 2:
+				materials = ["escama_de_reboco", "argila_de_enxerto"]
+			drop_item(arena_zone(), center, String(materials[0]), 6)
+			drop_item(arena_zone(), center + Vector2(20.0, 0.0), String(materials[1]), 2)
+		"vinculo":
+			drop_item(arena_zone(), center, "ambar_da_mare", 3)
+		"eclipse":
+			drop_item(arena_zone(), center, "orvalho_negro", 8)
+
+
+func _spawn_tide_enemy(definition: Dictionary, position: Vector2, scale: Dictionary, elite: bool = false) -> Dictionary:
+	if not floor_layout.is_empty() and not FloorLayoutScript.can_stand(floor_layout, position, 14.0):
+		var points := floor_layout.get("spawn_points", []) as Array
+		if not points.is_empty():
+			position = points[_time_random.randi_range(0, points.size() - 1)] as Vector2
+	var enemy := _spawn_floor_enemy(definition, position, 6000 + _time_random.randi_range(0, 999), _time_random)
+	enemy["max_health"] = float(enemy["max_health"]) * float(scale.get("health", 1.0))
+	enemy["health"] = enemy["max_health"]
+	enemy["speed"] = float(enemy["speed"]) * float(scale.get("speed", 1.0))
+	enemy["damage"] = float(enemy["damage"]) * float(scale.get("damage", 1.0))
+	enemy["tide"] = true
+	enemy["chasing"] = true
+	enemy["provoked"] = 30.0
+	if elite:
+		enemy["tide_bonus"] = bool(scale.get("bonus", false))
+	enemies.append(enemy)
+	return enemy
+
+
+## Monstros do bioma para a maré: comuns (ou elites, quando há) sem horário.
+func _tide_definition(elite: bool) -> Dictionary:
+	var biome := TowerContentScript.biome(String(floor_def().get("biome", "galerias")))
+	var pool: Array[Dictionary] = []
+	for enemy_id: Variant in biome.get("enemies", []) as Array:
+		var definition := _find(_collection("enemies"), String(enemy_id))
+		if not definition.is_empty() and String(definition.get("encounter_class", "common")) == ("elite" if elite else "common"):
+			pool.append(definition)
+	if pool.is_empty() and elite:
+		return _tide_definition(false)
+	if pool.is_empty():
+		return _enemy_definitions()[0]
+	return pool[_time_random.randi_range(0, pool.size() - 1)]
+
+
+## Carregador da Procissão: anda até a saída; ferido, corre por 2 s. Chegando, escapa.
+func _step_carrier(enemy: Dictionary, delta: float) -> void:
+	var exit := enemy.get("carrier_exit", enemy["position"]) as Vector2
+	var offset := exit - (enemy["position"] as Vector2)
+	if offset.length() <= 30.0:
+		enemy["escaped"] = true
+		return
+	var speed := float(enemy.get("speed", 20.0)) * (2.2 if float(enemy.get("hurt_timer", 0.0)) > 0.0 else 1.0)
+	if not _move_enemy(enemy, offset.normalized() * speed * delta):
+		enemy["position"] = (enemy["position"] as Vector2) + offset.normalized() * minf(offset.length(), speed * delta)
 
 
 # ---------------------------------------------------------------- dano
@@ -3103,6 +3591,10 @@ func _damage_enemy(peer_id: int, index: int, damage: float, hit: Dictionary) -> 
 	var damage_kind := ResistancesScript.hit_type(hit, String(gem_definition(String(hit.get("gem_id", ""))).get("element", "")) if not String(hit.get("gem_id", "")).is_empty() else "")
 	var resisted := ResistancesScript.enemy_resistance(enemy, damage_kind, _mod(peer_id, "penetration_add") if players.has(peer_id) else 0.0)
 	damage *= 1.0 - resisted
+	damage = _behavior_damage(peer_id, enemy, damage, damage_kind, dot)
+	if damage <= 0.0:
+		_vfx(zone, "label", [enemy_position, "IMUNE", Color("c9d4d6"), "block"])
+		return
 	ResistancesScript.record_adaptation(enemy, damage_kind, damage)
 	if float(hit.get("break_amount", 0.0)) > 0.0:
 		ResistancesScript.apply_break(enemy, damage_kind, float(hit["break_amount"]), float(hit.get("break_duration", 4.0)))
@@ -3116,6 +3608,11 @@ func _damage_enemy(peer_id: int, index: int, damage: float, hit: Dictionary) -> 
 		_vfx(zone, "number", [enemy_position, damage, critical])
 		_vfx(zone, "spark", [enemy_position])
 	enemy["health"] = float(enemy["health"]) - damage
+	enemy["hurt_timer"] = 2.0
+	# Vínculo (maré): o par divide a mesma Vida.
+	var partner := _enemy_by_uid(int(enemy.get("link_uid", -1)))
+	if not partner.is_empty():
+		partner["health"] = enemy["health"]
 	if not bool(hit.get("passive", false)) and not bool(hit.get("dot", false)) and players.has(peer_id):
 		_passive_events.append({"kind": "hit", "peer": peer_id, "enemy": enemy, "damage": damage, "hit": hit, "critical": critical})
 	enemy["flash"] = 0.12
@@ -3170,7 +3667,8 @@ func _damage_enemy(peer_id: int, index: int, damage: float, hit: Dictionary) -> 
 	_vfx(zone, "play", ["explosion" if major else "poof", enemy_position])
 	if not bool(defeated.get("fragment", false)):
 		var encounter_class := StringName(String(defeated.get("encounter_class", "common")))
-		respawn.call("register_defeat", StringName(String(defeated.get("definition_id", ""))), encounter_class, enemy_position)
+		if not bool(defeated.get("tide", false)) and String(defeated.get("time_of_day", "")).is_empty():
+			respawn.call("register_defeat", StringName(String(defeated.get("definition_id", ""))), encounter_class, enemy_position)
 		threat.call("register_defeat", encounter_class)
 		_record_bestiary_kill(defeated)
 		_grant_loot(peer_id, defeated)
@@ -3184,6 +3682,7 @@ func _damage_enemy(peer_id: int, index: int, damage: float, hit: Dictionary) -> 
 		if float(hit.get("breath_on_kill", 0.0)) > 0.0 and players.has(peer_id):
 			player(peer_id)["breath"] = minf(max_breath(peer_id), float(player(peer_id)["breath"]) + float(hit["breath_on_kill"]))
 		_register_floor_kill(defeated)
+	_after_enemy_death(peer_id, defeated, enemy_position)
 	if "death_burst" in mechanics:
 		for member in _players_in_arena():
 			if (player(member)["position"] as Vector2).distance_to(enemy_position) <= 110.0:
@@ -3601,6 +4100,7 @@ func heal_player(peer_id: int, amount: float) -> void:
 	# Pacto de Sangue: nenhuma cura funciona.
 	if _mod(peer_id, "no_healing") > 0.0:
 		return
+	amount *= _healing_factor(peer_id)
 	var healed := float(state["health"]) + amount * _mod(peer_id, "healing_mult")
 	# Luz Excedente: a cura acima da Vida máxima vira barreira, até metade da Vida.
 	if healed > max_health(peer_id) and _mod(peer_id, "overheal_barrier") > 0.0:
@@ -4178,7 +4678,7 @@ func _grant_loot(peer_id: int, enemy: Dictionary) -> void:
 	var loot_table := _find(_collection("loot_tables"), String(enemy.get("loot_table_id", "")))
 	var loot_level := LootDifficultyScript.score(enemy, float(party_scaling()["budget"])) + float(difficulty_rules()["loot_score"])
 	var drops: Array = _loot_resolver.call("resolve", loot_table, encounter_seed, loot_kill_sequence,
-		LootDifficultyScript.chance_multiplier(loot_level) * float(difficulty_rules()["loot"]) * float(time_bonuses()["loot"]), LootDifficultyScript.quantity_multiplier(loot_level))
+		LootDifficultyScript.chance_multiplier(loot_level) * float(difficulty_rules()["loot"]) * float(time_bonuses()["loot"]) * FloorRulesScript.mutator_loot(floor_run.get("mutators", []) as Array), LootDifficultyScript.quantity_multiplier(loot_level))
 	var quality_random := RandomNumberGenerator.new()
 	quality_random.seed = hash([encounter_seed, loot_kill_sequence, "quality"])
 	if drops.is_empty() and loot_table.is_empty():
@@ -4194,6 +4694,11 @@ func _grant_loot(peer_id: int, enemy: Dictionary) -> void:
 		if not unique.is_empty():
 			drops.append({"item_id": unique, "quantity": 1})
 	drops.append_array(_night_drops(enemy))
+	# Campeão de maré (dificuldade 5): uma peça garantida a mais.
+	if bool(enemy.get("tide_champion", false)):
+		var prize := LootDifficultyScript.pick_bonus_item(_collection("items"), loot_level + 2.0, false, quality_random)
+		if not prize.is_empty():
+			drops.append({"item_id": prize, "quantity": 1})
 	_record_bestiary_drops(enemy, drops)
 	var origin := enemy.get("position", state["position"]) as Vector2
 	for drop_index in range(drops.size()):
@@ -4463,7 +4968,7 @@ func derived_stats(peer_id: int, equipment_override: EquipmentLoadout = null) ->
 
 func max_health(peer_id: int) -> float:
 	var wounds := int(player(peer_id).get("wounds", 0))
-	return maxf(1.0, float(derived_stats(peer_id).get("max_health", PLAYER_MAX_HEALTH)) * _mod(peer_id, "max_health_mult") * maxf(0.5, 1.0 - WOUND_PENALTY * float(wounds)))
+	return maxf(1.0, float(derived_stats(peer_id).get("max_health", PLAYER_MAX_HEALTH)) * _mod(peer_id, "max_health_mult") * maxf(0.5, 1.0 - wound_penalty() * float(wounds)))
 
 
 func max_breath(peer_id: int) -> float:
@@ -4553,7 +5058,7 @@ func equipment_comparison(peer_id: int, instance_id: StringName) -> Dictionary:
 		return result
 	var before := derived_stats(peer_id)
 	var after := derived_stats(peer_id, preview)
-	var wound_factor := maxf(0.5, 1.0 - WOUND_PENALTY * int(player(peer_id).get("wounds", 0)))
+	var wound_factor := maxf(0.5, 1.0 - wound_penalty() * int(player(peer_id).get("wounds", 0)))
 	for spec: Array in [["max_health", "Vida maxima", wound_factor, ""], ["max_breath", "Folego maximo", 1.0, ""], ["damage_reduction", "Reducao por defesa", 100.0, "%"], ["movement_speed_multiplier", "Velocidade de movimento", 100.0, "%"], ["automatic_attack_rate_multiplier", "Cadencia de ataque", 100.0, "%"], ["cooldown_reduction", "Reducao de recarga", 100.0, "%"], ["area_multiplier", "Area", 100.0, "%"]]:
 		var old_value := float(before[spec[0]]) * float(spec[2])
 		var new_value := float(after[spec[0]]) * float(spec[2])
@@ -4698,6 +5203,7 @@ func view_snapshot() -> Dictionary:
 			"resistances": enemy.get("resistances", {}),
 			"superior": bool(enemy.get("superior", false)),
 			"lit": enemy_lit(enemy), "time_of_day": String(enemy.get("time_of_day", "")),
+			"behavior_id": String(enemy.get("behavior_id", "")), "tide": bool(enemy.get("tide", false)),
 			"sprite_id": String(enemy.get("sprite_id", "")),
 			"facing_direction": enemy.get("facing_direction", Vector2.DOWN),
 			"health": enemy["health"], "max_health": enemy["max_health"],
@@ -4773,6 +5279,8 @@ func _floor_view() -> Dictionary:
 		"respawn_interval": respawn_interval(), "boss_ratio": boss_ratio, "boss_name": boss_name,
 		"difficulty": difficulty, "difficulty_name": String(difficulty_rules()["name"]),
 		"recorded": bool(floor_run.get("recorded", false)),
+		"mutators": _mutator_views(), "dark": is_dark(), "eclipse": tide_active("eclipse"),
+		"tide": tide_view(),
 	}
 
 
@@ -5284,6 +5792,7 @@ func menu_model(peer_id: int) -> Dictionary:
 		"deepest_floor": deepest_floor,
 		"tower_start_floor": tower_start_floor,
 		"clock": clock.call("view"),
+		"floor_mutators": _mutator_views() if current_floor > 0 else [],
 		"difficulty": difficulty_model(),
 		"floors": _tower_map_model(),
 		"chosen_milestones": chosen,

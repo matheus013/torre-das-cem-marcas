@@ -27,6 +27,7 @@ Preparação para distribuição: [roadmap Steam em acesso antecipado](docs/road
   - [A Torre](#a-torre)
   - [Dificuldades](#dificuldades)
   - [Dia e noite](#dia-e-noite)
+  - [Afixos de elite, mutadores e marés](#afixos-de-elite-mutadores-e-marés)
   - [Resistências e fraquezas](#resistências-e-fraquezas)
   - [Chefes](#chefes)
   - [Gemas: suas habilidades](#gemas-suas-habilidades)
@@ -185,6 +186,12 @@ O mundo tem um relógio próprio: um dia dura **2 horas de jogo** (manhã 30 min
 - **Orvalho Negro** e **Pólen Lunar** só caem à noite.
 - A cada 3 noites sobe a **Lua da Cicatriz**, com os bônus dobrados.
 - **De manhã** aparecem **Coletores de Âmbar**: fogem, não atacam e soltam **Âmbar Solar** se você os pegar.
+
+### Afixos de elite, mutadores e marés
+
+- Da dificuldade **2** em diante, elites podem ter um **terceiro afixo** de comportamento (losango colorido sobre o monstro): Refletor, Absorvente, Vinculado, Profanador, Caçador, Fissurador e Escudeiro.
+- Da dificuldade **3** em diante, cada andar sorteia **mutadores** (1 na 3, 2 na 4, 2 + 1 **cruel** na 5), como Pressa, Fome, Tempestade, Escuridão ou Sem Retorno. Cada um aumenta o saque. Ficam no topo da tela e no mapa da Torre.
+- **Marés** podem chegar em qualquer andar comum (mais comuns em dificuldades altas e à noite): Enxame, Cerco, Procissão, Avalanche, Vínculo e Eclipse. Há 5 s de aviso, um objetivo com tempo e uma recompensa. Na **Lua da Cicatriz** vêm todas em sequência; na dificuldade 5 cada maré traz um **campeão**.
 
 ### Resistências e fraquezas
 

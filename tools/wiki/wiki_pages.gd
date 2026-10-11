@@ -11,6 +11,7 @@ const ItemAffixesScript := preload("res://src/gameplay/items/item_affixes.gd")
 const BestiaryScript := preload("res://src/gameplay/content/bestiary.gd")
 const MenuScript := preload("res://src/prototype/village/player_menu.gd")
 const WorldClockScript := preload("res://src/gameplay/world/world_clock.gd")
+const FloorRulesScript := preload("res://src/gameplay/world/floor_rules.gd")
 const WEAPON_PROFILES := "res://data/combat/weapon_profiles.json"
 
 const PAGES := [
@@ -18,7 +19,7 @@ const PAGES := [
 	["Gemas-Ativas", "Gemas ativas"], ["Gemas-de-Suporte", "Gemas de suporte"], ["Invocacoes", "Invocações"],
 	["Inimigos", "Inimigos"], ["Chefes", "Chefes"], ["Racas-e-Patentes", "Raças, patentes e afixos de monstro"],
 	["Torre-e-Biomas", "Torre e biomas"], ["Andares", "Os 100 andares"], ["Resistencias", "Resistências"],
-	["Dificuldades", "Dificuldades"], ["Dia-e-Noite", "Dia e noite"], ["Armas-Unicas", "Armas únicas"], ["Lendarios-e-Reliquias", "Lendários e relíquias"],
+	["Dificuldades", "Dificuldades"], ["Dia-e-Noite", "Dia e noite"], ["Mutadores-e-Mares", "Afixos de elite, mutadores e marés"], ["Armas-Unicas", "Armas únicas"], ["Lendarios-e-Reliquias", "Lendários e relíquias"],
 	["Equipamentos-e-Materiais", "Equipamentos, consumíveis e materiais"], ["Afixos", "Afixos de item"],
 ]
 const LICENSE_NOTE := "Conteúdo de *Aresta — A Torre das Cem Marcas* © 2026 Matheus Santos, sob [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/). Gerado dos dados do jogo; valores provisórios, sujeitos a balanceamento."
@@ -76,7 +77,7 @@ func build() -> Dictionary:
 		"Personagens.md": _characters(), "Armas.md": _weapons(), "Gemas-Ativas.md": _active_gems(),
 		"Gemas-de-Suporte.md": _support_gems(), "Invocacoes.md": _summons(), "Inimigos.md": _enemies(),
 		"Chefes.md": _bosses(), "Racas-e-Patentes.md": _races(), "Torre-e-Biomas.md": _biomes(),
-		"Andares.md": _floors(), "Resistencias.md": _resistances(), "Dificuldades.md": _difficulties(), "Dia-e-Noite.md": _day_night(),
+		"Andares.md": _floors(), "Resistencias.md": _resistances(), "Dificuldades.md": _difficulties(), "Dia-e-Noite.md": _day_night(), "Mutadores-e-Mares.md": _floor_events(),
 		"Armas-Unicas.md": _uniques(), "Lendarios-e-Reliquias.md": _legendaries(),
 		"Equipamentos-e-Materiais.md": _equipment(), "Afixos.md": _affixes(),
 	}
@@ -577,6 +578,31 @@ func _day_night() -> String:
 	return _page(lines)
 
 
+func _floor_events() -> String:
+	var lines := PackedStringArray(["# Afixos de elite, mutadores e marés", "",
+		"## Afixos de comportamento", "",
+		"Além do prefixo e do sufixo, elites podem ganhar um terceiro afixo que muda como lutam. Só aparecem da dificuldade 2 em diante; chance por dificuldade em elites: %s. Na 4 e na 5 também aparecem em bandos superiores. Um losango colorido sobre o monstro mostra o afixo." % ", ".join(PackedStringArray(range(5).map(func(index: int) -> String: return "%d: %s" % [index + 1, _pct(FloorRulesScript.BEHAVIOR_CHANCE[index])]))), "",
+		"| Afixo | Efeito |", "| --- | --- |"])
+	for behavior: String in FloorRulesScript.BEHAVIORS:
+		lines.append("| **%s** | %s |" % [FloorRulesScript.BEHAVIORS[behavior]["name"], _cell(String(FloorRulesScript.BEHAVIORS[behavior]["description"]))])
+	lines.append_array(PackedStringArray(["", "Cada afixo de comportamento dá %s de Vida e %s de saque ao monstro." % [_signed_pct(FloorRulesScript.BEHAVIOR_HEALTH - 1.0), _signed_pct(FloorRulesScript.BEHAVIOR_LOOT - 1.0)], "",
+		"## Mutadores de andar", "",
+		"Da dificuldade 3 em diante cada andar sorteia mutadores: 1 normal na 3, 2 na 4 e 2 normais + 1 cruel obrigatório na 5. Cada normal soma %s de chance de saque; cada cruel, %s. Aparecem no topo da tela e no mapa da Torre." % [_signed_pct(FloorRulesScript.NORMAL_LOOT), _signed_pct(FloorRulesScript.CRUEL_LOOT)], "",
+		"| Mutador | Tipo | Efeito |", "| --- | --- | --- |"]))
+	for mutator: String in FloorRulesScript.MUTATORS:
+		var definition := FloorRulesScript.MUTATORS[mutator] as Dictionary
+		lines.append("| **%s** | %s | %s |" % [definition["name"], "cruel" if bool(definition["cruel"]) else "normal", _cell(String(definition["description"]))])
+	lines.append_array(PackedStringArray(["", "## Marés", "",
+		"Hordas especiais anunciadas %s s antes, no chão e no topo da tela, com objetivo, tempo e recompensa. Chance por andar comum: %s; à noite, %s a mais. Começam entre %s e %s s depois de entrar no andar. Na dificuldade 5 toda maré traz um campeão com três afixos e uma peça garantida." % [_num(FloorRulesScript.WARNING_SECONDS), ", ".join(PackedStringArray(range(5).map(func(index: int) -> String: return "%d: %s" % [index + 1, _pct(FloorRulesScript.TIDE_CHANCE[index])]))), _pct(FloorRulesScript.NIGHT_TIDE_BONUS), _num(float(FloorRulesScript.TIDE_WINDOW[0])), _num(float(FloorRulesScript.TIDE_WINDOW[1]))], "",
+		"| Maré | Objetivo | Tempo | Recompensa |", "| --- | --- | --- | --- |"]))
+	for tide: String in FloorRulesScript.TIDES:
+		var definition := FloorRulesScript.TIDES[tide] as Dictionary
+		lines.append("| **%s**%s | %s | %s s | %s |" % [definition["name"], " (só à noite)" if bool(definition.get("night_only", false)) else "", definition["goal"], _num(float(definition["seconds"])), definition["reward"]])
+	lines.append_array(PackedStringArray(["",
+		"**Lua da Cicatriz:** a cada %d noites, todo andar comum tem as seis marés em sequência, com %s s de pausa entre elas. Vencer pelo menos quatro deixa uma Relíquia da Lua." % [WorldClockScript.SCAR_MOON_EVERY, _num(FloorRulesScript.BREAK_SECONDS)]]))
+	return _page(lines)
+
+
 # ---------------------------------------------------------------- itens
 
 func _uniques() -> String:
@@ -768,7 +794,8 @@ func _loot_text(table: Dictionary) -> String:
 func _material_origin(item: Dictionary) -> String:
 	if item.has("biome"):
 		return String(TowerContentScript.biome(String(item["biome"])).get("name", item["biome"]))
-	return String({"orvalho_negro": "noite, todos os biomas", "polen_lunar": "noite, todos os biomas", "ambar_solar": "manhã, todos os biomas"}.get(String(item["id"]), "Galerias Refeitas"))
+	return String({"orvalho_negro": "noite, todos os biomas", "polen_lunar": "noite, todos os biomas", "ambar_solar": "manhã, todos os biomas",
+		"ambar_da_mare": "maré de Vínculo", "reliquia_da_lua": "Lua da Cicatriz"}.get(String(item["id"]), "Galerias Refeitas"))
 
 
 func _sources_text(names: Array) -> String:
