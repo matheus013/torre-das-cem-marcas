@@ -39,49 +39,49 @@ Alem da passiva, cada arma da +50% a potencia principal da gema, -25% de recarga
 
 | Arma | Gema | Passiva |
 |---|---|---|
-| Fio do Primeiro Lastro | Agulha de Lastro | **Agulha Fantasma**: A cada 2 lancamentos, tres agulhas fantasmas partem sozinhas contra os inimigos mais proximos com potencia total. |
-| Presa de Ferral | Lanca Ferral | **Presa Dilacerante**: Acertos da Lanca deixam o alvo vulneravel (+35% de dano recebido por 4 s); abates estouram o corpo em area com 100% do golpe. |
+| Fio do Primeiro Lastro | Agulha de Lastro | **Agulha Errante**: A Agulha nao para no primeiro alvo: ricocheteia entre ate 6 inimigos e volta a mao. |
+| Presa de Ferral | Lanca Ferral | **Lanca de Ida e Volta**: A Lanca atravessa todos os inimigos no caminho e volta atravessando de novo. |
 | Leque da Lua Partida | Estilhacos Lunares | **Lua Cheia**: Criticos dos Estilhacos reduzem 1 s da recarga de todas as gemas e devolvem 3 de Folego. Chance critica +10%. |
-| Coracao da Ruptura | Orbe de Ruptura | **Ruptura Continua**: Todo acerto do Orbe rompe em area: 60% do golpe a ate 110 de distancia. |
-| Brasa do Primeiro Lume | Bola de Fogo | **Coracao de Fornalha**: Acertos incendeiam (80% do golpe em 3 s). Inimigo em chamas abatido pela Bola de Fogo explode com 80% da potencia da gema. |
-| Fel da Bolha Acre | Bolha Corrosiva | **Acido Voraz**: Acertos corroem (+30% de dano recebido por 5 s); cada abate dispara uma nova bolha contra o inimigo mais proximo. |
+| Coracao da Ruptura | Orbe de Ruptura | **Orbe Gravitacional**: O Orbe para no ponto mirado como um campo que puxa os inimigos por 3 s e explode com o dobro do golpe. |
+| Brasa do Primeiro Lume | Bola de Fogo | **Sol Cativo**: A Bola de Fogo vira um sol que acompanha a personagem por 6 s, queimando quem chega perto (acertos incendeiam com 60% do golpe em 3 s). |
+| Fel da Bolha Acre | Bolha Corrosiva | **Bolha que se Divide**: Ao estourar, a Bolha se divide em 3 bolhas que seguem viagem. |
 | Rastro da Noite Funda | Cometa Sombrio | **Eclipse Faminto**: Abate com o Cometa Sombrio zera a recarga dele e recupera 4% da Vida. |
-| Nucleo do Inverno | Esfera de Gelo | **Zero Absoluto**: Acertos congelam (lentidao 85% por 2 s; metade em chefes) e deixam o alvo 30% mais vulneravel. |
-| Disco Sem Fim | Disco de Retorno | **Disco Insaciavel**: Cada lancamento solta um segundo disco 0,4 s depois com 70% da potencia; acertos devolvem Folego. |
+| Nucleo do Inverno | Esfera de Gelo | **Zero Absoluto**: Inimigo comum ou elite atingido pela Esfera abaixo de 25% da Vida se estilhaca, soltando 3 esferas menores (40% do golpe) contra os mais proximos. |
+| Disco Sem Fim | Disco de Retorno | **Discos Gemeos**: O Disco nao e lancado: dois discos orbitam a personagem por 8 s cortando quem chega perto. |
 | Arco das Tres Tempestades | Saraivada de Flechas | **Tempestade Triplice**: Flecha que abate vira um raio no corpo: 250% do golpe em area e 1 de Folego. |
 | Vetor Sem Sombra | Passo Vetorial | **Passo Alem**: Depois do Passo, todas as gemas ganham +50% de potencia por 4 s e as outras recargas andam 1,5 s. |
-| Gume do Vetor | Corte Vetorial | **Gume do Horizonte**: Ao chegar, o Corte explode em volta com 150% da potencia da gema e deixa os atingidos vulneraveis. |
-| Asa da Retirada | Salto de Guarda | **Asa Inquebravel**: O Salto da 1,2 s de invulnerabilidade, barreira de 25% da Vida e cura 8%. |
-| Batimento da Cicatriz | Pulso de Cicatriz | **Cicatriz Viva**: Cada inimigo atingido pelo Pulso cura 2% da Vida; abates com ele reduzem 0,8 s da recarga. |
-| Halo da Geada Eterna | Anel de Geada | **Inverno Eterno**: O Anel congela (lentidao 90% por 2,5 s; metade em chefes) e deixa os atingidos 40% mais vulneraveis. |
-| Punho do Abalo | Ruptura Sismica | **Falha Viva**: Cada Ruptura gera dois tremores seguidos com 60% da potencia. |
-| Ancora do Peso Cativo | Prisao Gravitica | **Singularidade**: Inimigo abatido pela Prisao colapsa: 200% da potencia da gema em area. |
-| Tocha que Nao Apaga | Brasa Persistente | **Brasa Eterna**: Os pulsos da Brasa incendeiam com o dobro do golpe em 4 s. Gemas de fogo +15%. |
-| Raiz do Brejo Acre | Pantano Acido | **Pantano Vivo**: Quem pisa no Pantano fica 40% mais vulneravel e 40% mais lento. |
-| Enxerto das Raizes | Raizes Presas | **Raiz Mestra**: As Raizes prendem de vez (lentidao 95% por 1 s) e cada pulso cura 1% da Vida. |
-| Pedra que se Refaz | Muralha Refeita | **Muralha Viva**: Erguer a Muralha da +40% de potencia e -30% de dano recebido por 6 s. |
+| Gume do Vetor | Corte Vetorial | **Corte em Cadeia**: Abater um inimigo com o Corte zera a recarga dele: com alvos por perto, da para cortar sem parar. |
+| Asa da Retirada | Salto de Guarda | **Salto do Martelo**: O Salto vira um golpe de aterrissagem: esmaga em volta com 250% da barreira de chegada e repele os atingidos. |
+| Batimento da Cicatriz | Pulso de Cicatriz | **Pulso Constante**: O Pulso dispara sozinho a cada 1,5 s enquanto houver inimigos perto, sem custo. |
+| Halo da Geada Eterna | Anel de Geada | **Inverno que Prende**: O Anel imobiliza por completo por 1,5 s (metade em chefes), mas quase nao causa dano. |
+| Punho do Abalo | Ruptura Sismica | **Fenda**: A Ruptura vira uma fissura em linha reta ate o alvo, atingindo e repelindo tudo no caminho. |
+| Ancora do Peso Cativo | Prisao Gravitica | **Repulsao**: A Prisao acompanha a personagem e expulsa os inimigos de perto, ferindo quem insiste. |
+| Tocha que Nao Apaga | Brasa Persistente | **Fogueira Perene**: A Brasa nao se apaga: so pode haver uma, e lancar de novo a muda de lugar. |
+| Raiz do Brejo Acre | Pantano Acido | **Pantano Contagioso**: Inimigo que morre dentro do Pantano abre um novo Pantano no lugar (60% da potencia). |
+| Enxerto das Raizes | Raizes Presas | **Trilha de Raizes**: As Raizes acompanham a personagem e prendem quem chega perto. |
+| Pedra que se Refaz | Muralha Refeita | **Muralha Ofensiva**: A barreira que sobrar quando a Muralha acaba explode em volta com 3x o valor. |
 | Carapaca Vingativa | Casca Reativa | **Casca Espelhada**: Todo golpe recebido volta em area com 400% do dano. Dano recebido -15%. |
 | Corrente Remanescente | Elo Residual | **Elo Infinito**: Inimigo abatido pelo Elo dispara um novo Elo contra o inimigo mais proximo com 80% da potencia. |
-| Bobina do Arco | Arco Voltaico | **Bobina Sobrecarregada**: Cada salto do Arco reduz 0,25 s da recarga dele; criticos descarregam 150% do golpe em area. |
-| Teia Sedenta | Dreno em Rede | **Rede Faminta**: Cada alvo drenado cura 2% da Vida e soma 2% em barreira. |
+| Bobina do Arco | Arco Voltaico | **Arco Infinito**: O Arco salta ate 30 vezes entre inimigos proximos. |
+| Teia Sedenta | Dreno em Rede | **Fome da Rede**: Cada abate feito pela Rede da +2% de dano de trevas ate sair da Torre (ate +200%). |
 | Matriz do Vigia | Molde Vigilante | **Matriz Viva**: Um Molde novo surge sozinho a cada 8 s ao lado do inimigo mais proximo. |
 | Olho da Sentinela | Sentinela Ferral | **Matilha**: Uma Sentinela extra se ergue sozinha a cada 10 s; abates das sentinelas devolvem 2 de Folego. |
-| Colmeia de Luz | Enxame Luminar | **Enxame Solar**: Um enxame extra a cada 9 s; cada ferroada cura 1% da Vida. |
+| Colmeia de Luz | Enxame Luminar | **Enxame Faminto**: Cada abate do Enxame gera um enxame novo no lugar (no maximo um por segundo). |
 | Juramento do Guardiao | Guardiao de Lastro | **Guardiao Imortal**: Ao ser ferida, um Guardiao surge de graca (uma vez a cada 15 s) com barreira de 20% da Vida. |
-| Cajado da Primeira Colheita | Semeadura Vital | **Jardim Eterno**: Semear cura 15% da Vida e da 15% em barreira; a cada 6 s em combate o jardim cura mais 4%. |
+| Cajado da Primeira Colheita | Semeadura Vital | **Jardim Andante**: O Jardim acompanha a personagem enquanto dura. |
 | Selo do Reparo | Circulo de Reparo | **Circulo Sagrado**: O Circulo cura 20% da Vida e adianta 3 s a recarga de todas as gemas. |
 | Viga do Abrigo | Abrigo de Escora | **Abrigo Inabalavel**: Erguer o Abrigo da 2 s de invulnerabilidade e metade do dano recebido por 6 s. |
-| Foice da Grande Ceifa | Ceifa Ampla | **Grande Ceifa**: Cada abate da Ceifa reduz 0,6 s da recarga dela e cura 1,5% da Vida. |
-| Pulmao de Gelo | Sopro Criogenico | **Folego do Inverno**: O Sopro congela (lentidao 80% por 2 s) e cada alvo devolve 1 de Folego. |
-| Prisma Absoluto | Raio Prismatico | **Prisma Solar**: O Raio deixa o alvo 25% mais vulneravel; criticos explodem em luz com 80% da potencia da gema. |
+| Foice da Grande Ceifa | Ceifa Ampla | **Ceifa Giratoria**: A Ceifa corta em 360 graus em volta da personagem. |
+| Pulmao de Gelo | Sopro Criogenico | **Raio Congelante**: O Sopro vira um feixe longo e fino que congela tudo em linha. |
+| Prisma Absoluto | Raio Prismatico | **Prisma Dividido**: Cada lancamento do Raio sai em 3 feixes, um para cada inimigo diferente (os extras com 70%). |
 | Lamina Desfiada | Fio Desintegrador | **Desintegracao**: O Fio executa inimigos comuns e elites abaixo de 30% da Vida. |
-| Eixo das Tres Laminas | Laminas Orbitais | **Ciclone de Laminas**: Cada corte das Laminas cura 0,6% da Vida e devolve Folego. Velocidade de movimento +15%. |
+| Eixo das Tres Laminas | Laminas Orbitais | **Ciclone Perpetuo**: As Laminas nao expiram: ficam girando ate a personagem sair do andar. |
 | Orbita Invernal | Satelites de Geada | **Orbita Glacial**: Os Satelites congelam (70% por 1,5 s) e, a cada 3 s em combate, pulsam gelo em volta com 100% da potencia da gema. |
 | Detonador de Lastro | Mina de Lastro | **Campo Minado**: Cada Mina vem com mais duas em volta, com potencia total. |
 | Semente do Estrondo | Semente Explosiva | **Semente Fertil**: Inimigo abatido pela Semente planta outra no lugar com 60% da potencia. |
-| Ceu de Ferral | Chuva Ferral | **Diluvio Ferral**: Cada Chuva traz uma segunda onda 1 s depois com 80% da potencia. |
+| Ceu de Ferral | Chuva Ferral | **Artilharia Ferral**: A Chuva cai sozinha a cada 2 s no inimigo mais proximo. |
 | Cauda do Cometa | Cometa de Vidro | **Vidro Estilhacado**: Inimigo abatido pelo Cometa estilhaca: 60% do golpe em area e lentidao de 60%. |
-| Coluna da Alvorada | Pilar Sagrado | **Pilar Eterno**: Erguer o Pilar cura 10% da Vida e da 10% em barreira; quem e atingido fica 30% mais vulneravel. |
+| Coluna da Alvorada | Pilar Sagrado | **Pilar Fixo**: O Pilar fica de pe por 8 s ferindo quem chega perto. |
 | Esporangio Ancestral | Esporos | **Colonia Primordial**: Cada lancamento infecta tambem os dois inimigos mais proximos do alvo. |
-| Calice do Lodo | Poca de Veneno | **Lodo Gemeo**: Cada Poca de Veneno abre uma segunda poca ao lado com 70% da potencia. |
-| Voz do Trovao | Trovao Descendente | **Ceu Partido**: Cada raio tem 40% de chance de ramificar no alvo: 60% do golpe em area. |
+| Calice do Lodo | Poca de Veneno | **Poca Viva**: A Poca de Veneno acompanha a personagem. |
+| Voz do Trovao | Trovao Descendente | **Raio em Cadeia**: O Trovao salta entre ate 5 inimigos proximos. |

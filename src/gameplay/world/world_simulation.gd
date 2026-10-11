@@ -828,8 +828,22 @@ func resolve_slot(peer_id: int, slot: int) -> Dictionary:
 		var unique_modifiers: Array[Dictionary] = [unique["gem_modifiers"] as Dictionary]
 		resolved = resolver.call("resolve", resolved, [] as Array[Dictionary], unique_modifiers)
 		resolved["unique_weapon"] = String(unique["id"])
+		_apply_gem_transform(resolved, unique.get("passive", {}) as Dictionary)
 	resolved["gem_id"] = gem_id
 	return resolved
+
+
+## Transformação da arma única (decisão 598): `transform_from` deriva campos dos valores resolvidos
+## (ex.: dano de chegada a partir da barreira) e `transform` sobrescreve campos, inclusive a mecânica.
+static func _apply_gem_transform(resolved: Dictionary, passive: Dictionary) -> void:
+	var original := resolved.duplicate()
+	var derived := passive.get("transform_from", {}) as Dictionary
+	for field: String in derived:
+		var source := derived[field] as Array
+		resolved[field] = float(original.get(String(source[0]), 0.0)) * float(source[1])
+	var overrides := passive.get("transform", {}) as Dictionary
+	for field: String in overrides:
+		resolved[field] = overrides[field]
 
 
 ## Arma única equipada que pertence a esta gema; vazio se a arma não for a dela.
@@ -890,7 +904,7 @@ func use_skill(peer_id: int, slot: int, target: Vector2) -> bool:
 	var free := bool(cast.get("free", false))
 	breath_cost *= float(cast["breath_multiplier"])
 	var power_multiplier := float(cast["power_multiplier"]) * _skill_power_multiplier(peer_id, effect)
-	for key: String in ["power", "barrier", "healing", "trail_damage", "arrival_damage", "expire_damage"]:
+	for key: String in ["power", "barrier", "healing", "trail_damage", "arrival_damage", "expire_damage", "expire_nova_damage"]:
 		if effect.has(key):
 			effect[key] = float(effect[key]) * power_multiplier
 	var area := float(derived_stats(peer_id).get("area_multiplier", 1.0))
@@ -2702,6 +2716,10 @@ func _damage_enemy(peer_id: int, index: int, damage: float, hit: Dictionary) -> 
 	if float(hit.get("slow", 0.0)) > 0.0:
 		enemy["slow_amount"] = maxf(float(enemy.get("slow_amount", 0.0)) if float(enemy.get("slow_timer", 0.0)) > 0.0 else 0.0, float(hit["slow"]))
 		enemy["slow_timer"] = maxf(float(enemy.get("slow_timer", 0.0)), float(hit.get("slow_duration", 1.5)))
+	# Imobilização total (Inverno que Prende): sem teto de lentidão; chefes sentem metade.
+	if bool(hit.get("root", false)):
+		enemy["slow_amount"] = 0.5 if bool(enemy.get("floor_boss", false)) else 1.0
+		enemy["slow_timer"] = maxf(float(enemy.get("slow_timer", 0.0)), float(hit.get("slow_duration", 1.5)))
 	if float(hit.get("vulnerable", 0.0)) > 0.0:
 		enemy["vulnerable_amount"] = float(hit["vulnerable"])
 		enemy["vulnerable_timer"] = maxf(float(enemy.get("vulnerable_timer", 0.0)), float(hit.get("vulnerable_duration", 3.0)))
@@ -3014,7 +3032,7 @@ func _execute_gem_effect(peer_id: int, effect: Dictionary, target: Vector2) -> v
 				effect_position = position
 			elif mechanic != "sanctuary":
 				effect_position = _ranged_skill_target(peer_id, target, effect)
-			_limit_skill_deployments(peer_id, String(effect.get("gem_id", effect.get("id", ""))))
+			_limit_skill_deployments(peer_id, String(effect.get("gem_id", effect.get("id", ""))), int(effect.get("deploy_limit", 8)))
 			persistent_effects.append({
 				"mechanic": mechanic,
 				"gem_id": String(effect.get("gem_id", effect.get("id", ""))),
@@ -3040,6 +3058,7 @@ func _execute_gem_effect(peer_id: int, effect: Dictionary, target: Vector2) -> v
 				"stability": clampf(float(effect.get("stability", 0.0)), 0.0, STABILITY_LIMIT),
 				"hit": hit,
 				"poison_linger": float(effect.get("poison_linger", 2.0)),
+				"deploy_limit": int(effect.get("deploy_limit", 8)),
 			})
 			_vfx(zone, "burst", [effect_position, radius * 0.6])
 		"summon":
@@ -3074,13 +3093,14 @@ func _ranged_skill_target(peer_id: int, target: Vector2, effect: Dictionary) -> 
 	return (origin + offset.limit_length(reach)).clamp(Vector2(20, 20), _zone_size(player(peer_id)["zone"]) - Vector2(20, 20))
 
 
-func _limit_skill_deployments(peer_id: int, gem_id: String) -> void:
+func _limit_skill_deployments(peer_id: int, gem_id: String, limit: int = 8) -> void:
 	var owned: Array[Dictionary] = []
 	for current in persistent_effects:
 		if int(current.get("owner_peer", -1)) == peer_id and String(current.get("gem_id", "")) == gem_id and String(current.get("mechanic", "")) != "summon":
 			owned.append(current)
-	if owned.size() >= 8:
-		persistent_effects.erase(owned[0])
+	# Lançar de novo além do limite remove os mais antigos (limite 1: a zona muda de lugar).
+	while owned.size() >= maxi(1, limit):
+		persistent_effects.erase(owned.pop_front())
 
 
 func _hit_context(effect: Dictionary) -> Dictionary:
@@ -3099,6 +3119,7 @@ func _hit_context(effect: Dictionary) -> Dictionary:
 		"gem": true,
 		"gem_id": String(effect.get("gem_id", "")),
 		"passive": bool(effect.get("passive_cast", false)),
+		"root": bool(effect.get("root", false)),
 	}
 
 
@@ -3292,6 +3313,13 @@ func _update_persistent_effects(delta: float) -> void:
 				var to_center := (effect["position"] as Vector2) - (enemy["position"] as Vector2)
 				if to_center.length() <= float(effect["radius"]) and to_center.length() > 8.0:
 					enemy["position"] = (enemy["position"] as Vector2) + to_center.normalized() * minf(to_center.length(), float(effect["pull"]) * delta)
+		elif float(effect.get("pull", 0.0)) < 0.0:
+			# Atração negativa (Repulsão): empurra para fora do raio, nunca além dele.
+			for enemy in enemies:
+				var from_center := (enemy["position"] as Vector2) - (effect["position"] as Vector2)
+				if from_center.length() < float(effect["radius"]):
+					var away := from_center.normalized() if from_center.length() > 0.5 else Vector2.RIGHT
+					enemy["position"] = (enemy["position"] as Vector2) + away * minf(float(effect["radius"]) - from_center.length(), -float(effect["pull"]) * delta)
 		if mechanic == "summon" and String(effect.get("behavior", "stationary")) == "follow_owner" and players.has(owner_peer):
 			var summon_position := effect["position"] as Vector2
 			var owner_offset := (player(owner_peer)["position"] as Vector2) - summon_position

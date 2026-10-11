@@ -416,7 +416,8 @@ static func _act(sim: RefCounted, peer_id: int, passive: Dictionary, action: Dic
 				var index := (sim.get("enemies") as Array).find(enemy)
 				if index >= 0 and float(enemy["health"]) > 0.0 and float(enemy["health"]) <= float(enemy.get("max_health", 1.0)) * float(action.get("below", 0.2)):
 					sim.call("_vfx", zone, "label", [enemy["position"], "EXECUTADO", Color("e87a6a"), ""])
-					sim.call("damage_enemy", peer_id, index, float(enemy["health"]) + 1.0, {"passive": true})
+					# Conta como abate da gema (gatilhos de abate disparam), mas não como novo acerto.
+					sim.call("damage_enemy", peer_id, index, float(enemy["health"]) + 1.0, {"dot": true, "gem": true, "gem_id": String(context.get("gem_id", "")), "execute": true})
 		"revive":
 			state["health"] = maxf(1.0, maximum * float(action.get("ratio", 0.5)))
 			state["invulnerable"] = maxf(float(state["invulnerable"]), float(action.get("invulnerable", 2.0)))
@@ -473,8 +474,10 @@ static func _cast(sim: RefCounted, peer_id: int, action: Dictionary, context: Di
 		"nearest":
 			# Os mais próximos primeiro, um alvo diferente por lançamento enquanto houver.
 			var nearby: Array[Vector2] = []
+			# `skip_target`: os lançamentos extras vão para outros inimigos, não para o alvo original.
+			var skipped := context.get("target", Vector2.INF) as Vector2 if bool(action.get("skip_target", false)) else Vector2.INF
 			for enemy: Dictionary in sim.get("enemies") as Array:
-				if (enemy["position"] as Vector2).distance_to(origin) <= 520.0:
+				if (enemy["position"] as Vector2).distance_to(origin) <= 520.0 and (enemy["position"] as Vector2).distance_to(skipped) > 40.0:
 					nearby.append(enemy["position"] as Vector2)
 			if nearby.is_empty():
 				return
@@ -488,7 +491,7 @@ static func _cast(sim: RefCounted, peer_id: int, action: Dictionary, context: Di
 
 
 static func _scale(effect: Dictionary, ratio: float) -> void:
-	for key: String in ["power", "barrier", "healing", "trail_damage", "arrival_damage", "expire_damage"]:
+	for key: String in ["power", "barrier", "healing", "trail_damage", "arrival_damage", "expire_damage", "expire_nova_damage"]:
 		if effect.has(key):
 			effect[key] = float(effect[key]) * ratio
 
@@ -503,7 +506,7 @@ static func validate(passive: Dictionary) -> Array[String]:
 		if String(key) not in MOD_KEYS:
 			errors.append("%s: modificador desconhecido %s" % [name, key])
 	var triggers := passive.get("triggers", []) as Array
-	if triggers.is_empty() and (passive.get("mods", {}) as Dictionary).is_empty():
+	if triggers.is_empty() and (passive.get("mods", {}) as Dictionary).is_empty() and (passive.get("transform", {}) as Dictionary).is_empty() and (passive.get("transform_from", {}) as Dictionary).is_empty():
 		errors.append("%s: sem gatilhos nem modificadores" % name)
 	for trigger: Dictionary in triggers:
 		if String(trigger.get("on", "")) not in TRIGGERS:

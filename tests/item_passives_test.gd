@@ -77,16 +77,19 @@ func _run() -> void:
 	if float(enemy["health"]) >= before_burn:
 		return _fail("Burning must keep damaging the target")
 
-	# Congelar: a Esfera única deixa o alvo lento e vulnerável; chefes sentem metade.
-	var frozen := _world(&"eloa", ["unica_esfera_de_gelo"], ["esfera_de_gelo"])
-	frozen.damage_enemy(1, 0, 50.0, _gem_hit("esfera_de_gelo"))
-	if float(frozen.enemies[0].get("slow_amount", 0.0)) < 0.85 or float(frozen.enemies[0].get("vulnerable_amount", 0.0)) < 0.3:
-		return _fail("Unique ice sphere must freeze and expose")
+	# Imobilizar (decisão 598): o Anel único prende por completo; chefes sentem metade.
+	var frozen := _world(&"eloa", ["unica_anel_de_geada"], ["anel_de_geada"])
+	var root_hit := _gem_hit("anel_de_geada")
+	root_hit["root"] = true
+	frozen.damage_enemy(1, 0, 5.0, root_hit)
+	if not is_equal_approx(float(frozen.enemies[0].get("slow_amount", 0.0)), 1.0):
+		return _fail("Unique frost ring must fully root")
 	frozen.enemies[0]["floor_boss"] = true
 	frozen.enemies[0]["slow_timer"] = 0.0
-	frozen.damage_enemy(1, 0, 50.0, _gem_hit("esfera_de_gelo"))
-	if float(frozen.enemies[0]["slow_amount"]) > 0.43:
-		return _fail("Bosses feel half of the freeze")
+	frozen.enemies[0]["slow_amount"] = 0.0
+	frozen.damage_enemy(1, 0, 5.0, root_hit)
+	if not is_equal_approx(float(frozen.enemies[0]["slow_amount"]), 0.5):
+		return _fail("Bosses feel half of the root")
 
 	# Recusa da Morte: golpe fatal devolve 60% da Vida uma vez; o segundo golpe derruba.
 	var immortal := _world(&"cira", ["lendario_coracao_imortal"])

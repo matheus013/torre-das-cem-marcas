@@ -6,7 +6,8 @@ const BetaCatalogScript := preload("res://src/gameplay/content/beta_content_cata
 func _init() -> void:
 	var catalog: RefCounted = BetaCatalogScript.new()
 	if not bool(catalog.call("load_from")):
-		push_error("Beta catalog failed validation: %s" % catalog.call("validation_errors"))
+		# Formatar com a lista inteira (antes o "%" quebrava com vários erros e o teste travava).
+		push_error("Beta catalog failed validation: %s" % [catalog.call("validation_errors")])
 		quit(1)
 		return
 	var expected_counts := {
