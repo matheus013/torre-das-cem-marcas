@@ -2,8 +2,7 @@ extends SceneTree
 
 ## Gera a wiki pública (Markdown, só texto) a partir dos dados do jogo:
 ##   godot --headless --path . --script tools/wiki/build_wiki.gd [-- --out=<pasta>]
-## Padrão: docs/wiki. Para publicar, copie os .md para o clone de
-## github.com/matheus013/torre-das-cem-marcas-wiki.wiki.git, faça commit e push. Só texto: nada de
+## Padrão: docs/wiki. Para publicar no repositório público da wiki: sh tools/wiki/publish_wiki.sh. Só texto: nada de
 ## arte, som ou ícones (assets de terceiros não podem sair do repositório privado).
 
 const WikiPages := preload("res://tools/wiki/wiki_pages.gd")

@@ -351,6 +351,7 @@ tools/art/process.sh <grupos>                   # processa para a paleta do jogo
 godot --headless --path . --import              # importa os PNGs
 godot --path . --script tools/art/readme_shots.gd  # refaz as imagens do README (docs/images), com GPU
 godot --headless --path . --script tools/wiki/build_wiki.gd  # gera a wiki pública (docs/wiki, só texto)
+sh tools/wiki/publish_wiki.sh                    # regenera e publica em github.com/matheus013/torre-das-cem-marcas-wiki
 ```
 
 ### Documentação
@@ -365,6 +366,7 @@ godot --headless --path . --script tools/wiki/build_wiki.gd  # gera a wiki públ
 - [Dificuldades, dia e noite e Paragon](docs/game-design/76-dificuldades-dia-e-noite-e-paragon.md)
 - [Revisão revolucionária de itens](docs/game-design/77-revisao-revolucionaria-de-itens.md)
 - [Registro de decisões](docs/game-design/09-registro-de-decisoes.md)
+- [Wiki pública](https://github.com/matheus013/torre-das-cem-marcas-wiki) (gerada dos dados do jogo)
 
 ## Licença
 
