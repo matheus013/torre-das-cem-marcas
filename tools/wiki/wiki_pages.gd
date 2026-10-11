@@ -71,7 +71,7 @@ func _init() -> void:
 
 func build() -> Dictionary:
 	return {
-		"Home.md": _home(), "_Sidebar.md": _sidebar(), "_Footer.md": LICENSE_NOTE + "\n",
+		"Home.md": _home(), "_Sidebar.md": _sidebar(),
 		"Personagens.md": _characters(), "Armas.md": _weapons(), "Gemas-Ativas.md": _active_gems(),
 		"Gemas-de-Suporte.md": _support_gems(), "Invocacoes.md": _summons(), "Inimigos.md": _enemies(),
 		"Chefes.md": _bosses(), "Racas-e-Patentes.md": _races(), "Torre-e-Biomas.md": _biomes(),
