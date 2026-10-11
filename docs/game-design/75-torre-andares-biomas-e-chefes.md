@@ -8,27 +8,28 @@
 
 - Cem andares em dez biomas, seguindo a divisao do documento 05 e os documentos 28 a 37.
 - **Andares comuns** sao mapas grandes (3200x2400 no andar 1 ate 4800x3600 a partir do andar 61) com matilhas que patrulham, cristas de obstaculos, portal de retorno na entrada e escada no extremo oposto. A escada abre depois de o grupo sobreviver 10 minutos no andar (decisao 596; antes, cota de abates `30 + 0,6 x andar`).
-- **Andares de chefe** sao arenas circulares pequenas (raio 430). A saida fica selada enquanto o chefe vive; a vitoria abre a escada. O chefe derrotado volta depois de 20 minutos; ate la o andar e passagem.
+- **Andares de chefe** sao arenas circulares pequenas (raio 430). A saida fica selada enquanto o chefe vive; a vitoria abre a escada. O chefe volta sempre que o grupo entra no andar (decisao 587).
 - O grupo atravessa os andares junto. Com a Torre vazia, a proxima entrada comeca no andar de partida escolhido no mapa da Torre (ate o mais fundo ja alcancado).
 - Profundidade: comuns e elites ganham `1 + 0,085 x (andar - 1)` de Vida e `1 + 0,03 x (andar - 1)` de dano; perigos, `1 + 0,04 x (andar - 1)`. Chefes usam numeros proprios, calibrados para cerca de 75 s em solo no nivel do andar.
 - Monstros patrulham o territorio e so perseguem quem chega a 520 unidades.
 - Respawn: intervalo de `14 / (1 + tempo / 120)` segundos, no minimo 2,5, sempre a mais de 480 unidades do grupo.
 - Recordes por andar em SOLO, DUO, TRIO e SQUAD.
+- Dia e noite (decisao 605): cada bioma tem uma variante que so nasce a noite (coluna Noturno); o Coletor de Ambar so nasce de manha e foge. Orvalho Negro e Polen Lunar caem a noite; Ambar Solar, do Coletor.
 
 ## Biomas
 
-| Andares | Bioma | Mecanica ambiental | Perigo no jogo | Monstros | Materiais |
-|---|---|---|---|---|---|
-| 1-7 | Galerias Refeitas | Cicatrizacao | Parede em formacao (golpes em circulo sob os jogadores) | Larva de Junta, Raspador de Junta, Sentinela de Cal, Emboscado de Reboco, Molde de Ferramenta, Escora Hostil, Vigia Moldado | Pedra Regenerativa e materiais do recorte |
-| 8-16 | Bosque dos Ventos Presos | Mares de Vento | Rajada (rajada em linha que empurra) | Semeador de Juncos, Planador de Rajada, Casca de Pressao, Predador da Calmaria | Junco Mineral, Membrana de Pressao |
-| 17-27 | Manto dos Esporos | Rede Micelial | Nuvem de esporos (poca persistente (dano e lentidao)) | Esporinho, Tecelao Micelial, Sentinela de Chapeu, Devorador Branco | Lanterna de Esporo, Ambar Micelial |
-| 28-39 | Bacias do Quarto Pulso | Ciclo das Quatro Aguas | Lamina d'agua (poca persistente (dano e lentidao)) | Filtrador, Anfibio de Canal, Predador de Lama, Colosso de Conchas | Lodo Mineral, Perola de Refluxo |
-| 40-51 | Ermo do Trovao Preso | Acumulo e Descarga | Descarga (golpes em circulo sob os jogadores) | Escavador Vitreo, Carapaca Carregada, Cacador de Metal, Ninho de Descarga | Vidro Negro, Cristal de Carga |
-| 52-63 | Arquivo das Rotas Mortas | Cartografia Reativa | Rota que se redesenha (linhas a partir do chefe) | Tracador, Devorador de Tinta, Sinaleiro Falso, Cartografo Oco | Tinta Mineral, Marco Gravado |
-| 64-72 | Planicie dos Adormecidos | Movimento Colossal | Respiracao do colosso (anel (seguro so colado ao chefe)) | Limpador, Predador de Dobra, Migrante, Colosso Menor | Pele Mineral, Seiva Colossal |
-| 73-81 | Eixos Partidos | Orientacao Gravitacional | Poco de vetor (puxao para o centro e explosao) | Aderente Menor, Planador de Eixo, Ilha Pesada, Cortador de Ancoras | Cabo de Lastro, Fragmento de Eixo |
-| 82-93 | Campos do Quase | Possibilidades Transitorias | Possibilidade que se fixa (chuva de areas pela arena) | Eco de Presa, Flor de Escolha, Cacador de Versoes, Fixador Vivo | Petala Possivel, Semente do Quase |
-| 94-100 | Obra Inacabada | Convergencia Regional | Convergencia (mistura de todos) | Operario Sem Autor, Molde Vivo, Marca Numerada, Eco Regional | Material Sem Autor, Marca de Mandato |
+| Andares | Bioma | Mecanica ambiental | Perigo no jogo | Monstros | Noturno | Materiais |
+|---|---|---|---|---|---|---|
+| 1-7 | Galerias Refeitas | Cicatrizacao | Parede em formacao (golpes em circulo sob os jogadores) | Larva de Junta, Raspador de Junta, Sentinela de Cal, Emboscado de Reboco, Molde de Ferramenta, Escora Hostil, Vigia Moldado | Sombra de Lastro | Pedra Regenerativa e materiais do recorte |
+| 8-16 | Bosque dos Ventos Presos | Mares de Vento | Rajada (rajada em linha que empurra) | Semeador de Juncos, Planador de Rajada, Casca de Pressao, Predador da Calmaria | Lampada Errante | Junco Mineral, Membrana de Pressao |
+| 17-27 | Manto dos Esporos | Rede Micelial | Nuvem de esporos (poca persistente (dano e lentidao)) | Esporinho, Tecelao Micelial, Sentinela de Chapeu, Devorador Branco | Tecelao da Penumbra | Lanterna de Esporo, Ambar Micelial |
+| 28-39 | Bacias do Quarto Pulso | Ciclo das Quatro Aguas | Lamina d'agua (poca persistente (dano e lentidao)) | Filtrador, Anfibio de Canal, Predador de Lama, Colosso de Conchas | Afogador Noturno | Lodo Mineral, Perola de Refluxo |
+| 40-51 | Ermo do Trovao Preso | Acumulo e Descarga | Descarga (golpes em circulo sob os jogadores) | Escavador Vitreo, Carapaca Carregada, Cacador de Metal, Ninho de Descarga | Apagador de Faiscas | Vidro Negro, Cristal de Carga |
+| 52-63 | Arquivo das Rotas Mortas | Cartografia Reativa | Rota que se redesenha (linhas a partir do chefe) | Tracador, Devorador de Tinta, Sinaleiro Falso, Cartografo Oco | Borrao de Tinta | Tinta Mineral, Marco Gravado |
+| 64-72 | Planicie dos Adormecidos | Movimento Colossal | Respiracao do colosso (anel (seguro so colado ao chefe)) | Limpador, Predador de Dobra, Migrante, Colosso Menor | Sonambulo | Pele Mineral, Seiva Colossal |
+| 73-81 | Eixos Partidos | Orientacao Gravitacional | Poco de vetor (puxao para o centro e explosao) | Aderente Menor, Planador de Eixo, Ilha Pesada, Cortador de Ancoras | Fresta Viva | Cabo de Lastro, Fragmento de Eixo |
+| 82-93 | Campos do Quase | Possibilidades Transitorias | Possibilidade que se fixa (chuva de areas pela arena) | Eco de Presa, Flor de Escolha, Cacador de Versoes, Fixador Vivo | Vela sem Chama | Petala Possivel, Semente do Quase |
+| 94-100 | Obra Inacabada | Convergencia Regional | Convergencia (mistura de todos) | Operario Sem Autor, Molde Vivo, Marca Numerada, Eco Regional | Rascunho Noturno | Material Sem Autor, Marca de Mandato |
 
 ## Chefes
 

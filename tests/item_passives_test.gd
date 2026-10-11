@@ -19,7 +19,10 @@ func _world(character: StringName, items: Array[String], gems: Array[String] = [
 	for slot in range(gems.size()):
 		sim.set_gem_slot(1, slot, gems[slot])
 	for item_id in items:
-		sim.equip_item(1, sim._add_equipment_instance(character, item_id, "regular"))
+		# Sem os afixos sorteados: o teste mede só a passiva e os atributos do item.
+		var instance_id := sim._add_equipment_instance(character, item_id, "regular")
+		((sim._gear(1)["inventory"] as ItemInventory).items[instance_id] as EquipmentItemInstance).affixes = []
+		sim.equip_item(1, instance_id)
 	sim.enter_tower(1)
 	var state := sim.player(1)
 	state["health"] = sim.max_health(1)

@@ -43,6 +43,7 @@ const SHAPE := {
 			"nodes": {"*": {"amount": TYPE_FLOAT, "regen": TYPE_FLOAT}}},
 		"workers": {"*": {"position": [TYPE_FLOAT], "cargo": TYPE_FLOAT, "job_phase": TYPE_STRING, "work_timer": TYPE_FLOAT}},
 	},
+	"world_clock": {"time": TYPE_FLOAT, "day": TYPE_FLOAT},
 	"respawn": {
 		"death_sequence": TYPE_FLOAT, "spawn_sequence": TYPE_FLOAT,
 		"queue": [{"definition_id": TYPE_STRING, "encounter_class": TYPE_STRING,

@@ -2,7 +2,9 @@
 
 ## Estado
 
-**Em discussão.** Plano proposto em 2026-10-07 a pedido do responsável, para aprovar antes de
+**Em implementação (épico E1).** Decisões respondidas (597 e 598); resistências, dificuldades, receitas e dia e noite (seções 1 a 3) estão no jogo desde 2026-10-11 (decisões 601 a 605); marés, afixos novos, itens divinos e Paragon seguem nas fases 4 a 7.
+
+Plano proposto em 2026-10-07 a pedido do responsável, para aprovar antes de
 implementar. Substitui, quando aprovado, o backlog G6 e G7 do
 [roadmap de gameplay](../roadmap-gameplay-survivors-rpg.md). Mudanças em relação ao backlog:
 armas únicas passam a cair a partir da **dificuldade 2** (antes 3) e itens divinos a partir da

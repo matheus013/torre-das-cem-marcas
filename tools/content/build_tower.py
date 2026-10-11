@@ -353,6 +353,44 @@ PARTY_ABILITIES = {
 }
 
 
+# Dia e noite (epico E1, fase 3; G8.2; documento 76, secao 1). Cada bioma ganha uma variante que so
+# nasce a noite, com mecanica propria: "shadow_blink" some e reaparece atras da personagem;
+# "light_eater" encolhe a luz de quem esta perto. Reusam o sprite de um monstro do bioma (tingido
+# na apresentacao) ate ganharem arte propria. (bioma, id, nome, base do sprite, mecanica, raca)
+NIGHT_VARIANTS = [
+    ("galerias", "sombra_de_lastro", "Sombra de Lastro", "raspador_de_junta", "shadow_blink", "rebocado"),
+    ("bosque", "lampada_errante", "Lampada Errante", "planador_de_rajada", "light_eater", "ventania"),
+    ("manto", "tecelao_da_penumbra", "Tecelao da Penumbra", "tecelao_micelial", "shadow_blink", "micelar"),
+    ("bacias", "afogador_noturno", "Afogador Noturno", "predador_de_lama", "shadow_blink", "lodoso"),
+    ("ermo", "apagador_de_faiscas", "Apagador de Faiscas", "cacador_de_metal", "light_eater", "carregado"),
+    ("arquivo", "borrao_de_tinta", "Borrao de Tinta", "devorador_de_tinta", "shadow_blink", "cartografo"),
+    ("planicie", "sonambulo", "Sonambulo", "migrante", "light_eater", "parasitario"),
+    ("eixos", "fresta_viva", "Fresta Viva", "planador_de_eixo", "shadow_blink", "aderente"),
+    ("campos", "vela_sem_chama", "Vela sem Chama", "flor_de_escolha", "light_eater", "possivel"),
+    ("obra", "rascunho_noturno", "Rascunho Noturno", "molde_vivo", "shadow_blink", "sem_autor"),
+]
+NIGHT_LORE = {
+    "shadow_blink": "So caminha no escuro: some e reaparece atras de quem o persegue.",
+    "light_eater": "Bebe a luz em volta; perto dele a lanterna de quem passa encolhe pela metade.",
+}
+# Materiais por horario: orvalho e polen so caem a noite; ambar vem do Coletor da manha.
+TIME_MATERIALS = [
+    {"id": "orvalho_negro", "name": "Orvalho Negro", "item_type": "material", "slot": "none", "tier": "common",
+     "description": "Gotas escuras que so se formam na Torre durante a noite."},
+    {"id": "polen_lunar", "name": "Polen Lunar", "item_type": "material", "slot": "none", "tier": "rare",
+     "description": "Polen palido carregado por elites e criaturas noturnas; brilha sob a lua."},
+    {"id": "ambar_solar", "name": "Ambar Solar", "item_type": "material", "slot": "none", "tier": "uncommon",
+     "description": "Resina dourada que os Coletores de Ambar juntam pela manha."},
+]
+DAWN_ENEMY = {
+    "id": "coletor_de_ambar", "name": "Coletor de Ambar", "race_id": "ventania", "rank_id": "maduro",
+    "encounter_class": "common", "mechanic": "flee", "kind": "support", "health": 40, "damage": 0, "speed": 58,
+    "attack_interval": 1.0, "loot_table_id": "saque_coletor_de_ambar", "allow_affixes": False,
+    "time_of_day": "dawn", "sprite": "semeador_de_juncos",
+    "lore": "Nasce so de manha. Foge de quem se aproxima e solta Ambar Solar se for pego.",
+}
+
+
 def seed_for(key):
     return zlib.crc32(key.encode()) % 90000 + 1000
 
@@ -415,10 +453,28 @@ def build():
                                         "seeds": [seed_for(full)], "size": 1024})
                 art_sprites.append({"key": full, "group": "tower_props", "source": "raw/prop_%s_s%d.png" % (full, seed_for(full)),
                                     "output": "res://assets/sprites/props/%s.png" % full, "block": 8})
+        night_ids = []
+        for biome_id, eid, name, sprite, mechanic, race_id in NIGHT_VARIANTS:
+            if biome_id != biome["id"]:
+                continue
+            base = next(e for e in enemies if e["id"] == sprite) if any(e["id"] == sprite for e in enemies) else None
+            health, damage, speed, interval = (base["health"], base["damage"], base["speed"], base["attack_interval"]) if base else (60, 12, 42, 0.8)
+            night_ids.append(eid)
+            table = "saque_%s" % eid
+            loot_tables.append({"id": table, "entries": [
+                {"item_id": "orvalho_negro", "chance": 0.6, "minimum": 1, "maximum": 2},
+                {"item_id": "polen_lunar", "chance": 0.25, "minimum": 1, "maximum": 1},
+            ]})
+            enemies.append({
+                "id": eid, "name": name, "race_id": race_id, "rank_id": "evoluido", "encounter_class": "common",
+                "mechanic": mechanic, "kind": "melee", "health": int(round(health * 1.1)), "damage": int(round(damage * 1.2)),
+                "speed": speed, "attack_interval": interval, "loot_table_id": table, "allow_affixes": True,
+                "biome": biome["id"], "time_of_day": "night", "sprite": sprite, "lore": NIGHT_LORE[mechanic],
+            })
         biomes.append({
             "id": biome["id"], "name": biome["name"], "floors": biome["floors"], "ambient": biome["ambient"],
             "mechanic": biome["mechanic"], "hazard": biome["hazard"], "tile": tile, "props": props,
-            "enemies": enemy_ids, "materials": [m[0] for m in biome["materials"]],
+            "enemies": enemy_ids, "night_enemies": night_ids, "materials": [m[0] for m in biome["materials"]],
         })
         for floor in range(biome["floors"][0], biome["floors"][1] + 1):
             boss = boss_floors.get(floor)
@@ -467,6 +523,11 @@ def build():
                                 "seeds": [seed_for(boss["id"]), seed_for(boss["id"]) + 1], "size": 512})
         art_sprites.append({"key": boss["id"], "group": "tower_bosses", "source": "raw/tower_%s_s%d.png" % (boss["id"], seed_for(boss["id"])),
                             "output": "res://assets/sprites/enemies/%s.png" % boss["id"], "block": 8})
+    enemies.append(dict(DAWN_ENEMY))
+    loot_tables.append({"id": DAWN_ENEMY["loot_table_id"], "entries": [
+        {"item_id": "ambar_solar", "chance": 1.0, "minimum": 1, "maximum": 2},
+    ]})
+    items.extend(dict(material) for material in TIME_MATERIALS)
     content = {"version": 1, "biomes": biomes, "floors": floors, "bosses": bosses, "party_abilities": PARTY_ABILITIES,
                "enemies": enemies, "monster_races": races, "items": items, "loot_tables": loot_tables}
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
@@ -498,24 +559,27 @@ def write_doc(content):
            "## Estrutura", "",
            "- Cem andares em dez biomas, seguindo a divisao do documento 05 e os documentos 28 a 37.",
            "- **Andares comuns** sao mapas grandes (3200x2400 no andar 1 ate 4800x3600 a partir do andar 61) com matilhas "
-           "que patrulham, cristas de obstaculos, portal de retorno na entrada e escada no extremo oposto. A escada abre ao "
-           "cumprir a cota de abates (`30 + 0,6 x andar`).",
+           "que patrulham, cristas de obstaculos, portal de retorno na entrada e escada no extremo oposto. A escada abre "
+           "depois de o grupo sobreviver 10 minutos no andar (decisao 596; antes, cota de abates `30 + 0,6 x andar`).",
            "- **Andares de chefe** sao arenas circulares pequenas (raio 430). A saida fica selada enquanto o chefe vive; a "
-           "vitoria abre a escada. O chefe derrotado volta depois de 20 minutos; ate la o andar e passagem.",
+           "vitoria abre a escada. O chefe volta sempre que o grupo entra no andar (decisao 587).",
            "- O grupo atravessa os andares junto. Com a Torre vazia, a proxima entrada comeca no andar de partida escolhido "
            "no mapa da Torre (ate o mais fundo ja alcancado).",
            "- Profundidade: comuns e elites ganham `1 + 0,085 x (andar - 1)` de Vida e `1 + 0,03 x (andar - 1)` de dano; "
            "perigos, `1 + 0,04 x (andar - 1)`. Chefes usam numeros proprios, calibrados para cerca de 75 s em solo no nivel do andar.",
            "- Monstros patrulham o territorio e so perseguem quem chega a 520 unidades.",
            "- Respawn: intervalo de `14 / (1 + tempo / 120)` segundos, no minimo 2,5, sempre a mais de 480 unidades do grupo.",
-           "- Recordes por andar em SOLO, DUO, TRIO e SQUAD.", "",
-           "## Biomas", "", "| Andares | Bioma | Mecanica ambiental | Perigo no jogo | Monstros | Materiais |", "|---|---|---|---|---|---|"]
+           "- Recordes por andar em SOLO, DUO, TRIO e SQUAD.",
+           "- Dia e noite (decisao 605): cada bioma tem uma variante que so nasce a noite (coluna Noturno); "
+           "o Coletor de Ambar so nasce de manha e foge. Orvalho Negro e Polen Lunar caem a noite; Ambar Solar, do Coletor.", "",
+           "## Biomas", "", "| Andares | Bioma | Mecanica ambiental | Perigo no jogo | Monstros | Noturno | Materiais |", "|---|---|---|---|---|---|---|"]
     for biome in content["biomes"]:
         hazard = biome["hazard"]
         kind = "mistura de todos" if hazard["type"] == "mixed" else ABILITY_LABELS.get(hazard["type"], hazard["type"])
         names = ", ".join(enemy_names.get(x, x) for x in biome["enemies"])
         materials = ", ".join(i["name"] for i in content["items"] if i.get("biome") == biome["id"]) or "Pedra Regenerativa e materiais do recorte"
-        out.append("| %d-%d | %s | %s | %s (%s) | %s | %s |" % (biome["floors"][0], biome["floors"][1], biome["name"], biome["mechanic"], hazard.get("label", ""), kind, names, materials))
+        night = ", ".join(enemy_names.get(x, x) for x in biome.get("night_enemies", [])) or "-"
+        out.append("| %d-%d | %s | %s | %s (%s) | %s | %s | %s |" % (biome["floors"][0], biome["floors"][1], biome["name"], biome["mechanic"], hazard.get("label", ""), kind, names, night, materials))
     out += ["", "## Chefes", "",
             "Todo chefe muda de fase pela Vida, entra em furia apos o tempo indicado (dano x1,5 e recargas x0,6) e ganha "
             "combinacoes extras com dois, tres e quatro jogadores. Toda habilidade de area e anunciada no chao antes do golpe.", "",
@@ -540,7 +604,7 @@ def _merge_art(manifest_assets, art_sprites):
     process = json.loads(PROCESS.read_text(encoding="utf-8"))
     known = {entry["key"] for entry in process["sprites"]}
     process["sprites"].extend(entry for entry in art_sprites if entry["key"] not in known)
-    PROCESS.write_text(json.dumps(process, ensure_ascii=False, indent=1), encoding="utf-8")
+    PROCESS.write_text(json.dumps(process, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
 
 
 if __name__ == "__main__":

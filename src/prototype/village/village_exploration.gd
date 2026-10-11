@@ -32,6 +32,13 @@ const PERIOD_AMBIENT := {
 	"entardecer": Color(0.95, 0.72, 0.58), "noite": Color(0.42, 0.47, 0.72),
 }
 const PERIOD_NAMES := {"manha": "MANHA", "tarde": "TARDE", "entardecer": "ENTARDECER", "noite": "NOITE"}
+const WorldClockScript := preload("res://src/gameplay/world/world_clock.gd")
+## Dia e noite na Torre (decisão 605): escuridão, luz da personagem e tons dos monstros de horário.
+const TOWER_NIGHT_DIM := Color(0.42, 0.45, 0.62)
+const SCAR_MOON_DIM := Color(0.55, 0.36, 0.42)
+const UNLIT_ALPHA := 0.22
+const NIGHT_VARIANT_TINT := Color(0.66, 0.52, 0.98)
+const DAWN_TINT := Color(1.0, 0.82, 0.42)
 
 const SAVE_PATH := SaveSlot.DEFAULT_PATH
 ## Salvamento automático (decisão 582): a cada minuto, ao entrar ou sair da Torre, ao trocar de
@@ -774,7 +781,7 @@ func _nearest_enemy() -> Dictionary:
 	var distance := INF
 	var position := _display_position(_local_peer)
 	for enemy: Dictionary in _view.get("enemies", []) as Array:
-		if float(enemy.get("health", 0.0)) <= 0.0 or StringName(String(enemy.get("zone", "tower"))) != _local_zone():
+		if float(enemy.get("health", 0.0)) <= 0.0 or StringName(String(enemy.get("zone", "tower"))) != _local_zone() or not bool(enemy.get("lit", true)):
 			continue
 		var squared := position.distance_squared_to(enemy["position"] as Vector2)
 		if squared < distance:
@@ -876,6 +883,9 @@ func _unhandled_input(event: InputEvent) -> void:
 			get_viewport().set_input_as_handled()
 		elif event is InputEventKey and event.keycode == KEY_F8 and _sim != null and DevModeScript.enabled():
 			_sim.call("unlock_all_gems", _local_peer)
+			get_viewport().set_input_as_handled()
+		elif event is InputEventKey and event.keycode == KEY_F9 and _sim != null and DevModeScript.enabled():
+			_sim.call("dev_advance_period")
 			get_viewport().set_input_as_handled()
 		elif BindingsScript.pressed(event, "inventory"):
 			_open_player_menu("inventory")
@@ -1987,8 +1997,10 @@ func _draw_enemy(enemy: Dictionary) -> void:
 	var position := enemy["position"] as Vector2
 	var mechanic := String(enemy.get("base_mechanic", ""))
 	var distance := position.distance_to(_display_position(_local_peer))
-	var texture := SpriteLibraryScript.texture("enemies/" + String(enemy.get("definition_id", "")))
-	var frame := SpriteLibraryScript.actor_frame("enemies/" + String(enemy.get("definition_id", "")), enemy.get("facing_direction", Vector2.DOWN) as Vector2, bool(enemy.get("moving", false)), _anim_time)
+	# Variantes de horário usam o sprite de um monstro do bioma (sprite_id), tingido abaixo.
+	var sprite_key := "enemies/" + (String(enemy.get("sprite_id", "")) if not String(enemy.get("sprite_id", "")).is_empty() else String(enemy.get("definition_id", "")))
+	var texture := SpriteLibraryScript.texture(sprite_key)
+	var frame := SpriteLibraryScript.actor_frame(sprite_key, enemy.get("facing_direction", Vector2.DOWN) as Vector2, bool(enemy.get("moving", false)), _anim_time)
 	var visual_scale := 1.75 if frame != null and bool(enemy.get("boss", false)) else 1.0
 	var height := texture.get_size().y if texture != null else 26.0
 	height *= visual_scale
@@ -1999,6 +2011,10 @@ func _draw_enemy(enemy: Dictionary) -> void:
 	var alpha := 1.0
 	if (mechanic == "wall_ambush" or String(enemy.get("race_trait", "")) == "wall_camouflage") and distance > 170.0:
 		alpha = 0.3
+	# Noite: fora da luz de qualquer personagem o monstro é só um vulto, sem barra nem marcas.
+	var unlit := not bool(enemy.get("lit", true))
+	if unlit:
+		alpha = minf(alpha, UNLIT_ALPHA)
 	_draw_shadow(feet, Vector2(maxf(10.0, height * 0.4), 5.0))
 	if bool(enemy.get("superior", false)):
 		# Bando superior (decisão 600): anel pulsante no chão, na cor do afixo principal.
@@ -2011,6 +2027,11 @@ func _draw_enemy(enemy: Dictionary) -> void:
 		draw_set_transform(Vector2.ZERO)
 	var lift := absf(sin(_anim_time * 9.0 + float(int(position.x) % 7))) * 2.0
 	var tint := Color(1.0, 1.0, 1.0, alpha)
+	match String(enemy.get("time_of_day", "")):
+		"night":
+			tint = Color(NIGHT_VARIANT_TINT, alpha)
+		"dawn":
+			tint = Color(DAWN_TINT, alpha)
 	if float(enemy.get("flash", 0.0)) > 0.0:
 		tint = Color(1.0, 0.55, 0.5, alpha)
 	var poisons := enemy.get("poisons", []) as Array
@@ -2021,8 +2042,10 @@ func _draw_enemy(enemy: Dictionary) -> void:
 		draw_set_transform(feet.round(), 0.0, Vector2.ONE * visual_scale)
 		draw_texture(frame, -SpriteLibraryScript.CHARACTER_FOOT_ANCHOR, tint)
 		draw_set_transform(Vector2.ZERO)
-	elif not _draw_sprite("enemies/" + String(enemy.get("definition_id", "")), feet, _display_position(_local_peer).x < position.x, tint, lift):
-		draw_circle(position, {"nascente": 10.0, "maduro": 13.0, "evoluido": 16.0, "alfa": 19.0, "apice": 24.0}.get(String(enemy.get("rank_id", "maduro")), 13.0) as float, Color("9b9b9b"))
+	elif not _draw_sprite(sprite_key, feet, _display_position(_local_peer).x < position.x, tint, lift):
+		draw_circle(position, {"nascente": 10.0, "maduro": 13.0, "evoluido": 16.0, "alfa": 19.0, "apice": 24.0}.get(String(enemy.get("rank_id", "maduro")), 13.0) as float, Color("9b9b9b", alpha))
+	if unlit:
+		return
 	var top := feet - Vector2(0.0, height + 8.0)
 	if not String(enemy.get("prefix_id", "")).is_empty():
 		draw_colored_polygon(PackedVector2Array([top + Vector2(-8.0, -6.0), top + Vector2(-2.0, -6.0), top + Vector2(-5.0, 0.0)]), Color("e8b84a"))
@@ -2670,9 +2693,16 @@ func _update_interface() -> void:
 	_village_lights.visible = zone == &"village" and period in ["entardecer", "noite"]
 	_update_village_panel(zone, period)
 	var floor_view := _view.get("floor", {}) as Dictionary
+	var clock := _view.get("clock", {}) as Dictionary
+	var night := bool(clock.get("night", false))
 	if zone == &"tower" and not _floor_layout.is_empty():
 		_ambient.color = Color(String(TowerContentScript.biome(String(_floor_layout.get("biome", ""))).get("ambient", "5c6680"))).lightened(0.12)
+		if night:
+			_ambient.color *= SCAR_MOON_DIM if bool(clock.get("scar_moon", false)) else TOWER_NIGHT_DIM
 	_player_light.enabled = zone != &"village" or period == "noite"
+	# A luz da personagem mostra o raio que de fato ilumina (afixo, gemas sagradas, variantes).
+	var light_reach := float(_local().get("light_radius", 0.0))
+	_player_light.texture_scale = clampf(light_reach / 128.0, 1.0, 5.0) if zone == &"tower" and night and light_reach > 0.0 else 2.6
 	_player_light.color = Color(1.0, 0.85, 0.6) if zone == &"house" else Color(0.85, 0.97, 1.0)
 	_tower_lights.visible = zone == &"tower"
 	_cull_lights(_village_lights)
@@ -2682,6 +2712,8 @@ func _update_interface() -> void:
 	_location_label.text = {
 		&"village": "ARESTA // VILA", &"house": "ARESTA // CASA DE ELEN",
 	}.get(zone, "TORRE // ANDAR %d  %s" % [int(floor_view.get("number", 0)), String(floor_view.get("name", "")).to_upper()]) as String
+	if not clock.is_empty() and zone != &"house":
+		_location_label.text += "\n" + WorldClockScript.describe(clock)
 	_update_floor_panel(zone, floor_view)
 	_status_label.text = _status
 	var players := _view.get("players", {}) as Dictionary

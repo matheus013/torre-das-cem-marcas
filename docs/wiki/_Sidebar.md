@@ -13,6 +13,7 @@
 - [Os 100 andares](Andares)
 - [Resistências](Resistencias)
 - [Dificuldades](Dificuldades)
+- [Dia e noite](Dia-e-Noite)
 - [Armas únicas](Armas-Unicas)
 - [Lendários e relíquias](Lendarios-e-Reliquias)
 - [Equipamentos, consumíveis e materiais](Equipamentos-e-Materiais)

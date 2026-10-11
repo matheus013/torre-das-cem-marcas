@@ -24,6 +24,9 @@ const MECHANICS := {
 	"incorporate_objects": "Absorvedor: a cada 3,5 s causa o próprio dano a todos num raio de 180.",
 	"loot_mimic": "Imitador: parece saque no chão até a personagem chegar a 180.",
 	"boss_kit": "Guardião de andar: luta com habilidades próprias (abaixo).",
+	"shadow_blink": "Sombra (só à noite): a cada 5 s some e reaparece atrás de quem persegue.",
+	"light_eater": "Bebe-luz (só à noite): perto dele (260) a luz da personagem cai pela metade.",
+	"flee": "Coletor (só de manhã): foge de quem chega perto e nunca ataca; solta Âmbar Solar.",
 }
 const TRAITS := {
 	"stone_skin": "Pele de Pedra: corpo mineral, com resistência física alta (veja Resistências).",

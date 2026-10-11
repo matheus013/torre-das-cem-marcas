@@ -23,7 +23,8 @@ func _run() -> void:
 	var tower := preload("res://src/gameplay/world/tower_content.gd")
 	for collection in ["enemies", "bosses"]:
 		for enemy: Dictionary in tower.collection(collection):
-			if Sprites.texture("enemies/" + String(enemy["id"])) == null:
+			# Variantes de horário reaproveitam o sprite declarado de um monstro do bioma.
+			if Sprites.texture("enemies/" + String(enemy.get("sprite", enemy["id"]))) == null:
 				return _fail("Missing tower sprite: " + String(enemy["id"]))
 	for biome: Dictionary in tower.collection("biomes"):
 		for key: String in [String(biome["tile"])] + (biome["props"] as Array):

@@ -26,6 +26,7 @@ Preparação para distribuição: [roadmap Steam em acesso antecipado](docs/road
   - [A vila de Aresta](#a-vila-de-aresta)
   - [A Torre](#a-torre)
   - [Dificuldades](#dificuldades)
+  - [Dia e noite](#dia-e-noite)
   - [Resistências e fraquezas](#resistências-e-fraquezas)
   - [Chefes](#chefes)
   - [Gemas: suas habilidades](#gemas-suas-habilidades)
@@ -135,7 +136,7 @@ Ao abrir o jogo você escolhe quem desce. Não existem classes: qualquer persona
 
 ### A vila de Aresta
 
-Aresta é seu porto seguro: casas, feira, forja, enfermaria, conselho, arquivo, plantações e trinta moradores com trabalho, casa e rotina. O período do dia avança a cada volta da Torre; à noite os lampiões acendem e a vila se recolhe.
+Aresta é seu porto seguro: casas, feira, forja, enfermaria, conselho, arquivo, plantações e trinta moradores com trabalho, casa e rotina. A rotina segue o [relógio do mundo](#dia-e-noite); à noite os lampiões acendem e a vila se recolhe.
 
 - Converse com os moradores com **F**. Eles lembram suas expedições, pedras entregues, quedas e recordes.
 - **Gemas e suportes só podem ser trocados na vila.** Na Torre o loadout fica travado.
@@ -174,6 +175,16 @@ O mundo tem **cinco dificuldades**: Expedição, Veterana, Mestra, Mítica e Cic
 Na **4** e na **5** a patente mais fraca some, elites e chefes **se adaptam** ao tipo de dano que mais os fere, e aparecem **bandos superiores**: matilhas uma patente acima, todas com afixos e com um **anel brilhante no chão**. Valores provisórios para playtest.
 
 ![Seletor de dificuldade e mapa da Torre](docs/images/dificuldades.png)
+
+### Dia e noite
+
+O mundo tem um relógio próprio: um dia dura **2 horas de jogo** (manhã 30 min, tarde 30, entardecer 20, noite 40) e corre na vila e na Torre. A hora, o período e quanto falta para virar aparecem no topo da tela e no mapa da Torre; um aviso chega 1 minuto antes de anoitecer e de amanhecer.
+
+- **À noite** os inimigos ganham +10% de Vida e dano, e você ganha **+25% de EXP** e **+30% de chance de saque**. A Torre escurece: só o que está na **luz** de alguma personagem aparece inteiro e entra no ataque e na mira automáticos. O afixo *raio de luz* e as gemas sagradas aumentam a luz.
+- Cada bioma tem uma **variante noturna**: sombras que somem e reaparecem atrás de você, ou bebe-luzes que cortam sua luz pela metade. Elites viram **caçadores**, que percebem de mais longe e não desistem.
+- **Orvalho Negro** e **Pólen Lunar** só caem à noite.
+- A cada 3 noites sobe a **Lua da Cicatriz**, com os bônus dobrados.
+- **De manhã** aparecem **Coletores de Âmbar**: fogem, não atacam e soltam **Âmbar Solar** se você os pegar.
 
 ### Resistências e fraquezas
 
@@ -334,7 +345,7 @@ godot --headless --path . --script tools/bench/balance_probe.gd -- --party=4  # 
 ### Atalhos de desenvolvimento
 
 - Modo dev (padrão): menu com Laboratório de Build, Central de Conteúdo e provas técnicas. `-- --public` mostra a tela pública; na tela pública, **F12** volta ao modo dev.
-- **F7** (modo dev): ganha a experiência de um nível.
+- **F7** (modo dev): ganha a experiência de um nível. **F8** libera todas as gemas. **F9** pula para o próximo período do dia.
 - Argumentos da cena da vila: `--host-session`, `--join-session=IP`, `--session-port=N`, `--character=sena`, `--start-floor=16`, `--autopilot`, `--profile=NOME`.
 
 ### Conteúdo e arte

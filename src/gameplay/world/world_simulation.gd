@@ -201,6 +201,28 @@ const MAX_GROUND_ITEM_VIEWS := 120
 const AutoSupports := preload("res://src/gameplay/equipment/auto_attack_supports.gd")
 const BestiaryScript := preload("res://src/gameplay/content/bestiary.gd")
 const ResistancesScript := preload("res://src/gameplay/combat/resistances.gd")
+const WorldClockScript := preload("res://src/gameplay/world/world_clock.gd")
+## Dia e noite (épico E1, fase 3; G8.1 e G8.2; decisão 605). À noite só o que está na luz de alguma
+## personagem aparece inteiro e entra no ataque automático; a luz é um atributo (afixo, gemas
+## sagradas) e as variantes noturnas a disputam. Valores provisórios.
+const LIGHT_RADIUS := 320.0
+const LIGHT_EATER_RADIUS := 260.0
+const LIGHT_EATER_FACTOR := 0.5
+const HOLY_LIGHT_SECONDS := 8.0
+const HOLY_LIGHT_MULT := 1.4
+## Elites caçadores: à noite percebem e perseguem de mais longe e não voltam ao território.
+const NIGHT_HUNTER_AGGRO := 1.8
+## Chance, por matilha e por reaparecimento, de surgir uma variante noturna do bioma.
+const NIGHT_VARIANT_CHANCE := 0.3
+const NIGHTFALL_VARIANTS := 3
+const DAWN_COLLECTORS := 2
+const BLINK_INTERVAL := 5.0
+const BLINK_RANGE := 420.0
+const BLINK_BEHIND := 70.0
+const FLEE_RADIUS := 360.0
+## Materiais da noite: Orvalho Negro em qualquer abate, Pólen Lunar em elites e chefes.
+const NIGHT_DEW_CHANCE := 0.12
+const NIGHT_POLLEN_CHANCE := 0.3
 const STACK_RADIUS := 18.0
 const GEM_SLOT_KEYS: Array[String] = ["Q", "W", "E", "R"]
 
@@ -229,6 +251,11 @@ var _hazard_timer := 6.0
 var _floor_random := RandomNumberGenerator.new()
 ## Moradores de Aresta (decisão 560).
 var village_life: RefCounted
+## Relógio do mundo (dia de 2 h) e o sorteio próprio dos monstros de horário, separado do sorteio
+## do andar para não mudar a população de dia.
+var clock: RefCounted = WorldClockScript.new()
+var _time_random := RandomNumberGenerator.new()
+var _light_radii: Dictionary = {}
 var narrative := NarrativeProgress.new()
 var banked_stone := 0
 var banked_loot: Dictionary = {}
@@ -281,6 +308,8 @@ func setup(seed: int = 7301) -> void:
 	_load_gems()
 	village_life = VillageLifeScript.new()
 	village_life.call("setup", seed + 41, LayoutScript.village_spots())
+	_time_random.seed = seed * 6151 + 605
+	village_life.set("period_index", int(clock.call("period_index")))
 
 
 # ---------------------------------------------------------------- jogadores
@@ -1076,6 +1105,9 @@ func use_skill(peer_id: int, slot: int, target: Vector2) -> bool:
 			(state["recharge"] as Array[float])[slot] = recharge
 			cooldowns[slot] = recharge
 	_apply_passive_requests(peer_id, cast["requests"] as Array)
+	# Gemas sagradas iluminam: a luz da personagem cresce por alguns segundos.
+	if String(gem_definition(String(effect.get("gem_id", ""))).get("element", "")) == "holy":
+		state["holy_light_timer"] = HOLY_LIGHT_SECONDS
 	_add_barrier(peer_id, _mod(peer_id, "barrier_on_skill_add"), 4.0)
 	state["last_hit"] = _hit_context(effect)
 	execute_gem_effect(peer_id, effect, target)
@@ -1236,6 +1268,7 @@ func step(delta: float) -> void:
 	_run_scheduled(delta)
 	if is_milestone_paused():
 		return
+	_step_clock(delta)
 	village_life.call("step", delta, _village_context())
 	if not _players_in_arena().is_empty():
 		_step_floor(delta)
@@ -1379,7 +1412,7 @@ func _step_player(peer_id: int, delta: float) -> void:
 			aim = state["attack_request"] as Vector2
 			nearest = _enemy_near_aim(state["position"] as Vector2, aim, float(weapon["range"]))
 		elif bool(state.get("auto_attack", true)):
-			nearest = nearest_enemy_to(state["position"] as Vector2, float(weapon["range"]))
+			nearest = nearest_lit_enemy_to(state["position"] as Vector2, float(weapon["range"]))
 		if (nearest >= 0 or manual) and float(state["breath"]) >= float(weapon.get("breath_cost", 0.0)):
 			state["breath"] = float(state["breath"]) - float(weapon.get("breath_cost", 0.0))
 			# Sem inimigo ao alcance, o golpe manual sai na direção mirada até o alcance da arma.
@@ -1585,7 +1618,6 @@ func leave_tower(peer_id: int) -> void:
 		enemy_projectiles.clear()
 	_event({"type": "clear_vfx", "peer": peer_id})
 	if _players_in_arena().is_empty():
-		village_life.call("advance_period")
 		_restock_shop()
 	village_life.call("remember_event", "retorno", "%s voltou da Torre trazendo %d pedras; o grupo chegou ao andar %d" % [String(state["character_name"]), delivered, deepest_floor], 0.4, String(state["character_id"]))
 	if banked_stone >= 3 and village_progress == 0:
@@ -1964,6 +1996,15 @@ func _spawn_floor_population() -> void:
 				var spawned := _spawn_floor_enemy(definition, spot, pack * 7 + member)
 				spawned["superior"] = superior
 				enemies.append(spawned)
+	# Monstros de horário vêm depois, com sorteio próprio: de dia a população é a mesma de antes.
+	if is_night():
+		var variants := 0
+		for pack in range(packs):
+			if _time_random.randf() < NIGHT_VARIANT_CHANCE:
+				variants += 1
+		_spawn_time_enemies("night", variants)
+	elif String(clock.call("period")) == "manha":
+		_spawn_time_enemies("dawn", DAWN_COLLECTORS)
 	floor_run["population"] = enemies.size()
 
 
@@ -1989,7 +2030,9 @@ func _pick_floor_enemy(allow_elite: bool) -> Dictionary:
 
 
 ## Cria o inimigo com a escala de profundidade do andar e um território para patrulhar.
-func _spawn_floor_enemy(definition: Dictionary, position: Vector2, roll_index: int) -> Dictionary:
+func _spawn_floor_enemy(definition: Dictionary, position: Vector2, roll_index: int, random: RandomNumberGenerator = null) -> Dictionary:
+	if random == null:
+		random = _floor_random
 	var enemy := create_enemy(definition, position, roll_index + current_floor * 1000)
 	var floor_info := floor_def()
 	if String(definition.get("mechanic", "")) != "boss_kit" and String(definition.get("encounter_class", "")) != "boss":
@@ -2001,10 +2044,15 @@ func _spawn_floor_enemy(definition: Dictionary, position: Vector2, roll_index: i
 	enemy["health"] = float(enemy["health"]) * float(rules["health"])
 	enemy["max_health"] = float(enemy["max_health"]) * float(rules["health"])
 	enemy["damage"] = float(enemy["damage"]) * float(rules["damage"])
+	# Noite: Vida e dano +10% (+20% na Lua da Cicatriz) para quem nasce no escuro.
+	var night_scale := float(time_bonuses()["enemy"])
+	enemy["health"] = float(enemy["health"]) * night_scale
+	enemy["max_health"] = float(enemy["max_health"]) * night_scale
+	enemy["damage"] = float(enemy["damage"]) * night_scale
 	enemy["home"] = position
 	enemy["wander_target"] = position
-	enemy["wander_timer"] = _floor_random.randf_range(0.0, 2.5)
-	enemy["roamer"] = _floor_random.randf() < 0.3
+	enemy["wander_timer"] = random.randf_range(0.0, 2.5)
+	enemy["roamer"] = random.randf() < 0.3
 	return enemy
 
 
@@ -2179,6 +2227,8 @@ func create_enemy(definition: Dictionary, position: Vector2, roll_index: int) ->
 	var enemy := {
 		"definition_id": String(definition.get("id", "raspador_padrao")),
 		"display_name": String(definition.get("name", "Raspador")),
+		"time_of_day": String(definition.get("time_of_day", "")),
+		"sprite_id": String(definition.get("sprite", "")),
 		"encounter_class": String(definition.get("encounter_class", "common")),
 		"race_id": String(definition.get("race_id", "juntideo")),
 		"rank_id": rank_id,
@@ -2336,6 +2386,14 @@ func tick_respawns(delta: float) -> void:
 		if definition.is_empty():
 			continue
 		var position := request["position"] as Vector2
+		# Monstros de horário não reaparecem; à noite parte dos reaparecimentos vira variante noturna.
+		if not String(definition.get("time_of_day", "")).is_empty():
+			continue
+		if is_night() and _time_random.randf() < NIGHT_VARIANT_CHANCE:
+			var night := _time_definitions("night")
+			if not night.is_empty():
+				enemies.append(_spawn_floor_enemy(night[_time_random.randi_range(0, night.size() - 1)], position, 1000 + int(request.get("spawn_sequence", 0)), _time_random))
+				continue
 		enemies.append(_spawn_floor_enemy(definition, position, 1000 + int(request.get("spawn_sequence", 0))))
 
 
@@ -2477,9 +2535,11 @@ func _update_enemies(delta: float) -> void:
 		var distance := INF if target_peer < 0 else (enemy["position"] as Vector2).distance_to(player(target_peer)["position"] as Vector2)
 		var far_from_home := (enemy["position"] as Vector2).distance_to(enemy.get("home", enemy["position"]) as Vector2) > LEASH_RADIUS
 		var chasing := bool(enemy.get("chasing", false))
-		if distance <= AGGRO_RADIUS or float(enemy["provoked"]) > 0.0:
+		var hunter := is_night() and String(enemy.get("encounter_class", "")) == "elite"
+		var aggro := AGGRO_RADIUS * (NIGHT_HUNTER_AGGRO if hunter else 1.0)
+		if distance <= aggro or float(enemy["provoked"]) > 0.0:
 			chasing = true
-		elif chasing and (distance > AGGRO_RADIUS * 1.6 or far_from_home):
+		elif chasing and (distance > aggro * 1.6 or (far_from_home and not hunter)):
 			chasing = false
 		enemy["chasing"] = chasing
 		if not chasing or target_peer < 0:
@@ -2504,6 +2564,20 @@ func _update_enemies(delta: float) -> void:
 				enemy["awakened"] = true
 			else:
 				continue
+		# Coletor de Âmbar (manhã): foge de quem chega perto e nunca ataca.
+		if base_mechanic == "flee":
+			if offset.length() < FLEE_RADIUS:
+				_move_enemy(enemy, -offset.normalized() * float(enemy.get("speed", 40.0)) * delta)
+			continue
+		# Variante noturna: some e reaparece atrás de quem persegue.
+		if base_mechanic == "shadow_blink" and float(enemy["action_timer"]) <= 0.0 and offset.length() <= BLINK_RANGE and offset.length() > 90.0:
+			var behind := (target["position"] as Vector2) + (target.get("facing_direction", Vector2.DOWN) as Vector2).normalized() * -BLINK_BEHIND
+			if floor_layout.is_empty() or FloorLayoutScript.can_stand(floor_layout, behind, 12.0):
+				_vfx(arena_zone(), "ring", [enemy_position, 40.0])
+				enemy["position"] = behind
+				_vfx(arena_zone(), "ring", [behind, 40.0])
+			enemy["action_timer"] = BLINK_INTERVAL
+			continue
 		if base_mechanic in ["telegraphed_shot", "mark_target"]:
 			if offset.length() > 300.0:
 				_move_enemy(enemy, offset.normalized() * float(enemy.get("speed", 30.0)) * delta)
@@ -2809,6 +2883,20 @@ func _update_enemy_projectiles(delta: float) -> void:
 			enemy_projectiles.remove_at(index)
 
 
+## Mais próximo entre os iluminados: à noite o ataque automático só pega o que está na luz.
+func nearest_lit_enemy_to(origin: Vector2, max_range: float) -> int:
+	if not is_night():
+		return nearest_enemy_to(origin, max_range)
+	var result := -1
+	var nearest_distance := max_range
+	for index in range(enemies.size()):
+		var distance := origin.distance_to(enemies[index]["position"] as Vector2)
+		if distance < nearest_distance and enemy_lit(enemies[index]):
+			nearest_distance = distance
+			result = index
+	return result
+
+
 func nearest_enemy_to(origin: Vector2, max_range: float) -> int:
 	var result := -1
 	var nearest_distance := max_range
@@ -2818,6 +2906,133 @@ func nearest_enemy_to(origin: Vector2, max_range: float) -> int:
 			nearest_distance = distance
 			result = index
 	return result
+
+
+# ---------------------------------------------------------------- dia e noite
+
+func is_night() -> bool:
+	return bool(clock.call("is_night"))
+
+
+## Multiplicadores do horário: {"exp", "loot", "enemy"}.
+func time_bonuses() -> Dictionary:
+	return clock.call("bonuses") as Dictionary
+
+
+func _step_clock(delta: float) -> void:
+	for event: Dictionary in clock.call("step", delta) as Array:
+		if String(event["type"]) == "warning":
+			_status(0, "A noite cai em 1 minuto." if String(event["period"]) == "noite" else "O dia nasce em 1 minuto.")
+		else:
+			_on_period_changed(String(event["period"]))
+	_light_radii.clear()
+	for peer_id: int in players:
+		var state := players[peer_id] as Dictionary
+		state["holy_light_timer"] = maxf(0.0, float(state.get("holy_light_timer", 0.0)) - delta)
+
+
+func _on_period_changed(period_id: String) -> void:
+	village_life.set("period_index", WorldClockScript.PERIODS.find(period_id))
+	var on_floor := current_floor > 0 and is_explore_floor() and not _players_in_arena().is_empty()
+	match period_id:
+		"noite":
+			_retreat_time_enemies("dawn")
+			if bool(clock.call("is_scar_moon")):
+				_status(0, "A Lua da Cicatriz nasce: inimigos +20%, EXP +50% e saque +60%. Fique na luz.")
+			else:
+				_status(0, "A noite caiu: inimigos +10%, EXP +25% e saque +30%. Fique na luz.")
+			if on_floor:
+				_spawn_time_enemies("night", NIGHTFALL_VARIANTS)
+		"manha":
+			_retreat_time_enemies("night")
+			_status(0, "Amanheceu. Coletores de Ambar rondam os andares.")
+			if on_floor:
+				_spawn_time_enemies("dawn", DAWN_COLLECTORS)
+		"entardecer":
+			_status(0, "Entardecer: a noite cai em %d minutos." % int(WorldClockScript.PERIOD_SECONDS[2] / 60.0))
+
+
+## Variantes noturnas do bioma do andar, ou o Coletor de Âmbar da manhã.
+func _time_definitions(kind: String) -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	if kind == "night":
+		for enemy_id: Variant in TowerContentScript.biome(String(floor_def().get("biome", ""))).get("night_enemies", []) as Array:
+			var definition := _find(_collection("enemies"), String(enemy_id))
+			if not definition.is_empty():
+				result.append(definition)
+	else:
+		for definition in _collection("enemies"):
+			if String(definition.get("time_of_day", "")) == "dawn":
+				result.append(definition)
+	return result
+
+
+func _spawn_time_enemies(kind: String, count: int) -> void:
+	var definitions := _time_definitions(kind)
+	var points := floor_layout.get("spawn_points", []) as Array
+	if definitions.is_empty() or points.is_empty():
+		return
+	for index in range(count):
+		var spot := points[_time_random.randi_range(0, points.size() - 1)] as Vector2
+		var definition := definitions[_time_random.randi_range(0, definitions.size() - 1)]
+		enemies.append(_spawn_floor_enemy(definition, spot, 8000 + _time_random.randi_range(0, 999), _time_random))
+
+
+## Fim do horário: os monstros dele se recolhem (somem sem saque).
+func _retreat_time_enemies(kind: String) -> void:
+	for index in range(enemies.size() - 1, -1, -1):
+		if String(enemies[index].get("time_of_day", "")) == kind:
+			_vfx(arena_zone(), "ring", [enemies[index]["position"], 36.0])
+			enemies.remove_at(index)
+
+
+## Raio de luz da personagem: base, afixo "raio de luz", gemas sagradas e variantes que bebem luz.
+func light_radius(peer_id: int) -> float:
+	if _light_radii.has(peer_id):
+		return float(_light_radii[peer_id])
+	var state := player(peer_id)
+	if state.is_empty():
+		return LIGHT_RADIUS
+	var radius := LIGHT_RADIUS * _mod(peer_id, "light_radius_mult")
+	if float(state.get("holy_light_timer", 0.0)) > 0.0:
+		radius *= HOLY_LIGHT_MULT
+	if state["zone"] in ARENA_ZONES:
+		for enemy in enemies:
+			if String(enemy.get("base_mechanic", "")) == "light_eater" and (enemy["position"] as Vector2).distance_to(state["position"] as Vector2) <= LIGHT_EATER_RADIUS:
+				radius *= LIGHT_EATER_FACTOR
+				break
+	_light_radii[peer_id] = radius
+	return radius
+
+
+## De dia tudo está iluminado; à noite, só o que está na luz de alguma personagem (chefes sempre).
+func enemy_lit(enemy: Dictionary) -> bool:
+	if not is_night() or bool(enemy.get("floor_boss", false)):
+		return true
+	for peer_id in _players_in_arena():
+		if (player(peer_id)["position"] as Vector2).distance_to(enemy["position"] as Vector2) <= light_radius(peer_id):
+			return true
+	return false
+
+
+func _night_drops(enemy: Dictionary) -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	if not is_night():
+		return result
+	var random := RandomNumberGenerator.new()
+	random.seed = hash([encounter_seed, loot_kill_sequence, "night"])
+	# Na Lua da Cicatriz as chances crescem na mesma proporção do saque.
+	var scale := float(time_bonuses()["loot"]) / float(WorldClockScript.NIGHT["loot"])
+	if random.randf() < NIGHT_DEW_CHANCE * scale:
+		result.append({"item_id": "orvalho_negro", "quantity": 1})
+	if String(enemy.get("encounter_class", "common")) in ["elite", "boss", "raid"] and random.randf() < NIGHT_POLLEN_CHANCE * scale:
+		result.append({"item_id": "polen_lunar", "quantity": 1})
+	return result
+
+
+## Desenvolvimento: pula para o início do próximo período (com os avisos e trocas normais).
+func dev_advance_period() -> void:
+	_step_clock(float(clock.call("seconds_to_next_period")) + 0.01)
 
 
 # ---------------------------------------------------------------- dano
@@ -3963,7 +4178,7 @@ func _grant_loot(peer_id: int, enemy: Dictionary) -> void:
 	var loot_table := _find(_collection("loot_tables"), String(enemy.get("loot_table_id", "")))
 	var loot_level := LootDifficultyScript.score(enemy, float(party_scaling()["budget"])) + float(difficulty_rules()["loot_score"])
 	var drops: Array = _loot_resolver.call("resolve", loot_table, encounter_seed, loot_kill_sequence,
-		LootDifficultyScript.chance_multiplier(loot_level) * float(difficulty_rules()["loot"]), LootDifficultyScript.quantity_multiplier(loot_level))
+		LootDifficultyScript.chance_multiplier(loot_level) * float(difficulty_rules()["loot"]) * float(time_bonuses()["loot"]), LootDifficultyScript.quantity_multiplier(loot_level))
 	var quality_random := RandomNumberGenerator.new()
 	quality_random.seed = hash([encounter_seed, loot_kill_sequence, "quality"])
 	if drops.is_empty() and loot_table.is_empty():
@@ -3978,6 +4193,7 @@ func _grant_loot(peer_id: int, enemy: Dictionary) -> void:
 		var unique := _pick_unique_weapon(peer_id, quality_random)
 		if not unique.is_empty():
 			drops.append({"item_id": unique, "quantity": 1})
+	drops.append_array(_night_drops(enemy))
 	_record_bestiary_drops(enemy, drops)
 	var origin := enemy.get("position", state["position"]) as Vector2
 	for drop_index in range(drops.size()):
@@ -4108,7 +4324,7 @@ func _grant_experience(peer_id: int, enemy: Dictionary) -> void:
 	var key := String(player(peer_id).get("character_id", ""))
 	if key.is_empty():
 		return
-	var reward := int(round(float(EXPERIENCE_REWARDS.get(String(enemy.get("encounter_class", "common")), 12)) * float(difficulty_rules()["exp"])))
+	var reward := int(round(float(EXPERIENCE_REWARDS.get(String(enemy.get("encounter_class", "common")), 12)) * float(difficulty_rules()["exp"]) * float(time_bonuses()["exp"])))
 	character_experience[key] = int(character_experience.get(key, 0)) + reward
 	_process_level_ups(peer_id)
 
@@ -4448,6 +4664,7 @@ func view_snapshot() -> Dictionary:
 			"max_breath": max_breath(peer_id),
 			"barrier": state["barrier"],
 			"barrier_timer": maxf(0.0, float(state.get("barrier_timer", 0.0))),
+			"light_radius": light_radius(peer_id),
 			"status_effects": player_status_effects(peer_id),
 			"invulnerable": float(state["invulnerable"]) > 0.0,
 			"downed": bool(state.get("downed", false)),
@@ -4480,6 +4697,8 @@ func view_snapshot() -> Dictionary:
 			"definition_id": enemy["definition_id"], "position": enemy["position"],
 			"resistances": enemy.get("resistances", {}),
 			"superior": bool(enemy.get("superior", false)),
+			"lit": enemy_lit(enemy), "time_of_day": String(enemy.get("time_of_day", "")),
+			"sprite_id": String(enemy.get("sprite_id", "")),
 			"facing_direction": enemy.get("facing_direction", Vector2.DOWN),
 			"health": enemy["health"], "max_health": enemy["max_health"],
 			"prefix_id": enemy["prefix_id"], "suffix_id": enemy["suffix_id"],
@@ -4518,6 +4737,7 @@ func view_snapshot() -> Dictionary:
 		"floor": _floor_view(),
 		"npcs": village_life.call("view"),
 		"village_period": String(village_life.call("period")),
+		"clock": clock.call("view"),
 		"warehouse": village_life.economy.view(),
 		"village_log": (village_life.get("log") as Array).duplicate(true),
 		"npc_mode": String(village_life.get("mode")),
@@ -5063,6 +5283,7 @@ func menu_model(peer_id: int) -> Dictionary:
 		"records": difficulty_records(),
 		"deepest_floor": deepest_floor,
 		"tower_start_floor": tower_start_floor,
+		"clock": clock.call("view"),
 		"difficulty": difficulty_model(),
 		"floors": _tower_map_model(),
 		"chosen_milestones": chosen,
@@ -5284,6 +5505,17 @@ func _bestiary_catalog() -> Array[Dictionary]:
 				group.append({"definition": definition, "biome": biome, "boss": {}})
 				listed[String(enemy_id)] = true
 		group.sort_custom(func(left: Dictionary, right: Dictionary) -> bool: return String((left["definition"] as Dictionary).get("encounter_class", "")) == "common" and String((right["definition"] as Dictionary).get("encounter_class", "")) != "common")
+		# Monstros de horário (decisão 605): variantes noturnas do bioma e, no primeiro, o Coletor da manhã.
+		var timed: Array = (biome.get("night_enemies", []) as Array).duplicate()
+		if result.is_empty():
+			for definition in _collection("enemies"):
+				if String(definition.get("time_of_day", "")) == "dawn":
+					timed.append(String(definition["id"]))
+		for enemy_id: Variant in timed:
+			var definition := _find(_collection("enemies"), String(enemy_id))
+			if not definition.is_empty() and not listed.has(String(enemy_id)):
+				group.append({"definition": definition, "biome": biome, "boss": {}})
+				listed[String(enemy_id)] = true
 		for boss in TowerContentScript.collection("bosses"):
 			if String(boss.get("biome", "")) == String(biome.get("id", "")) and not listed.has(String(boss["id"])):
 				var definition := _find(_collection("enemies"), String(boss["id"])).duplicate(true)
@@ -5468,6 +5700,7 @@ func save_data(host_peer: int) -> Dictionary:
 		"current_floor": current_floor,
 		"floor_run": floor_run.duplicate(true),
 		"village_life": village_life.call("snapshot"),
+		"world_clock": clock.call("save"),
 		"tower_start_floor": tower_start_floor,
 		"deepest_floor": deepest_floor,
 		"difficulty": difficulty,
@@ -5539,6 +5772,14 @@ func load_data(data: Dictionary, host_peer: int) -> bool:
 	var saved_life: Variant = data.get("village_life", {})
 	if saved_life is Dictionary:
 		village_life.call("restore", saved_life)
+	# Saves sem relógio começam no período em que a vila estava.
+	var saved_clock: Variant = data.get("world_clock", {})
+	if saved_clock is Dictionary and not (saved_clock as Dictionary).is_empty():
+		clock.call("restore", saved_clock)
+	else:
+		clock.call("restore", {})
+		clock.call("set_period", String(village_life.call("period")))
+	village_life.set("period_index", int(clock.call("period_index")))
 	tower_start_floor = clampi(int(data.get("tower_start_floor", 1)), 1, deepest_floor)
 	# Saves antigos podem trazer "boss_cooldowns": ignorado, chefes não têm mais recarga.
 	current_floor = clampi(int(data.get("current_floor", 0)), 0, TowerContentScript.MAX_FLOOR)

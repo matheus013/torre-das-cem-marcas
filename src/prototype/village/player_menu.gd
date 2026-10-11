@@ -1,6 +1,7 @@
 class_name PrototypePlayerMenu
 extends Control
 
+const WorldClockScript := preload("res://src/gameplay/world/world_clock.gd")
 const BindingsScript := preload("res://src/core/app/input_bindings.gd")
 const UiSkin := preload("res://src/presentation/ui/game_ui_skin.gd")
 
@@ -759,6 +760,9 @@ func _build_tower() -> void:
 	var safe := bool(_model.get("in_safe_area", true))
 	_build_difficulty_picker(safe)
 	_section("MAPA DA TORRE", "andar mais fundo: %d   ·   proxima entrada: andar %d" % [deepest, start])
+	var clock := _model.get("clock", {}) as Dictionary
+	if not clock.is_empty():
+		_add_text(WorldClockScript.describe(clock) + ("  ·  noite: inimigos +10%, EXP +25%, saque +30%; so o que esta na luz entra na mira automatica." if bool(clock.get("night", false)) else ""), GOLD if bool(clock.get("night", false)) else MUTED)
 	_add_text("Recordes de tempo por andar em SOLO, DUO, TRIO e SQUAD. Andares comuns contam ate a descida; andares de chefe, ate a queda do chefe.", MUTED)
 	_add_text("Partilha do saque: cada peca vai para quem a recolhe; armas unicas e divinos sao sorteados para cada jogador; os materiais da carga vao para o armazem comum da vila ao voltar.", MUTED)
 	var records := _model.get("records", {}) as Dictionary

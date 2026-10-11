@@ -58,6 +58,8 @@ const POOL := {
 	"resistencia_terra": {"kind": "mod", "key": "resist_earth_add", "min": 0.04, "max": 0.1, "label": "resistencia a terra"},
 	"resistencia_arcano": {"kind": "mod", "key": "resist_arcane_add", "min": 0.04, "max": 0.1, "label": "resistencia arcana"},
 	"penetracao": {"kind": "mod", "key": "penetration_add", "min": 0.03, "max": 0.06, "label": "penetracao de resistencia"},
+	# Dia e noite (E1 fase 3): à noite só o que está na luz entra na mira automática.
+	"luz": {"kind": "mod", "key": "light_radius_mult", "min": 0.08, "max": 0.2, "label": "raio de luz"},
 	# Fixo de certos lendários (fora do sorteio comum): faixa exata, sem escala de raridade ou nível.
 	"proliferacao": {"kind": "mod", "key": "poison_spread_mult", "min": 0.3, "max": 1.0, "label": "alcance de proliferacao de veneno", "random": false},
 }

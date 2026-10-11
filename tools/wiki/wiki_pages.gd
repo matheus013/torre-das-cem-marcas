@@ -10,6 +10,7 @@ const ResistancesScript := preload("res://src/gameplay/combat/resistances.gd")
 const ItemAffixesScript := preload("res://src/gameplay/items/item_affixes.gd")
 const BestiaryScript := preload("res://src/gameplay/content/bestiary.gd")
 const MenuScript := preload("res://src/prototype/village/player_menu.gd")
+const WorldClockScript := preload("res://src/gameplay/world/world_clock.gd")
 const WEAPON_PROFILES := "res://data/combat/weapon_profiles.json"
 
 const PAGES := [
@@ -17,7 +18,7 @@ const PAGES := [
 	["Gemas-Ativas", "Gemas ativas"], ["Gemas-de-Suporte", "Gemas de suporte"], ["Invocacoes", "Invocações"],
 	["Inimigos", "Inimigos"], ["Chefes", "Chefes"], ["Racas-e-Patentes", "Raças, patentes e afixos de monstro"],
 	["Torre-e-Biomas", "Torre e biomas"], ["Andares", "Os 100 andares"], ["Resistencias", "Resistências"],
-	["Dificuldades", "Dificuldades"], ["Armas-Unicas", "Armas únicas"], ["Lendarios-e-Reliquias", "Lendários e relíquias"],
+	["Dificuldades", "Dificuldades"], ["Dia-e-Noite", "Dia e noite"], ["Armas-Unicas", "Armas únicas"], ["Lendarios-e-Reliquias", "Lendários e relíquias"],
 	["Equipamentos-e-Materiais", "Equipamentos, consumíveis e materiais"], ["Afixos", "Afixos de item"],
 ]
 const LICENSE_NOTE := "Conteúdo de *Aresta — A Torre das Cem Marcas* © 2026 Matheus Santos, sob [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/). Gerado dos dados do jogo; valores provisórios, sujeitos a balanceamento."
@@ -75,7 +76,7 @@ func build() -> Dictionary:
 		"Personagens.md": _characters(), "Armas.md": _weapons(), "Gemas-Ativas.md": _active_gems(),
 		"Gemas-de-Suporte.md": _support_gems(), "Invocacoes.md": _summons(), "Inimigos.md": _enemies(),
 		"Chefes.md": _bosses(), "Racas-e-Patentes.md": _races(), "Torre-e-Biomas.md": _biomes(),
-		"Andares.md": _floors(), "Resistencias.md": _resistances(), "Dificuldades.md": _difficulties(),
+		"Andares.md": _floors(), "Resistencias.md": _resistances(), "Dificuldades.md": _difficulties(), "Dia-e-Noite.md": _day_night(),
 		"Armas-Unicas.md": _uniques(), "Lendarios-e-Reliquias.md": _legendaries(),
 		"Equipamentos-e-Materiais.md": _equipment(), "Afixos.md": _affixes(),
 	}
@@ -310,38 +311,49 @@ func _enemies() -> String:
 		"Inimigos comuns e de elite de cada bioma. **Vida base** já inclui o multiplicador global (x%s); no jogo ela ainda é multiplicada pela raça, pela patente, pelo andar e pela [dificuldade](Dificuldades). A velocidade final é %s%% da base." % [_num(Simulation.ENEMY_HEALTH_MULT), _num(Simulation.ENEMY_SPEED_MULT * 100.0)], "",
 		"Resistências e fraquezas somam a raça e o bioma (veja [Resistências](Resistencias)). O bestiário do jogo revela estas informações aos poucos: comuns precisam de %s abates para cada nível de conhecimento; elites, %s." % [_join_ints(BestiaryScript.thresholds("common")), _join_ints(BestiaryScript.thresholds("elite"))], ""])
 	for biome in TowerContentScript.collection("biomes"):
-		var members := _regular_enemies().filter(func(enemy: Dictionary) -> bool: return biome_of.get(String(enemy["id"]), String(enemy.get("biome", ""))) == String(biome["id"]))
+		var members := _regular_enemies().filter(func(enemy: Dictionary) -> bool: return String(enemy.get("time_of_day", "")).is_empty() and biome_of.get(String(enemy["id"]), String(enemy.get("biome", ""))) == String(biome["id"]))
 		if members.is_empty():
 			continue
 		lines.append("## %s (andares %d–%d)" % [biome["name"], int(biome["floors"][0]), int(biome["floors"][1])])
 		lines.append("")
 		for enemy: Dictionary in members:
-			var race := races.get(String(enemy.get("race_id", "")), {}) as Dictionary
-			var rank := ranks.get(String(enemy.get("rank_id", "")), {}) as Dictionary
-			var profile := ResistancesScript.enemy_profile(String(enemy.get("race_id", "")), String(biome["id"]))
-			lines.append_array(PackedStringArray([
-				"### %s" % enemy["name"], "",
-				"| | |", "| --- | --- |",
-				"| Classe | %s |" % _label(CLASS_LABELS, String(enemy.get("encounter_class", ""))),
-				"| Raça | [%s](Racas-e-Patentes#%s) |" % [race.get("name", enemy.get("race_id", "")), _anchor(String(race.get("name", "")))],
-				"| Patente | %s |" % rank.get("name", enemy.get("rank_id", "")),
-				"| Tipo | %s |" % _label(KIND_LABELS, String(enemy.get("kind", ""))),
-				"| Vida base | %s |" % _num(float(enemy.get("health", 0.0)) * Simulation.ENEMY_HEALTH_MULT),
-				"| Dano | %s a cada %ss |" % [_num(float(enemy.get("damage", 0.0))), _num(float(enemy.get("attack_interval", 1.0)))],
-				"| Velocidade base | %s |" % _num(float(enemy.get("speed", 0.0))),
-				"| Tipo de dano | %s |" % ResistancesScript.LABELS.get(String(ResistancesScript.RACE_DAMAGE.get(String(enemy.get("race_id", "")), "physical")), ""),
-				"| Resistências | %s |" % _resist_text(profile, true),
-				"| Fraquezas | %s |" % _resist_text(profile, false),
-				"| Afixos | %s |" % ("pode ter" if bool(enemy.get("allow_affixes", true)) else "não"),
-				"| Comportamento | %s |" % _cell(String(BestiaryScript.MECHANICS.get(String(enemy.get("mechanic", "")), String(enemy.get("mechanic", "")).replace("_", " ")))),
-				"| Saque | %s |" % _loot_text(loot.get(String(enemy.get("loot_table_id", "")), {}) as Dictionary),
-				"",
-			]))
-			var lore := String(enemy.get("lore", enemy.get("lore_basis", "")))
-			if not lore.is_empty():
-				lines.append("> " + _text(lore))
-				lines.append("")
+			lines.append_array(_enemy_block(enemy, String(biome["id"]), races, ranks, loot))
+	lines.append_array(PackedStringArray(["## Monstros de horário", "",
+		"Só nascem num período do [relógio do mundo](Dia-e-Noite). Cada bioma tem uma variante noturna; o Coletor de Âmbar aparece em todos os biomas de manhã. Ao virar o período eles se recolhem, sem saque.", ""]))
+	for enemy: Dictionary in _regular_enemies().filter(func(enemy: Dictionary) -> bool: return not String(enemy.get("time_of_day", "")).is_empty()):
+		var biome_id := String(enemy.get("biome", ""))
+		lines.append_array(_enemy_block(enemy, biome_id, races, ranks, loot, "%s · %s" % ["só à noite" if String(enemy["time_of_day"]) == "night" else "só de manhã", TowerContentScript.biome(biome_id).get("name", "todos os biomas")]))
 	return _page(lines)
+
+
+func _enemy_block(enemy: Dictionary, biome_id: String, races: Dictionary, ranks: Dictionary, loot: Dictionary, when: String = "") -> PackedStringArray:
+	var race := races.get(String(enemy.get("race_id", "")), {}) as Dictionary
+	var rank := ranks.get(String(enemy.get("rank_id", "")), {}) as Dictionary
+	var profile := ResistancesScript.enemy_profile(String(enemy.get("race_id", "")), biome_id)
+	var lines := PackedStringArray(["### %s" % enemy["name"], "", "| | |", "| --- | --- |"])
+	if not when.is_empty():
+		lines.append("| Quando | %s |" % when)
+	lines.append_array(PackedStringArray([
+		"| Classe | %s |" % _label(CLASS_LABELS, String(enemy.get("encounter_class", ""))),
+		"| Raça | [%s](Racas-e-Patentes#%s) |" % [race.get("name", enemy.get("race_id", "")), _anchor(String(race.get("name", "")))],
+		"| Patente | %s |" % rank.get("name", enemy.get("rank_id", "")),
+		"| Tipo | %s |" % _label(KIND_LABELS, String(enemy.get("kind", ""))),
+		"| Vida base | %s |" % _num(float(enemy.get("health", 0.0)) * Simulation.ENEMY_HEALTH_MULT),
+		"| Dano | %s |" % ("não ataca" if float(enemy.get("damage", 0.0)) <= 0.0 else "%s a cada %ss" % [_num(float(enemy.get("damage", 0.0))), _num(float(enemy.get("attack_interval", 1.0)))]),
+		"| Velocidade base | %s |" % _num(float(enemy.get("speed", 0.0))),
+		"| Tipo de dano | %s |" % ResistancesScript.LABELS.get(String(ResistancesScript.RACE_DAMAGE.get(String(enemy.get("race_id", "")), "physical")), ""),
+		"| Resistências | %s |" % _resist_text(profile, true),
+		"| Fraquezas | %s |" % _resist_text(profile, false),
+		"| Afixos | %s |" % ("pode ter" if bool(enemy.get("allow_affixes", true)) else "não"),
+		"| Comportamento | %s |" % _cell(String(BestiaryScript.MECHANICS.get(String(enemy.get("mechanic", "")), String(enemy.get("mechanic", "")).replace("_", " ")))),
+		"| Saque | %s |" % _loot_text(loot.get(String(enemy.get("loot_table_id", "")), {}) as Dictionary),
+		"",
+	]))
+	var lore := String(enemy.get("lore", enemy.get("lore_basis", "")))
+	if not lore.is_empty():
+		lines.append("> " + _text(lore))
+		lines.append("")
+	return lines
 
 
 func _bosses() -> String:
@@ -541,6 +553,30 @@ func _difficulties() -> String:
 	return _page(lines)
 
 
+func _day_night() -> String:
+	var lines := PackedStringArray(["# Dia e noite", "",
+		"O mundo tem um relógio próprio, que corre na vila e na Torre (para na pausa de marco). Um dia dura %s minutos de jogo. Em co-op o relógio é do host." % _num(WorldClockScript.DAY_SECONDS / 60.0), "",
+		"| Período | Duração |", "| --- | --- |"])
+	for index in range(WorldClockScript.PERIODS.size()):
+		lines.append("| %s | %s min |" % [WorldClockScript.PERIOD_LABELS[WorldClockScript.PERIODS[index]], _num(WorldClockScript.PERIOD_SECONDS[index] / 60.0)])
+	lines.append_array(PackedStringArray(["",
+		"Avisos 1 minuto antes de anoitecer e de amanhecer. A rotina dos moradores da vila segue o relógio.", "",
+		"## A noite", "",
+		"| | Noite | Lua da Cicatriz |", "| --- | --- | --- |",
+		"| Vida e dano dos inimigos | %s | %s |" % [_signed_pct(float(WorldClockScript.NIGHT["enemy"]) - 1.0), _signed_pct(float(WorldClockScript.SCAR_MOON["enemy"]) - 1.0)],
+		"| Experiência | %s | %s |" % [_signed_pct(float(WorldClockScript.NIGHT["exp"]) - 1.0), _signed_pct(float(WorldClockScript.SCAR_MOON["exp"]) - 1.0)],
+		"| Chance de saque | %s | %s |" % [_signed_pct(float(WorldClockScript.NIGHT["loot"]) - 1.0), _signed_pct(float(WorldClockScript.SCAR_MOON["loot"]) - 1.0)],
+		"", "A **Lua da Cicatriz** sobe a cada %d noites." % WorldClockScript.SCAR_MOON_EVERY, "",
+		"- **Luz:** cada personagem ilumina um raio de %s. À noite, monstros fora da luz de todas as personagens viram vultos e não entram no ataque automático nem na mira automática (chefes sempre aparecem). O afixo *raio de luz* aumenta o raio; lançar uma gema sagrada amplia a luz em %s por %s s." % [_num(Simulation.LIGHT_RADIUS), _signed_pct(Simulation.HOLY_LIGHT_MULT - 1.0), _num(Simulation.HOLY_LIGHT_SECONDS)],
+		"- **Variantes noturnas:** cada bioma tem uma criatura que só nasce à noite (veja [Inimigos](Inimigos#monstros-de-horário)). Sombras somem e reaparecem atrás de quem perseguem; bebe-luzes cortam a luz de quem chega a %s pela metade. Cerca de %s das matilhas e dos reaparecimentos noturnos trazem uma; ao anoitecer chegam %d." % [_num(Simulation.LIGHT_EATER_RADIUS), _pct(Simulation.NIGHT_VARIANT_CHANCE), Simulation.NIGHTFALL_VARIANTS],
+		"- **Elites caçadores:** à noite percebem a personagem %sx mais longe e não voltam ao território." % _num(Simulation.NIGHT_HUNTER_AGGRO),
+		"- **Materiais:** Orvalho Negro (%s por abate) e Pólen Lunar (%s em elites e chefes) só caem à noite." % [_pct(Simulation.NIGHT_DEW_CHANCE), _pct(Simulation.NIGHT_POLLEN_CHANCE)],
+		"", "## A manhã", "",
+		"Coletores de Âmbar (%d por andar) só nascem de manhã: fogem de quem chega perto, nunca atacam e soltam Âmbar Solar. Ao anoitecer se recolhem." % Simulation.DAWN_COLLECTORS,
+	]))
+	return _page(lines)
+
+
 # ---------------------------------------------------------------- itens
 
 func _uniques() -> String:
@@ -608,7 +644,7 @@ func _equipment() -> String:
 			lines.append("| Material | Raridade | Bioma | Cai de |")
 			lines.append("| --- | --- | --- | --- |")
 			for item: Dictionary in items:
-				lines.append("| **%s** | %s | %s | %s |" % [item["name"], _label(TIER_LABELS, String(item.get("tier", ""))), TowerContentScript.biome(String(item.get("biome", ""))).get("name", "Galerias Refeitas" if not item.has("biome") else item["biome"]),
+				lines.append("| **%s** | %s | %s | %s |" % [item["name"], _label(TIER_LABELS, String(item.get("tier", ""))), _material_origin(item),
 					_sources_text(sources.get(String(item["id"]), []) as Array)])
 		else:
 			lines.append("| Item | Encaixe | Raridade | Atributos | Descrição |")
@@ -727,6 +763,12 @@ func _loot_text(table: Dictionary) -> String:
 		var amount := "" if int(entry.get("maximum", 1)) <= 1 else " (%d–%d)" % [int(entry.get("minimum", 1)), int(entry.get("maximum", 1))]
 		parts.append("%s %s%s" % [_item_names.get(String(entry["item_id"]), entry["item_id"]), BestiaryScript.percent(float(entry.get("chance", 0.0))), amount])
 	return ", ".join(parts) if not parts.is_empty() else "—"
+
+
+func _material_origin(item: Dictionary) -> String:
+	if item.has("biome"):
+		return String(TowerContentScript.biome(String(item["biome"])).get("name", item["biome"]))
+	return String({"orvalho_negro": "noite, todos os biomas", "polen_lunar": "noite, todos os biomas", "ambar_solar": "manhã, todos os biomas"}.get(String(item["id"]), "Galerias Refeitas"))
 
 
 func _sources_text(names: Array) -> String:

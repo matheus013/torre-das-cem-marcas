@@ -67,8 +67,8 @@ Um so lugar define chances e quantidades de drop por dificuldade, fonte e evento
 
 Usa o pipeline de saque da fase 2.
 
-- [ ] G8.1: relogio de dia e noite (2 h; manha 30 min, tarde 30, entardecer 20, noite 40) na vila e na Torre, do host, no snapshot e no save; HUD com hora e avisos; noite com EXP +25%, saque +30% e inimigos +10%; Lua da Cicatriz a cada 3 noites.
-- [ ] G8.2: noite com mecanica: raio de luz como atributo, inimigos fora da luz semi-invisiveis e fora da mira automatica, variantes noturnas por bioma, elites cacadores; monstros da aurora de manha; materiais por horario (Orvalho Negro, Polen Lunar, Ambar Solar).
+- [x] G8.1: relogio de dia e noite (2 h; manha 30 min, tarde 30, entardecer 20, noite 40) na vila e na Torre, do host, no snapshot e no save; HUD com hora e avisos; noite com EXP +25%, saque +30% e inimigos +10%; Lua da Cicatriz a cada 3 noites. Feito em 2026-10-11 (decisao 605): `WorldClock` no snapshot, no save e no mapa da Torre, avisos, bonus da noite e Lua da Cicatriz (bonus dobrados ate as mares da fase 4); a vila segue o relogio. Regressao em `tests/day_night_test.gd`.
+- [x] G8.2: noite com mecanica: raio de luz como atributo, inimigos fora da luz semi-invisiveis e fora da mira automatica, variantes noturnas por bioma, elites cacadores; monstros da aurora de manha; materiais por horario (Orvalho Negro, Polen Lunar, Ambar Solar). Feito em 2026-10-11 (decisao 605): raio de luz (afixo e gemas sagradas), vultos fora da luz fora do ataque e da mira automaticos, uma variante noturna por bioma (sombra ou bebe-luz), elites cacadores, Coletor de Ambar de manha e os tres materiais. Pendente: arte propria das variantes (hoje sprite do bioma tingido) e servicos da vila por horario.
 
 ### Fase 4: afixos, mutadores e mares
 

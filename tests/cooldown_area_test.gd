@@ -20,7 +20,10 @@ func _run() -> void:
 
 	# Anel de Área (+10) e Amuleto da Primeira Marca (+4 recuperação de recarga), fabricação regular.
 	for item_id in ["anel_de_area", "amuleto_da_primeira_marca"]:
-		sim.equip_item(1, sim._add_equipment_instance(&"eloa", item_id, "regular"))
+		# Sem os afixos sorteados: o teste mede só os atributos-base das peças.
+		var instance_id := sim._add_equipment_instance(&"eloa", item_id, "regular")
+		((sim._gear(1)["inventory"] as ItemInventory).items[instance_id] as EquipmentItemInstance).affixes = []
+		sim.equip_item(1, instance_id)
 	var after := sim.derived_stats(1)
 	if not is_equal_approx(float(after["area_multiplier"]), 1.10):
 		return _fail("Ring of Area must grant +10%% area, got %.3f" % float(after["area_multiplier"]))
