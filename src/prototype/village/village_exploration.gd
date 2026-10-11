@@ -92,6 +92,8 @@ var _talk_hint: Label
 var _service_menu: Control
 ## Validação e limite de frequência dos comandos que chegam ao host (G0.6).
 var _intent_guard := IntentGuard.new()
+## Cores da aura dos bandos superiores, escolhidas pelo afixo principal.
+const SUPERIOR_AURA_COLORS: Array[Color] = [Color("ff6a3c"), Color("b276e8"), Color("5aa2e8"), Color("7fd36a"), Color("ffd24a")]
 var _shop_menu: Control
 ## Último modelo de menu recebido (a loja abre com ele).
 var _menu_model: Dictionary = {}
@@ -503,6 +505,9 @@ func _apply_intent(peer_id: int, kind: String, args: Array) -> void:
 		"narrative":
 			if args.size() == 1 and args[0] is String and String(args[0]).length() <= 64:
 				_sim.call("narrative_action", peer_id, String(args[0]))
+		"difficulty":
+			if args.size() == 1 and args[0] is int and int(args[0]) >= 1 and int(args[0]) <= 5 and peer_id == _local_peer:
+				_sim.call("set_difficulty", peer_id, int(args[0]))
 		"start_floor":
 			if args.size() == 1 and args[0] is int and int(args[0]) >= 1 and int(args[0]) <= 100:
 				_sim.call("set_start_floor", peer_id, int(args[0]))
@@ -1992,6 +1997,15 @@ func _draw_enemy(enemy: Dictionary) -> void:
 	if (mechanic == "wall_ambush" or String(enemy.get("race_trait", "")) == "wall_camouflage") and distance > 170.0:
 		alpha = 0.3
 	_draw_shadow(feet, Vector2(maxf(10.0, height * 0.4), 5.0))
+	if bool(enemy.get("superior", false)):
+		# Bando superior (decisão 600): anel pulsante no chão, na cor do afixo principal.
+		var aura := SUPERIOR_AURA_COLORS[absi(hash(String(enemy.get("prefix_id", enemy.get("suffix_id", ""))))) % SUPERIOR_AURA_COLORS.size()]
+		var pulse := 0.55 + 0.35 * sin(_anim_time * 5.0 + position.x * 0.01)
+		var ring := Vector2(maxf(18.0, height * 0.55), 7.0)
+		draw_set_transform(feet, 0.0, Vector2(1.0, ring.y / ring.x))
+		draw_circle(Vector2.ZERO, ring.x, Color(aura, 0.18 * pulse))
+		draw_arc(Vector2.ZERO, ring.x, 0.0, TAU, 32, Color(aura, pulse), 3.0)
+		draw_set_transform(Vector2.ZERO)
 	var lift := absf(sin(_anim_time * 9.0 + float(int(position.x) % 7))) * 2.0
 	var tint := Color(1.0, 1.0, 1.0, alpha)
 	if float(enemy.get("flash", 0.0)) > 0.0:
@@ -2367,6 +2381,7 @@ func _build_interface() -> void:
 	_player_menu.support_attach_requested.connect(func(slot: int, support_id: String) -> void: _send_intent("support_add", [slot, support_id]))
 	_player_menu.support_detach_requested.connect(func(slot: int, support_id: String) -> void: _send_intent("support_remove", [slot, support_id]))
 	_player_menu.start_floor_requested.connect(func(floor_number: int) -> void: _send_intent("start_floor", [floor_number]))
+	_player_menu.difficulty_requested.connect(func(level: int) -> void: _send_intent("difficulty", [level]))
 	_player_menu.journal_requested.connect(_open_journal)
 	_player_menu.gem_evolution_requested.connect(func(gem_id: String, choice_id: String) -> void: _send_intent("gem_evolution", [gem_id, choice_id]))
 	layer.add_child(_player_menu)
@@ -2518,7 +2533,8 @@ func _update_floor_panel(zone: StringName, floor_view: Dictionary) -> void:
 	var goal := "CHEFE" if String(floor_view.get("kind", "")) == "boss" else "SOBREVIVA %s" % _format_countdown(float(floor_view.get("survival_left", 0.0)))
 	if bool(floor_view.get("stairs_open", false)):
 		goal = "ESCADA ABERTA"
-	_floor_label.text = "%s   TEMPO %s   RECORDE %s %s   ·   %s   ·   RESPAWN %.1f s" % [
+	_floor_label.text = "%s · %s   TEMPO %s   RECORDE %s %s   ·   %s   ·   RESPAWN %.1f s" % [
+		String(floor_view.get("difficulty_name", "Expedicao")).to_upper(),
 		String(TowerContentScript.biome(String(floor_view.get("biome", ""))).get("name", "")).to_upper(),
 		_format_time(float(floor_view.get("time", 0.0))), mode, _format_time(best) if best >= 0.0 else "--",
 		goal, float(floor_view.get("respawn_interval", 0.0)),

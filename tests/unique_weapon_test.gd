@@ -26,6 +26,9 @@ func _run() -> void:
 	var sim := Simulation.new()
 	sim.setup(4040)
 	sim.add_player(1, &"eloa")
+	# Armas únicas só caem da dificuldade 2 em diante (decisão 597).
+	sim.unlocked_difficulty = 2
+	sim.set_difficulty(1, 2)
 	sim.unlock_all_gems(1, true)
 	sim.set_gem_slot(1, 0, "agulha_lastro")
 	sim.set_gem_slot(1, 1, "elo_residual")

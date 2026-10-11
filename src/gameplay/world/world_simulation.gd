@@ -152,6 +152,20 @@ const FLOOR_SURVIVAL_SECONDS := 600.0
 ## Decisão 596: todos os monstros (chefes inclusive) com 10x a Vida e 50% mais velocidade.
 const ENEMY_HEALTH_MULT := 10.0
 const ENEMY_SPEED_MULT := 1.5
+## Dificuldades (épico E1, fase 2; documento 76, seção 3; decisões 597 e 600). Índice 0 = dificuldade 1.
+## health/damage multiplicam os inimigos do andar (chefes inclusive); resist soma a todas as
+## resistências deles; penalty tira das resistências da personagem; elite_affixes [mín, máx] (até 2:
+## prefixo e sufixo); loot multiplica chances e soma ao nível de saque (`loot_score`); uniques libera
+## armas únicas; adaptive liga a Adaptação em elites e chefes; no_nascent sobe Nascentes para Maduro;
+## superior é a chance de bando superior, com `superior_affixes` mínimos. Valores provisórios.
+const DIFFICULTIES: Array[Dictionary] = [
+	{"name": "Expedicao", "health": 1.0, "damage": 1.0, "resist": 0.0, "penalty": 0.0, "elite_affixes": [], "loot": 1.0, "loot_score": 0.0, "exp": 1.0, "uniques": false, "adaptive": false, "no_nascent": false, "superior": 0.0, "superior_affixes": 0},
+	{"name": "Veterana", "health": 30.0, "damage": 2.0, "resist": 0.1, "penalty": 0.0, "elite_affixes": [1, 2], "loot": 1.25, "loot_score": 1.5, "exp": 1.5, "uniques": true, "adaptive": false, "no_nascent": false, "superior": 0.0, "superior_affixes": 0},
+	{"name": "Mestra", "health": 1000.0, "damage": 4.0, "resist": 0.2, "penalty": 0.2, "elite_affixes": [2, 2], "loot": 1.5, "loot_score": 3.0, "exp": 2.0, "uniques": true, "adaptive": false, "no_nascent": false, "superior": 0.0, "superior_affixes": 0},
+	{"name": "Mitica", "health": 30000.0, "damage": 8.0, "resist": 0.3, "penalty": 0.4, "elite_affixes": [2, 2], "loot": 2.0, "loot_score": 4.5, "exp": 3.0, "uniques": true, "adaptive": true, "no_nascent": true, "superior": 0.15, "superior_affixes": 1},
+	{"name": "Cicatriz", "health": 100000.0, "damage": 16.0, "resist": 0.4, "penalty": 0.6, "elite_affixes": [2, 2], "loot": 2.5, "loot_score": 6.0, "exp": 4.0, "uniques": true, "adaptive": true, "no_nascent": true, "superior": 0.25, "superior_affixes": 2},
+]
+const RANK_ORDER: Array[String] = ["nascente", "maduro", "evoluido", "alfa", "apice"]
 ## Chefe derrotado só volta depois da recarga (decisão 526); enquanto isso o andar é passagem.
 ## Alcance do golpe corpo a corpo dos chefes; o resto do dano vem das mecânicas anunciadas.
 const BOSS_MELEE_RANGE := 75.0
@@ -201,6 +215,10 @@ var hazard_zones: Array[Dictionary] = []
 var tower_start_floor := 1
 var deepest_floor := 1
 var records: Dictionary = {}
+## Dificuldade do mundo (1 a 5, decisão 597), a maior liberada e o progresso guardado de cada uma.
+var difficulty := 1
+var unlocked_difficulty := 1
+var difficulty_progress: Dictionary = {}
 var _hazard_timer := 6.0
 var _floor_random := RandomNumberGenerator.new()
 ## Moradores de Aresta (decisão 560).
@@ -871,7 +889,67 @@ func player_resistance(peer_id: int, damage_type: String) -> float:
 
 ## Penalidade de resistência por dificuldade (documento 76): entra na fase 2 do épico.
 func difficulty_resistance_penalty() -> float:
-	return 0.0
+	return float(difficulty_rules()["penalty"])
+
+
+# ---------------------------------------------------------------- dificuldades
+
+func difficulty_rules() -> Dictionary:
+	return DIFFICULTIES[clampi(difficulty, 1, DIFFICULTIES.size()) - 1]
+
+
+## Muda a dificuldade do mundo (host): só fora da Torre e entre as liberadas. O andar mais fundo e
+## a entrada de cada dificuldade ficam guardados separadamente.
+func set_difficulty(peer_id: int, level: int) -> bool:
+	if level < 1 or level > unlocked_difficulty or level == difficulty:
+		return false
+	for member: int in players:
+		if player(member).get("zone") in ARENA_ZONES:
+			_status(peer_id, "Saiam da Torre para mudar a dificuldade.")
+			return false
+	difficulty_progress[str(difficulty)] = {"deepest": deepest_floor, "start": tower_start_floor}
+	difficulty = level
+	var saved := difficulty_progress.get(str(level), {}) as Dictionary
+	deepest_floor = clampi(int(saved.get("deepest", 1)), 1, TowerContentScript.MAX_FLOOR)
+	tower_start_floor = clampi(int(saved.get("start", 1)), 1, deepest_floor)
+	_status(0, "Dificuldade %d: %s." % [difficulty, String(difficulty_rules()["name"])])
+	return true
+
+
+## Definição do mesmo monstro uma patente acima, com afixos mínimos (bando superior).
+func superior_definition(definition: Dictionary, minimum_affixes: int) -> Dictionary:
+	var upgraded := definition.duplicate(true)
+	var rank_index := RANK_ORDER.find(String(definition.get("rank_id", "maduro")))
+	upgraded["rank_id"] = RANK_ORDER[mini(RANK_ORDER.size() - 1, maxi(0, rank_index) + 1)]
+	upgraded["allow_affixes"] = true
+	upgraded["minimum_affixes_override"] = minimum_affixes
+	return upgraded
+
+
+## Chave de recordes: a dificuldade 1 mantém as chaves antigas (só o andar).
+func record_key(floor_number: int) -> String:
+	return str(floor_number) if difficulty <= 1 else "d%d:%d" % [difficulty, floor_number]
+
+
+## Recordes da dificuldade atual, com chave só pelo andar (para o mapa da Torre).
+func difficulty_records() -> Dictionary:
+	var result := {}
+	for floor_number in range(1, TowerContentScript.MAX_FLOOR + 1):
+		if records.has(record_key(floor_number)):
+			result[str(floor_number)] = (records[record_key(floor_number)] as Dictionary).duplicate(true)
+	return result
+
+
+func difficulty_model() -> Dictionary:
+	var levels := []
+	for index in range(DIFFICULTIES.size()):
+		var rules := DIFFICULTIES[index]
+		levels.append({"level": index + 1, "name": String(rules["name"]), "unlocked": index + 1 <= unlocked_difficulty,
+			"summary": "Vida x%s, dano x%s, resistencias +%d%%, suas resistencias -%d%%, saque x%.2f, EXP x%.1f%s%s" % [
+				NumberFormat.short(float(rules["health"])), NumberFormat.short(float(rules["damage"])), roundi(float(rules["resist"]) * 100.0),
+				roundi(float(rules["penalty"]) * 100.0), float(rules["loot"]), float(rules["exp"]),
+				", armas unicas" if bool(rules["uniques"]) else "", ", adaptacao, sem Nascentes e bandos superiores" if bool(rules["no_nascent"]) else ""]})
+	return {"current": difficulty, "unlocked": unlocked_difficulty, "levels": levels}
 
 
 ## Custo de Fôlego de uma gema com as regras de itens: geral, por elemento e por movimento.
@@ -1865,12 +1943,21 @@ func _spawn_floor_population() -> void:
 	if points.is_empty():
 		return
 	var packs := int(floor_def().get("packs", 20))
+	var rules := difficulty_rules()
 	for pack in range(packs):
 		var center := points[_floor_random.randi_range(0, points.size() - 1)] as Vector2
+		# Bando superior (dificuldades 4 e 5, decisão 600): uma patente acima, todos com afixos e aura.
+		# Só sorteia com chance positiva: a sequência aleatória das dificuldades 1 a 3 fica igual.
+		var superior := float(rules.get("superior", 0.0)) > 0.0 and _floor_random.randf() < float(rules.get("superior", 0.0))
 		for member in range(_floor_random.randi_range(2, 4)):
 			var spot := center + Vector2.RIGHT.rotated(_floor_random.randf() * TAU) * _floor_random.randf_range(10.0, 70.0)
 			if FloorLayoutScript.can_stand(floor_layout, spot, 16.0):
-				enemies.append(_spawn_floor_enemy(_pick_floor_enemy(member == 0), spot, pack * 7 + member))
+				var definition := _pick_floor_enemy(member == 0)
+				if superior:
+					definition = superior_definition(definition, int(rules.get("superior_affixes", 1)))
+				var spawned := _spawn_floor_enemy(definition, spot, pack * 7 + member)
+				spawned["superior"] = superior
+				enemies.append(spawned)
 	floor_run["population"] = enemies.size()
 
 
@@ -1903,6 +1990,11 @@ func _spawn_floor_enemy(definition: Dictionary, position: Vector2, roll_index: i
 		enemy["health"] = float(enemy["health"]) * float(floor_info.get("health_multiplier", 1.0))
 		enemy["max_health"] = float(enemy["max_health"]) * float(floor_info.get("health_multiplier", 1.0))
 		enemy["damage"] = float(enemy["damage"]) * float(floor_info.get("damage_multiplier", 1.0))
+	# Escala da dificuldade (todos os inimigos do andar, chefes inclusive).
+	var rules := difficulty_rules()
+	enemy["health"] = float(enemy["health"]) * float(rules["health"])
+	enemy["max_health"] = float(enemy["max_health"]) * float(rules["health"])
+	enemy["damage"] = float(enemy["damage"]) * float(rules["damage"])
 	enemy["home"] = position
 	enemy["wander_target"] = position
 	enemy["wander_timer"] = _floor_random.randf_range(0.0, 2.5)
@@ -1975,6 +2067,10 @@ func _register_floor_kill(enemy: Dictionary) -> void:
 		floor_run["stairs_open"] = true
 		_announce_stairs()
 		_status(0, "Guardiao vencido em %s. A passagem se abriu." % format_time(float(floor_run["time"])))
+		# Concluir o andar 100 libera a dificuldade seguinte neste mundo (decisão 597).
+		if current_floor >= TowerContentScript.MAX_FLOOR and difficulty >= unlocked_difficulty and difficulty < DIFFICULTIES.size():
+			unlocked_difficulty = difficulty + 1
+			_status(0, "Dificuldade %d (%s) liberada neste mundo." % [unlocked_difficulty, String(DIFFICULTIES[unlocked_difficulty - 1]["name"])])
 		return
 	floor_run["kills"] = int(floor_run["kills"]) + 1
 
@@ -2015,7 +2111,7 @@ func _finish_floor_run() -> void:
 	for member in _players_in_arena():
 		characters.append(String(player(member).get("character_name", "")))
 	var entry := {"time": snappedf(time, 0.01), "characters": characters, "date": Time.get_date_string_from_system()}
-	var floor_key := str(current_floor)
+	var floor_key := record_key(current_floor)
 	var by_floor := records.get(floor_key, {}) as Dictionary
 	var list := (by_floor.get(mode, []) as Array).duplicate()
 	var previous_best := float((list[0] as Dictionary)["time"]) if not list.is_empty() else INF
@@ -2035,7 +2131,7 @@ static func format_time(seconds: float) -> String:
 
 
 func best_time(floor_number: int, mode: String) -> float:
-	var list := (records.get(str(floor_number), {}) as Dictionary).get(mode, []) as Array
+	var list := (records.get(record_key(floor_number), {}) as Dictionary).get(mode, []) as Array
 	return float((list[0] as Dictionary)["time"]) if not list.is_empty() else -1.0
 
 
@@ -2068,17 +2164,22 @@ func _players_in_arena() -> Array[int]:
 
 func create_enemy(definition: Dictionary, position: Vector2, roll_index: int) -> Dictionary:
 	var race := _find(_collection("monster_races"), String(definition.get("race_id", "juntideo")))
-	var rank := _find(_collection("enemy_ranks"), String(definition.get("rank_id", "maduro")))
+	var rank_id := String(definition.get("rank_id", "maduro"))
+	# Dificuldades 4 e 5: a patente mais básica não aparece (decisão 600).
+	if bool(difficulty_rules().get("no_nascent", false)) and rank_id == "nascente":
+		rank_id = "maduro"
+	var rank := _find(_collection("enemy_ranks"), rank_id)
 	var maximum_health := maxf(1.0, float(definition.get("health", 60.0)) * ENEMY_HEALTH_MULT)
 	var enemy := {
 		"definition_id": String(definition.get("id", "raspador_padrao")),
 		"display_name": String(definition.get("name", "Raspador")),
 		"encounter_class": String(definition.get("encounter_class", "common")),
 		"race_id": String(definition.get("race_id", "juntideo")),
-		"rank_id": String(definition.get("rank_id", "maduro")),
+		"rank_id": rank_id,
 		"race_trait": String(race.get("trait", "")),
 		# Resistências (E1 fase 1): raça + bioma do andar; tipo do dano dos ataques dela.
-		"resistances": ResistancesScript.enemy_profile(String(definition.get("race_id", "juntideo")), String(floor_def().get("biome", "")) if current_floor > 0 else "", 0.0),
+		"resistances": ResistancesScript.enemy_profile(String(definition.get("race_id", "juntideo")), String(floor_def().get("biome", "")) if current_floor > 0 else "", float(difficulty_rules().get("resist", 0.0))),
+		"adaptive": bool(difficulty_rules().get("adaptive", false)) and String(definition.get("encounter_class", "common")) in ["elite", "boss", "raid"],
 		"damage_type": String(ResistancesScript.RACE_DAMAGE.get(String(definition.get("race_id", "juntideo")), "physical")),
 		"kind": String(definition.get("kind", "melee")),
 		"base_mechanic": String(definition.get("mechanic", "swarm")),
@@ -2103,6 +2204,13 @@ func create_enemy(definition: Dictionary, position: Vector2, roll_index: int) ->
 	}
 	_apply_race_profile(enemy, race)
 	_apply_rank(enemy, rank)
+	var elite_affixes := difficulty_rules().get("elite_affixes", []) as Array
+	if String(definition.get("encounter_class", "common")) == "elite" and elite_affixes.size() == 2:
+		enemy["minimum_affixes"] = maxi(int(enemy["minimum_affixes"]), int(elite_affixes[0]))
+		enemy["maximum_affixes"] = maxi(int(enemy["maximum_affixes"]), int(elite_affixes[1]))
+	if definition.has("minimum_affixes_override"):
+		enemy["minimum_affixes"] = maxi(int(enemy["minimum_affixes"]), int(definition["minimum_affixes_override"]))
+		enemy["maximum_affixes"] = maxi(int(enemy["maximum_affixes"]), int(enemy["minimum_affixes"]))
 	_roll_modifiers(enemy, _enemy_modifiers(), roll_index)
 	return enemy
 
@@ -3847,19 +3955,20 @@ func _grant_loot(peer_id: int, enemy: Dictionary) -> void:
 		if reward_random.randf() >= share:
 			return
 	var loot_table := _find(_collection("loot_tables"), String(enemy.get("loot_table_id", "")))
-	var difficulty := LootDifficultyScript.score(enemy, float(party_scaling()["budget"]))
+	var loot_level := LootDifficultyScript.score(enemy, float(party_scaling()["budget"])) + float(difficulty_rules()["loot_score"])
 	var drops: Array = _loot_resolver.call("resolve", loot_table, encounter_seed, loot_kill_sequence,
-		LootDifficultyScript.chance_multiplier(difficulty), LootDifficultyScript.quantity_multiplier(difficulty))
+		LootDifficultyScript.chance_multiplier(loot_level) * float(difficulty_rules()["loot"]), LootDifficultyScript.quantity_multiplier(loot_level))
 	var quality_random := RandomNumberGenerator.new()
 	quality_random.seed = hash([encounter_seed, loot_kill_sequence, "quality"])
 	if drops.is_empty() and loot_table.is_empty():
-		drops.append({"item_id": "pedra_regenerativa", "quantity": LootDifficultyScript.scaled_quantity(maxi(0, int(enemy.get("loot_value", 1))), difficulty, quality_random)})
-	if quality_random.randf() < LootDifficultyScript.bonus_chance(difficulty):
+		drops.append({"item_id": "pedra_regenerativa", "quantity": LootDifficultyScript.scaled_quantity(maxi(0, int(enemy.get("loot_value", 1))), loot_level, quality_random)})
+	if quality_random.randf() < LootDifficultyScript.bonus_chance(loot_level):
 		var allow_relics := String(enemy.get("encounter_class", "common")) in ["boss", "raid"]
-		var bonus := LootDifficultyScript.pick_bonus_item(_collection("items"), difficulty, allow_relics, quality_random)
+		var bonus := LootDifficultyScript.pick_bonus_item(_collection("items"), loot_level, allow_relics, quality_random)
 		if not bonus.is_empty():
 			drops.append({"item_id": bonus, "quantity": 1})
-	if quality_random.randf() < float(UNIQUE_WEAPON_CHANCE.get(String(enemy.get("encounter_class", "common")), 0.0)):
+	# Armas únicas só a partir da dificuldade 2 (decisão 597; G6.2).
+	if bool(difficulty_rules()["uniques"]) and quality_random.randf() < float(UNIQUE_WEAPON_CHANCE.get(String(enemy.get("encounter_class", "common")), 0.0)):
 		var unique := _pick_unique_weapon(peer_id, quality_random)
 		if not unique.is_empty():
 			drops.append({"item_id": unique, "quantity": 1})
@@ -3874,7 +3983,7 @@ func _grant_loot(peer_id: int, enemy: Dictionary) -> void:
 		var scatter := Vector2.RIGHT.rotated(TAU * float(drop_index) / float(maxi(1, drops.size())) + float(loot_kill_sequence)) * (10.0 + 8.0 * float(drop_index))
 		var quality := ""
 		if _is_equipment(item_id):
-			quality = LootDifficultyScript.pick_weighted(LootDifficultyScript.fabrication_weights(difficulty), quality_random)
+			quality = LootDifficultyScript.pick_weighted(LootDifficultyScript.fabrication_weights(loot_level), quality_random)
 		drop_item(arena_zone(), origin + scatter, item_id, quantity, quality)
 
 
@@ -3993,7 +4102,7 @@ func _grant_experience(peer_id: int, enemy: Dictionary) -> void:
 	var key := String(player(peer_id).get("character_id", ""))
 	if key.is_empty():
 		return
-	var reward := int(EXPERIENCE_REWARDS.get(String(enemy.get("encounter_class", "common")), 12))
+	var reward := int(round(float(EXPERIENCE_REWARDS.get(String(enemy.get("encounter_class", "common")), 12)) * float(difficulty_rules()["exp"])))
 	character_experience[key] = int(character_experience.get(key, 0)) + reward
 	_process_level_ups(peer_id)
 
@@ -4364,6 +4473,7 @@ func view_snapshot() -> Dictionary:
 		enemy_views.append({
 			"definition_id": enemy["definition_id"], "position": enemy["position"],
 			"resistances": enemy.get("resistances", {}),
+			"superior": bool(enemy.get("superior", false)),
 			"facing_direction": enemy.get("facing_direction", Vector2.DOWN),
 			"health": enemy["health"], "max_health": enemy["max_health"],
 			"prefix_id": enemy["prefix_id"], "suffix_id": enemy["suffix_id"],
@@ -4435,6 +4545,7 @@ func _floor_view() -> Dictionary:
 		"stairs_open": bool(floor_run.get("stairs_open", false)), "mode": mode, "best": best_time(current_floor, mode),
 		"survival_left": survival_left() if is_explore_floor() else 0.0,
 		"respawn_interval": respawn_interval(), "boss_ratio": boss_ratio, "boss_name": boss_name,
+		"difficulty": difficulty, "difficulty_name": String(difficulty_rules()["name"]),
 		"recorded": bool(floor_run.get("recorded", false)),
 	}
 
@@ -4943,9 +5054,10 @@ func menu_model(peer_id: int) -> Dictionary:
 		"auto_attack_supports": _auto_support_model(peer_id),
 		"level": build.level if build != null else 1,
 		"max_level": build.max_level if build != null else CharacterBuild.MAX_LEVEL,
-		"records": records.duplicate(true),
+		"records": difficulty_records(),
 		"deepest_floor": deepest_floor,
 		"tower_start_floor": tower_start_floor,
+		"difficulty": difficulty_model(),
 		"floors": _tower_map_model(),
 		"chosen_milestones": chosen,
 		"experience": int(character_experience.get(String(state.get("character_id", "")), 0)),
@@ -5260,15 +5372,16 @@ func _bestiary_sections(definition: Dictionary, boss: Dictionary, biome: Diction
 	sections.append({"title": BestiaryScript.SECTION_NAMES[3], "rows": behaviour})
 	if level < 4:
 		return sections
-	var difficulty := LootDifficultyScript.score({"encounter_class": encounter, "rank_id": String(definition.get("rank_id", "maduro"))})
+	var loot_level := LootDifficultyScript.score({"encounter_class": encounter, "rank_id": String(definition.get("rank_id", "maduro"))}) + float(difficulty_rules()["loot_score"])
 	var loot := [] as Array
 	var table := _find(_collection("loot_tables"), String(boss.get("loot_table_id", definition.get("loot_table_id", ""))))
 	for drop: Dictionary in table.get("entries", []) as Array:
-		var chance := minf(1.0, float(drop.get("chance", 0.0)) * LootDifficultyScript.chance_multiplier(difficulty))
+		var chance := minf(1.0, float(drop.get("chance", 0.0)) * LootDifficultyScript.chance_multiplier(loot_level) * float(difficulty_rules()["loot"]))
 		var amount := "%d" % int(drop.get("minimum", 1)) if int(drop.get("minimum", 1)) == int(drop.get("maximum", 1)) else "%d a %d" % [int(drop.get("minimum", 1)), int(drop.get("maximum", 1))]
 		loot.append([item_display_name(String(drop.get("item_id", ""))), "%s (x%s)" % [BestiaryScript.percent(chance), amount]])
-	loot.append(["Equipamento bonus", BestiaryScript.percent(LootDifficultyScript.bonus_chance(difficulty)) + (" (pode ser Reliquia)" if encounter in ["boss", "raid"] else "")])
-	loot.append(["Arma unica (de uma gema equipada)", BestiaryScript.percent(float(UNIQUE_WEAPON_CHANCE.get(encounter, 0.0)))])
+	loot.append(["Equipamento bonus", BestiaryScript.percent(LootDifficultyScript.bonus_chance(loot_level)) + (" (pode ser Reliquia)" if encounter in ["boss", "raid"] else "")])
+	loot.append(["Arma unica (de uma gema equipada)", BestiaryScript.percent(float(UNIQUE_WEAPON_CHANCE.get(encounter, 0.0))) if bool(difficulty_rules()["uniques"]) else "so a partir da dificuldade 2"])
+	loot.append(["Dificuldade", "%d (%s): chances e qualidade ja incluidas" % [self.difficulty, String(difficulty_rules()["name"])]])
 	loot.append(["Observacao", "Afixos no monstro aumentam as chances e as quantidades."])
 	sections.append({"title": BestiaryScript.SECTION_NAMES[4], "rows": loot})
 	if level < 5:
@@ -5328,6 +5441,9 @@ func save_data(host_peer: int) -> Dictionary:
 		"village_life": village_life.call("snapshot"),
 		"tower_start_floor": tower_start_floor,
 		"deepest_floor": deepest_floor,
+		"difficulty": difficulty,
+		"unlocked_difficulty": unlocked_difficulty,
+		"difficulty_progress": difficulty_progress.duplicate(true),
 		"banked_stone": banked_stone,
 		"banked_loot": banked_loot,
 		"loot_kill_sequence": loot_kill_sequence,
@@ -5383,6 +5499,14 @@ func load_data(data: Dictionary, host_peer: int) -> bool:
 	if threat_data is Dictionary:
 		threat.call("restore", threat_data)
 	deepest_floor = clampi(int(data.get("deepest_floor", 1)), 1, TowerContentScript.MAX_FLOOR)
+	unlocked_difficulty = clampi(int(data.get("unlocked_difficulty", 1)), 1, DIFFICULTIES.size())
+	difficulty = clampi(int(data.get("difficulty", 1)), 1, unlocked_difficulty)
+	difficulty_progress = {}
+	var saved_progress: Variant = data.get("difficulty_progress", {})
+	if saved_progress is Dictionary:
+		for level: Variant in saved_progress:
+			if saved_progress[level] is Dictionary:
+				difficulty_progress[str(int(String(level)))] = {"deepest": clampi(int(saved_progress[level].get("deepest", 1)), 1, TowerContentScript.MAX_FLOOR), "start": clampi(int(saved_progress[level].get("start", 1)), 1, TowerContentScript.MAX_FLOOR)}
 	var saved_life: Variant = data.get("village_life", {})
 	if saved_life is Dictionary:
 		village_life.call("restore", saved_life)

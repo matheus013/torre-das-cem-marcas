@@ -17,6 +17,7 @@ signal gem_slot_requested(slot: int, gem_id: String)
 signal support_attach_requested(slot: int, support_id: String)
 signal support_detach_requested(slot: int, support_id: String)
 signal start_floor_requested(floor_number: int)
+signal difficulty_requested(level: int)
 signal journal_requested
 signal gem_evolution_requested(gem_id: String, choice_id: String)
 
@@ -724,10 +725,39 @@ func _build_character() -> void:
 
 
 ## Mapa da Torre e recordes: andares alcançados, melhor tempo por modo e escolha do andar de partida.
+## Dificuldade do mundo (E1 fase 2): o host escolhe entre as liberadas, fora da Torre; cada botão
+## explica o que muda. Concluir o andar 100 libera a seguinte.
+func _build_difficulty_picker(safe: bool) -> void:
+	var model := _model.get("difficulty", {}) as Dictionary
+	if model.is_empty():
+		return
+	var current := int(model.get("current", 1))
+	_section("DIFICULDADE DO MUNDO", "%d de 5 liberadas  ·  conclua o andar 100 para liberar a proxima" % int(model.get("unlocked", 1)))
+	var grid := GridContainer.new()
+	grid.name = "DifficultyPicker"
+	grid.columns = 1 if _compact else 5
+	grid.add_theme_constant_override("h_separation", 6)
+	grid.add_theme_constant_override("v_separation", 6)
+	_content.add_child(grid)
+	for entry: Dictionary in model.get("levels", []) as Array:
+		var level := int(entry["level"])
+		var button := Button.new()
+		button.name = "Difficulty_%d" % level
+		button.toggle_mode = true
+		button.button_pressed = level == current
+		button.text = "%d  %s" % [level, String(entry["name"]).to_upper()] if bool(entry["unlocked"]) else "%d  BLOQUEADA" % level
+		button.disabled = not bool(entry["unlocked"]) or not safe
+		button.tooltip_text = String(entry["summary"])
+		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		button.pressed.connect(func() -> void: difficulty_requested.emit(level))
+		grid.add_child(button)
+
+
 func _build_tower() -> void:
 	var deepest := int(_model.get("deepest_floor", 1))
 	var start := int(_model.get("tower_start_floor", 1))
 	var safe := bool(_model.get("in_safe_area", true))
+	_build_difficulty_picker(safe)
 	_section("MAPA DA TORRE", "andar mais fundo: %d   ·   proxima entrada: andar %d" % [deepest, start])
 	_add_text("Recordes de tempo por andar em SOLO, DUO, TRIO e SQUAD. Andares comuns contam ate a descida; andares de chefe, ate a queda do chefe.", MUTED)
 	var records := _model.get("records", {}) as Dictionary
