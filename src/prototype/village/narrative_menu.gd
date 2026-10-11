@@ -1,4 +1,5 @@
 extends Control
+const UiSkin := preload("res://src/presentation/ui/game_ui_skin.gd")
 
 signal action_requested(action: String)
 var npc_id := ""
@@ -18,19 +19,14 @@ var _selected_action := ""
 var _secondary_action := ""
 
 func _ready() -> void:
+	UiSkin.apply(self)
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var shade := ColorRect.new()
 	shade.color = Color(0, 0, 0, 0.7)
 	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(shade)
 	_panel = PanelContainer.new()
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color("202923")
-	style.border_color = Color("829382")
-	style.set_border_width_all(1)
-	style.set_corner_radius_all(6)
-	style.set_content_margin_all(20)
-	_panel.add_theme_stylebox_override("panel", style)
+	_panel.add_theme_stylebox_override("panel", UiSkin.frame(true, 22))
 	add_child(_panel)
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 14)
@@ -57,10 +53,12 @@ func _ready() -> void:
 		label.focus_entered.connect(func() -> void: label.modulate = Color("e8b84a"))
 		label.focus_exited.connect(func() -> void: label.modulate = Color.WHITE)
 	_action = Button.new()
+	_action.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_action.custom_minimum_size.y = 46
 	_action.pressed.connect(func() -> void: action_requested.emit(_selected_action))
 	column.add_child(_action)
 	_secondary = Button.new()
+	_secondary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_secondary.custom_minimum_size.y = 46
 	_secondary.pressed.connect(func() -> void: action_requested.emit(_secondary_action))
 	column.add_child(_secondary)

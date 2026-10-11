@@ -5,6 +5,7 @@ signal session_action_requested(action: String)
 
 const SettingsScript := preload("res://src/core/app/game_settings.gd")
 const BindingsScript := preload("res://src/core/app/input_bindings.gd")
+const UiSkin := preload("res://src/presentation/ui/game_ui_skin.gd")
 
 var _fullscreen: CheckButton
 var _resolution: OptionButton
@@ -24,6 +25,7 @@ var _session_buttons: Array[Button] = []
 
 
 func _ready() -> void:
+	theme = UiSkin.theme()
 	name = "SettingsDialog"
 	title = "Opções"
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -106,9 +108,13 @@ func _add_row(column: VBoxContainer, text: String, control: Control) -> void:
 	var row := HBoxContainer.new()
 	var label := Label.new()
 	label.text = text
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(label)
 	control.custom_minimum_size.x = 180.0
+	if control is OptionButton:
+		control.fit_to_longest_item = false
+		control.clip_text = true
 	row.add_child(control)
 	column.add_child(row)
 

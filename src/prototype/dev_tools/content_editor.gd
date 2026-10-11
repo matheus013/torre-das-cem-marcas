@@ -172,6 +172,7 @@ func _build_interface() -> void:
 	list_actions.add_child(remove)
 
 	var editor_scroll := ScrollContainer.new()
+	editor_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	editor_scroll.name = "EditorScroll"
 	editor_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	editor_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -187,6 +188,7 @@ func _build_interface() -> void:
 	_form = GridContainer.new()
 	_form.name = "Form"
 	_form.columns = 2
+	_form.resized.connect(func() -> void: _form.columns = 1 if _form.size.x < 420 else 2)
 	_form.add_theme_constant_override("h_separation", 14)
 	_form.add_theme_constant_override("v_separation", 9)
 	editor.add_child(_form)
@@ -326,6 +328,9 @@ func _add_line_field(key: StringName, label_text: String) -> void:
 func _add_option_field(key: StringName, label_text: String, options: Array[String]) -> void:
 	_add_field_label(label_text)
 	var field := OptionButton.new()
+	field.fit_to_longest_item = false
+	field.clip_text = true
+	field.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	field.name = String(key).to_pascal_case()
 	for option in options:
 		field.add_item(option)
@@ -350,6 +355,7 @@ func _add_number_field(key: StringName, label_text: String, minimum: float, maxi
 func _add_multiline_field(key: StringName, label_text: String) -> void:
 	_add_field_label(label_text)
 	var field := TextEdit.new()
+	field.wrap_mode = TextEdit.LINE_WRAPPING_BOUNDARY
 	field.name = String(key).to_pascal_case()
 	field.custom_minimum_size = Vector2(0.0, 100.0)
 	field.text_changed.connect(_update_preview)
@@ -360,6 +366,7 @@ func _add_multiline_field(key: StringName, label_text: String) -> void:
 func _add_field_label(label_text: String) -> void:
 	var label := Label.new()
 	label.text = label_text
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	label.custom_minimum_size = Vector2(170.0, 0.0)
 	_form.add_child(label)
 

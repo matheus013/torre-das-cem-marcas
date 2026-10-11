@@ -3,6 +3,7 @@ extends Control
 
 const BindingsScript := preload("res://src/core/app/input_bindings.gd")
 const Sprites := preload("res://src/presentation/art/sprite_library.gd")
+const UiSkin := preload("res://src/presentation/ui/game_ui_skin.gd")
 
 var health := 100.0
 var max_health := 100.0
@@ -52,11 +53,16 @@ var _notice_seconds := 0.0
 var _notice_key := ""
 var _floor_number := -1
 var _stairs_open := false
+var _frame_style := UiSkin.frame(false, 10)
+var _dock_style := UiSkin.frame(true, 14)
+var _slot_style := UiSkin.slot()
+var _ready_slot_style := UiSkin.slot(true)
 
 
 ## A cena define `size` em coordenadas de projeto (1280×720 escalado pela tela); a HUD
 ## desenha tudo nesse espaço e fica proporcional em qualquer janela.
 func _ready() -> void:
+	UiSkin.apply(self)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	for slot in range(4):
 		var region := DescriptionHover.new()
@@ -234,12 +240,12 @@ func configure(
 	queue_redraw()
 
 
-const FRAME := Color("1d1b26e8")
-const FRAME_DARK := Color("12111aee")
+const FRAME := Color("202b29f2")
+const FRAME_DARK := Color("141c1bf2")
 const BORDER := Color("8f7a6a")
 const HAIRLINE := Color(0.79, 0.66, 0.42, 0.55)
 const GOLD := Color("e8c27a")
-const TEXT := Color("f2e6c9")
+const TEXT := Color("eef1e9")
 const HEALTH := Color("c0392b")
 const BREATH := Color("5ec8d8")
 
@@ -248,6 +254,11 @@ var _boxes := {}
 
 ## Painel arredondado com sombra e fio dourado; caixas ficam em cache por aparência.
 func _panel(rect: Rect2, fill: Color, border: Color = HAIRLINE, radius := 8, border_width := 1, shadow := 8) -> void:
+	if rect.size.x >= 180.0 and rect.size.y >= 28.0 and border_width > 0:
+		draw_style_box(_frame_style, rect)
+		if border == GOLD or border == DEBUFF_BORDER:
+			draw_rect(rect.grow(-3), border, false, 1.0)
+		return
 	var key := "%s|%s|%d|%d|%d" % [fill.to_html(), border.to_html(), radius, border_width, shadow]
 	if not _boxes.has(key):
 		var box := StyleBoxFlat.new()
@@ -271,8 +282,7 @@ func _draw() -> void:
 	_draw_context()
 	# Doca inferior: painel escuro arredondado, orbes nas pontas, gemas e item rápido no centro.
 	var panel := Rect2(center_x - 236.0, height - 74.0, 472.0, 66.0)
-	_panel(panel, FRAME_DARK, HAIRLINE, 14, 1, 12)
-	_panel(Rect2(panel.position + Vector2(10.0, 4.0), Vector2(panel.size.x - 20.0, 2.0)), Color(1.0, 1.0, 1.0, 0.05), Color(0, 0, 0, 0), 1, 0, 0)
+	draw_style_box(_dock_style, panel.grow_individual(14, 4, 14, 0))
 	_draw_orb(Vector2(panel.position.x - 4.0, height - 46.0), 40.0, health, max_health, HEALTH, "VIDA", now)
 	_draw_orb(Vector2(panel.end.x + 4.0, height - 46.0), 40.0, breath, max_breath, BREATH, "FOLEGO", now + 1.3)
 	var keys: Array[String] = []
@@ -281,10 +291,8 @@ func _draw() -> void:
 	for index in range(4):
 		_draw_skill_slot(index, Rect2(center_x - 160.0 + index * 60.0, height - 65.0, 52.0, 52.0), keys[index])
 	var item_rect := Rect2(center_x + 92.0, height - 61.0, 44.0, 44.0)
-	_panel(item_rect, FRAME, HAIRLINE, 8, 1, 0)
-	draw_circle(item_rect.get_center() + Vector2(0.0, 3.0), 9.0, HEALTH)
-	draw_circle(item_rect.get_center() + Vector2(-3.0, 0.0), 3.0, Color(1.0, 1.0, 1.0, 0.35))
-	draw_rect(Rect2(item_rect.get_center() + Vector2(-4.0, -11.0), Vector2(8.0, 6.0)), Color("d9c2a0"))
+	draw_style_box(_slot_style, item_rect)
+	draw_texture_rect(UiSkin.icon("potion"), item_rect.grow(-6), false, Color.WHITE if quick_item_count > 0 else Color(0.5, 0.5, 0.5))
 	_draw_key_chip(item_rect.position + Vector2(3.0, 3.0), BindingsScript.label("quick_item"), true)
 	draw_string(ThemeDB.fallback_font, item_rect.position + Vector2(20.0, 41.0), "x%d" % quick_item_count, HORIZONTAL_ALIGNMENT_RIGHT, 22.0, 11, TEXT if quick_item_count > 0 else MUTED_COLOR)
 	_draw_experience(Rect2(panel.position.x + 24.0, panel.position.y - 9.0, panel.size.x - 48.0, 5.0))
@@ -299,13 +307,13 @@ func _draw_skill_slot(index: int, rect: Rect2, key: String) -> void:
 	var state := skill_state(index)
 	var ready := state == "ready"
 	if state == "empty":
-		_panel(rect, Color(FRAME_DARK, 0.55), Color(HAIRLINE, 0.5), 8, 1, 0)
+		draw_style_box(_slot_style, rect)
 		_draw_key_chip(rect.position + Vector2(-4.0, rect.size.y - 12.0), key, false)
 		return
-	_panel(rect, FRAME, GOLD if ready else HAIRLINE, 8, 1, 0)
+	draw_style_box(_ready_slot_style if ready else _slot_style, rect)
 	var icon: Texture2D = skill_icons[index] if index < skill_icons.size() else null
 	if icon != null:
-		draw_texture_rect(icon, rect.grow(-4.0), false, Color.WHITE if ready else Color(0.62, 0.6, 0.66))
+		draw_texture_rect(icon, rect.grow(-7.0), false, Color.WHITE if ready else Color(0.62, 0.6, 0.66))
 	var remaining: float = cooldowns[index] if index < cooldowns.size() else 0.0
 	if state == "cooldown":
 		var maximum := maximum_cooldowns[index] if index < maximum_cooldowns.size() else 1.0
@@ -352,7 +360,7 @@ func _outlined_text(origin: Vector2, text: String, width: float, font_size: int,
 	draw_string(ThemeDB.fallback_font, origin, text, HORIZONTAL_ALIGNMENT_CENTER, width, font_size, color)
 
 
-const MUTED_COLOR := Color("aaa59a")
+const MUTED_COLOR := Color("a8b7b1")
 
 
 func _fit_text(text: String, width: float, font_size := 12) -> String:
@@ -555,8 +563,8 @@ func _draw_orb(center: Vector2, radius: float, value: float, maximum: float, col
 ## Minimapa em painel arredondado: inimigos em vermelho, saída em losango, posição com halo.
 func _draw_minimap(rect: Rect2) -> void:
 	_panel(rect, FRAME_DARK, HAIRLINE, 10, 1, 8)
-	var inner := rect.grow(-7.0)
-	_panel(inner, Color(0.11, 0.1, 0.14, 0.95), Color(0, 0, 0, 0), 6, 0, 0)
+	var inner := rect.grow(-12.0)
+	_panel(inner, Color("172421"), Color(0, 0, 0, 0), 2, 0, 0)
 	var player_marker := _map_to_minimap(player_position, inner)
 	for enemy_position in enemy_positions:
 		draw_circle(_map_to_minimap(enemy_position, inner), 2.4, HEALTH.lightened(0.15))

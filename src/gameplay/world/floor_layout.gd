@@ -8,6 +8,7 @@ extends RefCounted
 ## Andares de chefe são arenas circulares pequenas, cercadas por pilares.
 
 const TowerContentScript := preload("res://src/gameplay/world/tower_content.gd")
+const Gallery := preload("res://src/gameplay/world/gallery_composition.gd")
 const CELL := 260.0
 const SAFE_RADIUS := 420.0
 const PROP_FOOTPRINT := Rect2(-26.0, -16.0, 52.0, 28.0)
@@ -55,6 +56,8 @@ static func _explore(definition: Dictionary, biome: Dictionary) -> Dictionary:
 	var route: Array[Vector2] = [entry, Vector2(size.x * 0.34, size.y * 0.5), Vector2(size.x * 0.66, size.y * 0.5), stairs_center]
 	layout["route"] = route
 	layout["landmarks"] = [] as Array[Dictionary]
+	if String(biome.get("id", "")) == "galerias":
+		Gallery.compose(layout, int(definition["floor"]))
 	var keep_clear: Array[Vector2] = [entry, stairs_center]
 	for column in range(3):
 		for row in range(2):
@@ -70,6 +73,20 @@ static func _explore(definition: Dictionary, biome: Dictionary) -> Dictionary:
 					_place_prop(layout, center + offset, primary, keep_clear)
 			_place_prop(layout, center + Vector2(0, 180), companion, keep_clear)
 			(layout["lights"] as Array[Vector2]).append(center)
+	# Roadside silhouettes stay outside the combat spine and the arrival clearings.
+	for segment in range(route.size() - 1):
+		var start := route[segment]
+		var end := route[segment + 1]
+		var normal := (end - start).normalized().orthogonal()
+		var count := maxi(1, int(start.distance_to(end) / 400.0))
+		for index in range(count):
+			var point := start.lerp(end, (float(index) + 0.5) / count)
+			for side: float in [-1.0, 1.0]:
+				var sprite := String(sprites[0 if side < 0 else (index + segment) % sprites.size()])
+				_place_prop(layout, point + normal * side * 260.0, sprite, keep_clear)
+				if index % 2 == 0:
+					var companion := String(sprites[(index + segment + 1) % sprites.size()])
+					_place_prop(layout, point + normal * side * 300.0 + (end - start).normalized() * 130.0, companion, keep_clear)
 	for column in range(1, int(size.x / CELL)):
 		for row in range(1, int(size.y / CELL)):
 			var center := Vector2(float(column) * CELL, float(row) * CELL)
@@ -102,6 +119,8 @@ static func _boss_arena(definition: Dictionary, biome: Dictionary) -> Dictionary
 	for index in range(6):
 		var angle := TAU * float(index) / 6.0 + 0.3
 		(layout["spawn_points"] as Array[Vector2]).append(center + Vector2(cos(angle), sin(angle)) * radius * 0.7)
+	if String(biome.get("id", "")) == "galerias":
+		Gallery.decorate_arena(layout)
 	return layout
 
 

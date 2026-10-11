@@ -7,6 +7,7 @@ const CombatHudScript := preload("res://src/prototype/village/combat_hud.gd")
 const PlayerMenuScript := preload("res://src/prototype/village/player_menu.gd")
 const MilestoneChoiceScript := preload("res://src/prototype/village/milestone_choice.gd")
 const SpriteLibraryScript := preload("res://src/presentation/art/sprite_library.gd")
+const DressingScript := preload("res://src/presentation/art/environment_dressing.gd")
 const VfxLayerScript := preload("res://src/presentation/vfx/vfx_layer.gd")
 const SkillThemesScript := preload("res://src/presentation/vfx/skill_themes.gd")
 const CombatAudioScript := preload("res://src/presentation/audio/combat_audio.gd")
@@ -1344,6 +1345,7 @@ func _draw() -> void:
 			_draw_player(drawable["player"] as Dictionary, drawable["peer"])
 	if zone == &"village":
 		_draw_village_life_overlay(visible_rect)
+	DressingScript.draw_ambient(self, DressingScript.plan(zone, _floor_layout), _visible_world_rect(), _anim_time, zone)
 	if (BindingsScript.pad_device >= 0 or SettingsScript.auto_aim) and in_arena and not _input_blocked():
 		var aim_position := _skill_target()
 		var selected := SettingsScript.auto_aim and not _nearest_enemy().is_empty()
@@ -1391,6 +1393,8 @@ func _draw_ground(zone: StringName) -> void:
 		&"boss_room":
 			_draw_tiled("tiles/floor_tower", Rect2(Vector2.ZERO, LayoutScript.INTERIOR_SIZE), Color("5c5a5e"))
 			_draw_door_hint(LayoutScript.BOSS_ROOM_EXIT)
+	if zone != &"tower":
+		DressingScript.draw_ground(self, DressingScript.plan(zone, _floor_layout), _visible_world_rect())
 
 
 ## Chão do andar: tile do bioma, borda escurecida, arena circular nos andares de chefe,
@@ -1425,6 +1429,7 @@ func _draw_floor_ground() -> void:
 		for band in range(5):
 			var inset := float(band) * 22.0
 			draw_rect(Rect2(Vector2.ONE * inset, size - Vector2.ONE * inset * 2.0), Color(0.07, 0.06, 0.09, 0.25), false, 22.0)
+	DressingScript.draw_ground(self, DressingScript.plan(&"tower", _floor_layout), _visible_world_rect())
 	var portal := _floor_layout["return_portal"] as Rect2
 	var sealed := float(floor_view.get("boss_ratio", -1.0)) > 0.0
 	_draw_portal(portal, sealed)
@@ -1566,6 +1571,8 @@ func _draw_sprite(key: String, base: Vector2, flip: bool, tint: Color, lift: flo
 
 func _draw_piece(piece: Dictionary, zone: StringName) -> void:
 	var base := piece["base"] as Vector2
+	if String(piece["sprite"]).begins_with("props/"):
+		_draw_shadow(base - Vector2(0, 3), Vector2(22, 7))
 	var scale_factor := float(piece.get("visual_scale", 1.0))
 	var rendered := false
 	if scale_factor != 1.0:
@@ -2149,16 +2156,10 @@ func _build_interface() -> void:
 	bar.size = Vector2(420.0, 58.0)
 	bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_top_bar = bar
-	# Mesmo acabamento da HUD de combate: painel escuro arredondado, sombra e fio dourado.
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color("12111aee")
-	style.border_color = Color(0.79, 0.66, 0.42, 0.55)
-	style.set_border_width_all(1)
-	style.set_corner_radius_all(10)
-	style.shadow_color = Color(0.0, 0.0, 0.0, 0.45)
-	style.shadow_size = 8
-	style.anti_aliasing = true
-	bar.add_theme_stylebox_override("panel", style)
+	# Compartilha as molduras pixeladas com a HUD de combate.
+	var ui_skin := preload("res://src/presentation/ui/game_ui_skin.gd")
+	ui_skin.apply(bar)
+	bar.add_theme_stylebox_override("panel", ui_skin.frame(false, 12))
 	var accent := ColorRect.new()
 	accent.position = Vector2(7.0, 11.0)
 	accent.size = Vector2(2.0, 36.0)
@@ -2170,8 +2171,10 @@ func _build_interface() -> void:
 	settings_button.name = "Settings"
 	settings_button.focus_mode = Control.FOCUS_NONE
 	settings_button.text = "Opções"
+	ui_skin.apply(settings_button)
+	ui_skin.icon_button(settings_button, "settings", "Opcoes e controles")
 	settings_button.position = Vector2(448.0, 18.0)
-	settings_button.size = Vector2(96.0, 40.0)
+	settings_button.size = Vector2(44.0, 44.0)
 	settings_button.pressed.connect(_open_settings)
 	layer.add_child(settings_button)
 	_settings_dialog = SettingsDialogScript.new()
@@ -2469,13 +2472,13 @@ func _update_floor_panel(zone: StringName, floor_view: Dictionary) -> void:
 		(_boss_bar.get_node("Name") as Label).text = String(floor_view.get("boss_name", "")).to_upper()
 
 
-func _format_time(seconds: float) -> String:
-	return "%d:%05.2f" % [int(seconds) / 60, fmod(seconds, 60.0)]
-
 func _format_countdown(seconds: float) -> String:
 	var whole := int(ceil(seconds))
 	return "%d:%02d" % [whole / 60, whole % 60]
 
+
+func _format_time(seconds: float) -> String:
+	return "%d:%05.2f" % [int(seconds) / 60, fmod(seconds, 60.0)]
 
 
 ## Interface proporcional à tela: a camada escala pela menor razão em relação a 1280×720 e cada
@@ -2579,6 +2582,8 @@ func _update_interface() -> void:
 	_update_floor_panel(zone, floor_view)
 	_status_label.text = _status
 	var players := _view.get("players", {}) as Dictionary
+	var party_rows := mini(3, maxi(0, players.size() - 1)) if arena else 0
+	_objective_label.position.y = 170.0 if party_rows == 0 else (432.0 if _objective_label.get_viewport_rect().size.x / _interface_layer.scale.x < 960.0 else 170.0 + party_rows * 68.0)
 	_session_label.text = {
 		&"solo": "", &"host": "HOST porta %d  ·  %d/4 jogadores" % [_session_port, players.size()],
 		&"client": "CONECTADO AO HOST  ·  %d/4 jogadores" % players.size(),

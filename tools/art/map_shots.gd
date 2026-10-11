@@ -4,6 +4,7 @@ const OUTPUT := "res://art/shots/maps/"
 const Floor := preload("res://src/gameplay/world/floor_layout.gd")
 const Layout := preload("res://src/gameplay/world/world_layout.gd")
 const Sprites := preload("res://src/presentation/art/sprite_library.gd")
+const Dressing := preload("res://src/presentation/art/environment_dressing.gd")
 
 class MapCanvas extends Node2D:
 	var maps: Array[Dictionary] = []
@@ -25,10 +26,7 @@ class MapCanvas extends Node2D:
 					draw_texture_rect(Sprites.texture(district["tile"]), district["rect"], true)
 				for road in Layout.VILLAGE_ROADS:
 					draw_texture_rect(Sprites.texture("tiles/road"), road, true)
-			else:
-				var route := map.get("route", []) as Array
-				for at in range(route.size() - 1):
-					draw_line(route[at], route[at + 1], Color(0.8, 0.83, 0.75, 0.1), 180)
+			Dressing.draw_ground(self, Dressing.plan(&"village" if village else &"tower", map), Rect2(Vector2.ZERO, size))
 			var pieces := (map["props"] as Array).duplicate()
 			pieces.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a["base"].y < b["base"].y)
 			for piece: Dictionary in pieces:
@@ -55,6 +53,7 @@ func _run() -> void:
 	root.add_child(viewport)
 	var canvas := MapCanvas.new()
 	canvas.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	canvas.texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED
 	viewport.add_child(canvas)
 	canvas.maps = [{"village": true, "size": Layout.WORLD_SIZE, "tile": "tiles/grass", "props": Layout.pieces(&"village", 1)}]
 	await _capture(viewport, canvas, "village_plan")

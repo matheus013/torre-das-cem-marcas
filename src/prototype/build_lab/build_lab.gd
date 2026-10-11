@@ -405,10 +405,13 @@ func _build_equipment_tab() -> void:
 	_content.add_child(column)
 	_add_section_title(column, "Equipamentos", "%d / %d equipados • clique para equipar ou retirar" % [_equipment.equipped_count(), 7 + EquipmentLoadout.RING_SLOT_COUNT + EquipmentLoadout.RELIC_SLOT_COUNT])
 	var scroll := ScrollContainer.new()
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	column.add_child(scroll)
 	var grid := GridContainer.new()
 	grid.columns = 3
+	grid.resized.connect(func() -> void:
+		grid.columns = clampi(int((grid.size.x + 12) / 372), 1, 3))
 	grid.add_theme_constant_override("h_separation", 12)
 	grid.add_theme_constant_override("v_separation", 10)
 	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -430,7 +433,9 @@ func _build_equipment_tab() -> void:
 		var item := entry["item"] as EquipmentItemInstance
 		var equipped := _equipment.get_equipped(slot, index) != null
 		var button := Button.new()
-		button.custom_minimum_size = Vector2(360.0, 68.0)
+		button.custom_minimum_size = Vector2(0.0, 68.0)
+		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		button.text = "%s\n%s • %s" % [
 			entry["label"], ItemTier.label(item.tier), "Equipado" if equipped else "No inventário"

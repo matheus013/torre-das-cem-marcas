@@ -1,4 +1,5 @@
 extends Control
+const UiSkin := preload("res://src/presentation/ui/game_ui_skin.gd")
 
 signal purchase_requested(npc_id: String, offer_id: String)
 signal talk_requested(npc_id: String)
@@ -15,29 +16,27 @@ var _feedback: Label
 var _rows: VBoxContainer
 var _buttons: Dictionary = {}
 var _close: Button
+var _panel: PanelContainer
 
 func _ready() -> void:
+	UiSkin.apply(self)
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var shade := ColorRect.new()
 	shade.color = Color(0, 0, 0, 0.65)
 	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(shade)
-	var center := CenterContainer.new()
-	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	add_child(center)
 	var panel := PanelContainer.new()
-	panel.custom_minimum_size = Vector2(340, 320)
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color("202923")
-	style.border_color = Color("829382")
-	style.set_border_width_all(1)
-	style.set_corner_radius_all(6)
-	style.set_content_margin_all(20)
-	panel.add_theme_stylebox_override("panel", style)
-	center.add_child(panel)
+	_panel = panel
+	panel.add_theme_stylebox_override("panel", UiSkin.frame(true, 22))
+	add_child(panel)
+	var scroll := ScrollContainer.new()
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.follow_focus = true
+	panel.add_child(scroll)
 	var column := VBoxContainer.new()
+	column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	column.add_theme_constant_override("separation", 14)
-	panel.add_child(column)
+	scroll.add_child(column)
 	_title = _label(column, 19)
 	_context = _label(column, 13)
 	_balance = _label(column, 14)
@@ -59,11 +58,19 @@ func _ready() -> void:
 	_close.custom_minimum_size.y = 44
 	_close.pressed.connect(close)
 	column.add_child(_close)
+	resized.connect(_layout)
+	_layout()
 	visible = false
+
+func _layout() -> void:
+	if _panel == null:
+		return
+	_panel.size = Vector2(minf(520, size.x - 32), minf(620, size.y - 32))
+	_panel.position = (size - _panel.size) * 0.5
 
 func _label(parent: Node, font_size: int) -> Label:
 	var label := Label.new()
-	label.custom_minimum_size.x = 300
+	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	label.add_theme_font_size_override("font_size", font_size)
 	parent.add_child(label)
@@ -79,6 +86,7 @@ func open(npc: Dictionary, state: Dictionary, warehouse: Dictionary, narrative_c
 	for offer: Dictionary in Services.offers(npc_id):
 		var button := Button.new()
 		button.custom_minimum_size.y = 48
+		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		button.text = String(offer["name"])
 		button.tooltip_text = String(offer["description"])
 		var costs: Array[String] = []

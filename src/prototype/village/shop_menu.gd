@@ -1,4 +1,5 @@
 extends Control
+const UiSkin := preload("res://src/presentation/ui/game_ui_skin.gd")
 
 ## Loja de equipamentos da Forja (decisão 594): vitrine com ícone na cor da raridade, preço e
 ## botão de compra; a dica mostra a peça completa (atributos, afixos, passiva).
@@ -16,28 +17,21 @@ var _model: Dictionary = {}
 var _silver: Label
 var _grid: GridContainer
 var _reroll: Button
+var _panel: PanelContainer
 
 
 func _ready() -> void:
+	UiSkin.apply(self)
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	var shade := ColorRect.new()
 	shade.color = Color(0, 0, 0, 0.7)
 	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(shade)
-	var center := CenterContainer.new()
-	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	add_child(center)
 	var panel := PanelContainer.new()
-	panel.custom_minimum_size = Vector2(720, 470)
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color("1b1a1f")
-	style.border_color = Color("8f7a6a")
-	style.set_border_width_all(2)
-	style.set_corner_radius_all(6)
-	style.set_content_margin_all(20)
-	panel.add_theme_stylebox_override("panel", style)
-	center.add_child(panel)
+	_panel = panel
+	panel.add_theme_stylebox_override("panel", UiSkin.frame(true, 22))
+	add_child(panel)
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 12)
 	panel.add_child(column)
@@ -48,6 +42,10 @@ func _ready() -> void:
 	title.add_theme_font_size_override("font_size", 20)
 	title.add_theme_color_override("font_color", GOLD)
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	# Textos com quebra precisam de largura mínima: com 1 px na primeira montagem medem milhares de
+	# pixels de altura e o painel cresce além da tela (regressão de 2026-10-11).
+	title.custom_minimum_size.x = 180.0
 	header.add_child(title)
 	_silver = Label.new()
 	_silver.name = "ShopSilver"
@@ -55,6 +53,8 @@ func _ready() -> void:
 	header.add_child(_silver)
 	var hint := Label.new()
 	hint.text = "Estoque novo a cada volta da Torre; melhora quanto mais fundo o grupo ja chegou."
+	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	hint.custom_minimum_size.x = 200.0
 	hint.add_theme_color_override("font_color", MUTED)
 	hint.add_theme_font_size_override("font_size", 12)
 	column.add_child(hint)
@@ -63,7 +63,13 @@ func _ready() -> void:
 	_grid.columns = 4
 	_grid.add_theme_constant_override("h_separation", 10)
 	_grid.add_theme_constant_override("v_separation", 10)
-	column.add_child(_grid)
+	var scroll := ScrollContainer.new()
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.follow_focus = true
+	column.add_child(scroll)
+	_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.add_child(_grid)
 	var footer := HBoxContainer.new()
 	footer.add_theme_constant_override("separation", 10)
 	column.add_child(footer)
@@ -80,7 +86,23 @@ func _ready() -> void:
 	close_button.custom_minimum_size = Vector2(120, 40)
 	close_button.pressed.connect(close)
 	footer.add_child(close_button)
+	resized.connect(_layout)
+	_layout()
 	visible = false
+
+
+func _layout() -> void:
+	if _panel == null:
+		return
+	_grid.columns = clampi(int((minf(760, size.x - 32) - 60) / 170), 1, 4)
+	_fit_panel()
+	_fit_panel.call_deferred()
+
+
+## Um Control nunca encolhe sozinho: reaplica o tamanho depois que os mínimos se recalculam.
+func _fit_panel() -> void:
+	_panel.size = Vector2(minf(760, size.x - 32), minf(540, size.y - 32))
+	_panel.position = (size - _panel.size) * 0.5
 
 
 func open(model: Dictionary) -> void:
@@ -121,6 +143,7 @@ func _card(entry: Dictionary) -> Control:
 	name_label.text = String(entry["name"])
 	name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	name_label.custom_minimum_size = Vector2(100, 0)
+	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	name_label.add_theme_font_size_override("font_size", 12)
 	name_label.add_theme_color_override("font_color", TIER_COLORS.get(String(entry["tier_id"]), TEXT) as Color)
 	top.add_child(name_label)

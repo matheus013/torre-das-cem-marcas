@@ -1,4 +1,5 @@
 extends Control
+const UiSkin := preload("res://src/presentation/ui/game_ui_skin.gd")
 
 signal choice_requested(choice_id: StringName)
 
@@ -10,6 +11,7 @@ var _choices_grid: GridContainer
 
 
 func _ready() -> void:
+	UiSkin.apply(self)
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	var shade := ColorRect.new()
@@ -20,18 +22,11 @@ func _ready() -> void:
 	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(center)
 	_panel = PanelContainer.new()
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color("20242a")
-	style.border_color = Color("dbbd68")
-	style.set_border_width_all(2)
-	style.content_margin_left = 24
-	style.content_margin_right = 24
-	style.content_margin_top = 20
-	style.content_margin_bottom = 20
-	_panel.add_theme_stylebox_override("panel", style)
+	_panel.add_theme_stylebox_override("panel", UiSkin.frame(true, 24))
 	center.add_child(_panel)
 	var scroll := ScrollContainer.new()
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.follow_focus = true
 	_panel.add_child(scroll)
 	_content = VBoxContainer.new()
 	_content.size_flags_horizontal = Control.SIZE_EXPAND_FILL

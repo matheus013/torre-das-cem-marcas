@@ -5,6 +5,7 @@ extends Control
 const SpriteLibraryScript := preload("res://src/presentation/art/sprite_library.gd")
 const DevModeScript := preload("res://src/core/app/dev_mode.gd")
 const SettingsDialogScript := preload("res://src/game/settings_dialog.gd")
+const UiSkin := preload("res://src/presentation/ui/game_ui_skin.gd")
 const VILLAGE_SCENE := "res://src/prototype/village/village_exploration.tscn"
 const GOLD := Color("e8b84a")
 const TEXT := Color("f2e6c9")
@@ -19,6 +20,7 @@ var _game_version := "Beta jogável " + preload("res://src/core/app/app_version.
 
 
 func _ready() -> void:
+	UiSkin.apply(self)
 	SettingsDialogScript.BindingsScript.ensure()
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
@@ -89,10 +91,10 @@ func _make_button(button_name: String, text: String, minimum: Vector2, font_size
 	button.add_theme_font_size_override("font_size", font_size)
 	button.add_theme_color_override("font_color", TEXT)
 	button.add_theme_color_override("font_hover_color", GOLD)
-	button.add_theme_stylebox_override("normal", _button_style(Color("2f2a35e6"), Color("8f7a6a")))
-	button.add_theme_stylebox_override("hover", _button_style(Color("4a3f4fee"), GOLD))
-	button.add_theme_stylebox_override("pressed", _button_style(Color("1b1a1fee"), GOLD))
-	button.add_theme_stylebox_override("focus", _button_style(Color("4a3f4fee"), GOLD))
+	button.add_theme_stylebox_override("normal", UiSkin.button_style())
+	button.add_theme_stylebox_override("hover", UiSkin.button_style(true))
+	button.add_theme_stylebox_override("pressed", UiSkin.button_style(true))
+	button.add_theme_stylebox_override("focus", UiSkin.focus_style())
 	return button
 
 
@@ -152,15 +154,6 @@ func _draw_scaled(key: String, base: Vector2, scale: float, tint: Color) -> void
 		return
 	var size_scaled := texture.get_size() * scale
 	draw_texture_rect(texture, Rect2((base - Vector2(size_scaled.x * 0.5, size_scaled.y)).round(), size_scaled), false, tint)
-
-
-func _button_style(background: Color, border: Color) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = background
-	style.border_color = border
-	style.set_border_width_all(2)
-	style.set_content_margin_all(8)
-	return style
 
 
 func _toggle_npc_panel() -> void:

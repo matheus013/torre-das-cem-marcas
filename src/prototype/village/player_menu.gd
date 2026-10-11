@@ -2,6 +2,7 @@ class_name PrototypePlayerMenu
 extends Control
 
 const BindingsScript := preload("res://src/core/app/input_bindings.gd")
+const UiSkin := preload("res://src/presentation/ui/game_ui_skin.gd")
 
 signal stat_requested(stat: StringName)
 signal stats_reset_requested
@@ -40,12 +41,18 @@ var _sell_all_dialog: ConfirmationDialog
 var _reset_dialog: ConfirmationDialog
 var _bestiary_selected := ""
 var _show_details := false
+var _frame: PanelContainer
+var _tabs: GridContainer
+var _compact := false
 
 
 func _ready() -> void:
+	UiSkin.apply(self)
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	_build_shell()
+	resized.connect(_layout_shell)
+	_layout_shell()
 	hide()
 
 
@@ -73,18 +80,9 @@ func _build_shell() -> void:
 	shade.color = BG
 	add_child(shade)
 	var frame := PanelContainer.new()
-	frame.set_anchors_preset(Control.PRESET_CENTER)
-	frame.position = Vector2(-450.0, -300.0)
-	frame.size = Vector2(900.0, 600.0)
-	var box := StyleBoxFlat.new()
-	box.bg_color = PANEL
-	box.border_color = BORDER
-	box.set_border_width_all(2)
-	box.content_margin_left = 22.0
-	box.content_margin_right = 22.0
-	box.content_margin_top = 18.0
-	box.content_margin_bottom = 18.0
-	frame.add_theme_stylebox_override("panel", box)
+	_frame = frame
+	frame.name = "MenuFrame"
+	frame.add_theme_stylebox_override("panel", UiSkin.frame(true, 22))
 	add_child(frame)
 	var root_column := VBoxContainer.new()
 	root_column.add_theme_constant_override("separation", 12)
@@ -96,27 +94,40 @@ func _build_shell() -> void:
 	_title.add_theme_font_size_override("font_size", 22)
 	_title.add_theme_color_override("font_color", GOLD)
 	_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	# Sem largura mínima, na primeira montagem o título recebe 1 px, quebra letra por letra, mede
+	# ~680 px de altura e o quadro do menu cresce além da tela (regressão de 2026-10-11).
+	_title.custom_minimum_size.x = 180.0
 	header.add_child(_title)
 	var journal_button := Button.new()
 	journal_button.name = "Journal"
 	journal_button.text = "Diario"
 	journal_button.custom_minimum_size = Vector2(80, 34)
+	UiSkin.icon_button(journal_button, "journal", "Diario de expedicao")
+	journal_button.custom_minimum_size = Vector2(40, 38)
 	journal_button.pressed.connect(func() -> void: journal_requested.emit())
 	header.add_child(journal_button)
 	var close_button := Button.new()
 	close_button.text = "X"
 	close_button.tooltip_text = "Fechar"
 	close_button.custom_minimum_size = Vector2(38.0, 34.0)
+	UiSkin.icon_button(close_button, "close", "Fechar")
 	close_button.pressed.connect(close)
 	header.add_child(close_button)
-	var tabs := HBoxContainer.new()
+	var tabs := GridContainer.new()
+	_tabs = tabs
+	tabs.columns = 5
 	tabs.add_theme_constant_override("separation", 6)
 	root_column.add_child(tabs)
 	for spec in [["inventory", "INVENTARIO"], ["character", "PERSONAGEM"], ["skills", "SKILLS"], ["tower", "TORRE"], ["bestiary", "BESTIARIO"]]:
 		var button := Button.new()
 		button.text = spec[1]
+		button.icon = UiSkin.icon(spec[0])
+		button.expand_icon = true
+		button.add_theme_font_size_override("font_size", 13)
 		button.toggle_mode = true
-		button.custom_minimum_size = Vector2(150.0, 36.0)
+		button.custom_minimum_size = Vector2(140.0, 40.0)
+		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		button.name = "Tab_%s" % spec[0]
 		button.pressed.connect(_select_tab.bind(spec[0]))
 		tabs.add_child(button)
@@ -127,11 +138,33 @@ func _build_shell() -> void:
 	_scroll = scroll
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.follow_focus = true
 	root_column.add_child(scroll)
 	_content = VBoxContainer.new()
 	_content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_content.add_theme_constant_override("separation", 10)
 	scroll.add_child(_content)
+
+
+func _layout_shell() -> void:
+	if _frame == null:
+		return
+	_tabs.columns = 3 if size.x < 800.0 else 5
+	_fit_frame()
+	# Ao encolher, o título com quebra de linha mede uma altura enorme por um instante e o quadro
+	# cresce junto; um Control nunca encolhe sozinho. Reaplica o tamanho depois que os mínimos se
+	# recalculam (painel de inventário passava da tela em 480x600).
+	_fit_frame.call_deferred()
+	var compact := _frame.size.x < 920.0
+	if compact != _compact:
+		_compact = compact
+		if visible and not _model.is_empty():
+			_rebuild()
+
+
+func _fit_frame() -> void:
+	_frame.size = Vector2(minf(960.0, maxf(300.0, size.x - 32.0)), minf(640.0, maxf(300.0, size.y - 32.0)))
+	_frame.position = (size - _frame.size) * 0.5
 
 
 func _select_tab(tab: String) -> void:
@@ -144,6 +177,7 @@ func _rebuild() -> void:
 	if _content == null:
 		return
 	for child in _content.get_children():
+		_content.remove_child(child)
 		child.queue_free()
 	for tab: String in _tab_buttons:
 		(_tab_buttons[tab] as Button).button_pressed = tab == _active_tab
@@ -153,6 +187,26 @@ func _rebuild() -> void:
 		"tower": _build_tower()
 		"bestiary": _build_bestiary()
 		_: _build_inventory()
+	_wrap_content(_content)
+
+
+func _wrap_content(node: Node) -> void:
+	if node is Label:
+		if node.custom_minimum_size.x == 0:
+			node.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	elif node is OptionButton:
+		node.fit_to_longest_item = false
+		node.clip_text = true
+	elif node is Button:
+		node.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	for child in node.get_children():
+		_wrap_content(child)
+
+
+func _fit_item_grid(grid: GridContainer, maximum: int) -> void:
+	grid.resized.connect(func() -> void:
+		grid.columns = clampi(int((grid.size.x + 4.0) / 56.0), 1, maximum))
+	grid.columns = 1
 
 
 const LOOT_FILTER_OPTIONS := [["common", "Recolher tudo"], ["uncommon", "Incomum ou melhor"], ["rare", "Raro ou melhor"], ["epic", "Epico ou melhor"]]
@@ -172,7 +226,7 @@ const BACKPACK_MIN_CELLS := 42
 
 
 func _build_inventory() -> void:
-	var top := HBoxContainer.new()
+	var top: BoxContainer = VBoxContainer.new() if _compact else HBoxContainer.new()
 	top.add_theme_constant_override("separation", 18)
 	_content.add_child(top)
 	var left := VBoxContainer.new()
@@ -195,7 +249,7 @@ func _build_inventory() -> void:
 	right.add_child(backpack_header)
 	var grid := GridContainer.new()
 	grid.name = "Backpack"
-	grid.columns = BACKPACK_COLUMNS
+	_fit_item_grid(grid, BACKPACK_COLUMNS)
 	grid.add_theme_constant_override("h_separation", 4)
 	grid.add_theme_constant_override("v_separation", 4)
 	right.add_child(grid)
@@ -212,7 +266,7 @@ func _build_inventory() -> void:
 		var instance_id := StringName(String(entry.get("instance_id", "")))
 		cell.pressed.connect(func() -> void: equip_requested.emit(instance_id))
 		cell.secondary_pressed.connect(_confirm_sell.bind(entry))
-	var filters := HBoxContainer.new()
+	var filters := VBoxContainer.new()
 	filters.add_theme_constant_override("separation", 12)
 	right.add_child(filters)
 	_add_choice(filters, "Filtro de saque", LOOT_FILTER_OPTIONS, String(_model.get("loot_filter", "common")), func(tier: String) -> void: loot_filter_requested.emit(tier),
@@ -232,8 +286,8 @@ func _build_doll() -> Control:
 	doll.custom_minimum_size = DOLL_SIZE
 	var backdrop := Panel.new()
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color("16151c")
-	style.border_color = Color("3a3542")
+	style.bg_color = Color("16221f")
+	style.border_color = Color("4d6055")
 	style.set_border_width_all(1)
 	style.set_corner_radius_all(6)
 	backdrop.add_theme_stylebox_override("panel", style)
@@ -302,7 +356,7 @@ func _build_detailed_stats() -> void:
 	var table := GridContainer.new()
 	table.name = "DetailedAttributes"
 	table.columns = 5
-	table.add_theme_constant_override("h_separation", 26)
+	table.add_theme_constant_override("h_separation", 8 if _compact else 26)
 	_content.add_child(table)
 	for header in ["ATRIBUTO", "BASE", "EQUIPAMENTO", "TOTAL", "EFETIVO"]:
 		table.add_child(_detail_cell(header, GOLD))
@@ -319,7 +373,7 @@ func _build_detailed_stats() -> void:
 		var title := _detail_cell(String(group[0]), GOLD)
 		_content.add_child(title)
 		var grid := GridContainer.new()
-		grid.columns = 4
+		grid.columns = 2 if _compact else 4
 		grid.add_theme_constant_override("h_separation", 26)
 		_content.add_child(grid)
 		for entry: Array in group[1] as Array:
@@ -331,6 +385,7 @@ func _build_detailed_stats() -> void:
 func _detail_cell(text: String, color: Color) -> Label:
 	var label := Label.new()
 	label.text = text
+	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	label.add_theme_color_override("font_color", color)
 	return label
 
@@ -344,6 +399,7 @@ func _header_label(title: String, detail: String) -> Control:
 	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(label)
 	var info := Label.new()
+	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	info.text = detail
 	info.add_theme_color_override("font_color", MUTED)
 	row.add_child(info)
@@ -414,7 +470,7 @@ func _build_bestiary() -> void:
 	if selected.is_empty():
 		selected = entries[0] as Dictionary
 	_bestiary_selected = String(selected["id"])
-	var columns := HBoxContainer.new()
+	var columns: BoxContainer = VBoxContainer.new() if _compact else HBoxContainer.new()
 	columns.add_theme_constant_override("separation", 16)
 	_content.add_child(columns)
 	var list := VBoxContainer.new()
@@ -465,6 +521,7 @@ func _build_bestiary() -> void:
 		portrait.modulate = Color(0.0, 0.0, 0.0, 0.6)
 	head.add_child(portrait)
 	var names := VBoxContainer.new()
+	names.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	head.add_child(names)
 	var name_label := Label.new()
 	name_label.name = "BeastName"
@@ -500,7 +557,7 @@ func _build_bestiary() -> void:
 			var key_label := Label.new()
 			key_label.text = String(row[0])
 			key_label.add_theme_color_override("font_color", MUTED)
-			key_label.custom_minimum_size = Vector2(150.0, 0.0)
+			key_label.custom_minimum_size = Vector2(100.0, 0.0)
 			key_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 			grid.add_child(key_label)
 			var value_label := Label.new()
@@ -508,7 +565,7 @@ func _build_bestiary() -> void:
 			value_label.add_theme_color_override("font_color", TEXT)
 			value_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 			value_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-			value_label.custom_minimum_size = Vector2(260.0, 0.0)
+			value_label.custom_minimum_size = Vector2(100.0, 0.0)
 			grid.add_child(value_label)
 
 
@@ -521,7 +578,7 @@ func _loot_rows(loot: Dictionary, empty_text: String) -> void:
 		_add_text(empty_text, MUTED)
 		return
 	var grid := GridContainer.new()
-	grid.columns = 15
+	_fit_item_grid(grid, 15)
 	grid.add_theme_constant_override("h_separation", 4)
 	grid.add_theme_constant_override("v_separation", 4)
 	_content.add_child(grid)
@@ -629,22 +686,26 @@ func _build_tower() -> void:
 		if String(entry.get("biome", "")) != previous_biome:
 			previous_biome = String(entry.get("biome", ""))
 			_section(previous_biome.to_upper(), "")
-		var row := HBoxContainer.new()
+		var row: BoxContainer = VBoxContainer.new() if _compact else HBoxContainer.new()
 		row.add_theme_constant_override("separation", 10)
 		var label := Label.new()
 		var kind := "CHEFE" if String(entry.get("kind", "")) == "boss" else "      "
 		label.text = "%3d  %s  %s" % [number, kind, String(entry.get("name", ""))]
-		label.custom_minimum_size.x = 330.0
+		label.custom_minimum_size.x = 0.0 if _compact else 330.0
 		label.add_theme_color_override("font_color", GOLD if kind == "CHEFE" else TEXT)
 		row.add_child(label)
 		var by_floor := records.get(str(number), {}) as Dictionary
+		var times := GridContainer.new()
+		times.columns = 2 if _compact else 4
+		times.add_theme_constant_override("h_separation", 10)
+		row.add_child(times)
 		for mode in ["solo", "duo", "trio", "squad"]:
 			var list := by_floor.get(mode, []) as Array
 			var time_label := Label.new()
 			time_label.custom_minimum_size.x = 92.0
 			time_label.text = "%s %s" % [mode.to_upper(), _format_time(float((list[0] as Dictionary)["time"])) if not list.is_empty() else "--"]
 			time_label.add_theme_color_override("font_color", TEXT if not list.is_empty() else MUTED)
-			row.add_child(time_label)
+			times.add_child(time_label)
 		var go := Button.new()
 		go.text = "PARTIDA" if number == start else "partir daqui"
 		go.disabled = not safe or number == start
@@ -692,8 +753,8 @@ func _build_skill_card(skill: Dictionary, gem_options: Array, safe: bool) -> voi
 	var gem_id := String(skill.get("id", ""))
 	var card := PanelContainer.new()
 	var box := StyleBoxFlat.new()
-	box.bg_color = Color("2f2a35c0")
-	box.border_color = BORDER
+	box.bg_color = Color("1c2725")
+	box.border_color = Color("4d6055")
 	box.set_border_width_all(1)
 	box.set_content_margin_all(10)
 	card.add_theme_stylebox_override("panel", box)
@@ -715,6 +776,7 @@ func _build_skill_card(skill: Dictionary, gem_options: Array, safe: bool) -> voi
 	if not gem_id.is_empty():
 		DescriptionHover.attach(icon, ContentDescriptions.skill(skill))
 	var key_label := Label.new()
+	key_label.custom_minimum_size.x = 36
 	key_label.text = BindingsScript.label("skill_%d" % (slot + 1))
 	key_label.add_theme_font_size_override("font_size", 22)
 	key_label.add_theme_color_override("font_color", GOLD)
@@ -730,6 +792,7 @@ func _build_skill_card(skill: Dictionary, gem_options: Array, safe: bool) -> voi
 		int(skill.get("capacity_used", 0)), int(skill.get("capacity", 3)),
 	]
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	title.add_theme_color_override("font_color", TEXT)
 	header.add_child(title)
 	if not empty:
@@ -754,7 +817,11 @@ func _build_skill_card(skill: Dictionary, gem_options: Array, safe: bool) -> voi
 		if chosen != gem_id:
 			gem_slot_requested.emit(slot, chosen)
 	)
-	header.add_child(swap)
+	if _compact:
+		swap.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		column.add_child(swap)
+	else:
+		header.add_child(swap)
 	if empty:
 		return
 	if not String(skill.get("description", "")).is_empty():
@@ -820,7 +887,7 @@ func _build_skill_controls(column: VBoxContainer, skill: Dictionary, safe: bool)
 	var slot := int(skill.get("slot", 0))
 	var gem_id := String(skill.get("id", ""))
 
-	var supports_row := HBoxContainer.new()
+	var supports_row := VBoxContainer.new()
 	supports_row.add_theme_constant_override("separation", 6)
 	column.add_child(supports_row)
 	var supports_label := Label.new()
@@ -865,8 +932,10 @@ func _build_skill_controls(column: VBoxContainer, skill: Dictionary, safe: bool)
 		hint.text = ("Nivel 21: escolha o grande modificador desta gema:" if mastery >= 21 else "Nivel %d: escolha um modificador:" % mastery)
 		hint.add_theme_color_override("font_color", GOLD)
 		column.add_child(hint)
-		var choices_row := HBoxContainer.new()
-		choices_row.add_theme_constant_override("separation", 8)
+		var choices_row := GridContainer.new()
+		choices_row.columns = 1 if _compact else 3
+		choices_row.add_theme_constant_override("h_separation", 8)
+		choices_row.add_theme_constant_override("v_separation", 8)
 		column.add_child(choices_row)
 		for choice: Dictionary in pending:
 			var button := Button.new()
@@ -874,7 +943,7 @@ func _build_skill_controls(column: VBoxContainer, skill: Dictionary, safe: bool)
 			button.text = "%s\n%s" % [String(choice.get("name", "")), String(choice.get("preview", _describe_modifiers(choice.get("modifiers", {}) as Dictionary)))]
 			button.tooltip_text = "%s\n%s" % [_describe_modifiers(choice.get("modifiers", {}) as Dictionary), String(choice.get("preview", ""))]
 			button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-			button.custom_minimum_size = Vector2(250.0, 64.0)
+			button.custom_minimum_size = Vector2(0.0, 64.0)
 			button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 			button.disabled = not safe
 			var choice_id := String(choice.get("id", ""))
@@ -929,10 +998,11 @@ func _modifier_name(key: String) -> String:
 
 
 func _section(title: String, detail: String) -> void:
-	var row := HBoxContainer.new()
+	var row: BoxContainer = VBoxContainer.new() if _compact else HBoxContainer.new()
 	row.add_theme_constant_override("separation", 12)
 	var title_label := Label.new()
 	var detail_label := Label.new()
+	detail_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title_label.text = title
 	title_label.add_theme_font_size_override("font_size", 16)
 	title_label.add_theme_color_override("font_color", GOLD)

@@ -1,5 +1,6 @@
 class_name DescriptionHover
 extends Control
+const UiSkin := preload("res://src/presentation/ui/game_ui_skin.gd")
 
 
 static func attach(target: Control, text: String, stop_mouse := false) -> DescriptionHover:
@@ -13,12 +14,8 @@ static func attach(target: Control, text: String, stop_mouse := false) -> Descri
 
 func _make_custom_tooltip(for_text: String) -> Object:
 	var panel := PanelContainer.new()
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color("1b1a1ff5")
-	style.border_color = Color("8f7a6a")
-	style.set_border_width_all(1)
-	style.set_content_margin_all(12)
-	panel.add_theme_stylebox_override("panel", style)
+	UiSkin.apply(panel)
+	panel.add_theme_stylebox_override("panel", UiSkin.frame(false, 14))
 	# Texto com BBCode (dicas de item do inventário) usa RichText: cores por raridade e afixo.
 	if for_text.contains("[color="):
 		var rich := RichTextLabel.new()

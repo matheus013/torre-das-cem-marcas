@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "source": "art/generated/gallery_kit_v1.png",
+  "origin": "Generated with the built-in image generation tool for this project on 2026-10-08",
+  "importer": "tools/art/import_gallery_kit.gd",
+  "sampling": "nearest-neighbor; original alpha preserved; cropped and bottom-anchored",
+  "assets": [
+    {"id": "galeria_muro_baixo", "size": [192, 80], "output": "assets/sprites/props/galeria_muro_baixo.png"},
+    {"id": "galeria_muro_lateral", "size": [96, 160], "output": "assets/sprites/props/galeria_muro_lateral.png"},
+    {"id": "galeria_arco_partido", "size": [192, 192], "output": "assets/sprites/props/galeria_arco_partido.png"},
+    {"id": "galeria_nicho", "size": [128, 160], "output": "assets/sprites/props/galeria_nicho.png"}
+  ]
+}
