@@ -45,6 +45,19 @@ const POOL := {
 	"regeneracao_folego": {"kind": "mod", "key": "breath_regen_mult", "min": 0.05, "max": 0.12, "label": "regeneracao de Folego"},
 	"roubo_vida": {"kind": "mod", "key": "life_steal_add", "min": 0.01, "max": 0.02, "label": "roubo de Vida"},
 	"resistencia": {"kind": "mod", "key": "damage_taken_mult", "min": -0.05, "max": -0.02, "label": "dano recebido"},
+	# Resistências e penetração (E1 fase 1): somam; teto de 75% na personagem.
+	"resistencia_todas": {"kind": "mod", "key": "resist_all_add", "min": 0.02, "max": 0.05, "label": "resistencia a tudo"},
+	"resistencia_fisica": {"kind": "mod", "key": "resist_physical_add", "min": 0.04, "max": 0.1, "label": "resistencia fisica"},
+	"resistencia_fogo": {"kind": "mod", "key": "resist_fire_add", "min": 0.04, "max": 0.1, "label": "resistencia a fogo"},
+	"resistencia_gelo": {"kind": "mod", "key": "resist_ice_add", "min": 0.04, "max": 0.1, "label": "resistencia a gelo"},
+	"resistencia_raio": {"kind": "mod", "key": "resist_lightning_add", "min": 0.04, "max": 0.1, "label": "resistencia a raio"},
+	"resistencia_acido": {"kind": "mod", "key": "resist_acid_add", "min": 0.04, "max": 0.1, "label": "resistencia a acido"},
+	"resistencia_natureza": {"kind": "mod", "key": "resist_nature_add", "min": 0.04, "max": 0.1, "label": "resistencia a natureza"},
+	"resistencia_trevas": {"kind": "mod", "key": "resist_dark_add", "min": 0.04, "max": 0.1, "label": "resistencia a trevas"},
+	"resistencia_sagrado": {"kind": "mod", "key": "resist_holy_add", "min": 0.04, "max": 0.1, "label": "resistencia sagrada"},
+	"resistencia_terra": {"kind": "mod", "key": "resist_earth_add", "min": 0.04, "max": 0.1, "label": "resistencia a terra"},
+	"resistencia_arcano": {"kind": "mod", "key": "resist_arcane_add", "min": 0.04, "max": 0.1, "label": "resistencia arcana"},
+	"penetracao": {"kind": "mod", "key": "penetration_add", "min": 0.03, "max": 0.06, "label": "penetracao de resistencia"},
 	# Fixo de certos lendários (fora do sorteio comum): faixa exata, sem escala de raridade ou nível.
 	"proliferacao": {"kind": "mod", "key": "poison_spread_mult", "min": 0.3, "max": 1.0, "label": "alcance de proliferacao de veneno", "random": false},
 }

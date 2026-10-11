@@ -11,7 +11,7 @@ extends RefCounted
 const TRIGGERS: Array[String] = ["cast", "hit", "kill", "hurt", "lethal", "interval", "volley"]
 const ACTIONS: Array[String] = [
 	"cast", "burst", "burn", "freeze", "vulnerable", "heal", "barrier", "breath",
-	"refund", "buff", "invulnerable", "recast", "execute", "revive", "spread_burn", "poison",
+	"refund", "buff", "invulnerable", "recast", "execute", "revive", "spread_burn", "poison", "break",
 ]
 const FILTERS: Array[String] = [
 	"on", "actions", "gem", "element", "tag", "source", "mechanic", "crit", "chance", "every",
@@ -30,6 +30,7 @@ const MOD_KEYS: Array[String] = [
 	"burn_lasting", "breath_cost_lightning_mult", "health_cost_dark", "health_cost_all", "overheal_barrier",
 	"still_damage_reduction", "crit_cadence", "strength_physical_conversion", "max_health_mult", "slot_locked_q",
 	"summon_duration_mult", "cooldown_kill_only", "moving_free_cast", "contact_immunity", "no_healing",
+	"penetration_add", "resist_all_add", "resist_cap_add",
 ]
 const ItemAffixesScript := preload("res://src/gameplay/items/item_affixes.gd")
 const BURN_TICK := 0.5
@@ -438,6 +439,10 @@ static func _act(sim: RefCounted, peer_id: int, passive: Dictionary, action: Dic
 						other["burn_dps"] = maxf(float(other.get("burn_dps", 0.0)), float(enemy["burn_dps"]))
 						other["burn_peer"] = peer_id
 						other["burn_timer"] = maxf(float(other.get("burn_timer", 0.0)), float(enemy.get("burn_timer", 3.0)))
+		"break":
+			# Quebra elemental: reduz a resistência do alvo a um tipo por alguns segundos.
+			if not enemy.is_empty():
+				Resistances.apply_break(enemy, String(action.get("element", "physical")), float(action.get("amount", 0.2)), float(action.get("duration", 4.0)))
 		"poison":
 			# Toxina a partir do acerto: `ratio` do golpe ao longo de `duration` segundos.
 			if not enemy.is_empty():

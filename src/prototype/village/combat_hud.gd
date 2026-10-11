@@ -427,6 +427,14 @@ func _draw_context() -> void:
 		if float(selected_target.get("vulnerable_timer", 0.0)) > 0.0:
 			conditions.append("VULN %.1fs" % float(selected_target["vulnerable_timer"]))
 		draw_string(font, Vector2(aim_x, 266), " | ".join(conditions), HORIZONTAL_ALIGNMENT_CENTER, 180, 10, BREATH)
+		# Fraquezas (verde) e resistências (vermelho) do alvo, as duas mais fortes de cada.
+		var summary := Resistances.summary(selected_target.get("resistances", {}) as Dictionary)
+		var weak := (summary["weak"] as Array).slice(0, 2)
+		var strong := (summary["strong"] as Array).slice(0, 2)
+		if not weak.is_empty():
+			draw_string(font, Vector2(aim_x, 280), "FRACO: " + ", ".join(PackedStringArray(weak)), HORIZONTAL_ALIGNMENT_CENTER, 180, 10, Color("7fd36a"))
+		if not strong.is_empty():
+			draw_string(font, Vector2(aim_x, 293), "RESISTE: " + ", ".join(PackedStringArray(strong)), HORIZONTAL_ALIGNMENT_CENTER, 180, 10, Color("e87a6a"))
 	elif auto_aim:
 		draw_string(font, Vector2(aim_x, 238), "SEM ALVO", HORIZONTAL_ALIGNMENT_CENTER, 180, 11, MUTED_COLOR)
 	for index in range(party.size()):
@@ -442,7 +450,7 @@ func _draw_context() -> void:
 			_panel(rect, Color(0.06, 0.06, 0.09), Color(0, 0, 0, 0), 2, 0, 0)
 			if value > 0.0:
 				_panel(Rect2(rect.position, Vector2(150 * clampf(value / maximum, 0, 1), 4)), spec[2], Color(0, 0, 0, 0), 2, 0, 0)
-			draw_string(font, origin + Vector2(156, y + 5), "%.0f/%.0f" % [value, maximum], HORIZONTAL_ALIGNMENT_LEFT, 68, 9, spec[2])
+			draw_string(font, origin + Vector2(156, y + 5), "%s/%s" % [NumberFormat.short(value), NumberFormat.short(maximum)], HORIZONTAL_ALIGNMENT_LEFT, 68, 9, spec[2])
 		var state := "NA TORRE" if String(member.get("zone", "")) in ["tower", "boss_room"] else "NA VILA"
 		var color := MUTED_COLOR
 		if not bool(member.get("connected", true)):
@@ -556,7 +564,7 @@ func _draw_orb(center: Vector2, radius: float, value: float, maximum: float, col
 	draw_circle(center + Vector2(-radius * 0.38, -radius * 0.42), radius * 0.2, Color(1.0, 1.0, 1.0, 0.16))
 	draw_arc(center, radius, 0.0, TAU, 64, Color(0.0, 0.0, 0.0, 0.6), 3.0, true)
 	draw_arc(center, radius + 3.5, 0.0, TAU, 64, HAIRLINE, 1.5, true)
-	_outlined_text(center + Vector2(-radius, 8.0), "%d" % int(value), radius * 2.0, 18, TEXT)
+	_outlined_text(center + Vector2(-radius, 8.0), NumberFormat.short(value), radius * 2.0, 18, TEXT)
 	_outlined_text(center + Vector2(-radius, -12.0), label_text, radius * 2.0, 9, Color(TEXT, 0.8))
 
 

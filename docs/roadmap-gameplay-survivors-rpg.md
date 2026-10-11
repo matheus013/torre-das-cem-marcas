@@ -53,8 +53,8 @@ Antes de qualquer sistema novo: cada comando novo do epico nasce validado e cobe
 
 Mudam todos os numeros do jogo; vem antes de qualquer balanceamento.
 
-- [ ] G8.13: escala exponencial de numeros (bilhoes de Vida e dano na dificuldade 5, secao 3.1 do documento 76): fontes de poder multiplicativas, efeitos por fracao de Vida e numeros abreviados (mil, mi, bi) na HUD e nos menus.
-- [ ] G8.3: resistencias: fisico e 9 elementos, resistencia dos inimigos por raca, bioma e dificuldade (-50% a +75%), penetracao, Quebra elemental, adaptacao (dificuldades 4 e 5), resistencias da personagem com teto 75% e penalidade por dificuldade (0/0/-20/-40/-60), icones de fraqueza na HUD e numeros "RESISTIU".
+- [x] G8.13: escala exponencial de numeros (bilhoes de Vida e dano na dificuldade 5, secao 3.1 do documento 76): fontes de poder multiplicativas, efeitos por fracao de Vida e numeros abreviados (mil, mi, bi) na HUD e nos menus. Feito em 2026-10-11 (decisao 601): `NumberFormat` abrevia (mil, mi, bi, tri) nos numeros de dano, HUD, status e bestiario; efeitos por fracao de Vida ja existem (colonia de esporos). A escala exata de Vida e dano por dificuldade entra na fase 2.
+- [x] G8.3: resistencias: fisico e 9 elementos, resistencia dos inimigos por raca, bioma e dificuldade (-50% a +75%), penetracao, Quebra elemental, adaptacao (dificuldades 4 e 5), resistencias da personagem com teto 75% e penalidade por dificuldade (0/0/-20/-40/-60), icones de fraqueza na HUD e numeros "RESISTIU". Feito em 2026-10-11 (decisao 601): `src/gameplay/combat/resistances.gd` com tabelas por raca e bioma, penetracao, Quebra elemental, Adaptacao (ligada pela dificuldade na fase 2), resistencia da personagem por afixos com teto de 75%, dano inimigo com tipo, numeros "resistido" e "fraqueza", fraquezas na HUD, status e bestiario. A penalidade por dificuldade entra na fase 2. Regressao em `tests/resistances_test.gd`.
 
 ### Fase 2: dificuldades e pipeline unico de saque
 

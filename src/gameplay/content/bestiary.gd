@@ -26,14 +26,12 @@ const MECHANICS := {
 	"boss_kit": "Guardião de andar: luta com habilidades próprias (abaixo).",
 }
 const TRAITS := {
-	"stone_skin": "Pele de Pedra: recebe 15% menos dano físico.",
+	"stone_skin": "Pele de Pedra: corpo mineral, com resistência física alta (veja Resistências).",
 	"adaptive_shell": "Casca Adaptável: a cada 3 golpes diretos ganha 1 bloqueio. Dano contínuo atravessa.",
 	"barrier_breaker": "Quebra-Barreira: causa 35% mais dano a quem tem barreira.",
 	"effect_feeder": "Devorador de Efeitos: regenera 1% da Vida por segundo enquanto houver zonas e efeitos persistentes no andar.",
 	"wall_camouflage": "Camuflagem: espera escondido nas paredes até a personagem chegar a 170.",
 }
-## Resistências conhecidas por traço de raça (tipo de dano -> redução).
-const TRAIT_RESISTANCES := {"stone_skin": {"Fisico": 0.15}}
 const ABILITIES := {
 	"slam": "Golpe no chão", "nova": "Nova em volta", "summon": "Invoca aliados", "barrage": "Rajada de projéteis",
 	"charge": "Investida", "pull": "Puxão", "gust": "Rajada de vento", "cross": "Cruz de impacto",

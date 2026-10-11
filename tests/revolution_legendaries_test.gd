@@ -22,6 +22,9 @@ func _world(items: Array[String], gems: Array[String] = [], character: StringNam
 		sim.set_gem_slot(1, slot, gems[slot])
 	for item_id in items:
 		sim.equip_item(1, sim._add_equipment_instance(character, item_id, "regular"))
+	# Afixos aleatórios ficam fora da conta: o teste mede só a regra de cada item.
+	for item: EquipmentItemInstance in (sim._gear(1)["equipment"] as EquipmentLoadout)._all_items():
+		item.affixes = []
 	sim._passive_cache.clear()
 	sim.enter_tower(1)
 	sim.enemies.clear()

@@ -229,7 +229,7 @@ func chain(raw_points: Array) -> void:
 
 ## Número de dano flutuante. Críticos são maiores e vermelhos; dano sofrido usa laranja.
 func number(position: Vector2, amount: float, critical: bool, kind: String = "enemy") -> void:
-	var text := "%d" % maxi(1, int(round(amount)))
+	var text := NumberFormat.short(maxf(1.0, round(amount)))
 	if critical:
 		text += "!"
 	elif kind == "player":
@@ -492,6 +492,14 @@ func _draw_number(effect: Dictionary, progress: float) -> void:
 	elif style == "burn":
 		font_size = 15
 		color = Color("ff9a3c")
+	elif style == "resisted":
+		# Golpe muito resistido: cinza e menor.
+		font_size = 14
+		color = Color("8c8c8c")
+	elif style == "weak":
+		# Fraqueza: maior e amarelado.
+		font_size = 22
+		color = Color("ffe066")
 	var font := ThemeDB.fallback_font
 	var text := String(effect["text"])
 	var width := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x

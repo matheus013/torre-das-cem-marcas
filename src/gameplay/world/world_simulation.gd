@@ -180,6 +180,7 @@ const PICKUP_RADIUS := 34.0
 const MAX_GROUND_ITEM_VIEWS := 120
 const AutoSupports := preload("res://src/gameplay/equipment/auto_attack_supports.gd")
 const BestiaryScript := preload("res://src/gameplay/content/bestiary.gd")
+const ResistancesScript := preload("res://src/gameplay/combat/resistances.gd")
 const STACK_RADIUS := 18.0
 const GEM_SLOT_KEYS: Array[String] = ["Q", "W", "E", "R"]
 
@@ -847,6 +848,32 @@ func sanctuary_value(peer_id: int, key: String) -> float:
 	return best
 
 
+func _player_resistance_summary(peer_id: int) -> PackedStringArray:
+	var result := PackedStringArray()
+	for kind in ResistancesScript.TYPES:
+		var value := player_resistance(peer_id, kind)
+		if not is_zero_approx(value):
+			result.append("%s %d%%" % [String(ResistancesScript.LABELS[kind]), roundi(value * 100.0)])
+	return result
+
+
+## Tipo do dano dos perigos e das habilidades de chefe do bioma atual.
+func biome_damage_type() -> String:
+	return String(ResistancesScript.BIOME_DAMAGE.get(String(floor_def().get("biome", "")), "physical")) if current_floor > 0 else "physical"
+
+
+## Resistência da personagem a um tipo: todas + específica, menos a penalidade da dificuldade
+## (fase 2), limitada ao teto (75%, ampliável por itens).
+func player_resistance(peer_id: int, damage_type: String) -> float:
+	var value := _mod(peer_id, "resist_all_add") + _mod(peer_id, "resist_%s_add" % damage_type) - difficulty_resistance_penalty()
+	return clampf(value, ResistancesScript.MINIMUM, ResistancesScript.PLAYER_CAP + _mod(peer_id, "resist_cap_add"))
+
+
+## Penalidade de resistência por dificuldade (documento 76): entra na fase 2 do épico.
+func difficulty_resistance_penalty() -> float:
+	return 0.0
+
+
 ## Custo de Fôlego de uma gema com as regras de itens: geral, por elemento e por movimento.
 func skill_breath_cost(peer_id: int, effect: Dictionary) -> float:
 	var cost := float(effect.get("breath_cost", 0.0)) * _mod(peer_id, "breath_cost_mult")
@@ -1120,6 +1147,7 @@ func step(delta: float) -> void:
 	for enemy in enemies:
 		enemy["flash"] = maxf(0.0, float(enemy.get("flash", 0.0)) - delta)
 		enemy["slow_timer"] = maxf(0.0, float(enemy.get("slow_timer", 0.0)) - delta)
+		ResistancesScript.step(enemy, delta)
 		enemy["vulnerable_timer"] = maxf(0.0, float(enemy.get("vulnerable_timer", 0.0)) - delta)
 	_run_scheduled(delta)
 	if is_milestone_paused():
@@ -2049,6 +2077,9 @@ func create_enemy(definition: Dictionary, position: Vector2, roll_index: int) ->
 		"race_id": String(definition.get("race_id", "juntideo")),
 		"rank_id": String(definition.get("rank_id", "maduro")),
 		"race_trait": String(race.get("trait", "")),
+		# Resistências (E1 fase 1): raça + bioma do andar; tipo do dano dos ataques dela.
+		"resistances": ResistancesScript.enemy_profile(String(definition.get("race_id", "juntideo")), String(floor_def().get("biome", "")) if current_floor > 0 else "", 0.0),
+		"damage_type": String(ResistancesScript.RACE_DAMAGE.get(String(definition.get("race_id", "juntideo")), "physical")),
 		"kind": String(definition.get("kind", "melee")),
 		"base_mechanic": String(definition.get("mechanic", "swarm")),
 		"position": position,
@@ -2363,7 +2394,7 @@ func _update_enemies(delta: float) -> void:
 			if offset.length() > 300.0:
 				_move_enemy(enemy, offset.normalized() * float(enemy.get("speed", 30.0)) * delta)
 			elif float(enemy["action_timer"]) <= 0.0:
-				_fire_enemy_projectile(enemy_position, target["position"] as Vector2, float(enemy.get("damage", 10.0)), base_mechanic == "mark_target")
+				_fire_enemy_projectile(enemy_position, target["position"] as Vector2, float(enemy.get("damage", 10.0)), base_mechanic == "mark_target", String(enemy.get("damage_type", "physical")))
 				enemy["action_timer"] = float(enemy.get("attack_interval", 1.5))
 			continue
 		if base_mechanic == "enemy_barrier" and float(enemy["action_timer"]) <= 0.0:
@@ -2374,7 +2405,7 @@ func _update_enemies(delta: float) -> void:
 		if base_mechanic == "incorporate_objects" and float(enemy["action_timer"]) <= 0.0:
 			for peer_id in _players_in_arena():
 				if enemy_position.distance_to(player(peer_id)["position"] as Vector2) <= 180.0:
-					take_damage(peer_id, float(enemy.get("damage", 20.0)))
+					take_damage(peer_id, float(enemy.get("damage", 20.0)), String(enemy.get("damage_type", "physical")))
 			_vfx(arena_zone(), "ring", [enemy_position, 180.0])
 			enemy["action_timer"] = 3.5
 		if offset.length() > 30.0:
@@ -2392,7 +2423,7 @@ func _update_enemies(delta: float) -> void:
 			if "echo_attack" in mechanics:
 				contact_damage *= 1.35
 			if _mod(target_peer, "contact_immunity") <= 0.0:
-				take_damage(target_peer, contact_damage)
+				take_damage(target_peer, contact_damage, String(enemy.get("damage_type", "physical")))
 			if "life_leech" in mechanics:
 				enemy["health"] = minf(float(enemy.get("max_health", 1.0)), float(enemy["health"]) + contact_damage * 0.5)
 			if "slowing_contact" in mechanics and players.has(target_peer):
@@ -2504,7 +2535,7 @@ func _step_boss(boss: Dictionary, delta: float) -> void:
 		var speed := float(boss["speed"]) * (1.0 + 0.12 * float(phase)) * (1.25 if enraged else 1.0)
 		_move_enemy(boss, offset.normalized() * speed * delta)
 	elif float(player(target_peer)["damage_cooldown"]) <= 0.0:
-		take_damage(target_peer, float(boss["damage"]) * (1.5 if enraged else 1.0))
+		take_damage(target_peer, float(boss["damage"]) * (1.5 if enraged else 1.0), biome_damage_type())
 		player(target_peer)["damage_cooldown"] = 1.0
 
 
@@ -2566,7 +2597,7 @@ func _update_telegraphs(delta: float) -> void:
 			var state := player(peer_id)
 			if not is_connected_player(peer_id) or not TelegraphScript.contains(telegraph, state["position"] as Vector2, PLAYER_RADIUS * 0.5):
 				continue
-			take_damage(peer_id, float(telegraph["damage"]))
+			take_damage(peer_id, float(telegraph["damage"]), biome_damage_type())
 			if not players.has(peer_id) or state["zone"] != &"tower":
 				continue
 			if float(effect.get("push", 0.0)) > 0.0:
@@ -2596,7 +2627,7 @@ func _update_hazard_zones(delta: float) -> void:
 			zone["tick"] = 0.5
 			for peer_id in _players_in_arena():
 				if is_connected_player(peer_id) and (player(peer_id)["position"] as Vector2).distance_to(zone["position"] as Vector2) <= float(zone["radius"]):
-					take_damage(peer_id, float(zone["damage"]) * 0.5)
+					take_damage(peer_id, float(zone["damage"]) * 0.5, biome_damage_type())
 		if float(zone["remaining"]) <= 0.0:
 			hazard_zones.remove_at(index)
 
@@ -2634,8 +2665,9 @@ func _cast_hazard(hazard: Dictionary) -> void:
 		telegraphs.append(telegraph)
 
 
-func _fire_enemy_projectile(origin: Vector2, target: Vector2, damage: float, marked: bool) -> void:
+func _fire_enemy_projectile(origin: Vector2, target: Vector2, damage: float, marked: bool, damage_type: String = "physical") -> void:
 	enemy_projectiles.append({
+		"damage_type": damage_type,
 		"position": origin,
 		"velocity": (target - origin).normalized() * (250.0 if marked else 205.0),
 		"damage": damage * (1.2 if marked else 1.0),
@@ -2658,7 +2690,7 @@ func _update_enemy_projectiles(delta: float) -> void:
 				break
 		if hit_peer >= 0:
 			enemy_projectiles.remove_at(index)
-			take_damage(hit_peer, float(projectile["damage"]))
+			take_damage(hit_peer, float(projectile["damage"]), String(projectile.get("damage_type", "physical")))
 		elif float(projectile["lifetime"]) <= 0.0 or not Rect2(Vector2.ZERO, _zone_size(&"tower")).has_point(position):
 			enemy_projectiles.remove_at(index)
 
@@ -2737,10 +2769,20 @@ func _damage_enemy(peer_id: int, index: int, damage: float, hit: Dictionary) -> 
 	if critical:
 		damage *= CADENCE_CRIT_MULTIPLIER if cadence > 0 else minf(2.0, CRIT_MULTIPLIER + maxf(0.0, float(derived.get("critical_damage_multiplier", 1.5)) - 1.5) + float(derived.get("critical_damage_bonus", 0.0)))
 	var race_trait := String(enemy.get("race_trait", ""))
-	if race_trait == "stone_skin" and String(hit.get("damage_type", "physical")) == "physical":
-		damage *= 0.85
+	# Resistência do alvo ao tipo do acerto, depois da penetração de quem ataca (Pele de Pedra virou
+	# resistência física da raça na tabela).
+	var damage_kind := ResistancesScript.hit_type(hit, String(gem_definition(String(hit.get("gem_id", ""))).get("element", "")) if not String(hit.get("gem_id", "")).is_empty() else "")
+	var resisted := ResistancesScript.enemy_resistance(enemy, damage_kind, _mod(peer_id, "penetration_add") if players.has(peer_id) else 0.0)
+	damage *= 1.0 - resisted
+	ResistancesScript.record_adaptation(enemy, damage_kind, damage)
+	if float(hit.get("break_amount", 0.0)) > 0.0:
+		ResistancesScript.apply_break(enemy, damage_kind, float(hit["break_amount"]), float(hit.get("break_duration", 4.0)))
 	if dot:
 		_vfx(zone, "number", [enemy_position, damage, false, "poison" if hit.has("poison") else "burn"])
+	elif resisted >= 0.5 and not critical:
+		_vfx(zone, "number", [enemy_position, damage, false, "resisted"])
+	elif resisted < 0.0 and not critical:
+		_vfx(zone, "number", [enemy_position, damage, false, "weak"])
 	else:
 		_vfx(zone, "number", [enemy_position, damage, critical])
 		_vfx(zone, "spark", [enemy_position])
@@ -2834,10 +2876,12 @@ func _damage_enemy(peer_id: int, index: int, damage: float, hit: Dictionary) -> 
 		_status(peer_id, "Saque recolhido. Pedra Regenerativa: %d" % int(player(peer_id)["carried_stone"]))
 
 
-func take_damage(peer_id: int, amount: float) -> void:
+func take_damage(peer_id: int, amount: float, damage_type: String = "physical") -> void:
 	var state := player(peer_id)
 	if state.is_empty() or state["zone"] not in ARENA_ZONES or float(state["invulnerable"]) > 0.0 or not bool(state.get("connected", true)) or bool(state.get("downed", false)):
 		return
+	# Resistência da personagem ao tipo do golpe (afixos), até o teto; antes de barreira e defesa.
+	amount *= 1.0 - player_resistance(peer_id, damage_type)
 	var zone := state["zone"] as StringName
 	var position := state["position"] as Vector2
 	if float(state["barrier"]) > 0.0:
@@ -4319,6 +4363,7 @@ func view_snapshot() -> Dictionary:
 	for enemy in enemies:
 		enemy_views.append({
 			"definition_id": enemy["definition_id"], "position": enemy["position"],
+			"resistances": enemy.get("resistances", {}),
 			"facing_direction": enemy.get("facing_direction", Vector2.DOWN),
 			"health": enemy["health"], "max_health": enemy["max_health"],
 			"prefix_id": enemy["prefix_id"], "suffix_id": enemy["suffix_id"],
@@ -4596,7 +4641,7 @@ func detailed_stats(peer_id: int) -> Dictionary:
 		attributes.append({"stat": String(stat), "base": base, "equipment": total - base, "total": total, "effective": float(effective.get(stat, total))})
 	var weapon := weapon_attack_model(peer_id)
 	var combat: Array[Array] = [
-		["Vida maxima", "%d" % roundi(max_health(peer_id))],
+		["Vida maxima", NumberFormat.short(max_health(peer_id))],
 		["Folego maximo", "%d" % roundi(max_breath(peer_id))],
 		["Regeneracao de Folego", "%d/s" % roundi(18.0 * _mod(peer_id, "breath_regen_mult"))],
 		["Potencia do nivel", "x%.2f" % level_power(peer_id)],
@@ -4611,6 +4656,8 @@ func detailed_stats(peer_id: int) -> Dictionary:
 		["Guarda da arma", "%.0f%%" % (float(weapon.get("guard", 0.0)) * 100.0)],
 		["Dano recebido (marcos e itens)", "x%.2f" % _mod(peer_id, "damage_taken_mult")],
 		["Roubo de Vida", "%.1f%%" % (_mod(peer_id, "life_steal_add") * 100.0)],
+		["Penetracao de resistencia", "%.0f%%" % (_mod(peer_id, "penetration_add") * 100.0)],
+		["Resistencias", ", ".join(_player_resistance_summary(peer_id)) if not _player_resistance_summary(peer_id).is_empty() else "Nenhuma (teto %.0f%%)" % (ResistancesScript.PLAYER_CAP * 100.0)],
 		["Alcance de proliferacao de veneno", "+%.0f%%" % ((_mod(peer_id, "poison_spread_mult") - 1.0) * 100.0)],
 		["Teto do acumulo de esporos (Sabedoria)", "x%.1f" % spore_stack_cap(peer_id)],
 		["Raio da explosao de esporos (Inteligencia)", "+%.0f%% (teto +%.0f%%)" % [(float(derived.get("spore_spread_multiplier", 1.0)) - 1.0) * 100.0, StatResolver.SPORE_SPREAD_CAP * 100.0]],
@@ -5166,9 +5213,9 @@ func _bestiary_sections(definition: Dictionary, boss: Dictionary, biome: Diction
 	var base_health := float(definition.get("health", 60.0)) * ENEMY_HEALTH_MULT * float(profile.get("health", 1.0)) * float(rank_factor.call("health_multiplier"))
 	var base_damage := float(definition.get("damage", 12.0)) * float(profile.get("damage", 1.0)) * float(rank_factor.call("damage_multiplier"))
 	var stats := [
-		["Vida base", "%d (cresce com o andar)" % roundi(base_health)],
-		["Vida observada", "%d a %d" % [roundi(float(known.get("min_health", 0.0))), roundi(float(known.get("max_health", 0.0)))]],
-		["Dano base", "%d" % roundi(base_damage)],
+		["Vida base", "%s (cresce com o andar)" % NumberFormat.short(base_health)],
+		["Vida observada", "%s a %s" % [NumberFormat.short(float(known.get("min_health", 0.0))), NumberFormat.short(float(known.get("max_health", 0.0)))]],
+		["Dano base", NumberFormat.short(base_damage)],
 		["Velocidade", "%d" % roundi(float(definition.get("speed", 42.0)) * ENEMY_SPEED_MULT * float(profile.get("speed", 1.0)) * float(rank_factor.call("speed_multiplier")))],
 		["Intervalo de ataque", "%.2f s" % (float(definition.get("attack_interval", 0.8)) * float(profile.get("attack_interval", 1.0)))],
 		["EXP de gema por abate", str(int(EXPERIENCE_REWARDS.get(encounter, 12)))],
@@ -5179,14 +5226,17 @@ func _bestiary_sections(definition: Dictionary, boss: Dictionary, biome: Diction
 	if level < 3:
 		return sections
 	var trait_id := String(race.get("trait", ""))
-	var resistances := PackedStringArray()
-	var trait_resistances := BestiaryScript.TRAIT_RESISTANCES.get(trait_id, {}) as Dictionary
-	for kind: String in trait_resistances:
-		resistances.append("%s %s" % [kind, BestiaryScript.percent(float(trait_resistances[kind]))])
+	# Resistências reais (E1 fase 1): raça + bioma do habitat.
+	var resist_profile := ResistancesScript.enemy_profile(String(definition.get("race_id", "")), String(biome.get("id", "")), 0.0)
+	var summary := ResistancesScript.summary(resist_profile)
+	var resistances := PackedStringArray(summary["strong"])
+	var weaknesses := PackedStringArray(summary["weak"])
 	var behaviour := [
 		["Mecanica", String(BestiaryScript.MECHANICS.get(String(definition.get("mechanic", "swarm")) if boss.is_empty() else "boss_kit", "Ataca corpo a corpo."))],
 		["Traco da raca", String(BestiaryScript.TRAITS.get(trait_id, "Nenhum traco especial."))],
 		["Resistencias", ", ".join(resistances) if not resistances.is_empty() else "Nenhuma"],
+		["Fraquezas", ", ".join(weaknesses) if not weaknesses.is_empty() else "Nenhuma"],
+		["Tipo do dano", String(ResistancesScript.LABELS.get(String(ResistancesScript.RACE_DAMAGE.get(String(definition.get("race_id", "")), "physical")), "Fisico"))],
 		["Afixos", "%d a %d por exemplar" % [int(rank.get("minimum_affixes", 0)), int(rank.get("maximum_affixes", 0))] if bool(definition.get("allow_affixes", true)) and boss.is_empty() else "Nao recebe afixos"],
 	]
 	for ability: Dictionary in boss.get("abilities", []) as Array:

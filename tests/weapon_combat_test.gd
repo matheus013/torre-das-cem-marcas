@@ -76,7 +76,8 @@ func _run() -> void:
 		assert(float(world.enemies[2]["health"]) == 10000.0)
 		assert((float(world.enemies[1]["health"]) < 10000.0) == (character in ["sena", "rui"]))
 		assert(is_equal_approx(float(world.player(1)["attack_timer"]), float(profile["interval"])))
-		world.enemies[0]["race_trait"] = "stone_skin"
+		# Pele de Pedra virou resistência da raça (E1 fase 1): calcário resiste 30% a físico.
+		world.enemies[0]["resistances"] = {"physical": 0.3}
 		world.enemies[0]["vulnerable"] = 0.0
 		world.enemies[0]["health"] = 10000.0
 		world.damage_enemy(1, 0, 100.0, {"crit_add":-1.0, "damage_type":"physical"})
@@ -84,6 +85,6 @@ func _run() -> void:
 		world.enemies[0]["health"] = 10000.0
 		world.damage_enemy(1, 0, 100.0, {"crit_add":-1.0, "damage_type":"arcane"})
 		var arcane := 10000.0 - float(world.enemies[0]["health"])
-		assert(is_equal_approx(physical / arcane, 0.85))
+		assert(is_equal_approx(physical / arcane, 0.7))
 	print("WEAPON_COMBAT_OK: distinct starters, attribute scaling, affinities, factory metadata and attack geometry")
 	quit(0)

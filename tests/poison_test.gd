@@ -44,6 +44,8 @@ func _world(intelligence: float, gems: Array[String], items: Array[String] = [])
 		enemy["shield_hits"] = 0
 		enemy["speed"] = 0.0
 		enemy.erase("poisons")
+		# Resistências por raça (E1 fase 1) ficam fora da conta: o teste mede a regra do veneno.
+		enemy["resistances"] = {}
 	return sim
 
 
