@@ -6,9 +6,15 @@ extends RefCounted
 ## cresce com a raridade. `stat` soma ao atributo da peça; `mod` entra nos mesmos modificadores
 ## lidos por `_mod` (passivas e marcos): `_mult` multiplica, o resto soma.
 
-const COUNT := {"common": [1, 1], "uncommon": [2, 2], "rare": [3, 3], "epic": [3, 3], "legendary": [3, 4]}
-const SCALE := {"common": 1.0, "uncommon": 1.25, "rare": 1.5, "epic": 1.75, "legendary": 2.0}
-const MAX_AFFIXES := 5
+const COUNT := {"common": [1, 1], "uncommon": [2, 2], "rare": [3, 3], "epic": [3, 3], "legendary": [3, 4], "divine": [7, 7]}
+const SCALE := {"common": 1.0, "uncommon": 1.25, "rare": 1.5, "epic": 1.75, "legendary": 2.0, "divine": 2.25}
+## Divinos levam 1 afixo fixo do encaixe e 7 aleatórios (decisão 600).
+const MAX_AFFIXES := 8
+## Afixo fixo do divino por encaixe, sempre no máximo (decisão 600).
+const DIVINE_FIXED := {
+	"boots": "velocidade", "gloves": "cadencia", "ring": "critico", "amulet": "recarga", "armor": "vida",
+	"pants": "defesa", "weapon": "autoataque", "offhand": "area", "relic": "folego",
+}
 const MAX_ITEM_LEVEL := 100
 ## Cada nível do item soma 2% aos atributos-base e aos afixos: andar 100 vale ~3x o andar 1.
 const LEVEL_STEP := 0.02
@@ -88,6 +94,27 @@ static func roll(tier: String, random: RandomNumberGenerator, item_level: int = 
 		var value := random.randf_range(float(spec["min"]), float(spec["max"])) * float(SCALE.get(tier, 1.0)) * level_factor(item_level)
 		result.append({"id": String(ids[index]), "value": _round(spec, value)})
 	return result
+
+
+## Divino: o afixo fixo do encaixe e 7 aleatórios distintos, todos no máximo da faixa da raridade.
+static func roll_divine(slot: String, random: RandomNumberGenerator, item_level: int = 1) -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	var fixed := String(DIVINE_FIXED.get(slot, ""))
+	if POOL.has(fixed):
+		result.append(_max_affix(fixed, item_level))
+	var ids: Array = POOL.keys().filter(func(id: String) -> bool: return bool((POOL[id] as Dictionary).get("random", true)) and id != fixed)
+	for index in range(mini(int(COUNT["divine"][0]), ids.size())):
+		var pick := random.randi_range(index, ids.size() - 1)
+		var swap: Variant = ids[index]
+		ids[index] = ids[pick]
+		ids[pick] = swap
+		result.append(_max_affix(String(ids[index]), item_level))
+	return result
+
+
+static func _max_affix(id: String, item_level: int) -> Dictionary:
+	var spec := POOL[id] as Dictionary
+	return {"id": id, "value": _round(spec, float(spec["max"]) * float(SCALE["divine"]) * level_factor(item_level))}
 
 
 ## Afixos fixos de um item (`fixed_affixes` nos dados): sempre presentes, valor sorteado na faixa

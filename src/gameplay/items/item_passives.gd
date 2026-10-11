@@ -31,6 +31,9 @@ const MOD_KEYS: Array[String] = [
 	"still_damage_reduction", "crit_cadence", "strength_physical_conversion", "max_health_mult", "slot_locked_q",
 	"summon_duration_mult", "cooldown_kill_only", "moving_free_cast", "contact_immunity", "no_healing",
 	"penetration_add", "resist_all_add", "resist_cap_add", "light_radius_mult",
+	# Regras dos divinos (decisão 608).
+	"no_cooldown", "cast_health_ratio", "element_cycle", "poison_eternal", "summon_limit_mult", "auto_hits_all",
+	"damage_cap_ratio", "barrier_permanent", "lit_damage_bonus",
 ]
 const ItemAffixesScript := preload("res://src/gameplay/items/item_affixes.gd")
 const BURN_TICK := 0.5
@@ -73,13 +76,15 @@ static func _loadout_data(sim: RefCounted, items: Array[EquipmentItemInstance]) 
 			affix_mods[mod_key] = float(affix_mods.get(mod_key, 1.0)) * float(mods[mod_key]) if mod_key.ends_with("_mult") else float(affix_mods.get(mod_key, 0.0)) + float(mods[mod_key])
 	for item in items:
 		var data := sim.call("item_data", String(item.definition.id)) as Dictionary
-		var passive := data.get("passive", {}) as Dictionary
-		if passive.is_empty():
-			continue
-		var entry := passive.duplicate(true)
-		entry["item_id"] = String(item.definition.id)
-		entry["unique_gem"] = String(data.get("unique_gem", ""))
-		result.append(entry)
+		# Divinos (decisão 608) trazem 1 ou 2 linhas em `passives`; lendários e únicas, uma em `passive`.
+		var lines: Array = (data.get("passives", []) as Array).duplicate()
+		if not (data.get("passive", {}) as Dictionary).is_empty():
+			lines.push_front(data["passive"])
+		for passive: Dictionary in lines:
+			var entry := passive.duplicate(true)
+			entry["item_id"] = String(item.definition.id)
+			entry["unique_gem"] = String(data.get("unique_gem", ""))
+			result.append(entry)
 	return {"passives": result, "affix_mods": affix_mods}
 
 
@@ -549,7 +554,7 @@ static func validate(passive: Dictionary) -> Array[String]:
 		if String(key) not in MOD_KEYS:
 			errors.append("%s: modificador desconhecido %s" % [name, key])
 	var triggers := passive.get("triggers", []) as Array
-	if triggers.is_empty() and (passive.get("mods", {}) as Dictionary).is_empty() and (passive.get("transform", {}) as Dictionary).is_empty() and (passive.get("transform_from", {}) as Dictionary).is_empty():
+	if triggers.is_empty() and (passive.get("mods", {}) as Dictionary).is_empty() and (passive.get("transform", {}) as Dictionary).is_empty() and (passive.get("transform_from", {}) as Dictionary).is_empty() and (passive.get("gem_transforms", {}) as Dictionary).is_empty():
 		errors.append("%s: sem gatilhos nem modificadores" % name)
 	for trigger: Dictionary in triggers:
 		if String(trigger.get("on", "")) not in TRIGGERS:

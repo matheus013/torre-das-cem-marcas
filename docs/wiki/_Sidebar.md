@@ -17,5 +17,6 @@
 - [Afixos de elite, mutadores e marés](Mutadores-e-Mares)
 - [Armas únicas](Armas-Unicas)
 - [Lendários e relíquias](Lendarios-e-Reliquias)
+- [Itens divinos](Itens-Divinos)
 - [Equipamentos, consumíveis e materiais](Equipamentos-e-Materiais)
 - [Afixos de item](Afixos)

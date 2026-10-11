@@ -16,7 +16,7 @@ const MODIFIER_MECHANICS: Array[String] = [
 	"", "regeneration", "first_hit_shield", "split_on_death", "slowing_contact",
 	"echo_attack", "life_leech", "gravity_pull", "wall_hide", "death_burst",
 ]
-const ITEM_TIERS: Array[String] = ["common", "uncommon", "rare", "epic", "legendary"]
+const ITEM_TIERS: Array[String] = ["common", "uncommon", "rare", "epic", "legendary", "divine"]
 const SUMMON_BEHAVIORS: Array[String] = ["stationary", "follow_owner", "chase_target"]
 const SUMMON_TARGETING: Array[String] = ["nearest_hostile", "owner_target", "lowest_health_hostile"]
 const SUMMON_REPLACEMENT: Array[String] = ["oldest", "reject"]
@@ -87,6 +87,13 @@ func validation_errors() -> Array[String]:
 			errors.append("Legendary item without exclusive passive: %s" % item.get("id", ""))
 		if not passive.is_empty():
 			for problem in ItemPassivesScript.validate(passive):
+				errors.append("%s: %s" % [item.get("id", ""), problem])
+		# Divinos (decisão 608): 1 ou 2 linhas de passiva, cada uma quebrando uma regra.
+		var lines := item.get("passives", []) as Array
+		if String(item.get("tier", "")) == "divine" and (lines.is_empty() or lines.size() > 2):
+			errors.append("Divine item needs 1 or 2 passive lines: %s" % item.get("id", ""))
+		for line: Dictionary in lines:
+			for problem in ItemPassivesScript.validate(line):
 				errors.append("%s: %s" % [item.get("id", ""), problem])
 	for gem in collection("active_gems"):
 		for stat: Variant in gem.get("scaling", []):
@@ -216,7 +223,7 @@ func validation_errors() -> Array[String]:
 	for item in collection("items"):
 		if String(item.get("tier", "")) not in ITEM_TIERS:
 			errors.append("Invalid item tier: %s" % item.get("id", ""))
-		if String(item.get("item_type", "")) == "relic" and String(item.get("tier", "")) not in ["epic", "legendary"]:
+		if String(item.get("item_type", "")) == "relic" and String(item.get("tier", "")) not in ["epic", "legendary", "divine"]:
 			errors.append("Relic below epic tier: %s" % item.get("id", ""))
 	return errors
 

@@ -90,8 +90,8 @@ func _draw() -> void:
 		var drawn := Vector2(texture.get_width(), texture.get_height()) * (scale if scale >= 1.0 else side / maxf(texture.get_width(), texture.get_height()))
 		draw_texture_rect(texture, Rect2((size - drawn) * 0.5, drawn), false)
 	draw_rect(rect.grow(-1.0), Color(color, 1.0 if _hover else 0.85), false, 2.0)
-	if tier_id == "legendary":
-		draw_rect(rect.grow(-4.0), Color(color, 0.35), false, 1.0)
+	if tier_id in ["legendary", "divine"]:
+		draw_rect(rect.grow(-4.0), Color(color, 0.35 if tier_id == "legendary" else 0.7), false, 1.0)
 	if has_focus():
 		draw_rect(rect.grow(-2), UiSkin.CYAN, false, 2)
 	if affix_count > 0:

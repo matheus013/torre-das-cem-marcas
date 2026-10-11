@@ -534,6 +534,9 @@ func _apply_intent(peer_id: int, kind: String, args: Array) -> void:
 		"forge":
 			if args.size() == 2 and args[0] is String and args[1] is String:
 				_sim.call("forge_recipe", peer_id, String(args[0]), String(args[1]))
+		"ascend":
+			if args.size() == 1 and args[0] is String:
+				_sim.call("ascend", peer_id, String(args[0]))
 		"loot_filter":
 			if args.size() == 1 and args[0] is String:
 				_sim.call("set_loot_filter", peer_id, String(args[0]))
@@ -1923,7 +1926,7 @@ func _draw_drop(drop: Dictionary) -> void:
 	var color := ItemTier.color(tier)
 	var pulse := 0.5 + 0.5 * sin(_anim_time * 4.0 + position.x * 0.07)
 	var bob := sin(_anim_time * 3.0 + position.x * 0.05) * 2.0
-	var notable := bool(drop.get("equipment", false)) or tier in ["rare", "epic", "legendary"]
+	var notable := bool(drop.get("equipment", false)) or tier in ["rare", "epic", "legendary", "divine"]
 	var stone_drop := String(drop.get("item_id", "")) == "pedra_regenerativa"
 	var filter := String((_local() as Dictionary).get("loot_filter", "common"))
 	if bool(drop.get("equipment", false)) and ItemTier.TIER_KEYS_ORDER.find(tier) < ItemTier.TIER_KEYS_ORDER.find(filter):
@@ -2375,6 +2378,7 @@ func _build_interface() -> void:
 	_shop_menu.connect("buy_requested", func(index: int) -> void: _send_intent("shop_buy", [index]))
 	_shop_menu.connect("reroll_requested", func() -> void: _send_intent("shop_reroll", []))
 	_shop_menu.connect("forge_requested", func(recipe_id: String, slot: String) -> void: _send_intent("forge", [recipe_id, slot]))
+	_shop_menu.connect("ascend_requested", func(gem_id: String) -> void: _send_intent("ascend", [gem_id]))
 	_service_menu.connect("talk_requested", func(npc_id: String) -> void:
 		if ((_view.get("narrative", {}) as Dictionary).get("conversations", {}) as Dictionary).has(npc_id):
 			_narrative_menu.call("open", _conversation_model(npc_id), true)

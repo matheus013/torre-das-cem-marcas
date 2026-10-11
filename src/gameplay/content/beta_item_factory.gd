@@ -18,6 +18,7 @@ const TIER_BY_NAME: Dictionary = {
 	"rare": ItemTier.Value.RARE,
 	"epic": ItemTier.Value.EPIC,
 	"legendary": ItemTier.Value.LEGENDARY,
+	"divine": ItemTier.Value.DIVINE,
 }
 
 
@@ -46,6 +47,9 @@ func definition_from_data(data: Dictionary) -> EquipmentItemDefinition:
 	# Passiva exclusiva (decisão 580) conta como a mudança mecânica do item.
 	if data.get("passive", {}) is Dictionary and not (data.get("passive", {}) as Dictionary).is_empty():
 		definition.mechanic_changes.append(StringName("passive:" + String(data.get("id", ""))))
+	# Linhas divinas (decisão 608) também.
+	if data.get("passives", []) is Array and not (data.get("passives", []) as Array).is_empty():
+		definition.mechanic_changes.append(StringName("divine:" + String(data.get("id", ""))))
 	return definition
 
 

@@ -28,6 +28,7 @@ func _run() -> void:
 		"Racas-e-Patentes.md": sim.content("monster_races"),
 		"Armas-Unicas.md": sim.content("items").filter(func(item: Dictionary) -> bool: return item.has("unique_gem")),
 		"Lendarios-e-Reliquias.md": sim.content("items").filter(func(item: Dictionary) -> bool: return String(item.get("tier", "")) == "legendary" and not item.has("unique_gem")),
+		"Itens-Divinos.md": sim.content("items").filter(func(item: Dictionary) -> bool: return String(item.get("tier", "")) == "divine"),
 	}
 	for page: String in expected:
 		var text := String(pages.get(page, ""))

@@ -335,3 +335,16 @@ item	ambar_solar	dev 2/FantasyInventory.zip::FantasyInventory/FantasyInventorySp
 # Recompensas de marés (decisão 606).
 item	ambar_da_mare	dev 2/FantasyInventory.zip::FantasyInventory/FantasyInventorySpritesheet.png	crop=32:32:224:32,format=rgba,hue=h=-20:s=1.4
 item	reliquia_da_lua	dev 2/FantasyInventory.zip::FantasyInventory/FantasyInventorySpritesheet.png	crop=32:32:288:0,format=rgba,hue=h=150:s=1.1
+# Itens divinos (decisão 608): ícones derivados dos itens do mesmo encaixe, em branco-dourado.
+item_derived	divino_coroa_sem_fim	items/lendario_coroa_de_brasa	format=rgba,hue=s=0.3,eq=brightness=0.14:contrast=1.15,colorchannelmixer=rr=1.08:gg=1.02:bb=0.78
+item_derived	divino_lanca_das_nove_mares	items/lanca_de_duas_rotas	format=rgba,hue=s=0.3,eq=brightness=0.14:contrast=1.15,colorchannelmixer=rr=1.08:gg=1.02:bb=0.78
+item_derived	divino_manto_da_peste_eterna	items/lendario_manto_do_inverno	format=rgba,hue=s=0.3,eq=brightness=0.14:contrast=1.15,colorchannelmixer=rr=1.08:gg=1.02:bb=0.78
+item_derived	divino_cetro_da_legiao	items/reliquia_molde_sem_dono	format=rgba,hue=s=0.3,eq=brightness=0.14:contrast=1.15,colorchannelmixer=rr=1.08:gg=1.02:bb=0.78
+item_derived	divino_punho_da_primeira_lei	items/lendario_punho_da_montanha	format=rgba,hue=s=0.3,eq=brightness=0.14:contrast=1.15,colorchannelmixer=rr=1.08:gg=1.02:bb=0.78
+item_derived	divino_egide_imovel	items/escudo_de_escora	format=rgba,hue=s=0.3,eq=brightness=0.14:contrast=1.15,colorchannelmixer=rr=1.08:gg=1.02:bb=0.78
+item_derived	divino_filamento_do_circuito_eterno	items/lendario_anel_da_corda_infinita	format=rgba,hue=s=0.3,eq=brightness=0.14:contrast=1.15,colorchannelmixer=rr=1.08:gg=1.02:bb=0.78
+item_derived	divino_agulha_do_horizonte	items/lendario_anel_do_sol_partido	format=rgba,hue=s=0.3,eq=brightness=0.14:contrast=1.15,colorchannelmixer=rr=1.08:gg=1.02:bb=0.78
+item_derived	divino_coracao_da_cicatriz_viva	items/lendario_calca_do_pastor	format=rgba,hue=s=0.3,eq=brightness=0.14:contrast=1.15,colorchannelmixer=rr=1.08:gg=1.02:bb=0.78
+item_derived	divino_botas_da_obra_infinita	items/lendario_botas_do_vendaval	format=rgba,hue=s=0.3,eq=brightness=0.14:contrast=1.15,colorchannelmixer=rr=1.08:gg=1.02:bb=0.78
+item_derived	divino_lanterna_do_fim_do_mundo	items/lanterna_de_esporo	format=rgba,hue=s=0.3,eq=brightness=0.14:contrast=1.15,colorchannelmixer=rr=1.08:gg=1.02:bb=0.78
+item_derived	divino_anel_do_tempo_partido	items/lendario_anel_do_furor	format=rgba,hue=s=0.3,eq=brightness=0.14:contrast=1.15,colorchannelmixer=rr=1.08:gg=1.02:bb=0.78

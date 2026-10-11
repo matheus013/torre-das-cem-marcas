@@ -19,7 +19,7 @@ const PAGES := [
 	["Gemas-Ativas", "Gemas ativas"], ["Gemas-de-Suporte", "Gemas de suporte"], ["Invocacoes", "Invocações"],
 	["Inimigos", "Inimigos"], ["Chefes", "Chefes"], ["Racas-e-Patentes", "Raças, patentes e afixos de monstro"],
 	["Torre-e-Biomas", "Torre e biomas"], ["Andares", "Os 100 andares"], ["Resistencias", "Resistências"],
-	["Dificuldades", "Dificuldades"], ["Dia-e-Noite", "Dia e noite"], ["Mutadores-e-Mares", "Afixos de elite, mutadores e marés"], ["Armas-Unicas", "Armas únicas"], ["Lendarios-e-Reliquias", "Lendários e relíquias"],
+	["Dificuldades", "Dificuldades"], ["Dia-e-Noite", "Dia e noite"], ["Mutadores-e-Mares", "Afixos de elite, mutadores e marés"], ["Armas-Unicas", "Armas únicas"], ["Lendarios-e-Reliquias", "Lendários e relíquias"], ["Itens-Divinos", "Itens divinos"],
 	["Equipamentos-e-Materiais", "Equipamentos, consumíveis e materiais"], ["Afixos", "Afixos de item"],
 ]
 const LICENSE_NOTE := "Conteúdo de *Aresta — A Torre das Cem Marcas* © 2026 Matheus Santos, sob [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/). Gerado dos dados do jogo; valores provisórios, sujeitos a balanceamento."
@@ -78,7 +78,7 @@ func build() -> Dictionary:
 		"Gemas-de-Suporte.md": _support_gems(), "Invocacoes.md": _summons(), "Inimigos.md": _enemies(),
 		"Chefes.md": _bosses(), "Racas-e-Patentes.md": _races(), "Torre-e-Biomas.md": _biomes(),
 		"Andares.md": _floors(), "Resistencias.md": _resistances(), "Dificuldades.md": _difficulties(), "Dia-e-Noite.md": _day_night(), "Mutadores-e-Mares.md": _floor_events(),
-		"Armas-Unicas.md": _uniques(), "Lendarios-e-Reliquias.md": _legendaries(),
+		"Armas-Unicas.md": _uniques(), "Lendarios-e-Reliquias.md": _legendaries(), "Itens-Divinos.md": _divines(),
 		"Equipamentos-e-Materiais.md": _equipment(), "Afixos.md": _affixes(),
 	}
 
@@ -650,13 +650,34 @@ func _legendaries() -> String:
 	return _page(lines)
 
 
+func _divines() -> String:
+	var lines := PackedStringArray(["# Itens divinos", "",
+		"Raridade acima de lendário, só da [dificuldade](Dificuldades) %d em diante. Cada peça sai Magistral (atributos-base no máximo), com um afixo fixo do encaixe e 7 afixos aleatórios distintos, todos no valor máximo da faixa, e 1 ou 2 linhas de passiva divina que quebram regras do jogo." % Simulation.DIVINE_MIN_DIFFICULTY, "",
+		"**Fontes:** chefes de andar (%s na 4, %s na 5), Lua da Cicatriz vencida (%s), campeões de maré da 5 (%s) e a receita de **ascensão** na Forja: %d armas únicas da mesma gema e %d Pólen Lunar do armazém. No co-op cada jogador sorteia o próprio divino, que vai direto para a mochila." % [_pct(Simulation.DIVINE_BOSS_CHANCE[3]), _pct(Simulation.DIVINE_BOSS_CHANCE[4]), _pct(Simulation.DIVINE_SCAR_MOON_CHANCE), _pct(Simulation.DIVINE_CHAMPION_CHANCE), Simulation.ASCENSION_UNIQUES, Simulation.ASCENSION_MATERIAL_COUNT], "",
+		"| Encaixe | Afixo fixo |", "| --- | --- |"])
+	for slot: String in ItemAffixesScript.DIVINE_FIXED:
+		lines.append("| %s | %s |" % [_label(SLOT_LABELS, slot), String((ItemAffixesScript.POOL[ItemAffixesScript.DIVINE_FIXED[slot]] as Dictionary)["label"])])
+	lines.append("")
+	for item: Dictionary in _items_where(func(entry: Dictionary) -> bool: return String(entry.get("tier", "")) == "divine"):
+		lines.append("## %s" % item["name"])
+		lines.append("")
+		lines.append("%s · estilo: %s · %s" % [_label(SLOT_LABELS, String(item.get("slot", ""))), String(item.get("style", "")), _or_dash(_stats(item.get("stats", {}) as Dictionary))])
+		lines.append("")
+		for line: Dictionary in item.get("passives", []) as Array:
+			lines.append("- **%s:** %s" % [line.get("name", ""), _text(String(line.get("description", "")))])
+		lines.append("")
+		lines.append("> " + _text(String(item.get("description", ""))))
+		lines.append("")
+	return _page(lines)
+
+
 func _equipment() -> String:
 	var sources := sim.material_sources()
 	var lines := PackedStringArray(["# Equipamentos, consumíveis e materiais", "",
 		"Peças-base que caem na Torre e são vendidas na vila. Peças do saque ganham [afixos](Afixos) conforme a raridade e o nível do item. Materiais vão para o armazém comum da vila e alimentam as receitas da Forja.", ""])
 	for group in [["weapon", "Armas iniciais"], ["gear", "Equipamentos"], ["consumable", "Consumíveis"], ["material", "Materiais"]]:
 		var items := _items_where(func(item: Dictionary) -> bool:
-			if String(item.get("tier", "")) == "legendary" or item.has("unique_gem"):
+			if String(item.get("tier", "")) in ["legendary", "divine"] or item.has("unique_gem"):
 				return false
 			var kind := String(item.get("item_type", ""))
 			if group[0] == "gear":

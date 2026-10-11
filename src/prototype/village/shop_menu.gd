@@ -7,12 +7,13 @@ const UiSkin := preload("res://src/presentation/ui/game_ui_skin.gd")
 signal buy_requested(index: int)
 signal reroll_requested
 signal forge_requested(recipe_id: String, slot: String)
+signal ascend_requested(gem_id: String)
 
 const PlayerMenuScript := preload("res://src/prototype/village/player_menu.gd")
 const GOLD := Color("e8b84a")
 const TEXT := Color("f2e6c9")
 const MUTED := Color("aaa59a")
-const TIER_COLORS := {"common": Color("d8cdb4"), "uncommon": Color("7fc66a"), "rare": Color("5aa2e8"), "epic": Color("b276e8"), "legendary": Color("f08a3a")}
+const TIER_COLORS := {"common": Color("d8cdb4"), "uncommon": Color("7fc66a"), "rare": Color("5aa2e8"), "epic": Color("b276e8"), "legendary": Color("f08a3a"), "divine": Color("f6e7a8")}
 
 var _model: Dictionary = {}
 var _silver: Label
@@ -20,6 +21,7 @@ var _grid: GridContainer
 var _reroll: Button
 var _recipes: VBoxContainer
 var _sharing: Label
+var _ascension: VBoxContainer
 var _panel: PanelContainer
 
 
@@ -86,6 +88,11 @@ func _ready() -> void:
 	_recipes.name = "ForgeRecipes"
 	_recipes.add_theme_constant_override("separation", 6)
 	body.add_child(_recipes)
+	# Ascensão (decisão 608): 3 armas únicas da mesma gema e Pólen Lunar viram um divino.
+	_ascension = VBoxContainer.new()
+	_ascension.name = "Ascension"
+	_ascension.add_theme_constant_override("separation", 6)
+	body.add_child(_ascension)
 	_sharing = Label.new()
 	_sharing.name = "SharingRule"
 	_sharing.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -155,6 +162,28 @@ func refresh(model: Dictionary) -> void:
 	for recipe: Dictionary in _model.get("recipes", []) as Array:
 		_recipes.add_child(_recipe_row(recipe, _model.get("slots", {}) as Dictionary))
 	_sharing.text = String(_model.get("sharing_rule", ""))
+	for child in _ascension.get_children():
+		_ascension.remove_child(child)
+		child.queue_free()
+	var title := Label.new()
+	title.text = "ASCENSAO  ·  3 armas unicas da mesma gema + 5 Polen Lunar = 1 item divino" + ("" if bool(_model.get("ascension_open", false)) else "  (abre com a dificuldade 4)")
+	title.add_theme_color_override("font_color", ItemTier.color("divine"))
+	_ascension.add_child(title)
+	for option: Dictionary in _model.get("ascension", []) as Array:
+		var row := HBoxContainer.new()
+		var label := Label.new()
+		label.text = "%s  %d/%d  ·  %s %d/%d" % [String(option["name"]), int(option["have"]), int(option["need"]), String(option["material"]), int(option["material_have"]), int(option["material_need"])]
+		label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		label.add_theme_color_override("font_color", TEXT if bool(option["ready"]) else MUTED)
+		row.add_child(label)
+		var button := Button.new()
+		button.name = "Ascend"
+		button.text = "ASCENDER"
+		button.disabled = not bool(option["ready"])
+		var gem_id := String(option["gem_id"])
+		button.pressed.connect(func() -> void: ascend_requested.emit(gem_id))
+		row.add_child(button)
+		_ascension.add_child(row)
 
 
 ## Receita: nome e custo, encaixe a escolher e botão; bloqueada até vencer o guardião.

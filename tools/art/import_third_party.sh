@@ -14,6 +14,7 @@ trap 'rm -rf "$work"' EXIT INT TERM
 # Extrai a origem para um arquivo temporário; "pacote::membro" lê de dentro de zip/rar.
 fetch() {
 	case "$1" in
+		items/*) cp "assets/sprites/$1.png" "$2" ;;
 		*::*) bsdtar -xOf "$source_root/${1%%::*}" "${1#*::}" > "$2" ;;
 		*) cp "$source_root/$1" "$2" ;;
 	esac
@@ -42,6 +43,10 @@ while IFS="$tab" read -r kind dest origin filter; do
 			;;
 		item)
 			mkdir -p assets/sprites/items
+			image "$source" "assets/sprites/items/$dest.png" "${filter:-}"
+			;;
+		item_derived)
+			# Variante de um ícone de item já importado (origem: nome em assets/sprites/items).
 			image "$source" "assets/sprites/items/$dest.png" "${filter:-}"
 			;;
 		sfx)

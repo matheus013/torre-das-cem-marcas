@@ -7,6 +7,8 @@ enum Value {
 	RARE,
 	EPIC,
 	LEGENDARY,
+	## Divino (decisão 608): acima de lendário, só da dificuldade 4 em diante.
+	DIVINE,
 }
 
 const LABELS: Dictionary = {
@@ -15,6 +17,7 @@ const LABELS: Dictionary = {
 	Value.RARE: "Raro",
 	Value.EPIC: "Epico",
 	Value.LEGENDARY: "Lendario",
+	Value.DIVINE: "Divino",
 }
 
 
@@ -24,6 +27,7 @@ const KEYS: Dictionary = {
 	Value.RARE: "rare",
 	Value.EPIC: "epic",
 	Value.LEGENDARY: "legendary",
+	Value.DIVINE: "divine",
 }
 ## Uma cor por raridade, usada em menus, saque no chão e laboratório. O lendário é laranja
 ## para não se confundir com o dourado dos títulos da interface.
@@ -33,11 +37,12 @@ const COLORS: Dictionary = {
 	"rare": Color("5ca7ff"),
 	"epic": Color("b97be6"),
 	"legendary": Color("f08a3c"),
+	"divine": Color("f6e7a8"),
 }
 
 
 ## Ordem crescente de raridade, para comparar chaves ("rare" acima de "uncommon").
-const TIER_KEYS_ORDER: Array[String] = ["common", "uncommon", "rare", "epic", "legendary"]
+const TIER_KEYS_ORDER: Array[String] = ["common", "uncommon", "rare", "epic", "legendary", "divine"]
 
 
 static func key(value: Value) -> String:

@@ -66,7 +66,7 @@ Alem da passiva, cada arma da +50% a potencia principal da gema, -25% de recarga
 | Bobina do Arco | Arco Voltaico | **Arco Infinito**: O Arco salta ate 30 vezes entre inimigos proximos. |
 | Teia Sedenta | Dreno em Rede | **Fome da Rede**: Cada abate feito pela Rede da +2% de dano de trevas ate sair da Torre (ate +200%). |
 | Matriz do Vigia | Molde Vigilante | **Matriz Viva**: Um Molde novo surge sozinho a cada 8 s ao lado do inimigo mais proximo. |
-| Olho da Sentinela | Sentinela Ferral | **Sentinela Eterna**: A Sentinela nao expira; lancar de novo a move para o novo ponto. |
+| Olho da Sentinela | Sentinela Ferral | **Sentinela Eterna**: As Sentinelas nao expiram; lancar de novo substitui as mais antigas. |
 | Colmeia de Luz | Enxame Luminar | **Enxame Faminto**: Cada abate do Enxame gera um enxame novo no lugar (no maximo um por segundo). |
 | Juramento do Guardiao | Guardiao de Lastro | **Guardiao Imortal**: Ao ser ferida, um Guardiao surge de graca (uma vez a cada 15 s) com barreira de 20% da Vida. |
 | Cajado da Primeira Colheita | Semeadura Vital | **Jardim Andante**: O Jardim acompanha a personagem enquanto dura. |

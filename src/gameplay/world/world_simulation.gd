@@ -204,6 +204,15 @@ const ResistancesScript := preload("res://src/gameplay/combat/resistances.gd")
 const WorldClockScript := preload("res://src/gameplay/world/world_clock.gd")
 const FloorRulesScript := preload("res://src/gameplay/world/floor_rules.gd")
 const ParagonScript := preload("res://src/gameplay/progression/paragon.gd")
+## Itens divinos (decisão 608): só da dificuldade 4 em diante, sorteio individual por jogador.
+const DIVINE_MIN_DIFFICULTY := 4
+const DIVINE_BOSS_CHANCE: Array[float] = [0.0, 0.0, 0.0, 0.05, 0.1]
+const DIVINE_SCAR_MOON_CHANCE := 0.25
+const DIVINE_CHAMPION_CHANCE := 0.05
+## Receita de ascensão: 3 armas únicas da mesma gema e Pólen Lunar do armazém.
+const ASCENSION_UNIQUES := 3
+const ASCENSION_MATERIAL := "polen_lunar"
+const ASCENSION_MATERIAL_COUNT := 5
 ## Dia e noite (épico E1, fase 3; G8.1 e G8.2; decisão 605). À noite só o que está na luz de alguma
 ## personagem aparece inteiro e entra no ataque automático; a luz é um atributo (afixo, gemas
 ## sagradas) e as variantes noturnas a disputam. Valores provisórios.
@@ -894,6 +903,15 @@ func resolve_slot(peer_id: int, slot: int) -> Dictionary:
 		resolved = resolver.call("resolve", resolved, [] as Array[Dictionary], unique_modifiers)
 		resolved["unique_weapon"] = String(unique["id"])
 		_apply_gem_transform(resolved, unique.get("passive", {}) as Dictionary)
+	# Divinos de personagem (decisão 608): transformam a gema inicial dela.
+	for passive in ItemPassivesScript.active(self, peer_id):
+		var change := (passive.get("gem_transforms", {}) as Dictionary).get(gem_id, {}) as Dictionary
+		if change.is_empty():
+			continue
+		if change.has("modifiers"):
+			var divine_modifiers: Array[Dictionary] = [change["modifiers"] as Dictionary]
+			resolved = resolver.call("resolve", resolved, [] as Array[Dictionary], divine_modifiers)
+		_apply_gem_transform(resolved, change)
 	resolved["gem_id"] = gem_id
 	return resolved
 
@@ -1090,6 +1108,11 @@ func use_skill(peer_id: int, slot: int, target: Vector2) -> bool:
 	if float(state["breath"]) < breath_cost:
 		_status(peer_id, "Folego insuficiente.")
 		return false
+	# Coroa Sem Fim: cada lançamento custa uma fração da Vida máxima.
+	var tribute := max_health(peer_id) * _mod(peer_id, "cast_health_ratio")
+	if tribute > 0.0 and float(state["health"]) <= tribute:
+		_status(peer_id, "Vida insuficiente.")
+		return false
 	var passive := state["passive"] as RefCounted
 	var cast: Dictionary = passive.call("on_skill_used", slot)
 	var free := bool(cast.get("free", false))
@@ -1106,9 +1129,11 @@ func use_skill(peer_id: int, slot: int, target: Vector2) -> bool:
 		effect["duration"] = float(effect["duration"]) * _mod(peer_id, "duration_mult")
 	if not free:
 		state["breath"] = float(state["breath"]) - breath_cost
-		state["health"] = float(state["health"]) - health_cost
-		charges[slot] -= 1
-		if cooldowns[slot] <= 0.0:
+		state["health"] = float(state["health"]) - health_cost - tribute
+		# Sem Fim: gemas sem recarga (a carga não é gasta).
+		if _mod(peer_id, "no_cooldown") <= 0.0:
+			charges[slot] -= 1
+		if cooldowns[slot] <= 0.0 and _mod(peer_id, "no_cooldown") <= 0.0:
 			var recharge := float(effect.get("cooldown", 1.0)) / float(derived_stats(peer_id).get("cooldown_recovery_multiplier", 1.0))
 			(state["recharge"] as Array[float])[slot] = recharge
 			cooldowns[slot] = recharge
@@ -1205,6 +1230,88 @@ func allocate_stat(peer_id: int, stat: StringName) -> void:
 
 
 ## Reset de atributos: todos os pontos distribuídos voltam a ficar livres (evoluções ficam).
+# ---------------------------------------------------------------- itens divinos (decisão 608)
+
+func divine_ids() -> Array[String]:
+	var result: Array[String] = []
+	for item in _collection("items"):
+		if String(item.get("tier", "")) == "divine":
+			result.append(String(item["id"]))
+	return result
+
+
+## Cada jogador na arena sorteia o próprio divino (sem disputa no co-op): vai direto para a mochila.
+func _roll_divines(chance: float, source: String) -> void:
+	if difficulty < DIVINE_MIN_DIFFICULTY or chance <= 0.0:
+		return
+	for peer_id in _players_in_arena():
+		var random := RandomNumberGenerator.new()
+		random.seed = hash([encounter_seed, loot_kill_sequence, current_floor, peer_id, source, "divine"])
+		if random.randf() < chance:
+			grant_divine(peer_id, random)
+
+
+func grant_divine(peer_id: int, random: RandomNumberGenerator = null) -> String:
+	var ids := divine_ids()
+	if ids.is_empty() or player(peer_id).is_empty():
+		return ""
+	if random == null:
+		random = RandomNumberGenerator.new()
+		random.seed = hash([encounter_seed, loot_kill_sequence, peer_id, "divine_grant"])
+	var item_id := ids[random.randi_range(0, ids.size() - 1)]
+	_add_equipment_instance(player(peer_id)["character_id"] as StringName, item_id, "masterwork", maxi(current_floor, 1))
+	var state := player(peer_id)
+	_vfx(state["zone"], "label", [state["position"], "DIVINO: " + item_display_name(item_id), ItemTier.color("divine"), "coins"])
+	_status(0, "%s recebeu um item divino: %s." % [String(state.get("character_name", "")), item_display_name(item_id)])
+	return item_id
+
+
+## Receita de ascensão na Forja: 3 armas únicas da mesma gema (na mochila) e Pólen Lunar do
+## armazém viram um divino. Só em mundos que já liberaram a dificuldade 4.
+func ascension_options(peer_id: int) -> Array:
+	var counts := {}
+	var gear := _gear(peer_id)
+	if gear.is_empty():
+		return []
+	for instance_id: StringName in (gear["inventory"] as ItemInventory).items:
+		var item_id := String(((gear["inventory"] as ItemInventory).items[instance_id] as EquipmentItemInstance).definition.id)
+		if item_id.begins_with("unica_"):
+			counts[item_id] = int(counts.get(item_id, 0)) + 1
+	var result := []
+	for item_id: String in counts:
+		var gem_id := item_id.trim_prefix("unica_")
+		result.append({"gem_id": gem_id, "name": item_display_name(item_id), "have": int(counts[item_id]), "need": ASCENSION_UNIQUES,
+			"material": item_display_name(ASCENSION_MATERIAL), "material_have": int(banked_loot.get(ASCENSION_MATERIAL, 0)), "material_need": ASCENSION_MATERIAL_COUNT,
+			"ready": int(counts[item_id]) >= ASCENSION_UNIQUES and int(banked_loot.get(ASCENSION_MATERIAL, 0)) >= ASCENSION_MATERIAL_COUNT and unlocked_difficulty >= DIVINE_MIN_DIFFICULTY})
+	result.sort_custom(func(left: Dictionary, right: Dictionary) -> bool: return String(left["name"]) < String(right["name"]))
+	return result
+
+
+func ascend(peer_id: int, gem_id: String) -> String:
+	var gear := _gear(peer_id)
+	if gear.is_empty() or not _near_shop(peer_id):
+		return ""
+	if unlocked_difficulty < DIVINE_MIN_DIFFICULTY:
+		_status(peer_id, "A ascensao so abre em mundos que chegaram a dificuldade %d." % DIVINE_MIN_DIFFICULTY)
+		return ""
+	var inventory := gear["inventory"] as ItemInventory
+	var copies: Array[StringName] = []
+	for instance_id: StringName in inventory.items:
+		if String((inventory.items[instance_id] as EquipmentItemInstance).definition.id) == "unica_" + gem_id:
+			copies.append(instance_id)
+	if copies.size() < ASCENSION_UNIQUES or int(banked_loot.get(ASCENSION_MATERIAL, 0)) < ASCENSION_MATERIAL_COUNT:
+		_status(peer_id, "Ascensao: %d armas unicas da mesma gema e %d %s no armazem." % [ASCENSION_UNIQUES, ASCENSION_MATERIAL_COUNT, item_display_name(ASCENSION_MATERIAL)])
+		return ""
+	for index in range(ASCENSION_UNIQUES):
+		inventory.items.erase(copies[index])
+	banked_loot[ASCENSION_MATERIAL] = int(banked_loot[ASCENSION_MATERIAL]) - ASCENSION_MATERIAL_COUNT
+	if int(banked_loot[ASCENSION_MATERIAL]) <= 0:
+		banked_loot.erase(ASCENSION_MATERIAL)
+	var random := RandomNumberGenerator.new()
+	random.seed = hash([encounter_seed, equipment_instance_sequence, peer_id, gem_id, "ascension"])
+	return grant_divine(peer_id, random)
+
+
 # ---------------------------------------------------------------- Paragon (decisão 607)
 
 func paragon(peer_id: int) -> Dictionary:
@@ -1438,7 +1545,9 @@ func _step_barrier(peer_id: int, delta: float) -> void:
 	var state := player(peer_id)
 	if float(state.get("barrier_timer", 0.0)) <= 0.0:
 		return
-	state["barrier_timer"] = float(state["barrier_timer"]) - delta
+	# Égide Imóvel: barreiras não expiram com o tempo.
+	if _mod(peer_id, "barrier_permanent") <= 0.0:
+		state["barrier_timer"] = float(state["barrier_timer"]) - delta
 	if float(state.get("barrier_contact_damage", 0.0)) > 0.0:
 		state["barrier_contact_tick"] = float(state.get("barrier_contact_tick", 0.0)) - delta
 		if float(state["barrier_contact_tick"]) <= 0.0:
@@ -1585,6 +1694,11 @@ func _step_player(peer_id: int, delta: float) -> void:
 				_:
 					if int(weapon.get("projectile_count", 0)) > 0 or int(weapon.get("pierce", 0)) > 0 or int(weapon.get("ricochet", 0)) > 0 or bool(weapon.get("return_projectile", false)) or int(weapon.get("fork_count", 0)) > 0 or float(weapon.get("impact_area", 0.0)) > 0.0:
 						_cast_projectiles(peer_id, weapon, first, imprint)
+					elif nearest >= 0 and _mod(peer_id, "auto_hits_all") > 0.0:
+						# Punho da Primeira Lei: o autoataque acerta todos ao alcance da arma.
+						for index in range(enemies.size() - 1, -1, -1):
+							if index < enemies.size() and origin.distance_to(enemies[index]["position"] as Vector2) <= float(weapon["range"]):
+								damage_enemy(peer_id, index, damage, imprint)
 					elif nearest >= 0:
 						damage_enemy(peer_id, nearest, damage, imprint)
 			for spot in extra_targets:
@@ -2266,6 +2380,7 @@ func _register_floor_kill(enemy: Dictionary) -> void:
 		return
 	if bool(enemy.get("floor_boss", false)):
 		_grant_boss_gems(current_floor)
+		_roll_divines(DIVINE_BOSS_CHANCE[clampi(difficulty, 1, 5) - 1], "chefe")
 		_finish_floor_run()
 		floor_run["stairs_open"] = true
 		_announce_stairs()
@@ -3564,6 +3679,7 @@ func _end_tide_sequence(tide: Dictionary) -> void:
 		var spot := (player(members[0])["position"] as Vector2) if not members.is_empty() else Vector2.ZERO
 		drop_item(arena_zone(), spot, "reliquia_da_lua", 1)
 		_status(0, "A Lua da Cicatriz recua. Uma Reliquia da Lua ficou no chao.")
+		_roll_divines(DIVINE_SCAR_MOON_CHANCE, "lua")
 
 
 func _tide_reward(tide_id: String, center: Vector2) -> void:
@@ -3710,6 +3826,15 @@ func _damage_enemy(peer_id: int, index: int, damage: float, hit: Dictionary) -> 
 	# Resistência do alvo ao tipo do acerto, depois da penetração de quem ataca (Pele de Pedra virou
 	# resistência física da raça na tabela).
 	var damage_kind := ResistancesScript.hit_type(hit, String(gem_definition(String(hit.get("gem_id", ""))).get("element", "")) if not String(hit.get("gem_id", "")).is_empty() else "")
+	# Lança das Nove Marés: cada acerto alterna entre os nove elementos e quebra a resistência a ele.
+	if not dot and players.has(peer_id) and _mod(peer_id, "element_cycle") > 0.0:
+		var turn := int(player(peer_id).get("element_cycle", 0))
+		player(peer_id)["element_cycle"] = turn + 1
+		damage_kind = ResistancesScript.TYPES[1 + turn % (ResistancesScript.TYPES.size() - 1)]
+		ResistancesScript.apply_break(enemy, damage_kind, 0.1, 4.0)
+	# Lanterna do Fim do Mundo: no escuro, quem está na luz sofre mais.
+	if players.has(peer_id) and _mod(peer_id, "lit_damage_bonus") > 0.0 and is_dark() and enemy_lit(enemy):
+		damage *= 1.0 + _mod(peer_id, "lit_damage_bonus")
 	var resisted := ResistancesScript.enemy_resistance(enemy, damage_kind, _mod(peer_id, "penetration_add") if players.has(peer_id) else 0.0)
 	damage *= 1.0 - resisted
 	damage = _behavior_damage(peer_id, enemy, damage, damage_kind, dot)
@@ -3853,6 +3978,9 @@ func take_damage(peer_id: int, amount: float, damage_type: String = "physical") 
 		amount *= 1.0 - clampf(_mod(peer_id, "still_damage_reduction"), 0.0, 0.8)
 	var reaction: Dictionary = (state["passive"] as RefCounted).call("on_damage_taken", amount, float(state["health"]) / max_health(peer_id))
 	amount = float(reaction["amount"])
+	# Égide Imóvel: nenhum golpe tira mais que uma fração da Vida máxima.
+	if _mod(peer_id, "damage_cap_ratio") > 0.0:
+		amount = minf(amount, max_health(peer_id) * _mod(peer_id, "damage_cap_ratio"))
 	_vfx(zone, "number", [position, amount, false, "player"])
 	state["health"] = maxf(0.0, float(state["health"]) - amount)
 	state["hurt_flash"] = 0.15
@@ -4538,7 +4666,8 @@ func _step_poisons(delta: float) -> void:
 		for poison_type: String in poisons.keys():
 			var entry := poisons[poison_type] as Dictionary
 			entry["timer"] = float(entry["timer"]) - delta
-			if not bool(entry.get("lasting", false)):
+			# Manto da Peste Eterna: o veneno de quem o veste não expira.
+			if not bool(entry.get("lasting", false)) and not (players.has(int(entry["peer"])) and _mod(int(entry["peer"]), "poison_eternal") > 0.0):
 				entry["remaining"] = float(entry["remaining"]) - delta
 			if float(entry["timer"]) <= 0.0:
 				entry["timer"] = float(entry["timer"]) + float(entry["interval"])
@@ -4665,7 +4794,7 @@ func _spawn_summons(peer_id: int, effect: Dictionary, target: Vector2) -> void:
 	var definition := _find(_collection("summons"), definition_id)
 	if definition.is_empty():
 		return
-	var owner_limit := maxi(1, int(definition.get("owner_limit", 1)))
+	var owner_limit := maxi(1, int(round(float(definition.get("owner_limit", 1)) * maxf(1.0, _mod(peer_id, "summon_limit_mult")))))
 	var summon_count := clampi(int(effect.get("summon_count", 1)), 1, 8)
 	for summon_index in range(summon_count):
 		var owned: Array[int] = []
@@ -4815,8 +4944,9 @@ func _grant_loot(peer_id: int, enemy: Dictionary) -> void:
 		if not unique.is_empty():
 			drops.append({"item_id": unique, "quantity": 1})
 	drops.append_array(_night_drops(enemy))
-	# Campeão de maré (dificuldade 5): uma peça garantida a mais.
+	# Campeão de maré (dificuldade 5): uma peça garantida a mais e chance de divino.
 	if bool(enemy.get("tide_champion", false)):
+		_roll_divines(DIVINE_CHAMPION_CHANCE, "campeao")
 		var prize := LootDifficultyScript.pick_bonus_item(_collection("items"), loot_level + 2.0, false, quality_random)
 		if not prize.is_empty():
 			drops.append({"item_id": prize, "quantity": 1})
@@ -5110,6 +5240,9 @@ func _add_equipment_instance(character_id: StringName, item_id: String, quality:
 	var item: EquipmentItemInstance = factory.call("instance_from_data", definition, instance_id, character_id)
 	if item != null and not quality.is_empty():
 		item.quality = StringName(quality)
+	# Divinos saem sempre Magistrais (atributos-base no máximo).
+	if item != null and String(definition.get("tier", "")) == "divine":
+		item.quality = &"masterwork"
 	if item != null:
 		item.item_level = clampi(item_level, 1, ItemAffixesScript.MAX_ITEM_LEVEL)
 		item.affixes = _roll_item_affixes(definition, item)
@@ -5120,6 +5253,9 @@ func _add_equipment_instance(character_id: StringName, item_id: String, quality:
 
 ## Afixos fixos do item (ex.: proliferação da Presa da Serpente) seguidos dos sorteados pela raridade.
 func _roll_item_affixes(definition: Dictionary, item: EquipmentItemInstance) -> Array[Dictionary]:
+	# Divino (decisão 600): afixo fixo do encaixe e 7 aleatórios, todos no máximo.
+	if String(definition.get("tier", "")) == "divine":
+		return ItemAffixesScript.roll_divine(String(definition.get("slot", "")), _affix_random, item.item_level)
 	var result := ItemAffixesScript.roll_fixed(definition.get("fixed_affixes", []) as Array, _affix_random)
 	result.append_array(ItemAffixesScript.roll(ItemTier.key(item.tier), _affix_random, item.item_level))
 	return result
@@ -5986,7 +6122,8 @@ func material_sources() -> Dictionary:
 ## Tipo de ataque da arma. Arma única assume a forma da arma inicial de quem a empunha
 ## (decisão 580): manoplas continuam manoplas, então qualquer personagem aproveita a peça.
 func weapon_type_for(peer_id: int, weapon: EquipmentItemInstance) -> String:
-	if String(item_data(String(weapon.definition.id)).get("unique_gem", "")).is_empty():
+	var weapon_data := item_data(String(weapon.definition.id))
+	if String(weapon_data.get("unique_gem", "")).is_empty() and not bool(weapon_data.get("adaptive_shape", false)):
 		return String(weapon.definition.weapon_type)
 	var starter := item_data(String(STARTER_WEAPONS.get(StringName(String(player(peer_id).get("character_id", ""))), "")))
 	return String(starter.get("weapon_type", weapon.definition.weapon_type))
@@ -6701,7 +6838,8 @@ func shop_model(peer_id: int) -> Dictionary:
 			"rich_tooltip": _equipment_rich_tooltip(item, peer_id, "Comprar por %d P" % price),
 		})
 	return {"items": items, "silver": silver, "reroll_price": SHOP_REROLL_PRICE, "npc": SHOP_NPC,
-		"recipes": _forge_model(), "slots": FORGE_SLOTS, "sharing_rule": SHARING_RULE}
+		"recipes": _forge_model(), "slots": FORGE_SLOTS, "sharing_rule": SHARING_RULE,
+		"ascension": ascension_options(peer_id), "ascension_open": unlocked_difficulty >= DIVINE_MIN_DIFFICULTY}
 
 
 ## Compra a peça da vaga `index`: vira uma peça nova, igual à da vitrine, na mochila de quem comprou.
