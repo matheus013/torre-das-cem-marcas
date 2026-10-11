@@ -350,6 +350,7 @@ python3 tools/pixelforge/pf.py <chaves>         # gera sprites no PixelForge (ar
 tools/art/process.sh <grupos>                   # processa para a paleta do jogo
 godot --headless --path . --import              # importa os PNGs
 godot --path . --script tools/art/readme_shots.gd  # refaz as imagens do README (docs/images), com GPU
+godot --headless --path . --script tools/wiki/build_wiki.gd  # gera a wiki pública (docs/wiki, só texto)
 ```
 
 ### Documentação
