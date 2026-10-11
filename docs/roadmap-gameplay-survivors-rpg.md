@@ -4,7 +4,8 @@ Data: 2026-10-03. Direcao confirmada: hordas + expedicoes.
 Base e evidencias: [revisao do projeto](revisao-projeto-survivors-rpg.md).
 Complementa, nao substitui, o [roadmap Steam EA](roadmap-steam-acesso-antecipado.md).
 
-Status em 2026-10-11: frente ativa junto de cenarios/UI. Lore, fechamento
+Status em 2026-10-11 (faxina feita: G0 conferido contra os testes, G6/G7 unidos ao G8 sem
+contagem dupla, entregas recentes registradas abaixo): frente ativa junto de cenarios/UI. Lore, fechamento
 do MVP e publicacao Steam ficam em backlog; preservar saves, rede e CI.
 Priorizar G0, legibilidade de builds/itemizacao em G3 e ritmo em G4.
 G1 sem expansao narrativa; G2/G6-G8 dependem das decisoes registradas.
@@ -18,6 +19,22 @@ simulacao e abrem escolhas automaticamente, por solicitacao do responsavel.
 Solo/co-op compartilham a regra; desconectados nao bloqueiam a retomada.
 Isso nao implementa as Marcas de Expedicao temporarias propostas em G2 nem
 resolve os achados de G0.
+
+## Entregas fora dos gates (2026-10-04 a 2026-10-11)
+
+Pedidos do responsavel ja implementados, testados e registrados, que nao correspondem a um item
+dos gates acima (a contagem de % considera so os itens com caixa):
+
+- Itens e build: passivas exclusivas, afixos e nivel do item, inventario no estilo Hero Siege,
+  status detalhados e previas de escolha, maestria das gemas em 21 niveis (decisoes 580, 583, 584,
+  588, 589); revisao revolucionaria de 37 unicas e 16 lendarios e Pacto de Sangue (599).
+- Combate: venenos e colonia de esporos, dano continuo inbloqueavel, ataque no clique e ataque
+  automatico opcional, Saraivada sem limite de tempo (586, 590, 591, 592, 595).
+- Torre: chefes sem recarga, escada por 10 minutos, respawn 2x, monstros 10x Vida e +50% de
+  velocidade, 2 aneis e quatro lendarios pedidos (587, 596).
+- Vila e menus: autosave e CONTINUAR, bestiario, vender tudo, reset de atributos, loja da Forja e
+  armazem so de materiais (582, 593, 594); skin de interface e revisao visual dos cenarios.
+- Plano: documento 76 aprovado (597, 598).
 
 ## G0: confiar no combate e no loot
 
@@ -59,13 +76,13 @@ precisam de playtests. G0.1 tem `fortune` corrigido e validacao de escalas;
 G0.2 tem importacao de metadados corrigida. Os gates completos permanecem
 pendentes de suas evidencias de aceitacao, sem declarar G0 concluido.
 
-- [ ] G0.1: validar referencias de atributos do catalogo/gerador; corrigir `luck` para `fortune` sem alterar IDs. Aceite: todas as escalas existem e Elo Residual responde a Fortune.
-- [ ] G0.2: importar tags, incompatibilidades e `two_handed`. Aceite: teste via factory impede equipar combinacoes invalidas, sem apagar itens do inventario.
-- [ ] G0.3: registrar cada atributo equipado e seu consumidor. Aceite: cada bonus exibido altera uma medida observavel, ou fica explicitamente indisponivel no beta.
-- [ ] G0.4: conectar mecanicas de itens a eventos/resolvedores com limites de procs. Aceite: teste de comportamento por efeito habilitado, sem recursao, duplicacao de carga ou acumulo ao reequipar.
+- [x] G0.1: validar referencias de atributos do catalogo/gerador; corrigir `luck` para `fortune` sem alterar IDs. Aceite: todas as escalas existem e Elo Residual responde a Fortune. Evidencia (faxina 2026-10-11): o gerador converte `luck` em `fortune`, a validacao do catalogo rejeita escala desconhecida (`beta_content_catalog_test.gd`) e o Elo Residual escala com Inteligencia e Fortune.
+- [x] G0.2: importar tags, incompatibilidades e `two_handed`. Aceite: teste via factory impede equipar combinacoes invalidas, sem apagar itens do inventario. Evidencia: `weapon_combat_test.gd` (tags, incompatibilidades e duas maos importados) e `equipment_loadout_test.gd` (duas maos com offhand ocupada e recusada sem tirar o item do inventario).
+- [x] G0.3: registrar cada atributo equipado e seu consumidor. Aceite: cada bonus exibido altera uma medida observavel, ou fica explicitamente indisponivel no beta. Evidencia: `balance_rules_test.gd` falha se algum item tiver atributo sem efeito; atributos ainda sem consumidor aparecem como indisponiveis na descricao.
+- [x] G0.4: conectar mecanicas de itens a eventos/resolvedores com limites de procs. Aceite: teste de comportamento por efeito habilitado, sem recursao, duplicacao de carga ou acumulo ao reequipar. Evidencia: motor de passivas (decisoes 580 e 599) com testes por efeito em `item_passives_test.gd`, `revolution_uniques_test.gd` e `revolution_legendaries_test.gd`; passivas nao disparam passivas, sem recursao nem acumulo ao reequipar.
 - [x] G0.5: proteger reliquias e carga perdida do limite de drops. Aceite: exceder 120 entradas preserva propriedade e recuperacao, inclusive apos save/reload; cap de representacao nao destroi estado. Evidencia: `ground_loot_preservation_test.gd`; partilha existente preservada, sem introduzir propriedade individual nova.
-- [ ] G0.6: validar vetores finitos, limites, IDs e frequencia de comandos no host. Aceite: entradas invalidas nao alteram estado; comandos legitimos seguem funcionando em solo/co-op.
-- [ ] G0.7: transformar probes confirmados em regressao no runner/CI. Aceite: suite e auditoria estrita passam; nao remover checks para fazer o gate ficar verde.
+- [ ] G0.6: validar vetores finitos, limites, IDs e frequencia de comandos no host. Aceite: entradas invalidas nao alteram estado; comandos legitimos seguem funcionando em solo/co-op. Parcial (2026-10-11): intencoes de rede validam tipos e a mira do ataque rejeita vetores nao finitos; falta limitar a frequencia de comandos no host.
+- [ ] G0.7: transformar probes confirmados em regressao no runner/CI. Aceite: suite e auditoria estrita passam; nao remover checks para fazer o gate ficar verde. Parcial (2026-10-11): o CI (`.github/workflows/tests.yml`) roda a suite inteira; falta a auditoria estrita no runner.
 
 Risco: efeitos mudam balanceamento; protecao de loot pode aumentar memoria.
 Medir carga e testar saves existentes. Nao exigir que todo efeito proposto seja
@@ -113,10 +130,10 @@ Ver [ciclo visual/gameplay 1](visual-gameplay-ciclo-1.md).
 
 Dependencia: G0/G1; G2 nao e necessario para craft basico.
 
-- [ ] G3.1: primeira colecao testada: quatro aneis e uma reliquia, sem mudar os 21 slots aprovados nem invalidar saves; efeitos fixos antes de afixos aleatorios.
+- [x] G3.1: primeira colecao testada. Superada: 23 lendarios, 46 armas unicas e 7 reliquias com passivas exclusivas e testes por efeito (decisoes 580, 596 e 599), com 13 encaixes (decisao 596, 2 aneis) e saves antigos preservados.
 - [ ] G3.2: validar builds de perfuracao, controle, invocacao e resgate com gemas/suportes atuais; cada personagem tem ao menos duas opcoes viaveis.
 - [ ] G3.3: fontes direcionadas por inimigo/contrato e uma receita garantida de marco, com regra de partilha visivel; nao prometer drop aleatorio garantido.
-- [ ] G3.4: comparacao de efeito final, unidades, origem, favoritos, filtros e ordenar; navegacao completa sem mouse.
+- [ ] G3.4: comparacao de efeito final, unidades, origem, favoritos, filtros e ordenar; navegacao completa sem mouse. Parcial: comparacao do efeito final pronta (`equipment_comparison_test.gd`); faltam origem, favoritos, filtros e ordenacao.
 - [ ] G3.5: suprimentos com item/quantidade/efeito real, evitando nomes diferentes para a mesma cura generica.
 - [ ] G3.6: tabela de itens implementados/propostos/adiados; efeitos adicionais so entram na promessa comercial apos teste/UI/save/rede.
 
@@ -124,18 +141,18 @@ Aceite: jogador identifica um item desejado, onde encontra e como ele muda sua
 build. Equipar/desequipar/reabrir nao duplica efeitos. Adiar sets, multiplos
 novos sockets, corrupcao e reroll amplo ate provar a economia reduzida.
 
-## G6: pos-jogo, dificuldades e itens divinos (backlog, pedido de 2026-10-06)
+## G6: pos-jogo, dificuldades e itens divinos (pedido de 2026-10-06)
 
-Base pronta: decisao 580 (todo lendario e arma unica tem passiva exclusiva, forte o bastante
-para uma unica peca levar a personagem ate o fim da historia). Ainda nao implementado:
+Detalhado e acompanhado no G8 (plano do documento 76); os itens abaixo ficam como origem do pedido
+e nao entram na contagem, para nao contar o mesmo trabalho duas vezes.
 
-- [ ] G6.1: cinco dificuldades da campanha. A 1 e a historia; as seguintes reescalam Vida, dano, populacao e tabelas de saque, com registro proprio de recordes e regra de desbloqueio (concluir a anterior). Definir se cada dificuldade e por mundo ou por personagem e como o co-op mistura dificuldades.
-- [ ] G6.2: armas unicas so caem da dificuldade 2 em diante (revisto em 2026-10-07, plano no documento 76). Hoje (beta, sem dificuldades) chefes garantem uma unica de uma gema equipada, elites tem 5% e comuns 1% (decisao 574); ao entrar G6.1, essa regra passa a valer so na 2+.
-- [ ] G6.3: itens divinos (nova raridade acima de lendario, cor e som proprios) so na dificuldade 4 (revisto em 2026-10-07, plano no documento 76). Extremamente fortes: duas passivas, ou uma passiva que muda regras (ex.: gema sem recarga, todos os elementos ao mesmo tempo, Saraivada permanente). Definir quantidade, slots, fonte (chefes do pos-jogo, receitas) e regra de partilha no co-op.
-- [ ] G6.4: balancear as dificuldades 3 a 5 assumindo pelo menos um lendario ou unico equipado, com a sonda `tools/bench/balance_probe.gd --item=` como base.
-- [ ] G6.5: UI de colecao de lendarios, unicos e divinos (encontrados e faltantes, de onde vem cada um).
-- [x] G6.6: lendarios, unicas e Reliquias revolucionarios: cada passiva muda uma regra (gema, categoria ou jogo) e passa no "teste da revolucao" do documento 76; reescrever as 46 unicas e 18 lendarios atuais, que hoje mais amplificam do que transformam. Feito em 2026-10-11 (decisao 599, documento 77).
-- [ ] G6.7: resistencias, mares (hordas especiais), mutadores de andar e Paragon conforme o documento 76.
+- G6.1 cinco dificuldades -> G8.5.
+- G6.2 unicas a partir da dificuldade 2 -> G8.5.
+- G6.3 itens divinos a partir da 4 -> G8.9.
+- G6.4 balancear as dificuldades 3 a 5 -> G8.11.
+- G6.5 colecao de lendarios, unicos e divinos -> G8.12.
+- G6.6 itens revolucionarios -> G8.4 (concluido em 2026-10-11, decisao 599).
+- G6.7 resistencias, mares, mutadores e Paragon -> G8.3, G8.6, G8.7 e G8.8.
 
 Aceite: cada dificuldade tem saque e desafio distintos medidos pela sonda; um jogador
 sem lendarios conclui a historia e um jogador com um lendario sente que ele e essencial
@@ -146,10 +163,10 @@ nas dificuldades 3 a 5.
 Hoje o periodo do dia so avanca a cada retorno de expedicao e muda luz e rotina da vila
 (decisao 561). Ainda nao implementado:
 
-- [ ] G7.1: ciclo de dia e noite com relogio proprio (duracao a definir) que vale na vila e na Torre, sincronizado no co-op e salvo no mundo. Indicador de hora na HUD e no mapa.
-- [ ] G7.2: a noite deixa monstros mais fortes (Vida e dano) e paga mais EXP e saque; os multiplicadores entram na sonda de balanceamento e nos recordes por andar (registrar o periodo da corrida).
-- [ ] G7.3: itens que so caem em certos horarios (ex.: materiais noturnos, de amanhecer, de lua cheia), com origem visivel na descricao.
-- [ ] G7.4: monstros especiais que so nascem em certos horarios, com aviso legivel e saque proprio.
+- G7.1 -> G8.1 (detalhado no plano do documento 76; nao conta duas vezes).
+- G7.2 -> G8.1 (detalhado no plano do documento 76; nao conta duas vezes).
+- G7.3 -> G8.2 (detalhado no plano do documento 76; nao conta duas vezes).
+- G7.4 -> G8.2 (detalhado no plano do documento 76; nao conta duas vezes).
 - [ ] G7.5: qualidade e nivel de tudo produzido na vila (forja, cozinha, oficinas, servicos) dependem do nivel da vila e do nivel de vida dos moradores envolvidos.
 - [ ] G7.6: o nivel da vila evolui pela riqueza acumulada; cada nivel aumenta a capacidade maxima do armazem e libera producao melhor.
 - [ ] G7.7: cada expedicao traz itens exclusivos da viagem (ex.: reliquias de andar, registros, sementes) que alimentam a evolucao da vila; definir taxa por andar e dificuldade para nao virar farm de um andar so.
