@@ -6,6 +6,8 @@ const STAGES := ["available", "active", "evidence_found", "report_ready", "compl
 var stage := "available"
 var return_outcome := ""
 var opening_known := false
+var rescue_state := "waiting"
+var rescue_progress := 0.0
 var _catalog: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(CATALOG_PATH)) as Dictionary
 var _opening: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(OPENING_PATH)) as Dictionary
 
@@ -43,7 +45,7 @@ func report() -> bool:
 	return true
 
 func snapshot() -> Dictionary:
-	return {"quest_id": _catalog["id"], "stage": stage, "return_outcome": return_outcome, "opening_known": opening_known}
+	return {"quest_id": _catalog["id"], "stage": stage, "return_outcome": return_outcome, "opening_known": opening_known, "rescue_state": rescue_state, "rescue_progress": rescue_progress}
 
 static func valid(raw: Variant) -> bool:
 	if not raw is Dictionary:
@@ -52,6 +54,18 @@ static func valid(raw: Variant) -> bool:
 		return true
 	if raw.has("opening_known") and not raw["opening_known"] is bool:
 		return false
+	if raw.has("rescue_state") or raw.has("rescue_progress"):
+		if raw.get("rescue_state") not in ["waiting", "escorting", "rescued"]:
+			return false
+		var progress: Variant = raw.get("rescue_progress")
+		if not (progress is float or progress is int) or not is_finite(float(progress)) or float(progress) < 0 or float(progress) > 1:
+			return false
+		if raw["rescue_state"] == "waiting" and float(progress) != 0 or raw["rescue_state"] == "rescued" and float(progress) != 1:
+			return false
+		if raw["rescue_state"] == "escorting" and float(progress) >= 1:
+			return false
+		if raw.get("stage") == "available" and raw["rescue_state"] != "waiting":
+			return false
 	if raw.get("quest_id") != "registro_da_primeira_rota" or not raw.get("stage") is String or raw["stage"] not in STAGES:
 		return false
 	if not raw.get("return_outcome") is String or raw["return_outcome"] not in ["", "retreat", "defeat"]:
@@ -62,6 +76,8 @@ func restore(raw: Dictionary) -> void:
 	stage = String(raw.get("stage", "available"))
 	return_outcome = String(raw.get("return_outcome", ""))
 	opening_known = bool(raw.get("opening_known", false))
+	rescue_state = String(raw.get("rescue_state", "waiting"))
+	rescue_progress = float(raw.get("rescue_progress", 0.0))
 
 func view() -> Dictionary:
 	var model: Dictionary = (_catalog["stages"][stage] as Dictionary).duplicate(true)
@@ -69,6 +85,7 @@ func view() -> Dictionary:
 	model["npc_name"] = "Nara Quiral"
 	model["contract_objective"] = model["objective"]
 	model["opening_known"] = opening_known
+	model["rescue_state"] = rescue_state
 	if stage == "available" and not opening_known:
 		model["objective"] = _opening["objective"]
 	model["target_npc"] = (String(_opening["npc_id"]) if not opening_known else String(_catalog["npc_id"])) if stage == "available" else (String(_catalog["npc_id"]) if stage == "report_ready" else "")
@@ -87,6 +104,11 @@ func view() -> Dictionary:
 	if stage == "completed":
 		journal.append("Relato entregue. Um Musgo de Orientacao foi armazenado nas reservas de expedicao.")
 	model["journal"] = journal
+	if rescue_state == "escorting":
+		journal.append("Um trabalhador pediu ajuda no Patio das Marcas. Acompanhe sua retirada ate o portal; ele espera sem companhia ou com inimigos por perto.")
+	elif rescue_state == "rescued":
+		journal.append("O trabalhador alcancou o portal pela rota registrada. O resgate foi confirmado; o relato nao esclarece a origem da renovacao.")
+		model["dialogue"] += "\n\nO trabalhador chegou ao portal. Obrigada por acompanhar a retirada; vou registrar que o trecho ainda permite passagem."
 	var conversations: Dictionary = (_opening["conversations"] as Dictionary).duplicate(true)
 	for npc_id: String in conversations:
 		var dialogue: Dictionary = conversations[npc_id]

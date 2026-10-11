@@ -80,7 +80,7 @@ const AREA_MULTIPLIER_CAP := 2.0
 ## Campos de tamanho de efeito que a Área amplia; alcance é distância, não área, e fica de fora.
 const AREA_KEYS: Array[String] = ["radius", "impact_area", "collision_radius", "width", "arrival_area"]
 const CRIT_MULTIPLIER := 1.75
-const SAVE_VERSION := 12
+const SAVE_VERSION := 13
 const NarrativeProgress := preload("res://src/gameplay/world/narrative_progress.gd")
 const CONTENT_PATH := "res://data/generated/dev_content.json"
 const BETA_PATH := "res://data/beta/beta_content.json"
@@ -1078,7 +1078,8 @@ func step(delta: float) -> void:
 		if is_explore_floor():
 			tick_respawns(delta)
 			_update_reinforcements(delta)
-			_update_threat_spawn()
+		_update_threat_spawn()
+	_step_narrative_rescue(delta)
 
 
 func _run_scheduled(delta: float) -> void:
@@ -1425,6 +1426,14 @@ func narrative_action(peer_id: int, action: String) -> bool:
 	var state := player(peer_id)
 	if state.is_empty() or not bool(state.get("connected", false)) or bool(state.get("downed", false)):
 		return false
+	if action == "rescue_worker":
+		if narrative.stage == "available" or narrative.rescue_state != "waiting" or state["zone"] != &"tower" or current_floor != 1:
+			return false
+		if (state["position"] as Vector2).distance_to(narrative_worker_position()) > 90:
+			return false
+		narrative.rescue_state = "escorting"
+		_status(peer_id, "Acompanhe o trabalhador ate o portal. Afaste os inimigos; ele espera se voce se afastar.")
+		return true
 	if action == "inspect":
 		if state["zone"] != &"tower" or current_floor != 1 or (state["position"] as Vector2).distance_to(narrative_marker()) > 90.0:
 			return false
@@ -1457,7 +1466,59 @@ func narrative_view() -> Dictionary:
 	var model := narrative.view()
 	if narrative.stage == "active" and current_floor == 1:
 		model["marker_position"] = narrative_marker()
+	if narrative.stage != "available" and current_floor == 1 and narrative.rescue_state != "rescued":
+		var position := narrative_worker_position()
+		model["field_worker"] = {"id": "ra_socorro", "name": "Trabalhador", "title": "Retirada pela rota registrada", "sprite": "npcs/comum_trabalhador", "position": position, "named": true, "moving": _narrative_rescue_can_move(position), "facing_direction": (_narrative_rescue_destination() - position).normalized(), "rescue_state": narrative.rescue_state}
+		model["field_objective"] = "Trabalhador pede ajuda perto da primeira marca. Acompanhar a retirada e opcional." if narrative.rescue_state == "waiting" else "Acompanhe o trabalhador ate o portal. Ele espera sem companhia ou com inimigos por perto."
 	return model
+
+
+func _narrative_rescue_destination() -> Vector2:
+	return (FloorLayoutScript.generate(1)["return_portal"] as Rect2).get_center()
+
+
+func _narrative_rescue_start() -> Vector2:
+	return narrative_marker() + Vector2(0, -80)
+
+
+func narrative_worker_position() -> Vector2:
+	var layout := FloorLayoutScript.generate(1)
+	var entry: Vector2 = layout["entry"]
+	var start := _narrative_rescue_start()
+	var destination := _narrative_rescue_destination()
+	var first_length := start.distance_to(entry)
+	var distance := narrative.rescue_progress * (first_length + entry.distance_to(destination))
+	return start.move_toward(entry, distance) if distance <= first_length else entry.move_toward(destination, distance - first_length)
+
+
+func _narrative_rescue_can_move(position: Vector2) -> bool:
+	if current_floor != 1 or narrative.rescue_state != "escorting":
+		return false
+	var accompanied := false
+	for state: Dictionary in players.values():
+		if state.get("connected", false) and not state.get("downed", false) and state["zone"] == &"tower" and (state["position"] as Vector2).distance_to(position) <= 160:
+			accompanied = true
+	if not accompanied:
+		return false
+	for enemy: Dictionary in enemies:
+		if float(enemy.get("health", 0)) > 0 and (enemy["position"] as Vector2).distance_to(position) < 180:
+			return false
+	return true
+
+
+func _step_narrative_rescue(delta: float) -> void:
+	if not is_finite(delta) or delta <= 0 or not _narrative_rescue_can_move(narrative_worker_position()):
+		return
+	var layout := FloorLayoutScript.generate(1)
+	var distance := _narrative_rescue_start().distance_to(layout["entry"]) + (layout["entry"] as Vector2).distance_to(_narrative_rescue_destination())
+	# Follow the protected route using host time, never a client-provided position.
+	narrative.rescue_progress = minf(1, narrative.rescue_progress + minf(delta, 0.25) * 85 / maxf(1, distance))
+	if narrative.rescue_progress >= 1 or (layout["return_portal"] as Rect2).grow(PLAYER_RADIUS).has_point(narrative_worker_position()):
+		narrative.rescue_progress = 1
+		narrative.rescue_state = "rescued"
+		village_life.call("remember_event", "socorro_primeira_rota", "um trabalhador alcancou o portal acompanhado pelo grupo", 0.5)
+		for peer_id: int in players:
+			_status(peer_id, "Resgate confirmado: o trabalhador alcancou o portal. Registro preservado no diario.")
 
 
 func expedition_preparation(peer_id: int) -> Array[String]:
@@ -4937,6 +4998,8 @@ static func validate_save(data: Dictionary) -> Error:
 	if int(data["version"]) >= 10 and (not data.has("narrative") or (data["narrative"] is Dictionary and data["narrative"].is_empty())):
 		return ERR_FILE_CORRUPT
 	if int(data["version"]) >= 11 and (not data["narrative"] is Dictionary or not data["narrative"].has("opening_known")):
+		return ERR_FILE_CORRUPT
+	if int(data["version"]) >= 13 and (not data["narrative"] is Dictionary or not data["narrative"].has("rescue_state") or not data["narrative"].has("rescue_progress")):
 		return ERR_FILE_CORRUPT
 	if not NarrativeProgress.valid(data.get("narrative", {})):
 		return ERR_FILE_CORRUPT

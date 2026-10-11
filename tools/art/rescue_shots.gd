@@ -1,0 +1,57 @@
+extends SceneTree
+
+class Preview:
+	extends "res://src/prototype/village/village_exploration.gd"
+	func _run_test_hooks(_delta: float) -> void:
+		pass
+
+func _init() -> void:
+	_run.call_deferred()
+
+func _run() -> void:
+	SaveSlot.path = "user://rescue_preview_unused.json"
+	root.content_scale_mode = Window.CONTENT_SCALE_MODE_DISABLED
+	var preview := Preview.new()
+	root.add_child(preview)
+	await process_frame
+	preview.set_process(false)
+	preview.set_physics_process(false)
+	preview._character_panel.hide()
+	preview._camera.position_smoothing_enabled = false
+	var output := ProjectSettings.globalize_path("res://art/shots/rescue")
+	DirAccess.make_dir_recursive_absolute(output)
+	var sim: WorldSimulation = preview._sim
+	sim.narrative.accept()
+	sim.narrative.opening_known = true
+	for dimensions: Vector2i in [Vector2i(1280, 720), Vector2i(1920, 1080), Vector2i(640, 720)]:
+		root.size = dimensions
+		for context: String in ["waiting", "escorting", "returned"]:
+			preview._narrative_menu.close()
+			if sim.player(1)["zone"] == &"tower":
+				sim.leave_tower(1)
+			sim.narrative.rescue_state = "rescued" if context == "returned" else context
+			sim.narrative.rescue_progress = 1.0 if context == "returned" else 0.4 if context == "escorting" else 0.0
+			if context != "returned":
+				sim.enter_tower(1)
+				sim.enemies.clear()
+				sim.player(1)["position"] = sim.narrative_worker_position() + Vector2(0, 70)
+			else:
+				sim.player(1)["position"] = sim.village_life.call("find", "nara_quiral")["position"]
+			preview._view = sim.view_snapshot()
+			preview._update_display(0)
+			preview._sync_floor()
+			preview._camera.position = sim.player(1)["position"]
+			preview._update_camera_limits()
+			preview._layout_interface()
+			preview._update_interface()
+			if context == "returned":
+				preview._narrative_menu.open(preview._conversation_model("nara_quiral"), true)
+			preview.queue_redraw()
+			for frame in range(8):
+				await process_frame
+			RenderingServer.force_draw()
+			var screenshot := root.get_texture().get_image()
+			assert(not screenshot.is_empty() and screenshot.get_size() == dimensions)
+			assert(screenshot.save_png("%s/%s-%dx%d.png" % [output, context, dimensions.x, dimensions.y]) == OK)
+	print("RESCUE_SHOTS_OK: nine captures, worker encounter, escort and Nara return at three widths")
+	quit(0)

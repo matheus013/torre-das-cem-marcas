@@ -672,7 +672,11 @@ func _update_display(delta: float) -> void:
 	for peer_id: Variant in _display.keys():
 		if not players.has(peer_id):
 			_display.erase(peer_id)
-	for actor: Dictionary in _view.get("npcs", []):
+	var npcs: Array = (_view.get("npcs", []) as Array).duplicate()
+	var field_worker: Dictionary = (_view.get("narrative", {}) as Dictionary).get("field_worker", {})
+	if not field_worker.is_empty():
+		npcs.append(field_worker)
+	for actor: Dictionary in npcs:
 		var key := "npcs:%s" % actor.get("id", "")
 		actor_keys.append(key)
 		_locomotion.update(key, actor["position"], bool(actor.get("moving", false)), 10.0)
@@ -876,6 +880,8 @@ func _unhandled_input(event: InputEvent) -> void:
 					_send_intent("talk", [String(npc["id"])])
 		elif BindingsScript.pressed(event, "interact") and _near_narrative_marker():
 			_send_intent("narrative", ["inspect"])
+		elif BindingsScript.pressed(event, "interact") and _near_field_worker():
+			_send_intent("narrative", ["rescue_worker"])
 		elif BindingsScript.pressed(event, "npc_mode"):
 			_toggle_npc_mode()
 		elif BindingsScript.pressed(event, "switch_character") and not _in_arena(_local_zone()):
@@ -1317,6 +1323,10 @@ func _draw() -> void:
 		for npc: Dictionary in _view.get("npcs", []) as Array:
 			if visible_rect.has_point(npc["position"] as Vector2):
 				drawables.append({"y": (npc["position"] as Vector2).y + 12.0, "npc": npc})
+	if zone == &"tower" and story.has("field_worker"):
+		var worker: Dictionary = story["field_worker"]
+		if visible_rect.has_point(worker["position"]):
+			drawables.append({"y": (worker["position"] as Vector2).y + 12, "npc": worker})
 	for peer_id: Variant in players:
 		var state := players[peer_id] as Dictionary
 		if StringName(String(state["zone"])) != zone:
@@ -2434,6 +2444,9 @@ func _update_village_panel(zone: StringName, period: String) -> void:
 		if _near_narrative_marker() and not _input_blocked():
 			_talk_hint.visible = true
 			_talk_hint.text = "%s: Examinar marca de rota" % BindingsScript.label("interact")
+		elif _near_field_worker() and not _input_blocked():
+			_talk_hint.visible = true
+			_talk_hint.text = "%s: Acompanhar trabalhador ate o portal" % BindingsScript.label("interact")
 		return
 	var npc := _nearest_npc(110.0)
 	if not npc.is_empty() and not _input_blocked():
@@ -2486,6 +2499,11 @@ func _format_time(seconds: float) -> String:
 func _near_narrative_marker() -> bool:
 	var model := _view.get("narrative", {}) as Dictionary
 	return _local_zone() == &"tower" and model.has("marker_position") and not _local().is_empty() and (_local()["position"] as Vector2).distance_to(model["marker_position"] as Vector2) <= 90.0
+
+
+func _near_field_worker() -> bool:
+	var worker: Dictionary = (_view.get("narrative", {}) as Dictionary).get("field_worker", {})
+	return _local_zone() == &"tower" and not worker.is_empty() and worker.get("rescue_state") == "waiting" and not _local().is_empty() and (_local()["position"] as Vector2).distance_to(worker["position"]) <= 90
 
 
 func _open_journal() -> void:
@@ -2559,6 +2577,9 @@ func _update_interface() -> void:
 				var direction := "leste" if absf(offset.x) > absf(offset.y) and offset.x > 0 else "oeste" if absf(offset.x) > absf(offset.y) else "sul" if offset.y > 0 else "norte"
 				_objective_label.text += "\n%s · %s" % [String(npc["name"]), direction]
 	_objective_label.visible = story.get("stage", "") != "completed"
+	if zone == &"tower" and story.has("field_objective"):
+		_objective_label.text += "\n" + String(story["field_objective"])
+		_objective_label.visible = true
 	var arena := _in_arena(zone)
 	_ambient.color = {&"village": Color(1.0, 0.97, 0.9), &"house": Color(0.78, 0.7, 0.62)}.get(zone, Color(0.36, 0.38, 0.5)) as Color
 	var period := String(_view.get("village_period", "manha"))
