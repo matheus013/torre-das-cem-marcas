@@ -477,6 +477,9 @@ func _apply_intent(peer_id: int, kind: String, args: Array) -> void:
 				_sim.call("buy_shop_item", peer_id, int(args[0]))
 		"shop_reroll":
 			_sim.call("reroll_shop", peer_id)
+		"forge":
+			if args.size() == 2 and args[0] is String and args[1] is String:
+				_sim.call("forge_recipe", peer_id, String(args[0]), String(args[1]))
 		"loot_filter":
 			if args.size() == 1 and args[0] is String:
 				_sim.call("set_loot_filter", peer_id, String(args[0]))
@@ -2290,6 +2293,7 @@ func _build_interface() -> void:
 	layer.add_child(_shop_menu)
 	_shop_menu.connect("buy_requested", func(index: int) -> void: _send_intent("shop_buy", [index]))
 	_shop_menu.connect("reroll_requested", func() -> void: _send_intent("shop_reroll", []))
+	_shop_menu.connect("forge_requested", func(recipe_id: String, slot: String) -> void: _send_intent("forge", [recipe_id, slot]))
 	_service_menu.connect("talk_requested", func(npc_id: String) -> void:
 		if ((_view.get("narrative", {}) as Dictionary).get("conversations", {}) as Dictionary).has(npc_id):
 			_narrative_menu.call("open", _conversation_model(npc_id), true)

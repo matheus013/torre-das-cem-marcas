@@ -42,6 +42,12 @@ const SHOP_NPC := "dalia_ferral"
 const SHOP_SIZE := 8
 const SHOP_MARKUP := 5
 const SHOP_REROLL_PRICE := 25
+## Receitas da Forja (épico E1, fase 2b; G3.3): cada guardião vencido libera uma receita que troca
+## materiais do armazém e prata por uma peça garantida do encaixe escolhido. Encaixes aceitos:
+const FORGE_SLOTS := {"weapon": "Arma", "offhand": "Offhand", "amulet": "Amuleto", "armor": "Armadura", "gloves": "Luvas", "boots": "Botas", "pants": "Calca", "ring": "Anel"}
+## Galerias não tem materiais próprios na Torre: usa os do beta que caem lá.
+const GALLERY_MATERIALS: Array[String] = ["escama_de_reboco", "argila_de_enxerto"]
+const SHARING_RULE := "Partilha do saque: cada peca vai para quem a recolhe; armas unicas e divinos sao sorteados para cada jogador; os materiais da carga vao para o armazem comum da vila ao voltar."
 const TIER_ORDER: Array[String] = ["common", "uncommon", "rare", "epic", "legendary"]
 ## Elementos alternados da Saraivada de Flechas, uma rajada de cada.
 const VOLLEY_ELEMENTS := [
@@ -5095,8 +5101,31 @@ func _item_tiers() -> Dictionary:
 
 func _item_tooltips() -> Dictionary:
 	var result := {}
+	var sources := material_sources()
 	for definition in _collection("items"):
-		result[String(definition["id"])] = ContentDescriptions.item(definition, String(definition.get("tier", "")))
+		var text := ContentDescriptions.item(definition, String(definition.get("tier", "")))
+		# Fonte direcionada (G3.3): quem derruba cada material.
+		var from := sources.get(String(definition["id"]), []) as Array
+		if not from.is_empty():
+			text += "\nCai de: %s." % ", ".join(PackedStringArray(from.slice(0, 4)))
+		result[String(definition["id"])] = text
+	return result
+
+
+## Material -> nomes dos monstros cujas tabelas de saque o incluem.
+func material_sources() -> Dictionary:
+	var by_table := {}
+	for definition in _collection("enemies"):
+		by_table.get_or_add(String(definition.get("loot_table_id", "")), []).append(String(definition.get("name", definition.get("id", ""))))
+	for boss in TowerContentScript.collection("bosses"):
+		by_table.get_or_add(String(boss.get("loot_table_id", "")), []).append(String(boss.get("name", "")))
+	var result := {}
+	for table in _collection("loot_tables"):
+		for entry: Dictionary in table.get("entries", []) as Array:
+			var names := result.get_or_add(String(entry.get("item_id", "")), []) as Array
+			for enemy_name: String in by_table.get(String(table.get("id", "")), []):
+				if enemy_name not in names:
+					names.append(enemy_name)
 	return result
 
 
@@ -5797,7 +5826,8 @@ func shop_model(peer_id: int) -> Dictionary:
 			"sold": index in shop_sold, "affordable": silver >= price, "affix_count": item.affixes.size(),
 			"rich_tooltip": _equipment_rich_tooltip(item, peer_id, "Comprar por %d P" % price),
 		})
-	return {"items": items, "silver": silver, "reroll_price": SHOP_REROLL_PRICE, "npc": SHOP_NPC}
+	return {"items": items, "silver": silver, "reroll_price": SHOP_REROLL_PRICE, "npc": SHOP_NPC,
+		"recipes": _forge_model(), "slots": FORGE_SLOTS, "sharing_rule": SHARING_RULE}
 
 
 ## Compra a peça da vaga `index`: vira uma peça nova, igual à da vitrine, na mochila de quem comprou.
@@ -5845,6 +5875,89 @@ func reroll_shop(peer_id: int) -> bool:
 	_restock_shop()
 	_status(peer_id, "Dalia trouxe pecas novas da forja.")
 	return true
+
+
+## Receitas da Forja: uma por guardião, liberada depois de vencê-lo nesta dificuldade.
+func forge_recipes() -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	for boss in TowerContentScript.collection("bosses"):
+		var floor_number := int(boss.get("floor", 0))
+		var materials := (TowerContentScript.biome(String(boss.get("biome", ""))).get("materials", []) as Array).duplicate()
+		if materials.size() < 2:
+			materials = GALLERY_MATERIALS.duplicate()
+		var beaten := deepest_floor > floor_number or (floor_number >= TowerContentScript.MAX_FLOOR and unlocked_difficulty > difficulty)
+		result.append({
+			"id": String(boss["id"]), "floor": floor_number, "name": "Receita: %s" % String(boss.get("name", "")),
+			"boss": String(boss.get("name", "")), "unlocked": beaten,
+			"materials": {String(materials[0]): 8, String(materials[1]): 3},
+			"silver": 50 + floor_number * 4, "tier": "rare" if floor_number < 40 else "epic",
+			"quality": "refined" if floor_number < 51 else "masterwork",
+		})
+	return result
+
+
+## Forja a peça garantida: tier da receita no encaixe escolhido, nível do andar do guardião.
+func forge_recipe(peer_id: int, recipe_id: String, slot: String) -> bool:
+	var gear := _gear(peer_id)
+	if gear.is_empty() or not _near_shop(peer_id) or not FORGE_SLOTS.has(slot):
+		return false
+	var recipe := {}
+	for entry in forge_recipes():
+		if String(entry["id"]) == recipe_id:
+			recipe = entry
+	if recipe.is_empty() or not bool(recipe["unlocked"]):
+		return false
+	if int(gear["silver"]) < int(recipe["silver"]):
+		_status(peer_id, "Prata insuficiente para a receita (%d P)." % int(recipe["silver"]))
+		return false
+	var needed := recipe["materials"] as Dictionary
+	for material: String in needed:
+		if int(banked_loot.get(material, 0)) < int(needed[material]):
+			_status(peer_id, "Faltam materiais no armazem: %d x %s." % [int(needed[material]), item_display_name(material)])
+			return false
+	var item_id := _forge_pick(slot, String(recipe["tier"]))
+	if item_id.is_empty():
+		return false
+	var instance := _add_equipment_instance(player(peer_id)["character_id"] as StringName, item_id, String(recipe["quality"]), int(recipe["floor"]))
+	if String(instance).is_empty():
+		return false
+	gear["silver"] = int(gear["silver"]) - int(recipe["silver"])
+	for material: String in needed:
+		banked_loot[material] = int(banked_loot[material]) - int(needed[material])
+		if int(banked_loot[material]) <= 0:
+			banked_loot.erase(material)
+	_status(peer_id, "Dalia forjou %s." % item_display_name(item_id))
+	return true
+
+
+## Peça do encaixe no tier pedido (ou no maior abaixo dele); nunca lendária ou única.
+func _forge_pick(slot: String, tier: String) -> String:
+	for index in range(TIER_ORDER.find(tier), -1, -1):
+		var pool: Array[String] = []
+		for item in _collection("items"):
+			if String(item.get("slot", "none")) == slot and String(item.get("tier", "common")) == TIER_ORDER[index] and not item.has("unique_gem"):
+				pool.append(String(item["id"]))
+		if not pool.is_empty():
+			return pool[_affix_random.randi_range(0, pool.size() - 1)]
+	return ""
+
+
+func _forge_model() -> Array:
+	var result := []
+	for recipe in forge_recipes():
+		var costs := PackedStringArray()
+		var enough := true
+		for material: String in recipe["materials"] as Dictionary:
+			var have := int(banked_loot.get(material, 0))
+			var need := int((recipe["materials"] as Dictionary)[material])
+			enough = enough and have >= need
+			costs.append("%s %d/%d" % [item_display_name(material), have, need])
+		var entry := recipe.duplicate()
+		entry["cost_text"] = "%s  +  %d P" % [", ".join(costs), int(recipe["silver"])]
+		entry["materials_ready"] = enough
+		entry["tier_label"] = ItemTier.label(ItemTier.Value.RARE if String(recipe["tier"]) == "rare" else ItemTier.Value.EPIC)
+		result.append(entry)
+	return result
 
 
 func _restock_shop() -> void:

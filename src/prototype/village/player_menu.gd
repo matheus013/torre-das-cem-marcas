@@ -760,6 +760,7 @@ func _build_tower() -> void:
 	_build_difficulty_picker(safe)
 	_section("MAPA DA TORRE", "andar mais fundo: %d   ·   proxima entrada: andar %d" % [deepest, start])
 	_add_text("Recordes de tempo por andar em SOLO, DUO, TRIO e SQUAD. Andares comuns contam ate a descida; andares de chefe, ate a queda do chefe.", MUTED)
+	_add_text("Partilha do saque: cada peca vai para quem a recolhe; armas unicas e divinos sao sorteados para cada jogador; os materiais da carga vao para o armazem comum da vila ao voltar.", MUTED)
 	var records := _model.get("records", {}) as Dictionary
 	var previous_biome := ""
 	for entry: Dictionary in _model.get("floors", []) as Array:

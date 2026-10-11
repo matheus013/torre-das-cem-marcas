@@ -6,6 +6,7 @@ const UiSkin := preload("res://src/presentation/ui/game_ui_skin.gd")
 
 signal buy_requested(index: int)
 signal reroll_requested
+signal forge_requested(recipe_id: String, slot: String)
 
 const PlayerMenuScript := preload("res://src/prototype/village/player_menu.gd")
 const GOLD := Color("e8b84a")
@@ -17,6 +18,8 @@ var _model: Dictionary = {}
 var _silver: Label
 var _grid: GridContainer
 var _reroll: Button
+var _recipes: VBoxContainer
+var _sharing: Label
 var _panel: PanelContainer
 
 
@@ -69,7 +72,27 @@ func _ready() -> void:
 	scroll.follow_focus = true
 	column.add_child(scroll)
 	_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	scroll.add_child(_grid)
+	# Vitrine e receitas da Forja (E1 fase 2b) rolam juntas, sempre na vertical.
+	var body := VBoxContainer.new()
+	body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	body.add_theme_constant_override("separation", 12)
+	scroll.add_child(body)
+	body.add_child(_grid)
+	var recipes_title := Label.new()
+	recipes_title.text = "RECEITAS DA FORJA  ·  peca garantida no encaixe escolhido"
+	recipes_title.add_theme_color_override("font_color", GOLD)
+	body.add_child(recipes_title)
+	_recipes = VBoxContainer.new()
+	_recipes.name = "ForgeRecipes"
+	_recipes.add_theme_constant_override("separation", 6)
+	body.add_child(_recipes)
+	_sharing = Label.new()
+	_sharing.name = "SharingRule"
+	_sharing.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_sharing.custom_minimum_size.x = 200.0
+	_sharing.add_theme_font_size_override("font_size", 11)
+	_sharing.add_theme_color_override("font_color", MUTED)
+	body.add_child(_sharing)
 	var footer := HBoxContainer.new()
 	footer.add_theme_constant_override("separation", 10)
 	column.add_child(footer)
@@ -126,6 +149,43 @@ func refresh(model: Dictionary) -> void:
 		child.queue_free()
 	for entry: Dictionary in _model.get("items", []) as Array:
 		_grid.add_child(_card(entry))
+	for child in _recipes.get_children():
+		_recipes.remove_child(child)
+		child.queue_free()
+	for recipe: Dictionary in _model.get("recipes", []) as Array:
+		_recipes.add_child(_recipe_row(recipe, _model.get("slots", {}) as Dictionary))
+	_sharing.text = String(_model.get("sharing_rule", ""))
+
+
+## Receita: nome e custo, encaixe a escolher e botão; bloqueada até vencer o guardião.
+func _recipe_row(recipe: Dictionary, slots: Dictionary) -> Control:
+	var row := HFlowContainer.new()
+	row.name = "Recipe_%s" % String(recipe["id"])
+	row.add_theme_constant_override("h_separation", 8)
+	var info := Label.new()
+	info.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	info.custom_minimum_size.x = 260.0
+	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	info.add_theme_font_size_override("font_size", 12)
+	var unlocked := bool(recipe.get("unlocked", false))
+	info.text = "%s (andar %d) -> %s\n%s" % [String(recipe["name"]), int(recipe["floor"]), String(recipe.get("tier_label", "")), String(recipe.get("cost_text", "")) if unlocked else "Venca %s para liberar." % String(recipe.get("boss", ""))]
+	info.add_theme_color_override("font_color", TEXT if unlocked else MUTED)
+	row.add_child(info)
+	var slot := OptionButton.new()
+	slot.name = "Slot"
+	for key: String in slots:
+		slot.add_item(String(slots[key]))
+		slot.set_item_metadata(slot.item_count - 1, key)
+	slot.disabled = not unlocked
+	row.add_child(slot)
+	var forge := Button.new()
+	forge.name = "Forge"
+	forge.text = "FORJAR"
+	forge.disabled = not unlocked or not bool(recipe.get("materials_ready", false)) or int(_model.get("silver", 0)) < int(recipe.get("silver", 0))
+	var recipe_id := String(recipe["id"])
+	forge.pressed.connect(func() -> void: forge_requested.emit(recipe_id, String(slot.get_item_metadata(slot.selected))))
+	row.add_child(forge)
+	return row
 
 
 func _card(entry: Dictionary) -> Control:

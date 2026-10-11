@@ -61,7 +61,7 @@ Mudam todos os numeros do jogo; vem antes de qualquer balanceamento.
 Um so lugar define chances e quantidades de drop por dificuldade, fonte e evento; noite e mares so encaixam nele.
 
 - [x] G8.5: estrutura das cinco dificuldades (G6.1): dificuldade do mundo, escolhida pelo host no portal entre as liberadas; concluir o andar 100 libera a seguinte naquele mundo; tabela de Vida/dano/resistencia/afixos, recordes e saque por dificuldade; unicas a partir da 2 (G6.2). Inclui (decisao 600): sem patente Nascente na 4 e na 5; bandos superiores com afixos e aura visivel (15% na 4, 25% na 5). Feito em 2026-10-11 (decisao 602): dificuldade do mundo com seletor no mapa da Torre (host, fora da Torre), liberacao ao concluir o andar 100, escala de Vida e dano, resistencia extra dos inimigos, penalidade nas da personagem, afixos de elite, saque e EXP por dificuldade, armas unicas da 2 em diante, sem Nascentes, Adaptacao e bandos superiores com aura na 4 e na 5, andar mais fundo, entrada e recordes por dificuldade. Regressao em `tests/difficulty_test.gd`.
-- [ ] G3.3: fontes direcionadas por inimigo/contrato e uma receita garantida de marco, com regra de partilha visivel; nao prometer drop aleatorio garantido.
+- [x] G3.3: fontes direcionadas por inimigo/contrato e uma receita garantida de marco, com regra de partilha visivel; nao prometer drop aleatorio garantido. Feito em 2026-10-11 (decisao 603): receitas da Forja, uma por guardiao vencido, trocam materiais do armazem e prata por peca garantida do encaixe escolhido (rara ou epica, nunca lendaria); dicas de materiais dizem quem os derruba; regra de partilha visivel na Forja e no mapa da Torre. Regressao em `tests/forge_recipes_test.gd`.
 
 ### Fase 3: dia e noite
 
