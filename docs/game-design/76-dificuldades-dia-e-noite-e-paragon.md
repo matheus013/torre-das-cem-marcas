@@ -26,14 +26,16 @@ armas únicas passam a cair a partir da **dificuldade 2** (antes 3) e itens divi
 
 ### Relógio
 
-- Relógio do mundo próprio, independente dos retornos à vila. Um dia completo dura **24 minutos de
-  jogo**: manhã 6, tarde 6, entardecer 4, noite 8. O tempo passa na vila e na Torre; pausa de marco
-  e menus em solo não contam.
+- Relógio do mundo próprio, independente dos retornos à vila. Um dia completo dura **2 horas de
+  jogo** (decisão 597): manhã 30 min, tarde 30, entardecer 20 e noite 40. Com a escada abrindo após
+  10 minutos (decisão 596), uma noite cabe cerca de 4 andares. O tempo passa na vila e na Torre;
+  pausa de marco e menus em solo não contam.
 - O host é a fonte do relógio; clientes recebem a hora no snapshot. O relógio fica no save.
 - Indicador na HUD (sol, lua e minutos até a virada) e no mapa da Torre. Avisos ao entardecer
   ("A noite cai em 1 minuto") e ao amanhecer.
-- A cada 7 noites ocorre a **Lua da Cicatriz**: noite especial com maré garantida e saque próprio
-  (seção 4).
+- A cada 3 noites (6 horas de jogo) ocorre a **Lua da Cicatriz**: noite especial com maré garantida
+  e saque próprio (seção 4). Era a cada 7 noites com o dia de 24 minutos; com o dia de 2 horas, 7
+  noites seriam 14 horas de jogo.
 
 ### O que muda à noite
 
@@ -98,9 +100,10 @@ dos inimigos ganham um tipo (os perigos já são temáticos por bioma: lava, gel
 
 ## 3. As cinco dificuldades
 
-Cada dificuldade é escolhida pelo host ao entrar na Torre e vale para o grupo. Para liberar a
-seguinte, é preciso vencer o Regente Centésimo (andar 100) na anterior. Recordes, conjuntos de gema
-e progresso de andar são guardados por dificuldade.
+A dificuldade é **do mundo** (decisão 597): o host escolhe no portal da Torre entre as já liberadas
+naquele mundo, e ela vale para todo o grupo. Para liberar a seguinte, é preciso **concluir o andar
+100** (vencer o Regente Centésimo) na anterior, naquele mundo. Dificuldades liberadas, recordes e
+progresso de andar ficam no save do mundo, separados por dificuldade.
 
 | | I. Expedição | II. Veterana | III. Mestra | IV. Mítica | V. Cicatriz |
 |---|---|---|---|---|---|
@@ -321,7 +324,11 @@ sem inflar o nível base:
 
 - **Níveis Paragon** começam após o nível 100, com EXP vinda só das dificuldades 3 a 5 (x1,5 na 4 e
   x2 na 5). Teto de **200**. Curva crescente: chegar ao 150 é o ponto de equilíbrio da 5.
-- Cada nível dá **1 ponto** num **tabuleiro de Paragon** por personagem, em quatro trilhas:
+- Paragon é **da conta** (decisão 597): nível e EXP são únicos para o jogador e somam o que todas
+  as personagens dele ganham, em qualquer mundo. Fica no perfil do jogador, fora do save do mundo,
+  e vai junto quando ele entra no mundo de outro host.
+- Cada nível dá **1 ponto**. Cada personagem tem o próprio **tabuleiro de Paragon** e recebe todos os
+  pontos da conta, para montar a build dela, em quatro trilhas:
   - **Ofensiva:** dano por tipo, crítico, penetração.
   - **Defensiva:** Vida, resistências, redução de dano.
   - **Utilidade:** Fôlego, recarga, velocidade, raio de luz.
@@ -329,8 +336,6 @@ sem inflar o nível base:
 - Nós pequenos dão +1% a +2%. A cada 10 pontos numa trilha surge um **nó notável** com mecânica
   (ex.: "Abates com fogo deixam brasas", "Cada 5% de resistência acima do teto vira 1% de dano").
 - **Respec** em Aresta, pago em prata, para incentivar testar builds.
-- Bônus de **Legado:** cada 10 níveis Paragon de uma personagem dá +1 ponto às outras da mesma conta.
-  É pequeno e conversa com o tema geracional.
 - Balanceamento: na 5, Paragon dá cerca de 35% do poder, equipamento 40% e gemas mais escolhas
   25%. Nenhuma fonte sozinha vence a 5.
 
@@ -340,8 +345,8 @@ sem inflar o nível base:
   mutadores visíveis antes de descer.
 - **Mapa da Torre:** recordes e progresso por dificuldade; mutadores do andar atual.
 - **HUD:** relógio, indicador de maré, mutadores ativos e ícones de resistência do alvo.
-- **Co-op:** a dificuldade do grupo é a do host. Quem ainda não liberou pode entrar com aviso, mas
-  não recebe saque da tier bloqueada para não pular progressão.
+- **Co-op:** quem entra no mundo do host joga na dificuldade daquele mundo e recebe o saque dela;
+  o Paragon de cada jogador vem da própria conta.
 - **Status detalhados:** resistências, penetração, Paragon e bônus por mutador.
 
 ## 9. Ordem de implementação e esforço
@@ -356,7 +361,7 @@ Esforço com desenvolvimento assistido e testes: P até meio dia, M 1 a 2 dias, 
 | 3 | Estrutura de dificuldades: seleção, liberação, tabela de números, recordes e saque por dificuldade (únicas na 2) | 2 | G |
 | 4 | Afixos de elite novos e mutadores de andar | 3 | G |
 | 5 | Marés (6 tipos e Lua da Cicatriz) e variantes noturnas por bioma | 1, 3 | G |
-| 6 | Paragon: EXP, tabuleiro, nós notáveis, respec, Legado | 3 | G |
+| 6 | Paragon da conta: EXP, perfil, tabuleiro por personagem, nós notáveis, respec | 3 | G |
 | 2b | Itens revolucionários: ações novas no motor de passivas, reescrita das 46 únicas e 18 lendários, Relíquias de regra, etiqueta e teste da revolução | 2 | G x 2 |
 | 7 | Itens divinos: raridade, 12 itens, receita de ascensão | 2b, 3 | G |
 | 8 | Chefes: habilidade extra (2), fases (3), formas ascendidas (4), teste de dano (5) | 3 | G x 2 |
@@ -366,14 +371,17 @@ Total estimado: **9 a 12 semanas**. As fases 1 e 2 podem começar em paralelo e 
 atual (a 1 dá ritmo, a 2 dá profundidade de build). Cada fase entra com testes e documento próprios,
 como as anteriores.
 
-## 10. Decisões abertas
+## 10. Decisões
 
-1. **Duração do dia:** 24 minutos de jogo, ou outra?
-2. **Dificuldade por mundo ou por personagem?** Proposta: por mundo (escolhida pelo host), com
-   progresso de liberação por personagem.
-3. **Paragon por personagem ou por conta?** Proposta: por personagem, com o bônus de Legado.
-4. **Liberação da próxima dificuldade:** vencer o Regente (andar 100) é longo; alternativa é
-   liberar pelo chefe do andar 72.
+Respondidas em 2026-10-11 (decisão 597):
+
+- **Duração do dia:** 2 horas de jogo.
+- **Dificuldade:** do mundo, escolhida pelo host.
+- **Paragon:** da conta, com tabuleiro por personagem; o bônus de Legado sai.
+- **Liberação da próxima dificuldade:** ao concluir o andar 100.
+
+Ainda abertas:
+
 5. **Mutadores cruéis na 5:** obrigatórios (1 por andar) ou só via Pactos opcionais?
 6. **Reescrita das únicas e lendários atuais:** substituir as passivas de hoje (proposta) ou manter
    as atuais e criar itens novos ao lado?
