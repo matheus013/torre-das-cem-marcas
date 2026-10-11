@@ -80,7 +80,7 @@ func _capture(id: String, focus: Vector2, overview := false) -> void:
 	_preview.queue_redraw()
 	await process_frame
 	await process_frame
-	await RenderingServer.frame_post_draw
+	RenderingServer.force_draw()
 	var screenshot := root.get_texture().get_image()
 	assert(not screenshot.is_empty())
 	assert(screenshot.get_size() == root.size)

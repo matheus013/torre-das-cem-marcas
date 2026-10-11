@@ -67,7 +67,6 @@ func _check(node: Node, context: String) -> bool:
 			return false
 		if node.get_parent() is Control and node.get_parent().get_parent() == root and (rect.position.y < -1 or rect.end.y > root.size.y + 1):
 			push_error("Panel exceeds viewport height: " + context + " " + str(rect))
-			_dump(node)
 			return false
 	if node is ScrollContainer:
 		if node.horizontal_scroll_mode != ScrollContainer.SCROLL_MODE_DISABLED or node.get_h_scroll_bar().visible:
@@ -82,9 +81,3 @@ func _check(node: Node, context: String) -> bool:
 		if not _check(child, context):
 			return false
 	return true
-
-func _dump(node: Node) -> void:
-	if node is Control:
-		print(node.get_path(), " ", node.size, " min ", node.get_combined_minimum_size())
-	for child in node.get_children():
-		_dump(child)

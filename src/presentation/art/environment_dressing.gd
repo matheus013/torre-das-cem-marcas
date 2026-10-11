@@ -61,6 +61,7 @@ static func _tower(result: Dictionary, floor: Dictionary, random: RandomNumberGe
 			_patch(result, "tiles/floor_arquivo", Rect2(rect.position.x + 35, y, rect.size.x - 70, 14), Color(0.9, 0.96, 0.9, 0.5), random, false)
 		for x: float in [rect.position.x + 35, rect.end.x - 49]:
 			_patch(result, "tiles/floor_arquivo", Rect2(x, rect.position.y + 35, 14, rect.size.y - 70), Color(0.9, 0.96, 0.9, 0.5), random, false)
+		_gallery_room(result, room, random)
 	for x in range(1, int(size.x / CELL)):
 		for y in range(1, int(size.y / CELL)):
 			var center := Vector2(x, y) * CELL + Vector2(random.randf_range(-65, 65), random.randf_range(-55, 55))
@@ -89,6 +90,29 @@ static func _tower(result: Dictionary, floor: Dictionary, random: RandomNumberGe
 		for offset: Vector2 in [Vector2(-110, -70), Vector2(30, -70), Vector2(-110, 50), Vector2(30, 50)]:
 			_patch(result, String(profile[0]), Rect2(center + offset, Vector2(80, 80)), Color(0.8, 0.86, 0.8, 0.4), random)
 
+static func _gallery_room(result: Dictionary, room: Dictionary, random: RandomNumberGenerator) -> void:
+	var rect: Rect2 = room["rect"]
+	var center := rect.get_center()
+	var kind := String(room["kind"])
+	# Wear follows architecture; loose stones stay at the edges of the combat space.
+	for side: float in [-1.0, 1.0]:
+		for index in range(6):
+			var base := Vector2(lerpf(rect.position.x + 65, rect.end.x - 65, index / 5.0), center.y + side * (rect.size.y * 0.5 - 55))
+			base += Vector2(random.randf_range(-14, 14), random.randf_range(-8, 8))
+			result["details"].append({"sprite": "deco/rock_4" if index % 2 == 0 else "deco/rock_5", "base": base})
+			_patch(result, "tiles/floor_arquivo", Rect2(base - Vector2(32, 12), Vector2(64, 24)), Color(0.62, 0.68, 0.65, 0.26), random)
+	match kind:
+		"patio":
+			for side: float in [-1.0, 1.0]:
+				_patch(result, "tiles/floor_arquivo", Rect2(center + Vector2(side * 210 - 45, -100), Vector2(90, 200)), Color(0.9, 0.96, 0.92, 0.3), random)
+		"claustro":
+			for side: float in [-1.0, 1.0]:
+				_patch(result, "tiles/floor_arquivo", Rect2(center + Vector2(side * 190 - 20, -150), Vector2(40, 300)), Color(1.06, 1.1, 1.05, 0.22), random, false)
+		"arquivo_arruinado":
+			for side: float in [-1.0, 1.0]:
+				for index in range(3):
+					_patch(result, "tiles/floor_arquivo", Rect2(center + Vector2(side * 195 - 40, index * 65 - 90), Vector2(80, 46)), Color(0.76, 0.82, 0.79, 0.4), random)
+
 static func _village(result: Dictionary, random: RandomNumberGenerator) -> void:
 	for piece: Dictionary in World.VILLAGE_PIECES:
 		if not String(piece["sprite"]).begins_with("buildings/"):
@@ -105,7 +129,7 @@ static func _village(result: Dictionary, random: RandomNumberGenerator) -> void:
 		_patch(result, "tiles/floor_tower", Rect2(x, 1290, 72, 190), Color(0.8, 0.88, 0.76, 0.4), random, false)
 
 static func _patch(result: Dictionary, tile: String, rect: Rect2, tint: Color, random: RandomNumberGenerator, chipped := true) -> void:
-	var cut := random.randf_range(8, 18) if chipped else 0.0
+	var cut := minf(random.randf_range(8, 18), minf(rect.size.x, rect.size.y) * 0.4) if chipped else 0.0
 	var p := rect.position.round()
 	var e := rect.end.round()
 	_polygon(result, tile, PackedVector2Array([p + Vector2(cut, 0), Vector2(e.x - cut, p.y), Vector2(e.x, p.y + cut), e - Vector2(0, cut), e - Vector2(cut, 0), Vector2(p.x + cut, e.y), Vector2(p.x, e.y - cut), p + Vector2(0, cut)]), tint)

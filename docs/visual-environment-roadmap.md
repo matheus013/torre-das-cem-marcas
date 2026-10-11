@@ -33,6 +33,22 @@ compartilhada entre host e clientes.
 
 ## Proximas Melhorias
 
+### Refinamento do trecho de referencia (2026-10-11)
+
+- [x] Desgaste e pequenos detritos acompanham as bordas das salas das Galerias.
+- [x] Patio, claustro e arquivo possuem padroes de pavimento distintos.
+- [x] Detalhes exclusivamente visuais, sem alterar obstaculos ou o RNG da simulacao.
+- [x] Regressao de determinismo, limites do mapa e malhas dos cem andares.
+- [x] Capturas nativas atualizadas de UI e cenarios; paineis sem rolagem horizontal.
+- [ ] Benchmark com hordas e quatro jogadores; densidade nao aprovada para hardware-alvo.
+
+O passe reutiliza os assets existentes. O Bosque e os eventos N3 continuam
+pendentes; esta entrega nao implementa acontecimentos narrativos novos.
+
+Validacao local: `sh tests/run_all.sh` terminou com 89 testes aprovados e
+zero falhas, incluindo rede. Capturas: 21 de UI e 39 de cenarios. Isso nao
+substitui QA grafico nativo Windows/Linux nem controles fisicos.
+
 ### Marco G1 - Galerias (2026-10-08)
 
 - [x] Gerar e importar quatro modulos: muro baixo, muro lateral, arco e nicho.

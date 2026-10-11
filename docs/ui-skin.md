@@ -24,6 +24,11 @@ are required for this pass.
 
 ## Verification
 
+Responsive checks cover seven widths from 480 to 1920 pixels, including panel
+height, detailed stats, 30 loot types, two long support names and three mastery
+choices. A deferred frame fit corrects temporary growth during text reflow.
+Native captures were refreshed on 2026-10-11. Physical controller QA remains open.
+
 ```sh
 godot --headless --path . --script tests/ui_skin_test.gd
 godot --headless --path . --script tests/ui_no_horizontal_scroll_test.gd

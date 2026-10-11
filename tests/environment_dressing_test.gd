@@ -25,6 +25,11 @@ func _run() -> void:
 				return _fail("Missing baked ground mesh")
 			if not Rect2(Vector2.ZERO, floor["size"]).encloses(patch["bounds"]):
 				return _fail("Ground patch exceeds floor bounds")
+		if not (floor.get("rooms", []) as Array).is_empty():
+			var details := (data["details"] as Array).duplicate(true)
+			Dressing._plans.clear()
+			if Dressing.plan(&"tower", floor)["details"] != details:
+				return _fail("Architectural wear is not deterministic")
 		if not floor.has("arena_center") and (floor["props"] as Array).size() < 20:
 			return _fail("Too few roadside silhouettes on floor %d" % number)
 		biomes[floor["biome"]] = true
