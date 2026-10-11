@@ -38,6 +38,7 @@ Preparação para distribuição: [roadmap Steam em acesso antecipado](docs/road
 - [Cooperativo online](#cooperativo-online)
 - [Moradores com IA](#moradores-com-ia)
 - [Para desenvolvedores](#para-desenvolvedores)
+- [Licença](#licença)
 
 ---
 
@@ -363,3 +364,13 @@ godot --path . --script tools/art/readme_shots.gd  # refaz as imagens do README 
 - [Dificuldades, dia e noite e Paragon](docs/game-design/76-dificuldades-dia-e-noite-e-paragon.md)
 - [Revisão revolucionária de itens](docs/game-design/77-revisao-revolucionaria-de-itens.md)
 - [Registro de decisões](docs/game-design/09-registro-de-decisoes.md)
+
+## Licença
+
+- **Código** (`src/`, `tests/`, `tools/`, `.github/`, cenas e configuração): [MIT](LICENSE).
+- **Conteúdo do jogo** (arte, sons, textos, `data/`, `docs/`, nome, personagens e
+  mundo de Aresta): todos os direitos reservados.
+- **Assets de terceiros**: licenças dos autores, que proíbem redistribuir os arquivos;
+  créditos em [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). Por isso este
+  repositório continua privado.
+- **Wiki pública** (repositório só de documentação): [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/).

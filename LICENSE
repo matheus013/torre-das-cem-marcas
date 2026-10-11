@@ -1,0 +1,60 @@
+Aresta — A Torre das Cem Marcas
+Copyright (c) 2026 Matheus Santos
+
+Este repositório tem três regimes de licença. Em caso de dúvida sobre um
+arquivo, vale o regime mais restritivo que puder se aplicar a ele.
+
+1. CÓDIGO-FONTE — Licença MIT (texto abaixo)
+
+   Scripts e configuração: `src/`, `tests/`, `tools/`, `.github/`, as cenas e
+   recursos do Godot que só descrevem estrutura (`*.tscn`, `*.tres`), shaders
+   e os arquivos de configuração da raiz (`project.godot`, `export_presets.cfg`,
+   `package.json`, `release.config.mjs` e afins).
+
+2. CONTEÚDO DO JOGO — Todos os direitos reservados
+
+   Arte, sons e textos próprios: `art/`, `assets/` (exceto os assets de
+   terceiros do item 3), `data/`, `docs/` e as imagens de `docs/images/`.
+   Também ficam reservados o nome "Aresta", o subtítulo "A Torre das Cem
+   Marcas", os nomes de personagens, povos, lugares, gemas, itens e inimigos,
+   a ambientação e a história, inclusive quando aparecem como texto dentro do
+   código. A licença MIT do código não concede nenhum direito sobre esse
+   conteúdo. Copiar, redistribuir, modificar ou usar comercialmente qualquer
+   parte dele depende de autorização por escrito do titular.
+
+3. ASSETS DE TERCEIROS — Licenças dos respectivos autores
+
+   Efeitos, sons, ícones e interface de outros autores seguem as licenças
+   deles, que em geral proíbem redistribuir os arquivos fora do jogo. Nem a
+   licença MIT nem esta permissão se estendem a eles. Lista, créditos e
+   restrições em THIRD_PARTY_NOTICES.md e em docs/assets-de-terceiros.md.
+
+A documentação pública do jogo (wiki em repositório separado) é distribuída
+sob Creative Commons Atribuição-NãoComercial 4.0 Internacional (CC BY-NC 4.0),
+https://creativecommons.org/licenses/by-nc/4.0/, salvo indicação em contrário.
+
+--------------------------------------------------------------------------------
+
+MIT License
+
+Copyright (c) 2026 Matheus Santos
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+"Software", nesta licença, significa apenas o código-fonte do item 1.
