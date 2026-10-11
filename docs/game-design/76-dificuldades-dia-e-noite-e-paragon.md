@@ -158,6 +158,14 @@ Consequências de projeto:
 - Chefes ganham fase nova abaixo de 30% de Vida.
 - Paragon liberado.
 
+**Regras de população das dificuldades 4 e 5** (decisão 600):
+- A patente mais básica (**Nascente**) deixa de aparecer: esses exemplares sobem para a patente
+  seguinte (Maduro), com os atributos e o número de afixos dela.
+- **Bando superior:** cada matilha tem chance (15% na 4, 25% na 5) de vir uma patente acima do
+  normal do andar, com todos os membros carregando afixos (pelo menos 1 na 4 e 2 na 5). O bando ganha
+  uma **aura** visível em volta de cada membro (anel brilhante no chão, na cor do afixo principal),
+  para o jogador reconhecer o perigo antes do contato. Paga mais EXP e saque, como os afixos já pagam.
+
 **IV. Mítica.**
 - Adaptação elemental de elites e chefes.
 - 2 mutadores por andar.
@@ -297,7 +305,14 @@ As 4 vagas de Relíquia (documento 68) passam a ser **a principal camada de otim
 - **Armas únicas** (decisões 574 e 580): só caem a partir da **dificuldade 2**. Fontes: chefes,
   marés e Guardiões.
 - **Itens divinos** (raridade nova acima de lendário, cor branco-dourada e som próprio): só a
-  partir da **dificuldade 4**.
+  partir da **dificuldade 4**. Composição de cada peça (decisão 600):
+  - **Atributos-base no máximo** da faixa do item (sem sorteio para baixo) e fabricação Magistral.
+  - **7 afixos aleatórios**, todos no valor máximo da faixa, sem repetir afixo.
+  - **1 afixo fixo** coerente com o encaixe, também no máximo: botas, velocidade de movimento; luvas,
+    cadência de ataque; anel, chance crítica; amuleto, recarga; armadura, Vida; calça, Defesa;
+    arma, dano do autoataque; offhand, Área; relíquia, Fôlego.
+  - **1 ou 2 linhas de passiva divina**, sempre transformadoras (quebram uma regra cada, pelo teste
+    da revolução da seção 6).
   - Exemplos: "Coroa Sem Fim: gemas sem recarga, cada lançamento custa 5% da Vida"; "Lança das
     Nove Marés: cada acerto alterna entre todos os elementos e aplica a quebra de cada um".
   - Primeira leva de 12 divinos, pelo menos um para cada estilo (cada personagem, veneno, invocação,

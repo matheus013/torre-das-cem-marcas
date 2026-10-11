@@ -60,7 +60,7 @@ Mudam todos os numeros do jogo; vem antes de qualquer balanceamento.
 
 Um so lugar define chances e quantidades de drop por dificuldade, fonte e evento; noite e mares so encaixam nele.
 
-- [ ] G8.5: estrutura das cinco dificuldades (G6.1): dificuldade do mundo, escolhida pelo host no portal entre as liberadas; concluir o andar 100 libera a seguinte naquele mundo; tabela de Vida/dano/resistencia/afixos, recordes e saque por dificuldade; unicas a partir da 2 (G6.2).
+- [ ] G8.5: estrutura das cinco dificuldades (G6.1): dificuldade do mundo, escolhida pelo host no portal entre as liberadas; concluir o andar 100 libera a seguinte naquele mundo; tabela de Vida/dano/resistencia/afixos, recordes e saque por dificuldade; unicas a partir da 2 (G6.2). Inclui (decisao 600): sem patente Nascente na 4 e na 5; bandos superiores com afixos e aura visivel (15% na 4, 25% na 5).
 - [ ] G3.3: fontes direcionadas por inimigo/contrato e uma receita garantida de marco, com regra de partilha visivel; nao prometer drop aleatorio garantido.
 
 ### Fase 3: dia e noite
@@ -78,7 +78,7 @@ Usa o pipeline de saque da fase 2.
 ### Fase 5: Paragon, divinos e chefes
 
 - [ ] G8.8: Paragon da conta apos o nivel 100 (dificuldades 3 a 5, teto 200, EXP x1,5 na 4 e x2 na 5): nivel e EXP no perfil do jogador, somando todas as personagens e mundos; tabuleiro de 4 trilhas por personagem com todos os pontos da conta, nos notaveis a cada 10 pontos e respec em prata.
-- [ ] G8.9: itens divinos a partir da 4 (G6.3): raridade nova, 12 itens que quebram duas regras, receita de ascensao (3 unicas da mesma gema e material raro), saque individual no co-op.
+- [ ] G8.9: itens divinos a partir da 4 (G6.3): raridade nova, 12 itens que quebram duas regras, receita de ascensao (3 unicas da mesma gema e material raro), saque individual no co-op. Composicao (decisao 600): atributos-base no maximo e Magistral, 7 afixos aleatorios no maximo, 1 afixo fixo por encaixe (botas: velocidade) e 1 ou 2 passivas divinas transformadoras.
 - [ ] G8.10: chefes por dificuldade: habilidade extra (2), fase nova abaixo de 30% (3), forma ascendida (4), teste de dano com escudo cronometrado (5); Guardioes da Cicatriz e Pactos na 5.
 
 ### Fase 6: telas de itens
