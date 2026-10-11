@@ -911,12 +911,13 @@ func set_move_target(peer_id: int, target: Vector2) -> void:
 	if is_milestone_paused():
 		return
 	var state := player(peer_id)
-	if not state.is_empty() and not bool(state.get("downed", false)):
+	# Defesa em profundidade (G0.6): alvo não finito nunca entra no estado.
+	if not state.is_empty() and not bool(state.get("downed", false)) and target.is_finite():
 		state["target"] = target
 
 
 func use_skill(peer_id: int, slot: int, target: Vector2) -> bool:
-	if is_milestone_paused():
+	if is_milestone_paused() or not target.is_finite():
 		return false
 	var state := player(peer_id)
 	if state.is_empty() or state["zone"] not in ARENA_ZONES or bool(state.get("downed", false)):

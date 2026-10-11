@@ -17,6 +17,8 @@ func _init() -> void:
 		var sim := _world()
 		var before := _combat_values(sim)
 		var instance: StringName = sim.call("_add_equipment_instance", &"eloa", item_id)
+		# Random affixes must not mask an inert base attribute in this probe.
+		(sim.character_gear["eloa"]["inventory"] as ItemInventory).get_item(instance).affixes.clear()
 		sim.equip_item(1, instance)
 		if before == _combat_values(sim):
 			_report("equipment_has_no_derived_or_skill_effect", {"item": item_id})
@@ -27,19 +29,31 @@ func _init() -> void:
 	var ground := _world()
 	ground.enter_tower(1)
 	ground.drop_item(&"tower", Vector2(250, 250), "reliquia_lastro_partido", 1)
-	for index in range(Simulation.MAX_GROUND_ITEMS):
+	for index in range(Simulation.MAX_GROUND_ITEM_VIEWS + 12):
 		ground.drop_item(&"tower", Vector2(500 + (index % 12) * 40, 500 + (index / 12) * 40), "pedra_regenerativa", 1)
 	var relic_retained := false
 	for item: Dictionary in ground.ground_items:
 		if item["item_id"] == "reliquia_lastro_partido":
 			relic_retained = true
 	if not relic_retained:
-		_report("ground_cap_discards_valuable_loot", {"cap": Simulation.MAX_GROUND_ITEMS})
+		_report("ground_cap_discards_valuable_loot", {"cap": Simulation.MAX_GROUND_ITEM_VIEWS})
+	if ground._drop_views().size() > Simulation.MAX_GROUND_ITEM_VIEWS:
+		_report("ground_snapshot_exceeds_budget", {})
+	var unavailable := {}
+	var all_items := _world()._collection("items")
+	for item: Dictionary in all_items:
+		for stat: String in item.get("stats", {}):
+			if stat not in ContentDescriptions.FUNCTIONAL_STATS:
+				if not unavailable.has(stat):
+					unavailable[stat] = []
+				unavailable[stat].append(item["id"])
+	for stat: String in unavailable:
+		_report("equipment_stat_unavailable_in_beta", {"stat": stat, "items": unavailable[stat]})
 	var movement := _world()
 	movement.set_move_target(1, Vector2(INF, 0))
 	if not (movement.player(1)["target"] as Vector2).is_finite():
 		_report("nonfinite_movement_target_accepted", {})
-	print(JSON.stringify({"diagnostic": "gameplay_audit", "findings": findings}, "\t"))
+	print(JSON.stringify({"diagnostic": "gameplay_audit", "catalog_items": all_items.size(), "unavailable_equipment_stats": unavailable, "findings": findings}, "\t"))
 	quit(1 if "--strict" in OS.get_cmdline_user_args() and not findings.is_empty() else 0)
 
 

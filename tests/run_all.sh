@@ -34,5 +34,16 @@ for script in tests/network_smoke.sh tests/village_online_smoke.sh tests/narrati
 	fi
 done
 
+# Auditoria estrita de gameplay (G0.7): falha enquanto houver achados; nunca remover checagens dela
+# para deixar o gate verde.
+if godot --headless --path . --script tools/bench/gameplay_audit.gd -- --strict >"$LOG" 2>&1 && ! grep -q "SCRIPT ERROR" "$LOG"; then
+	passed=$((passed + 1))
+	printf 'ok    %s\n' "gameplay_audit_strict"
+else
+	failed=$((failed + 1))
+	printf 'FAIL  %s\n' "gameplay_audit_strict"
+	tail -20 "$LOG"
+fi
+
 printf '\n%d ok, %d falharam\n' "$passed" "$failed"
 [ "$failed" -eq 0 ]

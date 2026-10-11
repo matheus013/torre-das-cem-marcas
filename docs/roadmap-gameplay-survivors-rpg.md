@@ -46,8 +46,8 @@ contagem de % considera cada item uma unica vez. Plano de design: documentos 76 
 
 Antes de qualquer sistema novo: cada comando novo do epico nasce validado e coberto pelo CI.
 
-- [ ] G0.6: validar vetores finitos, limites, IDs e frequencia de comandos no host. Aceite: entradas invalidas nao alteram estado; comandos legitimos seguem funcionando em solo/co-op. Parcial (2026-10-11): intencoes de rede validam tipos e a mira do ataque rejeita vetores nao finitos; falta limitar a frequencia de comandos no host.
-- [ ] G0.7: transformar probes confirmados em regressao no runner/CI. Aceite: suite e auditoria estrita passam; nao remover checks para fazer o gate ficar verde. Parcial (2026-10-11): o CI (`.github/workflows/tests.yml`) roda a suite inteira; falta a auditoria estrita no runner.
+- [x] G0.6: validar vetores finitos, limites, IDs e frequencia de comandos no host. Aceite: entradas invalidas nao alteram estado; comandos legitimos seguem funcionando em solo/co-op. Feito em 2026-10-11: `IntentGuard` (`src/core/net/intent_guard.gd`) descarta argumentos insanos (vetores nao finitos ou fora do mundo, textos e inteiros enormes, tipos estranhos) e indices fora de faixa, e limita cada cliente por tipo de comando (rajada de 1 s); a simulacao tambem recusa alvos nao finitos. Regressao em `tests/host_intent_guard_test.gd`.
+- [x] G0.7: transformar probes confirmados em regressao no runner/CI. Aceite: suite e auditoria estrita passam; nao remover checks para fazer o gate ficar verde. Feito em 2026-10-11: `tests/run_all.sh` (e portanto o CI) roda a auditoria estrita `tools/bench/gameplay_audit.gd -- --strict`, hoje sem achados.
 
 ### Fase 1: escala de numeros e resistencias
 

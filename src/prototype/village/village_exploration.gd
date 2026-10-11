@@ -90,6 +90,8 @@ var _npc_settings: Dictionary = {}
 var _village_lights: Node2D
 var _talk_hint: Label
 var _service_menu: Control
+## Validação e limite de frequência dos comandos que chegam ao host (G0.6).
+var _intent_guard := IntentGuard.new()
 var _shop_menu: Control
 ## Último modelo de menu recebido (a loja abre com ele).
 var _menu_model: Dictionary = {}
@@ -294,6 +296,7 @@ func _on_peer_connected(_peer_id: int) -> void:
 
 
 func _on_peer_disconnected(peer_id: int) -> void:
+	_intent_guard.forget(peer_id)
 	_sim.call("disconnect_player", peer_id)
 
 
@@ -351,9 +354,10 @@ func _leave_session() -> void:
 
 @rpc("any_peer", "call_remote", "unreliable_ordered")
 func submit_move(target: Variant) -> void:
-	if _sim == null or not target is Vector2:
+	var sender := multiplayer.get_remote_sender_id()
+	if _sim == null or not IntentGuard.valid_vector(target) or not _intent_guard.allow(sender, "move", Time.get_ticks_msec() / 1000.0):
 		return
-	_sim.call("set_move_target", multiplayer.get_remote_sender_id(), target)
+	_sim.call("set_move_target", sender, target)
 
 
 @rpc("any_peer", "call_remote", "reliable")
@@ -413,6 +417,12 @@ func _is_connected() -> bool:
 
 ## Valida tipos vindos da rede antes de qualquer chamada à simulação.
 func _apply_intent(peer_id: int, kind: String, args: Array) -> void:
+	# Argumentos insanos (NaN, infinito, textos enormes, tipos estranhos) nunca chegam à simulação;
+	# jogadores remotos têm limite de comandos por segundo.
+	if kind.length() > IntentGuard.MAX_TEXT or not IntentGuard.valid_args(args):
+		return
+	if peer_id != _local_peer and not _intent_guard.allow(peer_id, kind, Time.get_ticks_msec() / 1000.0):
+		return
 	if kind == "hello":
 		if peer_id != _local_peer and args.size() == 2 and args[0] is String and args[1] is String and String(args[0]).length() <= 64:
 			_admit_peer(peer_id, String(args[0]), String(args[1]))
@@ -424,7 +434,7 @@ func _apply_intent(peer_id: int, kind: String, args: Array) -> void:
 	var refresh_menu := true
 	match kind:
 		"skill":
-			if args.size() == 2 and args[0] is int and args[1] is Vector2 and int(args[0]) >= 0 and int(args[0]) < 4:
+			if args.size() == 2 and args[0] is int and IntentGuard.valid_vector(args[1]) and int(args[0]) >= 0 and int(args[0]) < 4:
 				_sim.call("use_skill", peer_id, int(args[0]), args[1])
 			refresh_menu = false
 		"quick":
@@ -451,7 +461,7 @@ func _apply_intent(peer_id: int, kind: String, args: Array) -> void:
 			if args.size() == 1 and args[0] is String:
 				_sim.call("equip_item", peer_id, StringName(String(args[0])))
 		"unequip":
-			if args.size() == 2 and args[0] is int and args[1] is int:
+			if args.size() == 2 and args[0] is int and args[1] is int and int(args[0]) >= 0 and int(args[0]) < 16 and int(args[1]) >= 0 and int(args[1]) < 16:
 				_sim.call("unequip_item", peer_id, int(args[0]), int(args[1]))
 		"sell":
 			if args.size() == 1 and args[0] is String:
@@ -461,7 +471,7 @@ func _apply_intent(peer_id: int, kind: String, args: Array) -> void:
 		"reset_stats":
 			_sim.call("reset_stats", peer_id)
 		"shop_buy":
-			if args.size() == 1 and args[0] is int:
+			if args.size() == 1 and args[0] is int and int(args[0]) >= 0 and int(args[0]) < 64:
 				_sim.call("buy_shop_item", peer_id, int(args[0]))
 		"shop_reroll":
 			_sim.call("reroll_shop", peer_id)
@@ -472,13 +482,13 @@ func _apply_intent(peer_id: int, kind: String, args: Array) -> void:
 			if args.size() == 1 and args[0] is String:
 				_sim.call("set_auto_sell", peer_id, String(args[0]))
 		"gem_slot":
-			if args.size() == 2 and args[0] is int and args[1] is String:
+			if args.size() == 2 and args[0] is int and args[1] is String and int(args[0]) >= 0 and int(args[0]) < 4:
 				_sim.call("set_gem_slot", peer_id, int(args[0]), String(args[1]))
 		"support_add":
-			if args.size() == 2 and args[0] is int and args[1] is String:
+			if args.size() == 2 and args[0] is int and args[1] is String and int(args[0]) >= 0 and int(args[0]) <= 4:
 				_sim.call("attach_support", peer_id, int(args[0]), String(args[1]))
 		"support_remove":
-			if args.size() == 2 and args[0] is int and args[1] is String:
+			if args.size() == 2 and args[0] is int and args[1] is String and int(args[0]) >= 0 and int(args[0]) <= 4:
 				_sim.call("detach_support", peer_id, int(args[0]), String(args[1]))
 		"gem_evolution":
 			if args.size() == 2 and args[0] is String and args[1] is String:
@@ -494,7 +504,7 @@ func _apply_intent(peer_id: int, kind: String, args: Array) -> void:
 			if args.size() == 1 and args[0] is String and String(args[0]).length() <= 64:
 				_sim.call("narrative_action", peer_id, String(args[0]))
 		"start_floor":
-			if args.size() == 1 and args[0] is int:
+			if args.size() == 1 and args[0] is int and int(args[0]) >= 1 and int(args[0]) <= 100:
 				_sim.call("set_start_floor", peer_id, int(args[0]))
 		"menu":
 			pass
