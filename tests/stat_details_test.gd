@@ -31,8 +31,8 @@ func _run() -> void:
 	if not is_equal_approx(float(intelligence["base"]) + float(intelligence["equipment"]), float(intelligence["total"])) or float(intelligence["base"]) != 60.0:
 		return _fail("Detailed attributes must split base, equipment and total")
 	var fire := (details["damage"] as Array).filter(func(row: Array) -> bool: return row[0] == "Fogo")[0] as Array
-	if String(fire[1]) != "+40%":
-		return _fail("Damage bonuses must include item passives (Coroa de Brasa fire +40%%), got %s" % fire[1])
+	if String(fire[1]) != "+20%":
+		return _fail("Damage bonuses must include item passives (Coroa de Brasa fire +20%%, decisao 598), got %s" % fire[1])
 
 	# Prévias: nível 5 do Elo Residual oferece modificadores; cada um diz o que muda.
 	for level in range(1, 5):

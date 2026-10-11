@@ -136,6 +136,10 @@ const BASE_KILLS_PER_BOSS := 25
 const AGGRO_RADIUS := 520.0
 const LEASH_RADIUS := 1100.0
 const WANDER_RADIUS := 220.0
+## Clarividência (decisão 598): o crítico em cadência causa +200%.
+const CADENCE_CRIT_MULTIPLIER := 3.0
+## Custo em Vida das regras de Erudição e Pacto Sombrio: cada ponto de Fôlego vira 0,5% da Vida máxima.
+const HEALTH_COST_PER_BREATH := 0.005
 ## Respawn acelera com o tempo no andar: intervalo = base / (1 + tempo / aceleração).
 ## Decisão 596: duas vezes mais rápido que antes (base 14 s e mínimo 2,5 s), mesma aceleração.
 const RESPAWN_BASE_INTERVAL := 7.0
@@ -833,6 +837,25 @@ func resolve_slot(peer_id: int, slot: int) -> Dictionary:
 	return resolved
 
 
+## Custo de Fôlego de uma gema com as regras de itens: geral, por elemento e por movimento.
+func skill_breath_cost(peer_id: int, effect: Dictionary) -> float:
+	var cost := float(effect.get("breath_cost", 0.0)) * _mod(peer_id, "breath_cost_mult")
+	if String(gem_definition(String(effect.get("gem_id", ""))).get("element", "")) == "lightning":
+		cost *= _mod(peer_id, "breath_cost_lightning_mult")
+	# Pulmão do Mundo: andando, gemas não custam Fôlego; parada, custam o dobro.
+	if _mod(peer_id, "moving_free_cast") > 0.0:
+		cost = 0.0 if bool(player(peer_id).get("moving", false)) else cost * 2.0
+	return cost
+
+
+## Custo em Vida (Erudição Absoluta para todas; Pacto Sombrio para trevas). 0 quando paga em Fôlego.
+func skill_health_cost(peer_id: int, effect: Dictionary, breath_cost: float) -> float:
+	var dark := String(gem_definition(String(effect.get("gem_id", ""))).get("element", "")) == "dark"
+	if _mod(peer_id, "health_cost_all") > 0.0 or (dark and _mod(peer_id, "health_cost_dark") > 0.0):
+		return breath_cost * HEALTH_COST_PER_BREATH * max_health(peer_id)
+	return 0.0
+
+
 ## Transformação da arma única (decisão 598): `transform_from` deriva campos dos valores resolvidos
 ## (ex.: dano de chegada a partir da barreira) e `transform` sobrescreve campos, inclusive a mecânica.
 static func _apply_gem_transform(resolved: Dictionary, passive: Dictionary) -> void:
@@ -892,10 +915,19 @@ func use_skill(peer_id: int, slot: int, target: Vector2) -> bool:
 	var charges := state["charges"] as Array[int]
 	if slot < 0 or slot >= cooldowns.size() or charges[slot] <= 0:
 		return false
+	if slot == 0 and _mod(peer_id, "slot_locked_q") > 0.0:
+		_status(peer_id, "A gema do Q dispara pelo autoataque (Gatilho Ancestral).")
+		return false
 	var effect := resolve_slot(peer_id, slot)
 	if effect.is_empty():
 		return false
-	var breath_cost := float(effect.get("breath_cost", 0.0)) * _mod(peer_id, "breath_cost_mult")
+	var breath_cost := skill_breath_cost(peer_id, effect)
+	var health_cost := skill_health_cost(peer_id, effect, breath_cost)
+	if health_cost > 0.0:
+		breath_cost = 0.0
+		if float(state["health"]) <= health_cost:
+			_status(peer_id, "Vida insuficiente.")
+			return false
 	if float(state["breath"]) < breath_cost:
 		_status(peer_id, "Folego insuficiente.")
 		return false
@@ -915,6 +947,7 @@ func use_skill(peer_id: int, slot: int, target: Vector2) -> bool:
 		effect["duration"] = float(effect["duration"]) * _mod(peer_id, "duration_mult")
 	if not free:
 		state["breath"] = float(state["breath"]) - breath_cost
+		state["health"] = float(state["health"]) - health_cost
 		charges[slot] -= 1
 		if cooldowns[slot] <= 0.0:
 			var recharge := float(effect.get("cooldown", 1.0)) / float(derived_stats(peer_id).get("cooldown_recovery_multiplier", 1.0))
@@ -943,6 +976,8 @@ func _skill_power_multiplier(peer_id: int, effect: Dictionary) -> float:
 	for index in range(mini(stats.size(), GEM_SCALING_WEIGHTS.size())):
 		scaling += float(effective.get(StringName(String(stats[index])), 0.0)) / 100.0 * GEM_SCALING_WEIGHTS[index]
 	multiplier *= scaling
+	if "physical" in (effect.get("tags", []) as Array):
+		multiplier *= 1.0 + raw_stat(peer_id, "strength") * _mod(peer_id, "strength_physical_conversion")
 	for tag: Variant in effect.get("tags", []) as Array:
 		multiplier *= _mod(peer_id, "power_%s_mult" % String(tag))
 	var element := String(gem.get("element", ""))
@@ -1170,8 +1205,12 @@ func _step_player(peer_id: int, delta: float) -> void:
 	var cooldowns := state["cooldowns"] as Array[float]
 	var charges := state["charges"] as Array[int]
 	var caps := state["charge_caps"] as Array[int]
+	# Tempo Roubado: as recargas não andam com o tempo; só os abates (refund) as adiantam.
+	var kill_only := _mod(peer_id, "cooldown_kill_only") > 0.0
 	for index in range(cooldowns.size()):
 		if cooldowns[index] <= 0.0:
+			continue
+		if kill_only and cooldowns[index] > 0.002:
 			continue
 		cooldowns[index] = maxf(0.0, cooldowns[index] - delta)
 		if cooldowns[index] <= 0.0:
@@ -1187,6 +1226,7 @@ func _step_player(peer_id: int, delta: float) -> void:
 		move_player(peer_id, offset.normalized() * minf(speed * delta, offset.length()))
 	var moved := (state["position"] as Vector2) - previous
 	state["moving"] = moved.length() > 0.1
+	state["still_time"] = 0.0 if bool(state["moving"]) else float(state.get("still_time", 0.0)) + delta
 	if bool(state["moving"]):
 		state["facing_direction"] = moved.normalized()
 	if absf(moved.x) > 0.1:
@@ -2339,7 +2379,8 @@ func _update_enemies(delta: float) -> void:
 				contact_damage *= 1.35
 			if "echo_attack" in mechanics:
 				contact_damage *= 1.35
-			take_damage(target_peer, contact_damage)
+			if _mod(target_peer, "contact_immunity") <= 0.0:
+				take_damage(target_peer, contact_damage)
 			if "life_leech" in mechanics:
 				enemy["health"] = minf(float(enemy.get("max_health", 1.0)), float(enemy["health"]) + contact_damage * 0.5)
 			if "slowing_contact" in mechanics and players.has(target_peer):
@@ -2673,8 +2714,16 @@ func _damage_enemy(peer_id: int, index: int, damage: float, hit: Dictionary) -> 
 		hit["vulnerable"] = apply_vulnerable
 		hit["vulnerable_duration"] = 3.0
 	var critical := not bool(hit.get("dot", false)) and _crit_random.randf() < minf(0.5, minf(0.35, float(derived.get("critical_chance", CRIT_CHANCE))) + float(hit.get("crit_add", 0.0)))
+	# Clarividência: sem crítico por chance; todo N-ésimo acerto direto de gema é crítico de +200%.
+	var cadence := int(_mod(peer_id, "crit_cadence")) if players.has(peer_id) else 0
+	if cadence > 0:
+		critical = false
+		if bool(hit.get("gem", false)) and not bool(hit.get("dot", false)) and not bool(hit.get("passive", false)):
+			var counted := int(player(peer_id).get("gem_hit_count", 0)) + 1
+			player(peer_id)["gem_hit_count"] = counted
+			critical = counted % cadence == 0
 	if critical:
-		damage *= minf(2.0, CRIT_MULTIPLIER + maxf(0.0, float(derived.get("critical_damage_multiplier", 1.5)) - 1.5) + float(derived.get("critical_damage_bonus", 0.0)))
+		damage *= CADENCE_CRIT_MULTIPLIER if cadence > 0 else minf(2.0, CRIT_MULTIPLIER + maxf(0.0, float(derived.get("critical_damage_multiplier", 1.5)) - 1.5) + float(derived.get("critical_damage_bonus", 0.0)))
 	var race_trait := String(enemy.get("race_trait", ""))
 	if race_trait == "stone_skin" and String(hit.get("damage_type", "physical")) == "physical":
 		damage *= 0.85
@@ -2794,6 +2843,9 @@ func take_damage(peer_id: int, amount: float) -> void:
 	# Guarda da arma: quem luta colado (manoplas, bastão) recebe menos dano para compensar o risco.
 	amount *= 1.0 - clampf(float(weapon_attack_model(peer_id).get("guard", 0.0)), 0.0, 0.5)
 	amount *= 1.0 - float(derived_stats(peer_id).get("damage_reduction", 0.0))
+	# Pedra Viva: parada por 1 s, recebe menos dano.
+	if float(state.get("still_time", 0.0)) >= 1.0:
+		amount *= 1.0 - clampf(_mod(peer_id, "still_damage_reduction"), 0.0, 0.8)
 	var reaction: Dictionary = (state["passive"] as RefCounted).call("on_damage_taken", amount, float(state["health"]) / max_health(peer_id))
 	amount = float(reaction["amount"])
 	_vfx(zone, "number", [position, amount, false, "player"])
@@ -3142,7 +3194,16 @@ func heal_player(peer_id: int, amount: float) -> void:
 	var state := player(peer_id)
 	if state.is_empty() or amount <= 0.0:
 		return
-	state["health"] = minf(max_health(peer_id), float(state["health"]) + amount * _mod(peer_id, "healing_mult"))
+	# Pacto de Sangue: nenhuma cura funciona.
+	if _mod(peer_id, "no_healing") > 0.0:
+		return
+	var healed := float(state["health"]) + amount * _mod(peer_id, "healing_mult")
+	# Luz Excedente: a cura acima da Vida máxima vira barreira, até metade da Vida.
+	if healed > max_health(peer_id) and _mod(peer_id, "overheal_barrier") > 0.0:
+		var room := max_health(peer_id) * 0.5 - float(state.get("barrier", 0.0))
+		if room > 0.0:
+			_add_barrier(peer_id, minf(room, healed - max_health(peer_id)), 6.0)
+	state["health"] = minf(max_health(peer_id), healed)
 
 
 ## Gatilhos de baixa dos marcos: cura, Fôlego, estilhaço, recarga e invocação.
@@ -3572,7 +3633,7 @@ func _spawn_summons(peer_id: int, effect: Dictionary, target: Vector2) -> void:
 				break
 			persistent_effects.remove_at(owned[0])
 		var spread := Vector2.RIGHT.rotated(TAU * float(summon_index) / float(maxi(1, summon_count))) * 22.0
-		var summon_duration := float(effect.get("duration", definition.get("duration", 0.0)))
+		var summon_duration := float(effect.get("duration", definition.get("duration", 0.0))) * _mod(peer_id, "summon_duration_mult")
 		persistent_effects.append({
 			"mechanic": "summon",
 			"instance_id": "summon_%d_%d" % [peer_id, _next_summon_sequence],
@@ -3976,7 +4037,7 @@ func derived_stats(peer_id: int, equipment_override: EquipmentLoadout = null) ->
 
 func max_health(peer_id: int) -> float:
 	var wounds := int(player(peer_id).get("wounds", 0))
-	return maxf(1.0, float(derived_stats(peer_id).get("max_health", PLAYER_MAX_HEALTH)) * maxf(0.5, 1.0 - WOUND_PENALTY * float(wounds)))
+	return maxf(1.0, float(derived_stats(peer_id).get("max_health", PLAYER_MAX_HEALTH)) * _mod(peer_id, "max_health_mult") * maxf(0.5, 1.0 - WOUND_PENALTY * float(wounds)))
 
 
 func max_breath(peer_id: int) -> float:
@@ -4712,6 +4773,8 @@ func _base_weapon_attack_model(peer_id: int, equipment_override: EquipmentLoadou
 	var result := WeaponCombat.resolve(type_id, String(state.get("character_id", "")), derived.get("effective_primaries", {}) as Dictionary, fabrication)
 	result["weapon_type"] = type_id
 	result["damage"] = float(result["damage"]) * _mod(peer_id, "auto_damage_mult", equipment_override) * level_power(peer_id)
+	if String(result.get("damage_type", "physical")) == "physical":
+		result["damage"] = float(result["damage"]) * (1.0 + raw_stat(peer_id, "strength") * _mod(peer_id, "strength_physical_conversion", equipment_override))
 	result["interval"] = float(result["interval"]) / maxf(0.01, float(derived.get("automatic_attack_rate_multiplier", 1.0)))
 	result["critical_chance"] = clampf(float(derived.get("critical_chance", CRIT_CHANCE)) + float(result["crit_add"]), 0.0, 0.5)
 	result["item_name"] = item_display_name(String(equipment.weapon.definition.id)) if equipment != null and equipment.weapon != null else "Desarmado"

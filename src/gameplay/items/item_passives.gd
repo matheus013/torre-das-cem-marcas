@@ -11,11 +11,11 @@ extends RefCounted
 const TRIGGERS: Array[String] = ["cast", "hit", "kill", "hurt", "lethal", "interval", "volley"]
 const ACTIONS: Array[String] = [
 	"cast", "burst", "burn", "freeze", "vulnerable", "heal", "barrier", "breath",
-	"refund", "buff", "invulnerable", "recast", "execute", "revive",
+	"refund", "buff", "invulnerable", "recast", "execute", "revive", "spread_burn", "poison",
 ]
 const FILTERS: Array[String] = [
 	"on", "actions", "gem", "element", "tag", "source", "mechanic", "crit", "chance", "every",
-	"cooldown", "burning", "below", "seconds", "poisoned",
+	"cooldown", "burning", "below", "seconds", "poisoned", "moving",
 ]
 ## Chaves de `mods` e de bônus temporários: as mesmas lidas por `_mod` na simulação.
 const MOD_KEYS: Array[String] = [
@@ -26,6 +26,10 @@ const MOD_KEYS: Array[String] = [
 	"power_physical_mult", "power_magic_mult", "power_fire_mult", "power_ice_mult",
 	"power_lightning_mult", "power_acid_mult", "power_nature_mult", "power_dark_mult",
 	"power_holy_mult", "power_earth_mult", "power_arcane_mult", "power_summon_mult",
+	# Regras (decisão 598): chaves lidas em pontos fixos da simulação, não multiplicadores comuns.
+	"burn_lasting", "breath_cost_lightning_mult", "health_cost_dark", "health_cost_all", "overheal_barrier",
+	"still_damage_reduction", "crit_cadence", "strength_physical_conversion", "max_health_mult", "slot_locked_q",
+	"summon_duration_mult", "cooldown_kill_only", "moving_free_cast", "contact_immunity", "no_healing",
 ]
 const ItemAffixesScript := preload("res://src/gameplay/items/item_affixes.gd")
 const BURN_TICK := 0.5
@@ -215,6 +219,9 @@ static func tick(sim: RefCounted, peer_id: int, delta: float) -> void:
 				continue
 			timers[key] = float(trigger.get("seconds", 5.0))
 			var state := sim.call("player", peer_id) as Dictionary
+			if bool(trigger.get("moving", false)) and not bool(state.get("moving", false)):
+				timers[key] = 0.1
+				continue
 			var nearest := int(sim.call("nearest_enemy_to", state["position"], 420.0))
 			if nearest < 0:
 				timers[key] = 0.5
@@ -261,6 +268,7 @@ static func _memory(sim: RefCounted, peer_id: int) -> Dictionary:
 
 ## Dispara os gatilhos do tipo pedido. Verdadeiro se algum `revive` aconteceu.
 static func _fire(sim: RefCounted, peer_id: int, kind: String, context: Dictionary) -> bool:
+	context["peer"] = peer_id
 	var revived := false
 	var passives := active(sim, peer_id)
 	if passives.is_empty():
@@ -307,6 +315,8 @@ static func _matches(sim: RefCounted, trigger: Dictionary, context: Dictionary) 
 		if tag not in tags:
 			return false
 	if bool(trigger.get("crit", false)) and not bool(context.get("critical", false)):
+		return false
+	if bool(trigger.get("moving", false)) and not bool((sim.call("player", int(context.get("peer", 0))) as Dictionary).get("moving", false)):
 		return false
 	var enemy := context.get("enemy", {}) as Dictionary
 	if bool(trigger.get("burning", false)) and float(enemy.get("burn_timer", 0.0)) <= 0.0:
@@ -357,7 +367,8 @@ static func _act(sim: RefCounted, peer_id: int, passive: Dictionary, action: Dic
 				if float(enemy.get("burn_timer", 0.0)) <= 0.0 or dps >= float(enemy.get("burn_dps", 0.0)):
 					enemy["burn_dps"] = dps
 					enemy["burn_peer"] = peer_id
-				enemy["burn_timer"] = maxf(float(enemy.get("burn_timer", 0.0)), duration)
+				# Fogo que Não Apaga: com a regra, a queimadura não expira.
+				enemy["burn_timer"] = 3600.0 if modifier(sim, peer_id, "burn_lasting") > 0.0 else maxf(float(enemy.get("burn_timer", 0.0)), duration)
 		"freeze":
 			if not enemy.is_empty():
 				var strength := float(action.get("slow", 0.8)) * (BOSS_CONTROL if bool(enemy.get("floor_boss", false)) else 1.0)
@@ -418,6 +429,21 @@ static func _act(sim: RefCounted, peer_id: int, passive: Dictionary, action: Dic
 					sim.call("_vfx", zone, "label", [enemy["position"], "EXECUTADO", Color("e87a6a"), ""])
 					# Conta como abate da gema (gatilhos de abate disparam), mas não como novo acerto.
 					sim.call("damage_enemy", peer_id, index, float(enemy["health"]) + 1.0, {"dot": true, "gem": true, "gem_id": String(context.get("gem_id", "")), "execute": true})
+		"spread_burn":
+			# A queimadura de quem morreu passa para os vizinhos, com o mesmo dano por segundo.
+			if not enemy.is_empty() and float(enemy.get("burn_dps", 0.0)) > 0.0:
+				var radius := float(action.get("radius", 120.0))
+				for other: Dictionary in sim.get("enemies") as Array:
+					if other != enemy and (other["position"] as Vector2).distance_to(enemy["position"]) <= radius:
+						other["burn_dps"] = maxf(float(other.get("burn_dps", 0.0)), float(enemy["burn_dps"]))
+						other["burn_peer"] = peer_id
+						other["burn_timer"] = maxf(float(other.get("burn_timer", 0.0)), float(enemy.get("burn_timer", 3.0)))
+		"poison":
+			# Toxina a partir do acerto: `ratio` do golpe ao longo de `duration` segundos.
+			if not enemy.is_empty():
+				var duration := maxf(0.5, float(action.get("duration", 3.0)))
+				var per_tick := float(context.get("damage", 0.0)) * float(action.get("ratio", 0.3)) * 0.5 / duration
+				sim.call("apply_poison", peer_id, enemy, "toxina", {"damage": per_tick, "interval": 0.5, "remaining": duration, "gem_id": String(context.get("gem_id", ""))})
 		"revive":
 			state["health"] = maxf(1.0, maximum * float(action.get("ratio", 0.5)))
 			state["invulnerable"] = maxf(float(state["invulnerable"]), float(action.get("invulnerable", 2.0)))

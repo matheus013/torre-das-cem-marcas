@@ -327,3 +327,4 @@ item	lendario_botas_do_vendaval	boots.png	crop=32:32:96:96
 item	lendario_anel_da_corda_infinita	dev 2/FantasyInventory.zip::FantasyInventory/FantasyInventorySpritesheet.png	crop=32:32:256:0
 item	lendario_anel_do_furor	dev/ttrpg_legacy_rings_1.0.zip::Gold base/gold_ring_base_06.png	scale=32:32:flags=lanczos
 item	lendario_sino_do_folego_leve	dev 2/FantasyInventory.zip::FantasyInventory/FantasyInventorySpritesheet.png	crop=32:32:256:96
+item	lendario_pacto_de_sangue	dev 2/FantasyInventory.zip::FantasyInventory/FantasyInventorySpritesheet.png	crop=32:32:192:32

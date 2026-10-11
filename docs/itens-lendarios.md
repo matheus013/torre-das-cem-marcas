@@ -9,28 +9,29 @@ da historia; as dificuldades do pos-jogo (backlog G6) vao exigi-las. Valores pro
 
 | Item | Encaixe | Passiva |
 |---|---|---|
-| Coroa de Brasa | Amuleto | **Fogo que Nao Apaga**: Gemas de fogo +40%. Acertos delas incendeiam (60% do golpe em 3 s) e quem morre em chamas explode. |
-| Manto do Inverno Longo | Armadura | **Inverno Interior**: Gemas de gelo +40%; acertos delas congelam (70% por 1,5 s) e expoem o alvo (+20%). Dano recebido -15%. |
-| Luvas da Tempestade | Luvas | **Tempestade nas Maos**: Gemas de raio +40%; metade dos acertos delas ramifica em area com 70% do golpe. |
-| Botas do Brejo Antigo | Botas | **Raiz e Acido**: Gemas de acido e natureza +35%. Acido deixa o alvo 30% mais vulneravel; natureza cura a cada acerto. |
-| Veu do Eclipse | Calca | **Fome do Eclipse**: Gemas de trevas +40%; cada abate delas cura 4% da Vida e devolve 3 de Folego. |
-| Anel do Sol Partido | Anel | **Sol Partido**: Gemas sagradas +40%; lancar uma delas cura 8% da Vida e da 8% em barreira. |
-| Anel da Terra Viva | Anel | **Pedra Viva**: Gemas de terra +40% e dano recebido -10%; lancar uma delas da 12% da Vida em barreira. |
-| Lente Arcana | Mao secundaria | **Lente Arcana**: Gemas arcanas +40%; todo critico de gema adianta 0,5 s a recarga de todas as gemas. |
-| Punho da Montanha | Luvas | **Peso da Montanha**: Gemas fisicas e autoataque +35%; criticos fisicos racham o chao com 100% do golpe em area. |
-| Tomo do Erudito | Mao secundaria | **Erudicao Absoluta**: Gemas magicas +30%; cada lancamento magico devolve 4 de Folego. |
-| Gatilho Ancestral | Anel | **Gatilho Ancestral**: Autoataque +40% de dano e +15% de cadencia; a cada 4 acertos ele dispara a gema de Q de graca com 60% da potencia. |
-| Calca do Pastor de Moldes | Calca | **Rebanho Fiel**: Invocacoes +50% de potencia e duram 25% mais; invocar cura 5% da Vida. |
+| Coroa de Brasa | Amuleto | **Fogo que Nao Apaga**: Queimaduras nao expiram e, quando um inimigo morre em chamas, o fogo passa aos vizinhos. Acertos de fogo incendeiam (60% do golpe por segundo). Gemas de fogo +20%. |
+| Manto do Inverno Longo | Armadura | **Inverno Interior**: Acertos de gelo estilhacam inimigos comuns e elites abaixo de 20% da Vida. Gemas de gelo +20%. |
+| Luvas da Tempestade | Luvas | **Sobrecarga**: Gemas de raio nao tem recarga, mas custam o dobro de Folego. |
+| Botas do Brejo Antigo | Botas | **Raiz e Acido**: Todo acerto de gema de acido ou natureza tambem envenena (toxina com 40% do golpe em 3 s). Gemas de acido e natureza +15%. |
+| Veu do Eclipse | Calca | **Pacto Sombrio**: Gemas de trevas custam Vida em vez de Folego (0,5% da Vida maxima por ponto de Folego) e causam +60%. |
+| Anel do Sol Partido | Anel | **Luz Excedente**: Toda cura acima da Vida maxima vira barreira, ate metade da Vida. Gemas sagradas +30%. |
+| Anel da Terra Viva | Anel | **Pedra Viva**: Parada por 1 s, voce recebe 40% menos dano. Gemas de terra +20%. |
+| Lente Arcana | Mao secundaria | **Clarividencia**: Voce nunca critica por chance: todo 5o acerto direto de gema e critico com +200%. |
+| Punho da Montanha | Luvas | **Peso da Montanha**: Voce fica 25% mais lenta, mas cada ponto de Forca da +1% de dano as gemas fisicas e ao autoataque fisico. |
+| Tomo do Erudito | Mao secundaria | **Erudicao Absoluta**: Todas as gemas custam Vida em vez de Folego (0,5% da Vida maxima por ponto de Folego). Vida maxima +30%. |
+| Gatilho Ancestral | Anel | **Gatilho Ancestral**: O autoataque passa a lancar a gema do Q a cada acerto, com 40% da potencia; a gema do Q nao pode mais ser lancada a mao. |
+| Calca do Pastor de Moldes | Calca | **Rebanho Eterno**: Invocacoes nao expiram (ate sair do andar), mas sua Vida maxima cai 25%. |
 | Coracao Imortal | Reliquia | **Recusa da Morte**: Golpe fatal nao derruba: volta com 60% da Vida, 3 s de invulnerabilidade e uma explosao sagrada (uma vez a cada 90 s). |
-| Ampulheta Partida | Reliquia | **Tempo Roubado**: Cada abate adianta 0,35 s a recarga de todas as gemas. Recargas -10%. |
-| Folego Primordial | Amuleto | **Pulmao do Mundo**: Folego maximo +40 e regeneracao +60%; cada abate devolve 3 de Folego. |
-| Couraca do Colosso | Armadura | **Colosso**: Dano recebido -25%; ao ser ferida, ganha barreira de 15% da Vida (a cada 6 s). |
+| Ampulheta Partida | Reliquia | **Tempo Roubado**: As recargas nao andam com o tempo: cada abate adianta 1 s de todas as gemas. |
+| Folego Primordial | Amuleto | **Pulmao do Mundo**: Andando, as gemas nao custam Folego; parada, custam o dobro. |
+| Couraca do Colosso | Armadura | **Colosso**: Voce fica 30% mais lenta, mas e imune ao dano de contato dos inimigos (projeteis e habilidades ainda acertam). |
 | Presa da Serpente | Amuleto | **Mordida Final**: Inimigo envenenado (qualquer veneno) que morre explode com 20% da propria Vida maxima em volta e deixa uma Poca de Veneno: com todas as melhorias se a gema estiver equipada; senao, de nivel 1. Toda Presa traz alcance de proliferacao de veneno de +30% a +100%, que amplia a explosao, a poca e o espalhamento dos esporos. |
-| Botas do Cacador | Botas | **Frenesi da Caca**: Cada abate da +8% de potencia e +4% de velocidade por 6 s, acumulando ate 6 vezes. |
+| Botas do Cacador | Botas | **Rastro de Caca**: Enquanto anda, a cada 0,4 s voce deixa um rastro que fere quem esta perto (escala com o nivel). |
 | Botas do Vendaval | Botas | **Passo de Vendaval**: Velocidade de movimento +60%. |
 | Anel da Corda Infinita | Anel | **Rajada Sem Fim**: Cada volta completa da Saraivada de Flechas lanca de graca a gema do W no inimigo mais proximo, ignorando a recarga e o Folego. |
 | Anel do Furor | Anel | **Furor do Arqueiro**: Cada volta completa da Saraivada de Flechas da 1 acumulo por 10 s (ganhar outro renova todos): +2% de velocidade, +4% de dano e -1,5% de dano recebido por acumulo, ate 25 (+50%, +100% e -37,5%). |
 | Sino do Folego Leve | Reliquia | **Ar Leve**: Todas as gemas custam 50% menos Folego, inclusive o custo por segundo da Saraivada de Flechas. |
+| Pacto de Sangue | Reliquia | **Pacto de Sangue**: Nenhuma cura funciona em voce (nem suprimentos); todo abate da barreira de 3% da Vida maxima. |
 | Lastro Partido | Reliquia | **Peso Vetorial**: Toda gema de movimento abre uma Prisao Gravitica no ponto de chegada com 120% da potencia. Velocidade +10%. |
 
 ## Armas unicas (uma por gema)

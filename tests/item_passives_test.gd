@@ -58,13 +58,13 @@ func _run() -> void:
 			if trigger.has("gem") and String(trigger["gem"]) != unique_gem:
 				return _fail("%s passive must focus on its own gem" % item["id"])
 
-	# Elemento: a Coroa de Brasa soma +40% às gemas de fogo e só a elas.
+	# Elemento: a Coroa de Brasa soma +20% às gemas de fogo e só a elas (decisão 598).
 	var plain := _world(&"eloa", [], ["bola_de_fogo", "esfera_de_gelo"])
 	var crowned := _world(&"eloa", ["lendario_coroa_de_brasa"], ["bola_de_fogo", "esfera_de_gelo"])
 	var fire_ratio := crowned._skill_power_multiplier(1, crowned.resolve_slot(1, 0)) / plain._skill_power_multiplier(1, plain.resolve_slot(1, 0))
 	var ice_ratio := crowned._skill_power_multiplier(1, crowned.resolve_slot(1, 1)) / plain._skill_power_multiplier(1, plain.resolve_slot(1, 1))
-	if not is_equal_approx(fire_ratio * 1.0, 1.4 * _stat_ratio(plain, crowned, "bola_de_fogo")) or ice_ratio > _stat_ratio(plain, crowned, "esfera_de_gelo") + 0.001:
-		return _fail("Fire mods must boost fire gems by 40%% only, got fire %.3f ice %.3f" % [fire_ratio, ice_ratio])
+	if not is_equal_approx(fire_ratio * 1.0, 1.2 * _stat_ratio(plain, crowned, "bola_de_fogo")) or ice_ratio > _stat_ratio(plain, crowned, "esfera_de_gelo") + 0.001:
+		return _fail("Fire mods must boost fire gems by 20%% only, got fire %.3f ice %.3f" % [fire_ratio, ice_ratio])
 
 	# Queimadura: acerto de fogo acende e o fogo continua causando dano sozinho.
 	crowned.damage_enemy(1, 0, 100.0, _gem_hit("bola_de_fogo"))
@@ -105,19 +105,19 @@ func _run() -> void:
 	if immortal.player(1)["zone"] == &"tower":
 		return _fail("Revive has a 90 s cooldown")
 
-	# Frenesi: cada abate acumula +8% de potência, até 6 vezes.
-	var hunter := _world(&"sena", ["lendario_botas_do_cacador"])
+	# Acúmulos (Fome da Rede, decisão 598): cada abate da Rede soma +2% de trevas, até 100 vezes.
+	var hunter := _world(&"cira", ["unica_dreno_em_rede"], ["dreno_em_rede"])
 	for kill in range(8):
 		hunter.enemies[0]["health"] = 1.0
-		hunter.damage_enemy(1, 0, 10.0, _gem_hit("agulha_lastro"))
+		hunter.damage_enemy(1, 0, 10.0, _gem_hit("dreno_em_rede"))
 		hunter.enemies.append({"position": hunter.player(1)["position"] + Vector2(60.0, 0.0), "health": 1.0, "max_health": 1.0})
-	if not is_equal_approx(Passives.modifier(hunter, 1, "power_mult"), 1.48):
-		return _fail("Hunter frenzy must stack to +48%%, got %.3f" % Passives.modifier(hunter, 1, "power_mult"))
+	if not is_equal_approx(Passives.modifier(hunter, 1, "power_dark_mult"), 1.16):
+		return _fail("Hungry web must stack to +16%%, got %.3f" % Passives.modifier(hunter, 1, "power_dark_mult"))
 	# Faixa de efeitos (decisão 581): bônus com acúmulos e duração; recarga longa da passiva visível.
-	var frenzy := hunter.player_status_effects(1).filter(func(effect: Dictionary) -> bool: return String(effect["id"]) == "buff:frenesi")
-	if frenzy.size() != 1 or int(frenzy[0]["stacks"]) != 6 or int(frenzy[0]["max_stacks"]) != 6 or float(frenzy[0]["duration"]) != 6.0 or String(frenzy[0]["kind"]) != "buff":
-		return _fail("Frenzy must show as a 6-stack buff with its duration: %s" % [frenzy])
-	if not String(PrototypeCombatHud.effect_tooltip(frenzy[0])).contains("6 de 6"):
+	var frenzy := hunter.player_status_effects(1).filter(func(effect: Dictionary) -> bool: return String(effect["id"]) == "buff:fome_da_rede")
+	if frenzy.size() != 1 or int(frenzy[0]["stacks"]) != 8 or int(frenzy[0]["max_stacks"]) != 100 or String(frenzy[0]["kind"]) != "buff":
+		return _fail("Hungry web must show as a stacking buff: %s" % [frenzy])
+	if not String(PrototypeCombatHud.effect_tooltip(frenzy[0])).contains("8 de 100"):
 		return _fail("Buff tooltip must show stacks")
 
 	# Executar: o Fio único abate comuns abaixo de 30% da Vida, mas nunca chefes.
@@ -133,22 +133,22 @@ func _run() -> void:
 	if not miner.use_skill(1, 0, miner.enemies[0]["position"]) or miner._scheduled.size() - scheduled != 2:
 		return _fail("Unique mine must schedule two extra mines")
 
-	# Recarga: a Ampulheta adianta todas as gemas a cada abate.
+	# Recarga: a Ampulheta (Tempo Roubado) adianta 1 s de todas as gemas a cada abate.
 	var hourglass := _world(&"eloa", ["lendario_ampulheta_partida"], ["elo_residual"])
 	(hourglass.player(1)["cooldowns"] as Array[float])[0] = 3.0
 	hourglass.enemies[0]["health"] = 1.0
 	hourglass.damage_enemy(1, 0, 10.0, _gem_hit("elo_residual"))
-	if not is_equal_approx((hourglass.player(1)["cooldowns"] as Array[float])[0], 2.65):
-		return _fail("Hourglass kill must refund 0.35 s on every gem")
+	if not is_equal_approx((hourglass.player(1)["cooldowns"] as Array[float])[0], 2.0):
+		return _fail("Hourglass kill must refund 1 s on every gem")
 
-	# Gatilho Ancestral: o quarto autoataque dispara a gema de Q de graça.
+	# Gatilho Ancestral (decisão 598): todo autoataque dispara a gema de Q.
 	var trigger := _world(&"eloa", ["lendario_gatilho_ancestral"], ["elo_residual"])
 	trigger.drain_events()
 	for hit in range(4):
 		trigger.damage_enemy(1, 0, 5.0, {"damage_type": "arcane"})
 	var casts := trigger.drain_events().filter(func(event: Dictionary) -> bool: return String(event.get("call", "")) == "cast").size()
-	if casts != 1:
-		return _fail("Every 4th auto attack must cast the Q gem, got %d casts" % casts)
+	if casts != 4:
+		return _fail("Every auto attack must cast the Q gem, got %d casts" % casts)
 
 	# Intervalo: o Molde único se invoca sozinho em combate.
 	var matrix := _world(&"rui", ["unica_molde_vigilante"])
