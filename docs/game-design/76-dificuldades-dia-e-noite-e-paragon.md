@@ -166,8 +166,9 @@ Consequências de projeto:
 - Itens **divinos** passam a cair.
 
 **V. Cicatriz.**
-- -60% nas suas resistências, 3 mutadores (um da lista "cruel": "Sem retorno: morrer encerra a
-  expedição mesmo em grupo", "Cicatriz: Vida máxima cai 2% a cada queda no andar").
+- -60% nas suas resistências, 3 mutadores, sempre um deles da lista "cruel" (obrigatório, decisão
+  598): "Sem retorno: morrer encerra a expedição mesmo em grupo", "Cicatriz: Vida máxima cai 2% a
+  cada queda no andar", "Dívida: o Fôlego não regenera, só volta com abates".
 - Chefes ascendidos com **teste de dano**: escudo que precisa cair em N segundos ou a fase reinicia.
 - Elites "Guardiões da Cicatriz": um por andar, com 3 afixos e drop garantido de material raro.
 - **Pactos opcionais** antes de descer: aceitar uma maldição extra (ex.: "gemas custam Vida em vez de
@@ -380,10 +381,14 @@ Respondidas em 2026-10-11 (decisão 597):
 - **Paragon:** da conta, com tabuleiro por personagem; o bônus de Legado sai.
 - **Liberação da próxima dificuldade:** ao concluir o andar 100.
 
+Respondidas em 2026-10-11 (decisão 598):
+
+- **Mutadores cruéis na 5:** obrigatórios, 1 por andar (além dos 2 normais). Pactos seguem
+  opcionais, como camada extra de risco e recompensa.
+- **Únicas e lendários atuais:** revisar cada passiva pelo teste da revolução; reescrever as que só
+  amplificam e criar itens novos quando fizer sentido.
+
 Ainda abertas:
 
-5. **Mutadores cruéis na 5:** obrigatórios (1 por andar) ou só via Pactos opcionais?
-6. **Reescrita das únicas e lendários atuais:** substituir as passivas de hoje (proposta) ou manter
-   as atuais e criar itens novos ao lado?
 7. **Multiplicadores exatos** da escala exponencial (seção 3.1) são o ponto de partida; a calibragem final vem
    das sondas.

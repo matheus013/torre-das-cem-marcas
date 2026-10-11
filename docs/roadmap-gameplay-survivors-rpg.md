@@ -162,7 +162,7 @@ escolhas visiveis de investimento; nenhum horario bloqueia a historia, so o saqu
 Plano completo em `game-design/76-dificuldades-dia-e-noite-e-paragon.md` (em discussao; decisoes
 abertas na secao 10 do documento). Detalha G6 e G7.1 a G7.4. Fases, em ordem:
 
-- [ ] G8.0: aprovar o documento 76. Respondidas em 2026-10-11 (decisao 597): dia de 2 h, dificuldade do mundo, Paragon da conta, proxima dificuldade ao concluir o andar 100. Faltam: mutadores crueis obrigatorios ou por Pacto, e reescrever ou manter as passivas atuais.
+- [x] G8.0: aprovar o documento 76. Decisoes 597 e 598 (2026-10-11): dia de 2 h, dificuldade do mundo, Paragon da conta, proxima dificuldade ao concluir o andar 100, mutadores crueis obrigatorios na 5 e revisao das passivas pelo teste da revolucao.
 - [ ] G8.1: relogio de dia e noite (2 h; manha 30 min, tarde 30, entardecer 20, noite 40) na vila e na Torre, do host, no snapshot e no save; HUD com hora e avisos; noite com EXP +25%, saque +30% e inimigos +10%; Lua da Cicatriz a cada 3 noites.
 - [ ] G8.2: noite com mecanica: raio de luz como atributo, inimigos fora da luz semi-invisiveis e fora da mira automatica, variantes noturnas por bioma, elites cacadores; monstros da aurora de manha; materiais por horario (Orvalho Negro, Polen Lunar, Ambar Solar).
 - [ ] G8.3: resistencias: fisico e 9 elementos, resistencia dos inimigos por raca, bioma e dificuldade (-50% a +75%), penetracao, Quebra elemental, adaptacao (dificuldades 4 e 5), resistencias da personagem com teto 75% e penalidade por dificuldade (0/0/-20/-40/-60), icones de fraqueza na HUD e numeros "RESISTIU".
