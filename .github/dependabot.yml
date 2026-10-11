@@ -6,6 +6,12 @@ updates:
       interval: weekly
     commit-message:
       prefix: build
+    ignore:
+      # O preset 10 exige conventional-changelog-writer 9, mas o
+      # @semantic-release/release-notes-generator 14.1.1 ainda usa o writer 8 (PR 5 quebrava a
+      # geracao de release). Revisar quando o gerador suportar o writer 9.
+      - dependency-name: conventional-changelog-conventionalcommits
+        versions: [">=10.0.0"]
   - package-ecosystem: github-actions
     directory: /
     schedule:

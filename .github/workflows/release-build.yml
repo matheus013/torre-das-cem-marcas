@@ -68,6 +68,7 @@ jobs:
           path: .release/
           include-hidden-files: true
           if-no-files-found: error
+          retention-days: 3
 
   release:
     needs: plan
@@ -130,7 +131,9 @@ jobs:
           name: aresta-downloads
           path: dist/
           if-no-files-found: error
-          retention-days: 14
+          # ~150 MB por build; 14 dias esgotavam a cota de artefatos do repositorio privado
+          # (falha "Artifact storage quota has been hit" em 2026-10-11).
+          retention-days: 3
 
   native-check:
     needs: release
