@@ -25,11 +25,15 @@ Preparação para distribuição: [roadmap Steam em acesso antecipado](docs/road
   - [As quatro personagens](#as-quatro-personagens)
   - [A vila de Aresta](#a-vila-de-aresta)
   - [A Torre](#a-torre)
+  - [Dificuldades](#dificuldades)
+  - [Resistências e fraquezas](#resistências-e-fraquezas)
   - [Chefes](#chefes)
   - [Gemas: suas habilidades](#gemas-suas-habilidades)
   - [Níveis, atributos e árvores de evolução](#níveis-atributos-e-árvores-de-evolução)
   - [Saque e equipamento](#saque-e-equipamento)
-  - [Morrer na Torre](#morrer-na-torre)
+  - [Loja e receitas da Forja](#loja-e-receitas-da-forja)
+  - [Bestiário](#bestiário)
+  - [Cair e morrer na Torre](#cair-e-morrer-na-torre)
   - [Recordes](#recordes)
 - [Cooperativo online](#cooperativo-online)
 - [Moradores com IA](#moradores-com-ia)
@@ -61,11 +65,14 @@ Na tela de título:
 
 | Botão | O que faz |
 |---|---|
-| **JOGAR** | Aresta e a Torre em solo |
+| **CONTINUAR** | volta ao mundo salvo (aparece quando há save; mostra personagem, nível, andar mais fundo e data) |
+| **JOGAR** / **NOVO JOGO** | Aresta e a Torre em solo; com save existente vira **NOVO JOGO** e pede confirmação |
 | **HOSPEDAR CO-OP** | abre seu mundo para até três amigos (porta 7777) |
 | **ENTRAR EM CO-OP** | entra no mundo de um amigo pelo IP |
 | **MORADORES (IA)** | escolhe o modo dos moradores: padrão ou com modelo de linguagem |
-| **OPÇÕES** | vídeo, limite de FPS, VSync e volumes; preferências persistem entre sessões |
+| **OPÇÕES** | vídeo, limite de FPS, VSync, volumes, controles, mira e ataque automáticos; preferências persistem entre sessões |
+
+O mundo é **salvo automaticamente** a cada minuto, ao entrar ou sair da Torre, ao trocar de andar e ao fechar a janela.
 
 ---
 
@@ -73,28 +80,30 @@ Na tela de título:
 
 ### Objetivo
 
-Desça a Torre andar por andar, derrote os monstros, recolha o saque e volte vivo para Aresta. Cada pedra regenerativa entregue fortalece a vila. Cada andar alcançado fica liberado como ponto de partida. Cada chefe derrotado abre o caminho para o próximo bioma. O fundo fica no **andar 100**.
+Desça a Torre andar por andar, sobreviva às hordas, recolha o saque e volte vivo para Aresta. Cada pedra regenerativa entregue fortalece a vila. Cada andar alcançado fica liberado como ponto de partida. Cada chefe derrotado abre o caminho para o próximo bioma. O fundo fica no **andar 100**; concluí-lo libera a próxima das **cinco dificuldades**.
 
 ### Controles
 
-As teclas abaixo são os padrões. Em **OPÇÕES → Controles**, selecione uma ação e pressione a nova tecla; **Aplicar** grava a mudança. Conflitos no mesmo contexto são bloqueados. **Esc** cancela a captura e permanece reservado para a pausa. O movimento pelo botão direito do mouse continua disponível.
+As teclas abaixo são os padrões. Em **OPÇÕES → Controles**, selecione uma ação e pressione a nova tecla; **Aplicar** grava a mudança. **Nenhuma tecla pode servir a duas ações**, mesmo em contextos diferentes. **Esc** cancela a captura e permanece reservado para a pausa.
 
 | Tecla | Ação |
 |---|---|
 | **Botão direito do mouse** (ou setas) | andar até o ponto; mantenha pressionado para seguir o cursor |
+| **Botão esquerdo do mouse** ou **Espaço** | ataque normal na direção do cursor; segure para repetir no ritmo da arma |
 | **Q, W, E, R** | usar as quatro Gemas Ativas na direção do cursor |
-| *(automático)* | ataque básico no inimigo mais próximo dentro do alcance |
 | **1** | item rápido de cura (na Torre) |
-| **E** | conversar com o morador mais próximo (na vila) |
+| **F** | conversar com o morador mais próximo / investigar |
 | **I** | inventário e equipamento |
-| **C** | personagem: atributos e evoluções |
-| **G** | skills: gemas, suportes e evoluções de gema |
-| **T** | Torre: mapa, recordes e andar de partida |
+| **C** | personagem: atributos, evoluções e status detalhados |
+| **G** | gemas: encaixes, suportes e maestria |
+| **T** | Torre: dificuldade, mapa, recordes e andar de partida |
+| **B** | bestiário |
 | **V** | trocar de personagem (fora da Torre) |
+| **H** | ligar/desligar a mira automática no inimigo vivo mais próximo |
+| **J** | ligar/desligar o ataque automático no inimigo mais próximo (começa ligado) |
 | **F5 / F9** | salvar / carregar o mundo (solo ou host) |
 | **F6** | alternar os moradores entre modo padrão e com IA (solo ou host) |
 | **Esc** | abrir opções e pausar no solo; no co-op o mundo continua. **Voltar ao menu** encerra a sessão (o host salva antes) |
-| **H** | ligar/desligar a mira automática no inimigo vivo mais próximo da mesma zona |
 
 O mapeamento inicial de controle usa os botões normalizados de Xbox e PlayStation:
 
@@ -102,15 +111,15 @@ O mapeamento inicial de controle usa os botões normalizados de Xbox e PlayStati
 |---|---|---|
 | Movimento / mira | analógico esquerdo / direito | analógico esquerdo / direito |
 | Gemas 1 a 4 | LB, RB, X, Y | L1, R1, quadrado, triângulo |
+| Ataque normal | B | círculo |
 | Conversar / confirmar | A | cruz |
-| Cancelar | B | círculo |
 | Item rápido | RT | R2 |
 | Inventário | View | Share / Create |
 | Personagem / gemas / Torre / trocar personagem | direcional cima / esquerda / baixo / direita | direcional cima / esquerda / baixo / direita |
 | Pausa | Menu / Start | Options |
 | Alternar mira automática | clicar analógico esquerdo (L3) | L3 |
 
-Salvar, carregar e alternar moradores também estão na aba **Sessão** das opções. A mira automática é opcional, conserva a preferência e usa a mira manual quando não há inimigos. A navegação dos menus aceita direcional/analógico e confirmação/cancelamento. A configuração de IP do co-op e de provedores de IA ainda exige entrada de texto. Compatibilidade por USB/Bluetooth com controles físicos precisa de QA antes de anunciar suporte completo na Steam.
+Salvar, carregar e alternar moradores também estão na aba **Sessão** das opções. Mira e ataque automáticos são opcionais e conservam a preferência. A navegação dos menus aceita direcional/analógico e confirmação/cancelamento. A configuração de IP do co-op e de provedores de IA ainda exige entrada de texto. Compatibilidade por USB/Bluetooth com controles físicos precisa de QA antes de anunciar suporte completo na Steam.
 
 ### As quatro personagens
 
@@ -127,9 +136,10 @@ Ao abrir o jogo você escolhe quem desce. Não existem classes: qualquer persona
 
 Aresta é seu porto seguro: casas, feira, forja, enfermaria, conselho, arquivo, plantações e trinta moradores com trabalho, casa e rotina. O período do dia avança a cada volta da Torre; à noite os lampiões acendem e a vila se recolhe.
 
-- Converse com os moradores com **E**. Eles lembram suas expedições, pedras entregues, quedas e recordes.
+- Converse com os moradores com **F**. Eles lembram suas expedições, pedras entregues, quedas e recordes.
 - **Gemas e suportes só podem ser trocados na vila.** Na Torre o loadout fica travado.
-- Ao voltar com pedra regenerativa, ela vai para o armazém. Com pedra suficiente, a vila ergue reforços.
+- Ao voltar, os **materiais** da carga vão para o **armazém** comum da vila; equipamentos já vão direto para a sua mochila.
+- Na **Forja da Dália** há loja de equipamentos e receitas que usam os materiais do armazém (veja abaixo).
 - A entrada da Torre fica no edifício alto ao leste.
 
 ![Aresta à noite](docs/images/vila-noite.png)
@@ -139,13 +149,40 @@ Aresta é seu porto seguro: casas, feira, forja, enfermaria, conselho, arquivo, 
 São cem andares em dez biomas: Galerias Refeitas, Bosque dos Ventos Presos, Manto dos Esporos, Bacias do Quarto Pulso, Ermo do Trovão Preso, Arquivo das Rotas Mortas, Planície dos Adormecidos, Eixos Partidos, Campos do Quase e Obra Inacabada. Cada um tem monstros, materiais e um perigo de ambiente próprios.
 
 - **Andares comuns são grandes.** Explore, ache matilhas e derrote monstros. Fora de combate eles patrulham; quando você chega perto, partem para cima.
-- **Cota de abates:** a escada para o próximo andar fica selada até você derrotar monstros suficientes (veja *ABATES x/y* no topo da tela e no minimapa).
-- **Respawn acelera:** quanto mais tempo você fica no andar, mais rápido os monstros voltam.
+- **Sobreviva 10 minutos:** a escada para o próximo andar só abre depois de o grupo sobreviver 10 minutos no andar (contagem *SOBREVIVA m:ss* no topo da tela e no minimapa).
+- **Respawn acelera:** os monstros voltam rápido, e cada vez mais rápido quanto mais tempo você fica no andar.
 - **Perigos do bioma** aparecem como áreas laranja no chão (rajadas de vento, nuvens de esporos, descargas). Saia delas antes que o aviso se complete.
 - **Portal de retorno:** na entrada de cada andar, leva você de volta a Aresta com tudo que carrega.
-- Quanto mais fundo, mais fortes os monstros.
+- Quanto mais fundo, mais fortes os monstros; números grandes aparecem abreviados (12,4 mil; 3,2 mi; 1,7 bi).
 
 ![Um andar do Ermo do Trovão Preso](docs/images/andar-ermo.png)
+
+### Dificuldades
+
+O mundo tem **cinco dificuldades**: Expedição, Veterana, Mestra, Mítica e Cicatriz. O host escolhe no topo da aba **Torre** (**T**), com todos fora da Torre; cada uma é liberada ao **concluir o andar 100** na anterior. Andar mais fundo, andar de partida e recordes ficam separados por dificuldade.
+
+| | 1 Expedição | 2 Veterana | 3 Mestra | 4 Mítica | 5 Cicatriz |
+|---|---|---|---|---|---|
+| Vida dos inimigos | ×1 | ×30 | ×1.000 | ×30.000 | ×100.000 |
+| Dano dos inimigos | ×1 | ×2 | ×4 | ×8 | ×16 |
+| Resistências dos inimigos | +0% | +10% | +20% | +30% | +40% |
+| Suas resistências | 0 | 0 | −20% | −40% | −60% |
+| Saque e EXP | ×1 | ×1,25 / ×1,5 | ×1,5 / ×2 | ×2 / ×3 | ×2,5 / ×4 |
+| Armas únicas | não | sim | sim | sim | sim |
+
+Na **4** e na **5** a patente mais fraca some, elites e chefes **se adaptam** ao tipo de dano que mais os fere, e aparecem **bandos superiores**: matilhas uma patente acima, todas com afixos e com um **anel brilhante no chão**. Valores provisórios para playtest.
+
+![Seletor de dificuldade e mapa da Torre](docs/images/dificuldades.png)
+
+### Resistências e fraquezas
+
+Todo dano tem tipo: físico, fogo, gelo, raio, ácido, natureza, trevas, sagrado, terra ou arcano. Cada monstro resiste (ou é fraco) conforme a raça e o bioma, de −50% a +75%. Números **amarelos e maiores** indicam fraqueza; **cinza**, golpe muito resistido. O alvo da mira mostra *FRACO* e *RESISTE* na HUD.
+
+- **Penetração** (afixo) reduz só resistências positivas; **Quebra elemental** reduz por alguns segundos.
+- Você resiste com afixos de resistência (a tudo ou por tipo), até **75%**. Ataques inimigos têm tipo: corpo a corpo e projéteis pela raça; perigos e chefes pelo bioma.
+- Resistências, fraquezas e tipo de dano de cada monstro ficam no **bestiário**; as suas, nos **status detalhados**.
+
+![Luta no Bosque dos Ventos Presos](docs/images/andar-bosque.png)
 
 ### Chefes
 
@@ -155,17 +192,20 @@ Cada região termina num **chefe em arena pequena**: Guardião de Enxerto (andar
 - Ataques de área são anunciados por **formas vermelhas no chão** que se preenchem até o golpe: círculos, anéis (no anel, o seguro é colado ao chefe), linhas, cruzes, investidas, chuvas de área e puxões.
 - Chefes mudam de fase ao perder vida e entram em **fúria** se a luta demora.
 - Em grupo, ganham combinações de ataque extras.
-- Derrotado, o chefe só volta depois de 20 minutos; até lá o andar é passagem livre.
+- O chefe volta sempre que o grupo entra de novo no andar dele, para quem quer repetir a luta.
+- Cada vitória pode entregar uma **gema** do conjunto do chefe; depois de uma vitória sem gema, a próxima garante uma.
 
 ![Pastor das Correntes](docs/images/chefe-pastor.png)
 
 ### Gemas: suas habilidades
 
-As quatro teclas **Q, W, E, R** usam **Gemas Ativas** (projétil, investida, explosão, campo de atração, barreira, corrente, invocação, santuário). Na aba **Skills** (**G**), dentro da vila, você pode:
+As quatro teclas **Q, W, E, R** usam **Gemas Ativas** (projétil, investida, explosão, campo, barreira, corrente, invocação, santuário, órbita, mina, meteoro, Saraivada, venenos e mais). Cada personagem começa com uma gema própria; as outras vêm dos **chefes**. Na aba **Gemas** (**G**), dentro da vila, você pode:
 
 - trocar a gema de cada tecla;
-- encaixar **Gemas de Suporte** (projéteis extras, perfuração, ricochete, área maior, eco, roubo de vida…), até dois por gema e conforme a capacidade;
-- escolher a **evolução** de cada nível da gema. Gemas ganham a mesma experiência que a personagem.
+- encaixar **Gemas de Suporte** (projéteis extras, perfuração, ricochete, área maior, eco, roubo de vida…), conforme a capacidade da gema;
+- ver o **dano por acerto** já escalado e a **prévia** de cada suporte ou escolha ("Dano 55 → 66 (+20%)").
+
+**Maestria:** cada gema sobe do nível 1 ao 21 pelo próprio uso (lançamentos e abates). Nos níveis **5, 10, 15 e 20** você escolhe 1 de 3 modificadores e no **21**, 1 de 2 grandes modificadores. Níveis altos pedem atributos; sem eles, a gema age no maior nível cumprido.
 
 ![Aba de skills](docs/images/menu-skills.png)
 
@@ -174,19 +214,34 @@ As quatro teclas **Q, W, E, R** usam **Gemas Ativas** (projétil, investida, exp
 - Personagens vão do **nível 1 ao 100**. Cada nível dá **+5 de Vida** e mais potência.
 - Níveis comuns dão **5 pontos de atributo** (Vitalidade, Força, Inteligência, Agilidade, Sorte, Sabedoria). Cada gema escala com os atributos que declara.
 - Os níveis **10, 20 … 100** oferecem uma **evolução** entre seis opções: Essência (fortalece a passiva), Adaptação (sobrevivência) e Convergência (grupo). Toda opção do nível 100 é uma mecânica nova.
-- Ao chegar a um marco, a simulacao pausa e a tela de escolhas abre automaticamente; o jogo retoma depois das escolhas dos jogadores conectados.
+- Ao chegar a um marco, a simulação pausa e a tela de escolhas abre automaticamente; o jogo retoma depois das escolhas dos jogadores conectados.
+- Os atributos mostram os pontos distribuídos e, entre parênteses, o bônus do equipamento. **STATUS DETALHADOS** abre a tabela completa (base, equipamento, total, efetivo, combate, resistências e bônus de dano). **RESETAR ATRIBUTOS** devolve todos os pontos distribuídos.
 
 ### Saque e equipamento
 
-- Catalogo atual: [36 skills e 40 suportes](docs/catalogo-gemas.md), incluindo multishot, ricochete, roubo de Vida e Folego.
-- O autoataque também aceita dois suportes, com capacidade 6 e compatibilidade por arma, na seção **AUTOATAQUE** da aba **Skills**. Trocas somente na vila.
-- Cada personagem inicia com um [tipo de arma distinto](docs/armas-e-afinidades.md), com escala por atributos e afinidades percentuais.
-
-- O saque **cai no chão**: passe por cima para recolher.
-- Equipamentos e itens raros brilham e mostram o nome na cor do tier: Comum, Incomum, Raro, Épico, Lendário.
-- Inimigos mais difíceis (elites, chefes, graus altos, afixos) e grupos maiores deixam **mais saque e de melhor qualidade**.
+- Catálogo atual: [46 gemas ativas e 40 suportes](docs/catalogo-gemas.md). O autoataque também aceita suportes, na seção **AUTOATAQUE** da aba **Gemas**.
+- Cada personagem inicia com um [tipo de arma distinto](docs/armas-e-afinidades.md), com escala por atributos e afinidades.
+- O saque **cai no chão**: passe por cima para recolher. Um **filtro de saque** deixa no chão o que estiver abaixo da raridade escolhida.
+- **13 encaixes:** arma, offhand, amuleto, armadura, luvas, botas, calça, **2 anéis** e **4 relíquias**.
+- Raridades: Comum, Incomum, Raro, Épico e Lendário. Cada peça sorteia **afixos** (1 a 4, conforme a raridade) e tem **nível do item** igual ao andar onde caiu.
 - Equipamentos têm **fabricação** (Improvisada, Regular, Refinada, Magistral), que aumenta os bônus da peça.
-- Equipe pela aba **Inventário** (**I**). Equipar num espaço ocupado troca as peças.
+- **Lendários, armas únicas e relíquias mudam regras**, não só números: a Bola de Fogo vira um sol que segue você, gemas passam a custar Vida, recargas só andam com abates, e assim por diante ([lista completa](docs/itens-lendarios.md) e [critério](docs/game-design/77-revisao-revolucionaria-de-itens.md)). Armas únicas caem da dificuldade 2 em diante.
+- Na aba **Inventário** (**I**): clique para equipar, botão direito para vender, **VENDER TUDO** (nunca vende equipados, lendários ou únicos) e **autovenda** ao voltar à vila. O mouse sobre uma peça compara com a equipada.
+
+### Loja e receitas da Forja
+
+Fale com a **Dália** na Forja e escolha **Ver equipamentos à venda**:
+
+- **Vitrine** de 8 peças até épico, com afixos já sorteados, por 5× o preço de venda. Renova a cada volta da Torre ou na hora por 25 de prata; melhora quanto mais fundo o grupo já foi.
+- **Receitas:** cada chefe vencido libera uma receita que troca **materiais do armazém** e prata por uma **peça garantida no encaixe escolhido** (rara antes do andar 40, épica depois). A dica de cada material diz quais monstros o derrubam.
+
+![Forja da Dália: vitrine e receitas](docs/images/forja.png)
+
+### Bestiário
+
+A aba **Bestiário** (**B**) lista todos os monstros da Torre por bioma. Quanto mais você abate um tipo, mais a ficha revela, em cinco níveis: identidade, atributos, comportamento e defesas (incluindo resistências e habilidades dos chefes), saque com chances e, por fim, o saque e os afixos realmente observados.
+
+![Bestiário](docs/images/bestiario.png)
 
 ### Cair e morrer na Torre
 
@@ -196,7 +251,7 @@ As quatro teclas **Q, W, E, R** usam **Gemas Ativas** (projétil, investida, exp
 
 ### Recordes
 
-O tempo de cada andar entra nos recordes da aba **Torre** (**T**), separados por **SOLO, DUO, TRIO e SQUAD**. Andares comuns contam até a descida; andares de chefe, até a queda do chefe. Na mesma aba você escolhe em que andar já alcançado começa a próxima descida.
+O tempo de cada andar entra nos recordes da aba **Torre** (**T**), separados por **SOLO, DUO, TRIO e SQUAD** e por dificuldade. Andares comuns contam até a descida; andares de chefe, até a queda do chefe. Na mesma aba você escolhe em que andar já alcançado começa a próxima descida.
 
 ---
 
@@ -211,8 +266,10 @@ Regras do grupo:
 
 - cada personagem só pode estar com um jogador;
 - a escada leva todo o grupo para o próximo andar;
-- a experiência vai para todos no andar; o saque é de quem recolher;
-- a dificuldade cresce com o tamanho do grupo (mais monstros, elites e chefes mais resistentes);
+- a experiência vai para todos no andar; cada peça é de quem a recolhe; armas únicas e divinos são sorteados para cada jogador; os materiais vão para o armazém comum;
+- a dificuldade do mundo é a do host;
+- o desafio também cresce com o tamanho do grupo (mais monstros, elites e chefes mais resistentes);
+- o host valida e limita os comandos de cada cliente;
 - quem cair da conexão tem 60 segundos para voltar com a mesma personagem;
 - o mundo, o salvamento e os recordes ficam com o host.
 
@@ -271,7 +328,7 @@ godot --headless --path . --script tools/bench/balance_probe.gd             # so
 godot --headless --path . --script tools/bench/balance_probe.gd -- --party=4  # e em grupo
 ```
 
-O GitHub Actions roda `tests/run_all.sh` a cada push em `main` (`.github/workflows/tests.yml`).
+`tests/run_all.sh` também roda a auditoria estrita de gameplay (`tools/bench/gameplay_audit.gd -- --strict`), que falha enquanto houver achados. O GitHub Actions roda tudo a cada push em `main` (`.github/workflows/tests.yml`); os builds de distribuição (`.github/workflows/release-build.yml`) guardam os pacotes por 3 dias.
 
 ### Atalhos de desenvolvimento
 
@@ -285,9 +342,13 @@ O GitHub Actions roda `tests/run_all.sh` a cada push em `main` (`.github/workflo
 python3 tools/content/build_tower.py            # 100 andares, biomas e chefes
 python3 tools/content/build_character_trees.py  # árvores de evolução 10–100
 python3 tools/content/build_village.py          # moradores da vila
+python3 tools/content/build_skill_catalog.py    # gemas, suportes e maestria
+python3 tools/content/build_unique_weapons.py   # armas únicas (passivas em legendary_passives.py)
+python3 tools/content/build_legendary_items.py  # lendários e relíquias
 python3 tools/pixelforge/pf.py <chaves>         # gera sprites no PixelForge (art/manifest.json)
 tools/art/process.sh <grupos>                   # processa para a paleta do jogo
 godot --headless --path . --import              # importa os PNGs
+godot --path . --script tools/art/readme_shots.gd  # refaz as imagens do README (docs/images), com GPU
 ```
 
 ### Documentação
@@ -298,4 +359,7 @@ godot --headless --path . --import              # importa os PNGs
 - [Arquitetura e ADRs](docs/architecture/README.md)
 - [Roadmap até o MVP](docs/roadmap-ate-mvp.md)
 - [Revisão: hordas, expedições e RPG](docs/revisao-projeto-survivors-rpg.md)
-- [Backlog de gameplay e itemização](docs/roadmap-gameplay-survivors-rpg.md)
+- [Backlog de gameplay e itemização](docs/roadmap-gameplay-survivors-rpg.md) (épico E1: pós-jogo e builds)
+- [Dificuldades, dia e noite e Paragon](docs/game-design/76-dificuldades-dia-e-noite-e-paragon.md)
+- [Revisão revolucionária de itens](docs/game-design/77-revisao-revolucionaria-de-itens.md)
+- [Registro de decisões](docs/game-design/09-registro-de-decisoes.md)
