@@ -80,7 +80,7 @@ const AREA_MULTIPLIER_CAP := 2.0
 ## Campos de tamanho de efeito que a Área amplia; alcance é distância, não área, e fica de fora.
 const AREA_KEYS: Array[String] = ["radius", "impact_area", "collision_radius", "width", "arrival_area"]
 const CRIT_MULTIPLIER := 1.75
-const SAVE_VERSION := 13
+const SAVE_VERSION := 14
 const NarrativeProgress := preload("res://src/gameplay/world/narrative_progress.gd")
 const CONTENT_PATH := "res://data/generated/dev_content.json"
 const BETA_PATH := "res://data/beta/beta_content.json"
@@ -1426,6 +1426,8 @@ func narrative_action(peer_id: int, action: String) -> bool:
 	var state := player(peer_id)
 	if state.is_empty() or not bool(state.get("connected", false)) or bool(state.get("downed", false)):
 		return false
+	if action in ["choose_safe_route", "enter_fissure", "inspect_fissure"]:
+		return _narrative_route_action(peer_id, action)
 	if action == "rescue_worker":
 		if narrative.stage == "available" or narrative.rescue_state != "waiting" or state["zone"] != &"tower" or current_floor != 1:
 			return false
@@ -1466,11 +1468,60 @@ func narrative_view() -> Dictionary:
 	var model := narrative.view()
 	if narrative.stage == "active" and current_floor == 1:
 		model["marker_position"] = narrative_marker()
+	if narrative.stage != "available" and current_floor == 1:
+		model["route_markers"] = narrative_route_markers()
 	if narrative.stage != "available" and current_floor == 1 and narrative.rescue_state != "rescued":
 		var position := narrative_worker_position()
 		model["field_worker"] = {"id": "ra_socorro", "name": "Trabalhador", "title": "Retirada pela rota registrada", "sprite": "npcs/comum_trabalhador", "position": position, "named": true, "moving": _narrative_rescue_can_move(position), "facing_direction": (_narrative_rescue_destination() - position).normalized(), "rescue_state": narrative.rescue_state}
 		model["field_objective"] = "Trabalhador pede ajuda perto da primeira marca. Acompanhar a retirada e opcional." if narrative.rescue_state == "waiting" else "Acompanhe o trabalhador ate o portal. Ele espera sem companhia ou com inimigos por perto."
 	return model
+
+
+func narrative_route_markers() -> Array[Dictionary]:
+	var branch: Array = FloorLayoutScript.generate(1)["side_route"]
+	var junction: Vector2 = branch[0]
+	var texts: Dictionary = narrative.catalog()["route_choice"]
+	var markers: Array[Dictionary] = []
+	if narrative.route_choice.is_empty():
+		markers.append({"action": "choose_safe_route", "position": junction + Vector2(100, 0), "hint": texts["safe_hint"], "label": "ROTA REGISTRADA", "sprite": "deco/rock_5"})
+	if narrative.route_choice != "fissure":
+		markers.append({"action": "enter_fissure", "position": junction + Vector2(0, -100), "hint": texts["fissure_hint"], "label": "FISSURA OPCIONAL", "sprite": "deco/rock_4"})
+	elif not narrative.fissure_found:
+		markers.append({"action": "inspect_fissure", "position": branch[1], "hint": texts["evidence_hint"], "label": "VESTIGIO NA FISSURA", "sprite": "props/rocks"})
+	return markers
+
+
+func _narrative_route_action(peer_id: int, action: String) -> bool:
+	var state := player(peer_id)
+	if narrative.stage == "available" or state["zone"] != &"tower" or current_floor != 1:
+		return false
+	var marker := {}
+	for candidate: Dictionary in narrative_route_markers():
+		if candidate["action"] == action:
+			marker = candidate
+	if marker.is_empty() or (state["position"] as Vector2).distance_to(marker["position"]) > 90:
+		return false
+	if action == "choose_safe_route":
+		narrative.route_choice = "safe"
+		_status(peer_id, "Rota registrada mantida. A fissura continua opcional; o retorno esta aberto.")
+	elif action == "enter_fissure":
+		var end: Vector2 = (FloorLayoutScript.generate(1)["side_route"] as Array)[1]
+		var spots: Array[Vector2] = [end + Vector2(-70, 0), end + Vector2(70, 0)]
+		for spot in spots:
+			if not FloorLayoutScript.can_stand(floor_layout, spot, 20):
+				return false
+		for index in range(spots.size()):
+			enemies.append(_spawn_floor_enemy(_pick_floor_enemy(false), spots[index], 700 + index))
+		narrative.route_choice = "fissure"
+		_status(peer_id, "A fissura atraiu dois inimigos. Procure o vestigio no fim do ramal; voce ainda pode retornar.")
+	else:
+		for enemy: Dictionary in enemies:
+			if float(enemy.get("health", 0)) > 0 and (enemy["position"] as Vector2).distance_to(marker["position"]) < 180:
+				_status(peer_id, "Afaste os inimigos do vestigio antes de examinar a fissura.")
+				return false
+		narrative.fissure_found = true
+		_status(peer_id, "Vestigio da fissura registrado no diario. Nara pode comparar as duas observacoes.")
+	return true
 
 
 func _narrative_rescue_destination() -> Vector2:
@@ -5001,6 +5052,8 @@ static func validate_save(data: Dictionary) -> Error:
 		return ERR_FILE_CORRUPT
 	if int(data["version"]) >= 13 and (not data["narrative"] is Dictionary or not data["narrative"].has("rescue_state") or not data["narrative"].has("rescue_progress")):
 		return ERR_FILE_CORRUPT
+	if int(data["version"]) >= 14 and (not data["narrative"].has("route_choice") or not data["narrative"].has("fissure_found")):
+		return ERR_FILE_CORRUPT
 	if not NarrativeProgress.valid(data.get("narrative", {})):
 		return ERR_FILE_CORRUPT
 	return OK
@@ -5036,6 +5089,12 @@ func load_data(data: Dictionary, host_peer: int) -> bool:
 	telegraphs.clear()
 	hazard_zones.clear()
 	enemies = _deserialize_enemies(data.get("enemies", []))
+	if version < 14 and current_floor == 1:
+		for enemy: Dictionary in enemies:
+			if not can_stand(&"tower", enemy["position"]):
+				enemy["position"] = nearest_standable(&"tower", enemy["position"])
+				enemy["home"] = enemy["position"]
+				enemy["wander_target"] = enemy["position"]
 	_restore_ground_items(data.get("ground_items", []))
 	enemy_projectiles.clear()
 	persistent_effects.clear()
@@ -5070,6 +5129,10 @@ func load_data(data: Dictionary, host_peer: int) -> bool:
 	host["zone"] = zone
 	host["position"] = _array_vector(data.get("player_position", []), LayoutScript.WORLD_SPAWN)
 	host["target"] = _array_vector(data.get("target_position", []), host["position"] as Vector2)
+	if version < 14 and zone == &"tower" and current_floor == 1 and not can_stand(zone, host["position"]):
+		# The optional passage adds stone lips; old saves may stand inside a new footprint.
+		host["position"] = nearest_standable(zone, host["position"])
+		host["target"] = host["position"]
 	host["last_world_position"] = _array_vector(data.get("last_world_position", []), LayoutScript.WORLD_SPAWN)
 	host["health"] = maxf(1.0, float(data.get("player_health", PLAYER_MAX_HEALTH)))
 	host["breath"] = maxf(0.0, float(data.get("player_breath", PLAYER_MAX_BREATH)))

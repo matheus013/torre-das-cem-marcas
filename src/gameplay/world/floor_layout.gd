@@ -55,6 +55,9 @@ static func _explore(definition: Dictionary, biome: Dictionary) -> Dictionary:
 	# A readable spine connects entry, two clearings and stairs on every floor.
 	var route: Array[Vector2] = [entry, Vector2(size.x * 0.34, size.y * 0.5), Vector2(size.x * 0.66, size.y * 0.5), stairs_center]
 	layout["route"] = route
+	if int(definition["floor"]) == 1:
+		var junction := route[1].lerp(route[2], 0.5)
+		layout["side_route"] = [junction, junction + Vector2(0, -420)] as Array[Vector2]
 	layout["landmarks"] = [] as Array[Dictionary]
 	if String(biome.get("id", "")) == "galerias":
 		Gallery.compose(layout, int(definition["floor"]))
@@ -136,6 +139,9 @@ static func _place_prop(layout: Dictionary, base: Vector2, sprite: String, keep_
 		if Geometry2D.get_closest_point_to_segment(base, route[index], route[index + 1]).distance_to(base) < 180.0:
 			return
 	var solid := Rect2(base + PROP_FOOTPRINT.position, PROP_FOOTPRINT.size)
+	var branch: Array = layout.get("side_route", [])
+	if branch.size() == 2 and Geometry2D.get_closest_point_to_segment(base, branch[0], branch[1]).distance_to(base) < 150:
+		return
 	for other: Rect2 in layout["obstacles"]:
 		if other.grow(75.0).intersects(solid):
 			return

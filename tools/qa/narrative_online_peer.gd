@@ -30,6 +30,10 @@ class Game:
 						state["position"] = _sim.narrative_worker_position() if _sim.narrative.rescue_state == "escorting" else _sim.narrative_marker()
 						state["target"] = state["position"]
 						_sim._step_narrative_rescue(0.25)
+					if _sim.narrative.rescue_state == "rescued" and not _sim.narrative.fissure_found:
+						var markers: Array = _sim.narrative_route_markers()
+						state["position"] = markers[0]["position"]
+						state["target"] = state["position"]
 				elif stage == "evidence_found" and state["zone"] == &"tower":
 					_sim.leave_tower(peer)
 			if stage == "completed":
@@ -38,6 +42,9 @@ class Game:
 					get_tree().quit(1)
 				if _sim.narrative.rescue_state != "rescued":
 					push_error("Network rescue did not complete")
+					get_tree().quit(1)
+				if not _sim.narrative.fissure_found:
+					push_error("Network fissure discovery did not complete")
 					get_tree().quit(1)
 				if completed_at < 0:
 					completed_at = elapsed
@@ -51,6 +58,7 @@ class Game:
 			var phase := stage + (":opening" if stage == "available" and not model.get("opening_known", false) else "")
 			if stage == "active":
 				phase += ":" + String(model.get("rescue_state", "waiting"))
+				phase += ":%s:%s" % [model.get("route_choice", ""), model.get("fissure_found", false)]
 			if phase != last_sent and not _local().is_empty():
 				var action := ""
 				if stage in ["available", "report_ready"] and _local_zone() == &"village":
@@ -62,17 +70,20 @@ class Game:
 				elif stage == "active":
 					if model.get("rescue_state") == "waiting" and _near_field_worker():
 						action = "rescue_worker"
-					elif model.get("rescue_state") == "rescued" and _near_narrative_marker():
-						action = "inspect"
+					elif model.get("rescue_state") == "rescued":
+						if not model.get("fissure_found", false) and not _near_route_marker().is_empty():
+							action = String(_near_route_marker()["action"])
+						elif model.get("fissure_found", false) and _near_narrative_marker():
+							action = "inspect"
 				if not action.is_empty():
 					_send_intent("narrative", [action])
 					_send_intent("narrative", [action])
 					last_sent = phase
 			if stage == "completed":
-				if (model.get("journal", []) as Array).size() != 5 or not model.get("opening_known", false) or model.get("rescue_state") != "rescued":
+				if (model.get("journal", []) as Array).size() != 7 or not model.get("opening_known", false) or model.get("rescue_state") != "rescued" or not model.get("fissure_found", false):
 					push_error("Network journal incomplete")
 					get_tree().quit(1)
-				print("NARRATIVE_CLIENT_OK stage=completed journal=5 rescue=rescued opening_known=true")
+				print("NARRATIVE_CLIENT_OK stage=completed journal=7 rescue=rescued fissure_found=true opening_known=true")
 				get_tree().quit(0)
 		if elapsed > 16:
 			push_error("Narrative network timed out")

@@ -882,6 +882,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			_send_intent("narrative", ["inspect"])
 		elif BindingsScript.pressed(event, "interact") and _near_field_worker():
 			_send_intent("narrative", ["rescue_worker"])
+		elif BindingsScript.pressed(event, "interact") and not _near_route_marker().is_empty():
+			_send_intent("narrative", [String(_near_route_marker()["action"])])
 		elif BindingsScript.pressed(event, "npc_mode"):
 			_toggle_npc_mode()
 		elif BindingsScript.pressed(event, "switch_character") and not _in_arena(_local_zone()):
@@ -1298,6 +1300,13 @@ func _draw() -> void:
 		var marker := story["marker_position"] as Vector2
 		_draw_sprite("props/rocks", marker, false, Color("b7d8d1"))
 		draw_arc(marker, 38.0, 0, TAU, 32, Color("e8b84a"), 2.0)
+	if zone == &"tower":
+		for marker: Dictionary in story.get("route_markers", []):
+			var base: Vector2 = marker["position"]
+			_draw_sprite(String(marker["sprite"]), base, false, Color("b7d8d1"))
+			if _display_position(_local_peer).distance_to(base) < 220:
+				draw_string(ThemeDB.fallback_font, base + Vector2(-129, -69), String(marker["label"]), HORIZONTAL_ALIGNMENT_CENTER, 260, 12, Color.BLACK)
+				draw_string(ThemeDB.fallback_font, base + Vector2(-130, -70), String(marker["label"]), HORIZONTAL_ALIGNMENT_CENTER, 260, 12, Color("f2e6c9"))
 	var arena := StringName(String(_view.get("arena_zone", "tower")))
 	var in_arena := zone == arena and _in_arena(zone)
 	if _in_arena(zone):
@@ -2218,6 +2227,7 @@ func _build_interface() -> void:
 	_talk_hint.position = Vector2(500.0, 560.0)
 	_talk_hint.size = Vector2(280.0, 24.0)
 	_talk_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_talk_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_talk_hint.add_theme_color_override("font_color", Color("e8b84a"))
 	_talk_hint.add_theme_color_override("font_shadow_color", Color.BLACK)
 	_talk_hint.visible = false
@@ -2447,6 +2457,9 @@ func _update_village_panel(zone: StringName, period: String) -> void:
 		elif _near_field_worker() and not _input_blocked():
 			_talk_hint.visible = true
 			_talk_hint.text = "%s: Acompanhar trabalhador ate o portal" % BindingsScript.label("interact")
+		elif not _near_route_marker().is_empty() and not _input_blocked():
+			_talk_hint.visible = true
+			_talk_hint.text = "%s: %s" % [BindingsScript.label("interact"), String(_near_route_marker()["hint"])]
 		return
 	var npc := _nearest_npc(110.0)
 	if not npc.is_empty() and not _input_blocked():
@@ -2506,6 +2519,19 @@ func _near_field_worker() -> bool:
 	return _local_zone() == &"tower" and not worker.is_empty() and worker.get("rescue_state") == "waiting" and not _local().is_empty() and (_local()["position"] as Vector2).distance_to(worker["position"]) <= 90
 
 
+func _near_route_marker() -> Dictionary:
+	if _local_zone() != &"tower" or _local().is_empty():
+		return {}
+	var nearest := {}
+	var distance := 90.0
+	for marker: Dictionary in (_view.get("narrative", {}) as Dictionary).get("route_markers", []):
+		var candidate := (_local()["position"] as Vector2).distance_to(marker["position"])
+		if candidate <= distance:
+			nearest = marker
+			distance = candidate
+	return nearest
+
+
 func _open_journal() -> void:
 	_player_menu.call("close")
 	_send_move(_local().get("position", Vector2.ZERO) as Vector2)
@@ -2552,7 +2578,8 @@ func _layout_interface() -> void:
 	_combat_label.size = Vector2(size.x - 32.0, 24.0)
 	_village_log_label.size = Vector2(minf(620.0, size.x * 0.5), 96.0)
 	_village_log_label.position = Vector2(16.0, size.y - 136.0)
-	_talk_hint.position = Vector2((size.x - 280.0) * 0.5, size.y - 170.0)
+	_talk_hint.size = Vector2(minf(760, size.x - 40), 60)
+	_talk_hint.position = Vector2((size.x - _talk_hint.size.x) * 0.5, size.y - 200.0)
 	_combat_hud.position = Vector2.ZERO
 	var window_size := Vector2(get_window().size)
 	var screen_scale := maxf(0.01, minf(window_size.x / viewport.x, window_size.y / viewport.y))

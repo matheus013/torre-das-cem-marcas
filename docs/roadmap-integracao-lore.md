@@ -52,7 +52,7 @@ Mudancas de canone ou novas regras irreversiveis exigem aprovacao do responsavel
 | N0 | Matriz canone/runtime e roteiro do primeiro arco | Documentos existentes | Auditoria concluida em 2026-10-07; conflitos registrados |
 | N1 | Estado narrativo, persistencia e prova ponta a ponta | N0 | Prova implementada e validada em 2026-10-07 |
 | N2 | Abertura em Aresta e contrato de expedicao | N1 | Implementado; playtest de compreensao pendente |
-| N3 | Eventos e descobertas dos andares 1 a 3 | N2 | Parcial: socorro com acompanhamento no andar 1; demais eventos pendentes |
+| N3 | Eventos e descobertas dos andares 1 a 3 | N2 | Parcial: socorro e fissura opcional no andar 1; andares 2 e 3 pendentes |
 | N4 | Objeto, chefe e retirada do andar 4 | N3 | Pendente |
 | N5 | Relatorio, custodia e consequencias na vila | N4 | Pendente |
 | N6 | Fracasso, repeticao, co-op e acessibilidade | Regras desde N0; validacao apos N5 | Pendente |
@@ -129,8 +129,13 @@ minutos, sem impedir quem deseja explorar a vila antes de partir.
 
 Primeira entrega: [socorro no Patio das Marcas](lore-n3-socorro-primeira-rota.md).
 Trabalhador acompanhado ate o portal, diario e reacao de Nara, persistencia
-e estado compartilhado pelo host. Fissura, abandono explicito e reputacao
+e estado compartilhado pelo host. Abandono explicito e reputacao
 jogavel permanecem pendentes; o primeiro item abaixo ainda nao esta concluido.
+
+Segunda entrega: [rota registrada e fissura opcional](lore-n3-fissura-opcional.md).
+Ramal sinalizado, risco comunicado, dois inimigos adicionais e evidencia
+complementar persistente. Rota principal e retorno continuam abertos; nao
+conclui o pedido de ajuda com abandono/reputacao nem os eventos dos andares 2 e 3.
 
 - [ ] Andar 1: rota segura/fissura opcional e pedido de ajuda com desfecho.
 - [ ] Andar 2: trabalhadores, coleta e uma rota alterada pela Cicatrizacao;

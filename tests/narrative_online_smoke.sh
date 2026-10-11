@@ -36,4 +36,4 @@ for log in client reconnect late; do grep -q 'NARRATIVE_CLIENT_OK.*opening_known
 grep -q NARRATIVE_HOST_OK "$LOG_DIR/host.log"
 grep -q VILLAGE_PEER_RECONNECTED "$LOG_DIR/host.log"
 if grep -q 'SCRIPT ERROR\|ERROR:' "$LOG_DIR"/*.log; then cat "$LOG_DIR"/*.log; exit 1; fi
-printf '%s\n' "NARRATIVE_ONLINE_OK: client rescue/contract intents, duplicate commands, completed journal, reconnect, late join and reward once"
+printf '%s\n' "NARRATIVE_ONLINE_OK: client rescue/route/fissure intents, duplicate commands, completed journal, reconnect, late join and reward once"

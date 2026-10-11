@@ -8,6 +8,8 @@ var return_outcome := ""
 var opening_known := false
 var rescue_state := "waiting"
 var rescue_progress := 0.0
+var route_choice := ""
+var fissure_found := false
 var _catalog: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(CATALOG_PATH)) as Dictionary
 var _opening: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(OPENING_PATH)) as Dictionary
 
@@ -45,7 +47,7 @@ func report() -> bool:
 	return true
 
 func snapshot() -> Dictionary:
-	return {"quest_id": _catalog["id"], "stage": stage, "return_outcome": return_outcome, "opening_known": opening_known, "rescue_state": rescue_state, "rescue_progress": rescue_progress}
+	return {"quest_id": _catalog["id"], "stage": stage, "return_outcome": return_outcome, "opening_known": opening_known, "rescue_state": rescue_state, "rescue_progress": rescue_progress, "route_choice": route_choice, "fissure_found": fissure_found}
 
 static func valid(raw: Variant) -> bool:
 	if not raw is Dictionary:
@@ -54,6 +56,11 @@ static func valid(raw: Variant) -> bool:
 		return true
 	if raw.has("opening_known") and not raw["opening_known"] is bool:
 		return false
+	if raw.has("route_choice") or raw.has("fissure_found"):
+		if raw.get("route_choice") not in ["", "safe", "fissure"] or not raw.get("fissure_found") is bool:
+			return false
+		if raw["fissure_found"] and raw["route_choice"] != "fissure" or raw.get("stage") == "available" and raw["route_choice"] != "":
+			return false
 	if raw.has("rescue_state") or raw.has("rescue_progress"):
 		if raw.get("rescue_state") not in ["waiting", "escorting", "rescued"]:
 			return false
@@ -78,6 +85,8 @@ func restore(raw: Dictionary) -> void:
 	opening_known = bool(raw.get("opening_known", false))
 	rescue_state = String(raw.get("rescue_state", "waiting"))
 	rescue_progress = float(raw.get("rescue_progress", 0.0))
+	route_choice = String(raw.get("route_choice", ""))
+	fissure_found = bool(raw.get("fissure_found", false))
 
 func view() -> Dictionary:
 	var model: Dictionary = (_catalog["stages"][stage] as Dictionary).duplicate(true)
@@ -86,6 +95,8 @@ func view() -> Dictionary:
 	model["contract_objective"] = model["objective"]
 	model["opening_known"] = opening_known
 	model["rescue_state"] = rescue_state
+	model["route_choice"] = route_choice
+	model["fissure_found"] = fissure_found
 	if stage == "available" and not opening_known:
 		model["objective"] = _opening["objective"]
 	model["target_npc"] = (String(_opening["npc_id"]) if not opening_known else String(_catalog["npc_id"])) if stage == "available" else (String(_catalog["npc_id"]) if stage == "report_ready" else "")
@@ -104,6 +115,14 @@ func view() -> Dictionary:
 	if stage == "completed":
 		journal.append("Relato entregue. Um Musgo de Orientacao foi armazenado nas reservas de expedicao.")
 	model["journal"] = journal
+	var route: Dictionary = _catalog["route_choice"]
+	if route_choice == "safe":
+		journal.append(String(route["safe_journal"]))
+	elif route_choice == "fissure":
+		journal.append(String(route["exploring_journal"]))
+	if fissure_found:
+		journal.append(String(route["evidence"]))
+		model["dialogue"] += "\n\n" + String(route["reaction"])
 	if rescue_state == "escorting":
 		journal.append("Um trabalhador pediu ajuda no Patio das Marcas. Acompanhe sua retirada ate o portal; ele espera sem companhia ou com inimigos por perto.")
 	elif rescue_state == "rescued":

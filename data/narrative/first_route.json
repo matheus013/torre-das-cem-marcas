@@ -7,6 +7,15 @@
   "evidence_name": "Marca de rota",
   "evidence_text": "Uma marca de rota antiga atravessa uma junta de pedra recente. O registro esta incompleto; nao confirma quando o caminho mudou.",
   "reward": {"item_id": "musgo_de_orientacao", "quantity": 1, "name": "Musgo de Orientacao"},
+  "route_choice": {
+    "safe_hint": "Seguir rota registrada (o caminho continua aberto)",
+    "fissure_hint": "Explorar fissura opcional (atrai dois inimigos)",
+    "evidence_hint": "Examinar vestigio na fissura (afaste os inimigos)",
+    "safe_journal": "O grupo manteve a rota registrada no Patio das Marcas. A fissura lateral pode ser investigada depois; o retorno continua aberto.",
+    "exploring_journal": "O grupo entrou na fissura lateral do Patio das Marcas. O desvio atraiu dois inimigos; a rota registrada e o portal continuam acessiveis.",
+    "evidence": "Dentro da fissura, uma junta recente cobre parte de um sulco antigo. E um segundo sinal de mudanca na pedra, nao uma prova de quando ou por que a renovacao ocorreu.",
+    "reaction": "O sulco da fissura complementa a primeira marca. Vou comparar os dois registros; ainda nao sabemos a causa da mudanca."
+  },
   "stages": {
     "available": {"objective": "Falar com Nara em Aresta.", "dialogue": "Antes de confiarmos na primeira rota, precisamos de um registro de campo. Examine a junta no trecho central do primeiro andar e volte para me contar o que encontrou.", "action": "accept", "action_label": "Aceitar pedido"},
     "active": {"objective": "Examinar a marca de rota no trecho central do andar 1.", "dialogue": "Procure uma marca antiga na junta de pedra do trecho central. Registre o que estiver la, mesmo que nao consiga completar a expedicao."},
