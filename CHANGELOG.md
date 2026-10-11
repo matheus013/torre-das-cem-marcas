@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.17.0](https://github.com/matheus013/torre-das-cem-marcas/compare/v0.16.0...v0.17.0) (2026-10-11)
+
+### Novidades
+
+* skin de interface, revisao visual dos cenarios e galerias compostas ([dfe2047](https://github.com/matheus013/torre-das-cem-marcas/commit/dfe204713a9942797468f9d30f0c761457791cf0))
+
 ## [0.16.0](https://github.com/matheus013/torre-das-cem-marcas/compare/v0.15.0...v0.16.0) (2026-10-09)
 
 ### Novidades
