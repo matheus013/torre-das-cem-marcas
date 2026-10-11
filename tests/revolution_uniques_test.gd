@@ -262,7 +262,81 @@ func _run() -> void:
 	if _effects(discs, "disco_de_retorno").is_empty() or float(orbiting["health"]) >= 1.0e9:
 		return _fail("Twin discs must orbit the character and cut enemies")
 
-	print("REVOLUTION_UNIQUES_OK: 29 rewritten unique weapons change their gem rules")
+	# Lote 3. Olho da Tempestade: a Saraivada fica onde foi lançada, com o dobro de flechas.
+	var eye := _world("saraivada_de_flechas")
+	var cast_at := eye.player(1)["position"] as Vector2
+	_cast(eye, cast_at)
+	eye.move_player(1, Vector2(300.0, 0.0))
+	_step(eye, 0.2)
+	var volley: Array = _effects(eye, "saraivada_de_flechas")
+	if volley.is_empty() or (volley[0]["position"] as Vector2).distance_to(cast_at) > 1.0 or int(volley[0]["arrow_count"]) < 48:
+		return _fail("Storm eye must stay anchored with doubled arrows")
+
+	# Constelação: os Satélites orbitam o inimigo mais próximo.
+	var stars := _world("satelites_de_geada")
+	var host := _enemy(stars, Vector2(300.0, 0.0))
+	_cast(stars, host["position"])
+	_step(stars, 0.2)
+	var orbit: Array = _effects(stars, "satelites_de_geada")
+	if orbit.is_empty() or (orbit[0]["position"] as Vector2).distance_to(host["position"]) > 1.0:
+		return _fail("Constellation satellites must orbit the nearest enemy")
+
+	# Mina Viva: armada, persegue o inimigo.
+	var mines := _world("mina_de_lastro")
+	var runner := _enemy(mines, Vector2(400.0, 0.0))
+	_cast(mines, (mines.player(1)["position"] as Vector2) + Vector2(150.0, 0.0))
+	var mine: Array = _effects(mines, "mina_de_lastro")
+	var gap := (mine[0]["position"] as Vector2).distance_to(runner["position"])
+	_step(mines, 1.6)
+	if float(runner["health"]) >= 1.0e9 and (not _effects(mines, "mina_de_lastro").is_empty() and (_effects(mines, "mina_de_lastro")[0]["position"] as Vector2).distance_to(runner["position"]) >= gap):
+		return _fail("Living mines must chase enemies")
+
+	# Círculo do Tempo: recargas 3x mais rápidas dentro.
+	var circle := _world("circulo_de_reparo")
+	_cast(circle, circle.player(1)["position"])
+	(circle.player(1)["cooldowns"] as Array)[1] = 3.0
+	_step(circle, 0.5)
+	if float((circle.player(1)["cooldowns"] as Array)[1]) > 3.0 - 1.4:
+		return _fail("Time circle must speed cooldowns 3x inside")
+
+	# Abrigo Inquebrável: golpe fatal dentro dele deixa com 1 de Vida.
+	var shelter := _world("abrigo_de_escora")
+	_cast(shelter, shelter.player(1)["position"])
+	shelter.player(1)["invulnerable"] = 0.0
+	shelter.take_damage(1, 1.0e12)
+	if float(shelter.player(1)["health"]) != 1.0 or bool(shelter.player(1).get("downed", false)):
+		return _fail("Unbreakable shelter must keep everyone up at 1 health")
+
+	# Cometa Guiado: cai no inimigo com mais Vida perto da mira.
+	var comet := _world("cometa_de_vidro")
+	var small := _enemy(comet, Vector2(200.0, 0.0), 1.0e6)
+	var big := _enemy(comet, Vector2(380.0, 0.0), 2.0e9)
+	big["max_health"] = 2.0e9
+	_cast(comet, small["position"])
+	_step(comet, 1.6)
+	if float(big["health"]) >= 2.0e9:
+		return _fail("Guided comet must strike the healthiest enemy near the aim")
+
+	# Cogumelos: hospedeiro morto vira poça de esporos que reinfecta.
+	var mushrooms := _world("esporos")
+	var spored := _enemy(mushrooms, Vector2(150.0, 0.0), 1.0)
+	var walker := _enemy(mushrooms, Vector2(190.0, 0.0))
+	mushrooms.apply_poison(1, spored, "esporo", {"damage": 5.0, "growth": 0.2, "interval": 1.0, "remaining": -1.0, "spread_radius": 0.0, "gem_id": "esporos"})
+	_step(mushrooms, 2.5)
+	if mushrooms.persistent_effects.filter(func(effect: Dictionary) -> bool: return String(effect.get("poison_type", "")) == "esporo").is_empty() or not (walker.get("poisons", {}) as Dictionary).has("esporo"):
+		return _fail("Spore hosts must become mushrooms that reinfect")
+
+	# Sentinela Eterna: não expira; lançar de novo substitui as antigas em vez de acumular.
+	var sentinel := _world("sentinela_ferral")
+	_enemy(sentinel, Vector2(150.0, 0.0))
+	_cast(sentinel, (sentinel.player(1)["position"] as Vector2) + Vector2(100.0, 0.0))
+	var guards := sentinel.persistent_effects.filter(func(effect: Dictionary) -> bool: return effect["mechanic"] == "summon").size()
+	_step(sentinel, 20.0)
+	_cast(sentinel, (sentinel.player(1)["position"] as Vector2) + Vector2(-100.0, 0.0))
+	if guards < 1 or sentinel.persistent_effects.filter(func(effect: Dictionary) -> bool: return effect["mechanic"] == "summon").size() != guards:
+		return _fail("Eternal sentinels must not expire nor pile up")
+
+	print("REVOLUTION_UNIQUES_OK: 37 rewritten unique weapons change their gem rules")
 	quit(0)
 
 

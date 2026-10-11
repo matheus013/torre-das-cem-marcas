@@ -127,11 +127,10 @@ func _run() -> void:
 	if not executor.enemies.is_empty():
 		return _fail("Unique beam must execute enemies below 30%")
 
-	# Repetição: cada Mina única agenda mais duas.
+	# Mina única (decisão 598): armada, persegue o inimigo mais próximo.
 	var miner := _world(&"rui", ["unica_mina_de_lastro"], ["mina_de_lastro"])
-	var scheduled := miner._scheduled.size()
-	if not miner.use_skill(1, 0, miner.enemies[0]["position"]) or miner._scheduled.size() - scheduled != 2:
-		return _fail("Unique mine must schedule two extra mines")
+	if float(miner.resolve_slot(1, 0).get("seek_speed", 0.0)) <= 0.0:
+		return _fail("Unique mine must chase enemies")
 
 	# Recarga: a Ampulheta (Tempo Roubado) adianta 1 s de todas as gemas a cada abate.
 	var hourglass := _world(&"eloa", ["lendario_ampulheta_partida"], ["elo_residual"])

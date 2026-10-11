@@ -2,7 +2,7 @@
 
 ## Estado
 
-**Em implementação** (decisão 598, 2026-10-11). Aplica o teste da revolução do
+**Implementado** (decisões 598 e 599, 2026-10-11), em três lotes testados. Aplica o teste da revolução do
 [documento 76, seção 6](76-dificuldades-dia-e-noite-e-paragon.md) a todas as passivas existentes:
 quem só amplifica (cópia extra, +% de elemento, vulnerabilidade, cura por acerto) é reescrito para
 mudar uma regra; quem já muda regra fica. Nome do item, gema, encaixe e fonte de drop não mudam, e
@@ -52,7 +52,7 @@ saves antigos continuam válidos: a passiva vem dos dados do item.
 | Arco Voltaico | recarga por salto | Reescrever | **Arco Infinito**: salta até 30 vezes |
 | Dreno em Rede | cura e barreira | Reescrever | **Fome da Rede**: cada abate da Rede dá +2% de dano de trevas até sair da Torre (até +200%) |
 | Molde Vigilante | Molde novo a cada 8 s | Manter | invocação autônoma |
-| Sentinela Ferral | Sentinela extra | Reescrever | **Sentinela Eterna**: não expira; lançar de novo a move |
+| Sentinela Ferral | Sentinela extra | Reescrever | **Sentinela Eterna**: as Sentinelas não expiram; lançar de novo substitui as mais antigas |
 | Enxame Luminar | enxame extra e cura | Reescrever | **Enxame Faminto**: cada abate gera um novo enxame |
 | Guardião de Lastro | Guardião ao ser ferida | Manter | invocação reativa |
 | Semeadura Vital | cura e barreira | Reescrever | **Jardim Andante**: o Jardim acompanha a personagem |
@@ -105,4 +105,15 @@ saves antigos continuam válidos: a passiva vem dos dados do item.
 2. Regras dos lendários.
 3. Comportamentos novos de gema (âncora, órbita no alvo, minas, santuários, meteoro, cogumelos).
 
-Cada lote entra com teste de comportamento por item e passa pela suíte completa.
+Cada lote entra com teste de comportamento por item e passa pela suíte completa:
+`tests/revolution_uniques_test.gd` (37 armas únicas) e `tests/revolution_legendaries_test.gd`
+(16 lendários e o Pacto de Sangue).
+
+## Notas de implementação
+
+- Execuções (Fio, Zero Absoluto, Inverno Interior) contam como abate da gema: gatilhos de abate
+  disparam, mas não geram novos acertos.
+- Lançamentos de passivas não disparam outras passivas; por isso as propagações (Pântano Contagioso,
+  Enxame Faminto, Cogumelos) andam uma geração por abate manual e nunca viram cadeia infinita.
+- O dano final da barreira (`expire_nova_damage`) passou a escalar com atributos e potência, como os
+  demais danos da gema; antes ficava fixo.

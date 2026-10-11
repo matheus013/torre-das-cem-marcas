@@ -488,6 +488,9 @@ static func _cast(sim: RefCounted, peer_id: int, action: Dictionary, context: Di
 	for key: String in ["radius", "impact_area", "collision_radius", "width", "arrival_area"]:
 		if effect.has(key):
 			effect[key] = float(effect[key]) * area
+	# `override`: campos trocados no lançamento (ex.: poça de esporos dos Cogumelos).
+	for key: String in action.get("override", {}) as Dictionary:
+		effect[key] = (action["override"] as Dictionary)[key]
 	if bool(action.get("spread_scaled", false)) and effect.has("radius"):
 		effect["radius"] = float(effect["radius"]) * modifier(sim, peer_id, "poison_spread_mult")
 	effect["passive_cast"] = true

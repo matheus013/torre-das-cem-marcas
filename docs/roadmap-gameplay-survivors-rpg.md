@@ -134,7 +134,7 @@ para uma unica peca levar a personagem ate o fim da historia). Ainda nao impleme
 - [ ] G6.3: itens divinos (nova raridade acima de lendario, cor e som proprios) so na dificuldade 4 (revisto em 2026-10-07, plano no documento 76). Extremamente fortes: duas passivas, ou uma passiva que muda regras (ex.: gema sem recarga, todos os elementos ao mesmo tempo, Saraivada permanente). Definir quantidade, slots, fonte (chefes do pos-jogo, receitas) e regra de partilha no co-op.
 - [ ] G6.4: balancear as dificuldades 3 a 5 assumindo pelo menos um lendario ou unico equipado, com a sonda `tools/bench/balance_probe.gd --item=` como base.
 - [ ] G6.5: UI de colecao de lendarios, unicos e divinos (encontrados e faltantes, de onde vem cada um).
-- [ ] G6.6: lendarios, unicas e Reliquias revolucionarios: cada passiva muda uma regra (gema, categoria ou jogo) e passa no "teste da revolucao" do documento 76; reescrever as 46 unicas e 18 lendarios atuais, que hoje mais amplificam do que transformam.
+- [x] G6.6: lendarios, unicas e Reliquias revolucionarios: cada passiva muda uma regra (gema, categoria ou jogo) e passa no "teste da revolucao" do documento 76; reescrever as 46 unicas e 18 lendarios atuais, que hoje mais amplificam do que transformam. Feito em 2026-10-11 (decisao 599, documento 77).
 - [ ] G6.7: resistencias, mares (hordas especiais), mutadores de andar e Paragon conforme o documento 76.
 
 Aceite: cada dificuldade tem saque e desafio distintos medidos pela sonda; um jogador
@@ -166,7 +166,7 @@ abertas na secao 10 do documento). Detalha G6 e G7.1 a G7.4. Fases, em ordem:
 - [ ] G8.1: relogio de dia e noite (2 h; manha 30 min, tarde 30, entardecer 20, noite 40) na vila e na Torre, do host, no snapshot e no save; HUD com hora e avisos; noite com EXP +25%, saque +30% e inimigos +10%; Lua da Cicatriz a cada 3 noites.
 - [ ] G8.2: noite com mecanica: raio de luz como atributo, inimigos fora da luz semi-invisiveis e fora da mira automatica, variantes noturnas por bioma, elites cacadores; monstros da aurora de manha; materiais por horario (Orvalho Negro, Polen Lunar, Ambar Solar).
 - [ ] G8.3: resistencias: fisico e 9 elementos, resistencia dos inimigos por raca, bioma e dificuldade (-50% a +75%), penetracao, Quebra elemental, adaptacao (dificuldades 4 e 5), resistencias da personagem com teto 75% e penalidade por dificuldade (0/0/-20/-40/-60), icones de fraqueza na HUD e numeros "RESISTIU".
-- [ ] G8.4: itens revolucionarios (G6.6): acoes novas no motor de passivas, reescrita das 46 unicas e 18 lendarios, Reliquias de regra, etiqueta de regra no gerador e teste que reprova passiva so numerica.
+- [x] G8.4: itens revolucionarios (G6.6): acoes novas no motor de passivas, reescrita das 46 unicas e 18 lendarios, Reliquias de regra, etiqueta de regra no gerador e teste que reprova passiva so numerica. Feito em 2026-10-11 (decisao 599, documento 77).
 - [ ] G8.5: estrutura das cinco dificuldades (G6.1): dificuldade do mundo, escolhida pelo host no portal entre as liberadas; concluir o andar 100 libera a seguinte naquele mundo; tabela de Vida/dano/resistencia/afixos, recordes e saque por dificuldade; unicas a partir da 2 (G6.2).
 - [ ] G8.6: sete afixos de elite com comportamento (Refletor, Absorvente, Vinculado, Profanador, Cacador, Fissurador, Escudeiro) e mutadores de andar (8 normais a partir da 3, 3 crueis na 5) com bonus de saque.
 - [ ] G8.7: mares (Enxame, Cerco, Procissao, Avalanche, Vinculo, Eclipse e Lua da Cicatriz) com aviso, objetivo e recompensa; campeao em toda mare da 5.

@@ -49,7 +49,7 @@ Alem da passiva, cada arma da +50% a potencia principal da gema, -25% de recarga
 | Rastro da Noite Funda | Cometa Sombrio | **Eclipse Faminto**: Abate com o Cometa Sombrio zera a recarga dele e recupera 4% da Vida. |
 | Nucleo do Inverno | Esfera de Gelo | **Zero Absoluto**: Inimigo comum ou elite atingido pela Esfera abaixo de 25% da Vida se estilhaca, soltando 3 esferas menores (40% do golpe) contra os mais proximos. |
 | Disco Sem Fim | Disco de Retorno | **Discos Gemeos**: O Disco nao e lancado: dois discos orbitam a personagem por 8 s cortando quem chega perto. |
-| Arco das Tres Tempestades | Saraivada de Flechas | **Tempestade Triplice**: Flecha que abate vira um raio no corpo: 250% do golpe em area e 1 de Folego. |
+| Arco das Tres Tempestades | Saraivada de Flechas | **Olho da Tempestade**: A Saraivada fica ancorada onde foi lancada, girando com o dobro de flechas; a personagem fica livre para andar. |
 | Vetor Sem Sombra | Passo Vetorial | **Passo Alem**: Depois do Passo, todas as gemas ganham +50% de potencia por 4 s e as outras recargas andam 1,5 s. |
 | Gume do Vetor | Corte Vetorial | **Corte em Cadeia**: Abater um inimigo com o Corte zera a recarga dele: com alvos por perto, da para cortar sem parar. |
 | Asa da Retirada | Salto de Guarda | **Salto do Martelo**: O Salto vira um golpe de aterrissagem: esmaga em volta com 250% da barreira de chegada e repele os atingidos. |
@@ -66,23 +66,23 @@ Alem da passiva, cada arma da +50% a potencia principal da gema, -25% de recarga
 | Bobina do Arco | Arco Voltaico | **Arco Infinito**: O Arco salta ate 30 vezes entre inimigos proximos. |
 | Teia Sedenta | Dreno em Rede | **Fome da Rede**: Cada abate feito pela Rede da +2% de dano de trevas ate sair da Torre (ate +200%). |
 | Matriz do Vigia | Molde Vigilante | **Matriz Viva**: Um Molde novo surge sozinho a cada 8 s ao lado do inimigo mais proximo. |
-| Olho da Sentinela | Sentinela Ferral | **Matilha**: Uma Sentinela extra se ergue sozinha a cada 10 s; abates das sentinelas devolvem 2 de Folego. |
+| Olho da Sentinela | Sentinela Ferral | **Sentinela Eterna**: A Sentinela nao expira; lancar de novo a move para o novo ponto. |
 | Colmeia de Luz | Enxame Luminar | **Enxame Faminto**: Cada abate do Enxame gera um enxame novo no lugar (no maximo um por segundo). |
 | Juramento do Guardiao | Guardiao de Lastro | **Guardiao Imortal**: Ao ser ferida, um Guardiao surge de graca (uma vez a cada 15 s) com barreira de 20% da Vida. |
 | Cajado da Primeira Colheita | Semeadura Vital | **Jardim Andante**: O Jardim acompanha a personagem enquanto dura. |
-| Selo do Reparo | Circulo de Reparo | **Circulo Sagrado**: O Circulo cura 20% da Vida e adianta 3 s a recarga de todas as gemas. |
-| Viga do Abrigo | Abrigo de Escora | **Abrigo Inabalavel**: Erguer o Abrigo da 2 s de invulnerabilidade e metade do dano recebido por 6 s. |
+| Selo do Reparo | Circulo de Reparo | **Circulo do Tempo**: Dentro do Circulo, as recargas de todo o grupo andam 3x mais rapido. |
+| Viga do Abrigo | Abrigo de Escora | **Abrigo Inquebravel**: Dentro do Abrigo ninguem do grupo cai: o golpe fatal deixa com 1 de Vida. |
 | Foice da Grande Ceifa | Ceifa Ampla | **Ceifa Giratoria**: A Ceifa corta em 360 graus em volta da personagem. |
 | Pulmao de Gelo | Sopro Criogenico | **Raio Congelante**: O Sopro vira um feixe longo e fino que congela tudo em linha. |
 | Prisma Absoluto | Raio Prismatico | **Prisma Dividido**: Cada lancamento do Raio sai em 3 feixes, um para cada inimigo diferente (os extras com 70%). |
 | Lamina Desfiada | Fio Desintegrador | **Desintegracao**: O Fio executa inimigos comuns e elites abaixo de 30% da Vida. |
 | Eixo das Tres Laminas | Laminas Orbitais | **Ciclone Perpetuo**: As Laminas nao expiram: ficam girando ate a personagem sair do andar. |
-| Orbita Invernal | Satelites de Geada | **Orbita Glacial**: Os Satelites congelam (70% por 1,5 s) e, a cada 3 s em combate, pulsam gelo em volta com 100% da potencia da gema. |
-| Detonador de Lastro | Mina de Lastro | **Campo Minado**: Cada Mina vem com mais duas em volta, com potencia total. |
+| Orbita Invernal | Satelites de Geada | **Constelacao**: Os Satelites orbitam o inimigo mais proximo em vez da personagem, congelando quem estiver em volta dele. |
+| Detonador de Lastro | Mina de Lastro | **Mina Viva**: Armadas, as Minas andam ate o inimigo mais proximo. |
 | Semente do Estrondo | Semente Explosiva | **Semente Fertil**: Inimigo abatido pela Semente planta outra no lugar com 60% da potencia. |
 | Ceu de Ferral | Chuva Ferral | **Artilharia Ferral**: A Chuva cai sozinha a cada 2 s no inimigo mais proximo. |
-| Cauda do Cometa | Cometa de Vidro | **Vidro Estilhacado**: Inimigo abatido pelo Cometa estilhaca: 60% do golpe em area e lentidao de 60%. |
+| Cauda do Cometa | Cometa de Vidro | **Cometa Guiado**: O Cometa cai sempre no inimigo com mais Vida perto do ponto mirado. |
 | Coluna da Alvorada | Pilar Sagrado | **Pilar Fixo**: O Pilar fica de pe por 8 s ferindo quem chega perto. |
-| Esporangio Ancestral | Esporos | **Colonia Primordial**: Cada lancamento infecta tambem os dois inimigos mais proximos do alvo. |
+| Esporangio Ancestral | Esporos | **Cogumelos**: Hospedeiro dos Esporos que morre vira um cogumelo que reinfecta quem passa por perto por 10 s. |
 | Calice do Lodo | Poca de Veneno | **Poca Viva**: A Poca de Veneno acompanha a personagem. |
 | Voz do Trovao | Trovao Descendente | **Raio em Cadeia**: O Trovao salta entre ate 5 inimigos proximos. |

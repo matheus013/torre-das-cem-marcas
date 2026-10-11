@@ -837,6 +837,16 @@ func resolve_slot(peer_id: int, slot: int) -> Dictionary:
 	return resolved
 
 
+## Maior valor de `key` entre os santuários que cobrem a personagem (de qualquer jogador).
+func sanctuary_value(peer_id: int, key: String) -> float:
+	var state := player(peer_id)
+	var best := 0.0
+	for effect in persistent_effects:
+		if String(effect.get("mechanic", "")) == "sanctuary" and (effect["position"] as Vector2).distance_to(state.get("position", Vector2.INF)) <= float(effect.get("radius", 0.0)):
+			best = maxf(best, float(effect.get(key, 0.0)))
+	return best
+
+
 ## Custo de Fôlego de uma gema com as regras de itens: geral, por elemento e por movimento.
 func skill_breath_cost(peer_id: int, effect: Dictionary) -> float:
 	var cost := float(effect.get("breath_cost", 0.0)) * _mod(peer_id, "breath_cost_mult")
@@ -1212,7 +1222,8 @@ func _step_player(peer_id: int, delta: float) -> void:
 			continue
 		if kill_only and cooldowns[index] > 0.002:
 			continue
-		cooldowns[index] = maxf(0.0, cooldowns[index] - delta)
+		# Círculo do Tempo: dentro dele as recargas andam mais rápido.
+		cooldowns[index] = maxf(0.0, cooldowns[index] - delta * maxf(1.0, sanctuary_value(peer_id, "cooldown_rate")))
 		if cooldowns[index] <= 0.0:
 			charges[index] = mini(caps[index], charges[index] + 1)
 			if charges[index] < caps[index]:
@@ -2853,6 +2864,10 @@ func take_damage(peer_id: int, amount: float) -> void:
 	state["hurt_flash"] = 0.15
 	state["since_damage"] = 0.0
 	_status(peer_id, "Dano recebido. Vida restante: %d" % int(state["health"]))
+	# Abrigo Inquebrável: dentro dele ninguém cai; o golpe fatal deixa com 1 de Vida.
+	if float(state["health"]) <= 0.0 and sanctuary_value(peer_id, "prevents_fall") > 0.0:
+		state["health"] = 1.0
+		return
 	if float(state["health"]) <= 0.0 and ItemPassivesScript.on_lethal(self, peer_id):
 		return
 	if float(state["health"]) <= 0.0:
@@ -3023,6 +3038,14 @@ func _execute_gem_effect(peer_id: int, effect: Dictionary, target: Vector2) -> v
 			_damage_segment(peer_id, position, end, float(effect.get("width", 18.0)), power, enemies.size(), hit)
 		"meteor":
 			var center := _ranged_skill_target(peer_id, target, effect)
+			if bool(effect.get("target_strongest", false)):
+				# Cometa Guiado: cai no inimigo com mais Vida perto do ponto mirado.
+				var strongest := -1
+				for index in range(enemies.size()):
+					if (enemies[index]["position"] as Vector2).distance_to(center) <= 320.0 and (strongest < 0 or float(enemies[index]["health"]) > float(enemies[strongest]["health"])):
+						strongest = index
+				if strongest >= 0:
+					center = enemies[strongest]["position"]
 			var count := clampi(int(effect.get("meteor_count", 1)), 1, 8)
 			for index in range(count):
 				var spread := Vector2.ZERO if count == 1 else Vector2.RIGHT.rotated(TAU * index / float(count)) * float(effect.get("spread", 80.0))
@@ -3111,6 +3134,13 @@ func _execute_gem_effect(peer_id: int, effect: Dictionary, target: Vector2) -> v
 				"hit": hit,
 				"poison_linger": float(effect.get("poison_linger", 2.0)),
 				"deploy_limit": int(effect.get("deploy_limit", 8)),
+				# Lote 3 da revisão (decisão 598): órbita no inimigo, minas que perseguem, santuários
+				# que aceleram recargas ou impedem quedas e poça de esporos.
+				"orbit_target": String(effect.get("orbit_target", "")),
+				"seek_speed": float(effect.get("seek_speed", 0.0)),
+				"cooldown_rate": float(effect.get("cooldown_rate", 1.0)),
+				"prevents_fall": bool(effect.get("prevents_fall", false)),
+				"poison_type": String(effect.get("poison_type", "toxina")),
 			})
 			_vfx(zone, "burst", [effect_position, radius * 0.6])
 		"summon":
@@ -3341,7 +3371,12 @@ func _update_persistent_effects(delta: float) -> void:
 		var mechanic := String(effect["mechanic"])
 		if bool(effect.get("timed", true)):
 			effect["duration"] = float(effect["duration"]) - delta
-		if mechanic != "summon" and bool(effect.get("follows", false)) and players.has(owner_peer):
+		if String(effect.get("orbit_target", "")) == "nearest":
+			# Constelação: a órbita gira em volta do inimigo mais próximo (da personagem, se não houver).
+			var anchor := player(owner_peer)["position"] as Vector2 if players.has(owner_peer) else effect["position"] as Vector2
+			var orbited := nearest_enemy_to(anchor, 480.0)
+			effect["position"] = enemies[orbited]["position"] if orbited >= 0 else anchor
+		elif mechanic != "summon" and bool(effect.get("follows", false)) and players.has(owner_peer):
 			effect["position"] = player(owner_peer)["position"]
 		if mechanic == "orbit":
 			effect["phase"] = fmod(float(effect.get("phase", 0.0)) + float(effect["angular_speed"]) * delta, TAU)
@@ -3364,6 +3399,12 @@ func _update_persistent_effects(delta: float) -> void:
 			continue
 		if mechanic == "mine":
 			effect["arm_timer"] = maxf(0.0, float(effect["arm_timer"]) - delta)
+			# Mina Viva: armada, anda até o inimigo mais próximo.
+			if float(effect.get("seek_speed", 0.0)) > 0.0 and float(effect["arm_timer"]) <= 0.0:
+				var prey := nearest_enemy_to(effect["position"] as Vector2, 520.0)
+				if prey >= 0:
+					var to_prey := (enemies[prey]["position"] as Vector2) - (effect["position"] as Vector2)
+					effect["position"] = (effect["position"] as Vector2) + to_prey.normalized() * minf(to_prey.length(), float(effect["seek_speed"]) * delta)
 			if float(effect["duration"]) <= 0.0 or (float(effect["arm_timer"]) <= 0.0 and nearest_enemy_to(effect["position"], float(effect["trigger_radius"])) >= 0):
 				_vfx(arena_zone(), "burst", [effect["position"], float(effect["radius"])])
 				damage_enemies(owner_peer, effect["position"], float(effect["radius"]), float(effect["power"]), effect.get("hit", {}) as Dictionary)
@@ -3403,6 +3444,13 @@ func _update_persistent_effects(delta: float) -> void:
 				# Toxina por segundo = potência da poça; dura um pouco depois de sair dela.
 				for enemy in enemies:
 					if (enemy["position"] as Vector2).distance_to(effect["position"] as Vector2) <= float(effect["radius"]):
+						if String(effect.get("poison_type", "toxina")) == "esporo":
+							# Cogumelos: reinfectam com a colônia de esporos de quem plantou.
+							if players.has(owner_peer) and not (enemy.get("poisons", {}) as Dictionary).has("esporo"):
+								apply_poison(owner_peer, enemy, "esporo", {"damage": 5.0, "growth": 0.2, "interval": 1.0, "remaining": -1.0,
+									"spread_radius": 130.0, "gem_id": "esporos", "share": spore_health_share(enemy),
+									"stack": maxf(1.0, spore_strain(owner_peer) * SPORE_STRAIN_INHERIT), "cap": spore_stack_cap(owner_peer)})
+							continue
 						apply_poison(owner_peer, enemy, "toxina", {"damage": float(effect["power"]) * 0.5, "interval": 0.5,
 							"remaining": float(effect.get("poison_linger", 2.0)), "gem_id": String(effect.get("gem_id", ""))})
 			elif mechanic == "orbit":
@@ -3552,7 +3600,8 @@ func _toggle_volley(peer_id: int, effect: Dictionary, hit: Dictionary) -> void:
 			return
 	persistent_effects.append({
 		"mechanic": "volley", "gem_id": gem_id, "owner_peer": peer_id, "position": player(peer_id)["position"],
-		"follows": true, "timed": false, "duration": 0.0, "radius": float(effect.get("range", 300.0)),
+		"follows": not bool(effect.get("volley_anchor", false)), "anchored": bool(effect.get("volley_anchor", false)),
+		"timed": false, "duration": 0.0, "radius": float(effect.get("range", 300.0)),
 		"arrow_width": float(effect.get("radius", 16.0)),
 		"power": float(effect.get("power", 0.0)), "range": float(effect.get("range", 300.0)),
 		"tick_interval": float(effect.get("tick_interval", 0.4)), "tick_timer": 0.0,
@@ -3568,7 +3617,8 @@ func _toggle_volley(peer_id: int, effect: Dictionary, hit: Dictionary) -> void:
 func _fire_volley(effect: Dictionary) -> void:
 	var peer_id := int(effect["owner_peer"])
 	var state := player(peer_id)
-	var origin := (state["position"] as Vector2) - Vector2(0.0, 12.0)
+	# Olho da Tempestade: a Saraivada ancorada dispara de onde foi lançada.
+	var origin := ((effect["position"] as Vector2) if bool(effect.get("anchored", false)) else (state["position"] as Vector2)) - Vector2(0.0, 12.0)
 	var count := int(effect["arrow_count"])
 	var index := int(effect["volley_index"])
 	effect["volley_index"] = index + 1
