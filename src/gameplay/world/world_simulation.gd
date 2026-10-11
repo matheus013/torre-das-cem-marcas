@@ -3863,9 +3863,9 @@ func milestone_effects(peer_id: int) -> Dictionary:
 
 
 ## Marcos de evolução combinados com passivas de itens: `_mult` multiplica, o resto soma.
-func _mod(peer_id: int, key: String) -> float:
+func _mod(peer_id: int, key: String, equipment_override: EquipmentLoadout = null) -> float:
 	var milestone := MilestoneEffectsScript.modifier(milestone_effects(peer_id), key)
-	var item := ItemPassivesScript.modifier(self, peer_id, key)
+	var item := ItemPassivesScript.modifier(self, peer_id, key, equipment_override)
 	return milestone * item if key.ends_with("_mult") else milestone + item
 
 
@@ -3913,13 +3913,14 @@ func _gear(peer_id: int) -> Dictionary:
 	return character_gear.get(String(player(peer_id).get("character_id", "")), {}) as Dictionary
 
 
-func derived_stats(peer_id: int) -> Dictionary:
+func derived_stats(peer_id: int, equipment_override: EquipmentLoadout = null) -> Dictionary:
 	var build := character_build(peer_id)
 	if build == null:
 		return {"max_health": PLAYER_MAX_HEALTH, "max_breath": PLAYER_MAX_BREATH, "critical_chance": CRIT_CHANCE}
 	var gear := _gear(peer_id)
 	var raw_stats := build.base_stats.duplicate(true) as Dictionary
-	var modifiers: Dictionary = (gear["equipment"] as EquipmentLoadout).combined_stat_modifiers() if not gear.is_empty() else {}
+	var equipment := equipment_override if equipment_override != null else gear.get("equipment") as EquipmentLoadout
+	var modifiers: Dictionary = equipment.combined_stat_modifiers() if equipment != null else {}
 	for stat in CharacterBuild.PRIMARY_STATS:
 		raw_stats[stat] = float(raw_stats.get(stat, 0.0)) + float(modifiers.get(stat, 0.0))
 	var resolved := StatResolver.resolve(raw_stats)
@@ -3930,15 +3931,15 @@ func derived_stats(peer_id: int) -> Dictionary:
 	resolved["critical_chance"] = minf(0.35, CRIT_CHANCE + maxf(0.0, float(resolved["critical_chance"]) - 0.05) + float(modifiers.get(&"critical_chance", 0.0)) / 100.0)
 	resolved["cooldown_recovery_multiplier"] = float(resolved["cooldown_recovery_multiplier"]) + float(modifiers.get(&"cooldown_recovery", 0.0)) / 100.0
 	# Nível e marcos de evolução (documento 66 e decisão 549).
-	resolved["max_health"] = float(resolved["max_health"]) + HEALTH_PER_LEVEL * float(build.level - 1) + _mod(peer_id, "max_health_add")
-	resolved["max_breath"] = float(resolved["max_breath"]) + _mod(peer_id, "max_breath_add")
-	resolved["critical_chance"] = minf(0.35, float(resolved["critical_chance"]) + _mod(peer_id, "crit_chance_add"))
-	resolved["critical_damage_bonus"] = _mod(peer_id, "crit_damage_add")
-	resolved["movement_speed_multiplier"] = float(resolved["movement_speed_multiplier"]) * _mod(peer_id, "move_speed_mult")
-	resolved["automatic_attack_rate_multiplier"] = float(resolved["automatic_attack_rate_multiplier"]) * _mod(peer_id, "auto_rate_mult")
-	resolved["cooldown_recovery_multiplier"] = minf(COOLDOWN_RECOVERY_CAP, float(resolved["cooldown_recovery_multiplier"]) / maxf(0.5, _mod(peer_id, "cooldown_mult")))
+	resolved["max_health"] = float(resolved["max_health"]) + HEALTH_PER_LEVEL * float(build.level - 1) + _mod(peer_id, "max_health_add", equipment_override)
+	resolved["max_breath"] = float(resolved["max_breath"]) + _mod(peer_id, "max_breath_add", equipment_override)
+	resolved["critical_chance"] = minf(0.35, float(resolved["critical_chance"]) + _mod(peer_id, "crit_chance_add", equipment_override))
+	resolved["critical_damage_bonus"] = _mod(peer_id, "crit_damage_add", equipment_override)
+	resolved["movement_speed_multiplier"] = float(resolved["movement_speed_multiplier"]) * _mod(peer_id, "move_speed_mult", equipment_override)
+	resolved["automatic_attack_rate_multiplier"] = float(resolved["automatic_attack_rate_multiplier"]) * _mod(peer_id, "auto_rate_mult", equipment_override)
+	resolved["cooldown_recovery_multiplier"] = minf(COOLDOWN_RECOVERY_CAP, float(resolved["cooldown_recovery_multiplier"]) / maxf(0.5, _mod(peer_id, "cooldown_mult", equipment_override)))
 	resolved["cooldown_reduction"] = 1.0 - 1.0 / float(resolved["cooldown_recovery_multiplier"])
-	resolved["area_multiplier"] = minf(AREA_MULTIPLIER_CAP, (1.0 + float(modifiers.get(&"area", 0.0)) / 100.0) * _mod(peer_id, "radius_mult"))
+	resolved["area_multiplier"] = minf(AREA_MULTIPLIER_CAP, (1.0 + float(modifiers.get(&"area", 0.0)) / 100.0) * _mod(peer_id, "radius_mult", equipment_override))
 	# Defesa do equipamento com retorno decrescente: 100 de defesa reduz metade, nunca mais que 50%.
 	var defense := maxf(0.0, float(modifiers.get(&"defense", 0.0)))
 	resolved["damage_reduction"] = minf(0.5, defense / (defense + 100.0))
@@ -3994,15 +3995,7 @@ func _equip(character_id: StringName, instance_id: StringName) -> String:
 	if item == null:
 		return ""
 	var slot := item.definition.slot
-	var index := 0
-	if slot == EquipmentItemDefinition.Slot.RING:
-		index = _first_empty_index(equipment, slot, EquipmentLoadout.RING_SLOT_COUNT)
-		if index < 0:
-			index = _weakest_index(equipment, slot, EquipmentLoadout.RING_SLOT_COUNT)
-	elif slot == EquipmentItemDefinition.Slot.RELIC:
-		index = _first_empty_index(equipment, slot, EquipmentLoadout.RELIC_SLOT_COUNT)
-		if index < 0:
-			index = _weakest_index(equipment, slot, EquipmentLoadout.RELIC_SLOT_COUNT)
+	var index := _equipment_destination(equipment, slot)
 	var previous := equipment.get_equipped(slot, index)
 	if previous != null and not EquipmentTransaction.unequip_to_inventory(inventory, equipment, slot, index):
 		return "Nao foi possivel liberar o encaixe."
@@ -4011,6 +4004,71 @@ func _equip(character_id: StringName, instance_id: StringName) -> String:
 			EquipmentTransaction.equip_from_inventory(inventory, equipment, previous.instance_id, index)
 		return "Nao ha encaixe compativel para esse equipamento."
 	return "%s equipado." % item_display_name(String(item.definition.id))
+
+
+func _equipment_destination(equipment: EquipmentLoadout, slot: EquipmentItemDefinition.Slot) -> int:
+	var count := EquipmentLoadout.RING_SLOT_COUNT if slot == EquipmentItemDefinition.Slot.RING else EquipmentLoadout.RELIC_SLOT_COUNT if slot == EquipmentItemDefinition.Slot.RELIC else 1
+	if count == 1:
+		return 0
+	var empty := _first_empty_index(equipment, slot, count)
+	return empty if empty >= 0 else _weakest_index(equipment, slot, count)
+
+
+func equipment_comparison(peer_id: int, instance_id: StringName) -> Dictionary:
+	var gear := _gear(peer_id)
+	if gear.is_empty():
+		return {}
+	var inventory := gear["inventory"] as ItemInventory
+	var candidate := inventory.get_item(instance_id)
+	if candidate == null:
+		return {}
+	var equipped := gear["equipment"] as EquipmentLoadout
+	var slot := candidate.definition.slot
+	var index := _equipment_destination(equipped, slot)
+	var previous := equipped.get_equipped(slot, index)
+	var preview := EquipmentLoadout.new()
+	# Preview uses references in a separate loadout; no inventory, RNG or live state changes.
+	for spec: Array in LayoutScript.equipment_slot_specs():
+		var item := equipped.get_equipped(spec[1], int(spec[2]))
+		if item != null and item != previous:
+			preview.equip(item, int(spec[2]))
+	var result := {"can_equip": candidate.owner_id == inventory.owner_id and preview.equip(candidate, index), "slot_index": index, "replaces_id": String(previous.instance_id) if previous != null else "", "replaces_name": item_display_name(String(previous.definition.id)) if previous != null else "Encaixe vazio", "rows": [] as Array[Dictionary]}
+	if not result["can_equip"]:
+		result["reason"] = "Encaixe incompativel: verifique arma de duas maos ou conflitos de Reliquia."
+		return result
+	var before := derived_stats(peer_id)
+	var after := derived_stats(peer_id, preview)
+	var wound_factor := maxf(0.5, 1.0 - WOUND_PENALTY * int(player(peer_id).get("wounds", 0)))
+	for spec: Array in [["max_health", "Vida maxima", wound_factor, ""], ["max_breath", "Folego maximo", 1.0, ""], ["damage_reduction", "Reducao por defesa", 100.0, "%"], ["movement_speed_multiplier", "Velocidade de movimento", 100.0, "%"], ["automatic_attack_rate_multiplier", "Cadencia de ataque", 100.0, "%"], ["cooldown_reduction", "Reducao de recarga", 100.0, "%"], ["area_multiplier", "Area", 100.0, "%"]]:
+		var old_value := float(before[spec[0]]) * float(spec[2])
+		var new_value := float(after[spec[0]]) * float(spec[2])
+		if absf(new_value - old_value) >= 0.05:
+			(result["rows"] as Array[Dictionary]).append({"id": spec[0], "label": spec[1], "before": old_value, "after": new_value, "delta": new_value - old_value, "unit": spec[3]})
+	var before_attack := weapon_attack_model(peer_id)
+	var after_attack := weapon_attack_model(peer_id, preview)
+	for spec: Array in [["damage", "Autoataque por acerto", 1.0, ""], ["range", "Alcance", 1.0, " px"], ["interval", "Intervalo do autoataque", 1.0, " s"], ["critical_chance", "Critico do autoataque", 100.0, "%"]]:
+		var old_value := float(before_attack[spec[0]]) * float(spec[2])
+		var new_value := float(after_attack[spec[0]]) * float(spec[2])
+		if absf(new_value - old_value) >= 0.005:
+			(result["rows"] as Array[Dictionary]).append({"id": "weapon_" + String(spec[0]), "label": spec[1], "before": old_value, "after": new_value, "delta": new_value - old_value, "unit": spec[3], "lower_is_better": spec[0] == "interval"})
+	var gained: Array[String] = []
+	var lost: Array[String] = []
+	var new_passive := item_data(String(candidate.definition.id)).get("passive", {}) as Dictionary
+	var old_passive := item_data(String(previous.definition.id)).get("passive", {}) as Dictionary if previous != null else {}
+	if new_passive != old_passive:
+		if not new_passive.is_empty():
+			gained.append(String(new_passive.get("name", "Passiva")))
+		if not old_passive.is_empty():
+			lost.append(String(old_passive.get("name", "Passiva")))
+	result["gained_passives"] = gained
+	result["lost_passives"] = lost
+	var inactive: Array[String] = []
+	for support_id: String in _gem_state(peer_id).get("auto_supports", []):
+		var support := support_definition(support_id)
+		if AutoSupports.supports(before_attack, support) and not AutoSupports.supports(after_attack, support):
+			inactive.append(String(support.get("name", support_id)))
+	result["inactive_supports"] = inactive
+	return result
 
 
 func _weakest_index(equipment: EquipmentLoadout, slot: EquipmentItemDefinition.Slot, count: int) -> int:
@@ -4614,32 +4672,32 @@ func _milestone_choices(peer_id: int) -> Array[Dictionary]:
 	return choices
 
 
-func _base_weapon_attack_model(peer_id: int) -> Dictionary:
+func _base_weapon_attack_model(peer_id: int, equipment_override: EquipmentLoadout = null) -> Dictionary:
 	var state := player(peer_id)
-	var equipment: EquipmentLoadout = _gear(peer_id).get("equipment") as EquipmentLoadout
+	var equipment: EquipmentLoadout = equipment_override if equipment_override != null else _gear(peer_id).get("equipment") as EquipmentLoadout
 	var type_id := "unarmed"
 	var fabrication := 1.0
 	if equipment != null and equipment.weapon != null:
 		type_id = weapon_type_for(peer_id, equipment.weapon)
 		fabrication = LootDifficultyScript.fabrication_factor(String(equipment.weapon.quality))
-	var derived := derived_stats(peer_id)
+	var derived := derived_stats(peer_id, equipment_override)
 	var result := WeaponCombat.resolve(type_id, String(state.get("character_id", "")), derived.get("effective_primaries", {}) as Dictionary, fabrication)
 	result["weapon_type"] = type_id
-	result["damage"] = float(result["damage"]) * _mod(peer_id, "auto_damage_mult") * level_power(peer_id)
+	result["damage"] = float(result["damage"]) * _mod(peer_id, "auto_damage_mult", equipment_override) * level_power(peer_id)
 	result["interval"] = float(result["interval"]) / maxf(0.01, float(derived.get("automatic_attack_rate_multiplier", 1.0)))
 	result["critical_chance"] = clampf(float(derived.get("critical_chance", CRIT_CHANCE)) + float(result["crit_add"]), 0.0, 0.5)
 	result["item_name"] = item_display_name(String(equipment.weapon.definition.id)) if equipment != null and equipment.weapon != null else "Desarmado"
 	return result
 
 
-func weapon_attack_model(peer_id: int) -> Dictionary:
+func weapon_attack_model(peer_id: int, equipment_override: EquipmentLoadout = null) -> Dictionary:
 	var attached: Array[Dictionary] = []
 	var ids := (_gem_state(peer_id).get("auto_supports", []) as Array).duplicate()
 	ids.sort()
 	for id: String in ids:
 		attached.append(support_definition(id))
-	var result := AutoSupports.resolve(_base_weapon_attack_model(peer_id), attached)
-	result["critical_chance"] = clampf(float(derived_stats(peer_id).get("critical_chance", CRIT_CHANCE)) + float(result["crit_add"]), 0.0, 0.5)
+	var result := AutoSupports.resolve(_base_weapon_attack_model(peer_id, equipment_override), attached)
+	result["critical_chance"] = clampf(float(derived_stats(peer_id, equipment_override).get("critical_chance", CRIT_CHANCE)) + float(result["crit_add"]), 0.0, 0.5)
 	return result
 
 
@@ -4785,6 +4843,7 @@ func _inventory_model(gear: Dictionary, peer_id: int) -> Array[Dictionary]:
 			"fabrication": String(LootDifficultyScript.FABRICATION_LABELS.get(String(item.quality), "Regular")),
 			"slot_id": int(item.definition.slot), "score": _item_score(item),
 			"tooltip": _equipment_tooltip(item, peer_id), "affix_count": item.affixes.size(),
+			"comparison": equipment_comparison(peer_id, instance_id),
 			"rich_tooltip": _equipment_rich_tooltip(item, peer_id, "Clique: equipar  |  Botao direito: vender por %d P" % item_sell_price(item)),
 		})
 	result.sort_custom(func(left: Dictionary, right: Dictionary) -> bool: return String(left["name"]) < String(right["name"]))

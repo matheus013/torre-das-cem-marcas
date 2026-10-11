@@ -4,7 +4,12 @@ Data: 2026-10-03. Direcao confirmada: hordas + expedicoes.
 Base e evidencias: [revisao do projeto](revisao-projeto-survivors-rpg.md).
 Complementa, nao substitui, o [roadmap Steam EA](roadmap-steam-acesso-antecipado.md).
 
-Status: diagnostico concluido; correcoes e prototipos abaixo ainda pendentes.
+Status em 2026-10-11: frente ativa junto de cenarios/UI. Lore, fechamento
+do MVP e publicacao Steam ficam em backlog; preservar saves, rede e CI.
+Priorizar G0, legibilidade de builds/itemizacao em G3 e ritmo em G4.
+G1 sem expansao narrativa; G2/G6-G8 dependem das decisoes registradas.
+G5 e requisitos comerciais ficam em backlog. Correcoes e prototipos abaixo
+nao sao considerados concluidos apenas porque existem sistemas relacionados.
 Nao atribuir prazo antes de estimar cada ticket. Gates sao criterios de saida,
 nao promessa comercial. Mudancas de regras aprovadas exigem decisao registrada.
 
@@ -95,6 +100,16 @@ diferentes; os efeitos somem no encerramento e sobrevivem a reconexao prevista.
 Decisao aberta: duracao das marcas entre andares e contrato.
 
 ## G3: itemizacao pequena e desejavel
+
+Entrega parcial de G3.4 em 2026-10-11: comparacao de equipamentos no
+inventario por hover/foco, com faixa fixa legivel e sem scroll horizontal.
+Mostra a peca efetivamente substituida, atributos derivados e autoataque
+apos troca (incluindo qualidade, nivel, afixos, passivas fixas e suportes).
+Usa os calculos do runtime sem modificar mochila, estado ou RNG; avisa
+conflitos e suportes que ficarao inativos. Nao e estimativa de DPS contra
+um inimigo, nem simula gatilhos futuros de passiva/skills. Origem, favoritos,
+ordenacao e filtros de inventario continuam pendentes; G3.4 nao esta fechado.
+Ver [ciclo visual/gameplay 1](visual-gameplay-ciclo-1.md).
 
 Dependencia: G0/G1; G2 nao e necessario para craft basico.
 

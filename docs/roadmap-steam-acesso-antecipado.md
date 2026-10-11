@@ -1,5 +1,10 @@
 # Roadmap: Steam em acesso antecipado
 
+Status de prioridade em 2026-10-11: backlog por decisao do responsavel.
+Novas entregas comerciais, loja e Steam ficam adiadas. CI, releases e
+protecao de saves existentes continuam operacionais e devem ser preservados.
+Foco ativo: cenarios/UI e gameplay Survivors + RPG.
+
 Atualizado em 2026-10-07. Objetivo: uma build paga que entrega um ciclo de jogo
 estavel, tem escopo descrito com honestidade e passa pela revisao da Steam.
 Este plano complementa o roadmap de MVP; a quantidade de conteudo existente

@@ -1,5 +1,11 @@
 # Revisao Visual dos Cenarios
 
+Status em 2026-10-11: frente ativa junto de gameplay Survivors + RPG.
+Primeiro ciclo: clareiras/bordas do Bosque e comparacao de equipamentos
+na UI. Lore, fechamento do MVP e preparacao de publicacao ficam em backlog.
+As mudancas visuais devem preservar navegacao, saves, combate e co-op;
+paineis nao podem exigir scroll horizontal.
+
 ## Diagnostico
 
 O problema da imagem nao era a HUD: o mesmo piso ocupava quase toda a tela,
@@ -33,6 +39,23 @@ compartilhada entre host e clientes.
 
 ## Proximas Melhorias
 
+### Marco B1 - Piso, clareiras e vegetacao do Bosque (2026-10-11)
+
+- [x] Tres variacoes visuais: clareira de vento, bordas de raizes e ruinas.
+- [x] Margens irregulares, pequenas concentracoes de vegetacao e trilha desgastada.
+- [x] Aplicar nos nove andares do Bosque, incluindo tratamento do piso da arena.
+- [x] Preservar props altos, colisoes, corredores, spawns e saves existentes.
+- [x] Planos deterministas, malhas em cache, culling e detalhes com limite testado.
+- [x] Comparacao de equipamentos em faixa fixa da UI, com foco e sem scroll horizontal.
+- [ ] Topologia do Bosque e distribuicao de arvores/ruinas ainda precisam de passe autoral.
+- [ ] Benchmark grafico release, hordas e quatro jogadores em hardware-alvo.
+
+Entrega: [ciclo visual/gameplay 1](visual-gameplay-ciclo-1.md). Este e um passe
+de apresentacao, nao uma mudanca da estrutura logica dos mapas ou um novo
+evento narrativo. Reutiliza assets; nao exige nova migracao de save.
+Validacao final: 95 testes aprovados sem falhas e 15 capturas nativas em
+tres resolucoes; benchmark grafico release/hardware-alvo ainda pendente.
+
 ### Refinamento do trecho de referencia (2026-10-11)
 
 - [x] Desgaste e pequenos detritos acompanham as bordas das salas das Galerias.
@@ -42,8 +65,8 @@ compartilhada entre host e clientes.
 - [x] Capturas nativas atualizadas de UI e cenarios; paineis sem rolagem horizontal.
 - [ ] Benchmark com hordas e quatro jogadores; densidade nao aprovada para hardware-alvo.
 
-O passe reutiliza os assets existentes. O Bosque e os eventos N3 continuam
-pendentes; esta entrega nao implementa acontecimentos narrativos novos.
+O passe das Galerias reutiliza os assets existentes. O Bosque recebeu B1
+depois; expansoes de N3 ficam no backlog e nao pertencem a esta frente.
 
 Validacao local: `sh tests/run_all.sh` terminou com 89 testes aprovados e
 zero falhas, incluindo rede. Capturas: 21 de UI e 39 de cenarios. Isso nao
@@ -65,8 +88,9 @@ registradas em `art/gallery-kit.json`. O atlas original foi preservado em
 `tools/art/import_gallery_kit.gd`. Esta etapa nao conclui as demais prioridades
 P1: os outros biomas ainda precisam de composicoes e kits proprios.
 
-Proximo trecho: Bosque, substituindo o mesmo arranjo retangular por clareiras,
-bordas de vegetacao e ruinas tomadas pelas raizes, sem fechar os corredores.
+Proximo trecho visual: Manto dos Esporos, com manchas miceliais, clareiras
+e vegetacao agrupada. A reforma estrutural do Bosque continua aberta;
+nenhum passe decorativo deve ser contabilizado como nova topologia.
 
 | Prioridade | Ambiente | Melhoria visual | Criterio de conclusao |
 | --- | --- | --- | --- |

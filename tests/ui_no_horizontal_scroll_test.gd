@@ -15,6 +15,8 @@ func _run() -> void:
 	sim.setup(7312)
 	sim.add_player(1, &"eloa")
 	sim.unlock_all_gems(1, true)
+	sim._add_equipment_instance(&"eloa", "protecao_de_trabalho", "regular", 20)
+	sim._add_equipment_instance(&"eloa", "unica_saraivada_de_flechas", "regular", 20)
 	var model := sim.menu_model(1)
 	for index in range(30):
 		model["carried_loot"]["loot_%d" % index] = 99

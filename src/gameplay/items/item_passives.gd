@@ -49,6 +49,13 @@ static func active(sim: RefCounted, peer_id: int) -> Array[Dictionary]:
 	var cached := cache.get(peer_id, {}) as Dictionary
 	if String(cached.get("key", "-")) == key:
 		return cached["passives"] as Array[Dictionary]
+	var data := _loadout_data(sim, items)
+	cache[peer_id] = {"key": key, "passives": data["passives"], "affix_mods": data["affix_mods"]}
+	return data["passives"]
+
+
+static func _loadout_data(sim: RefCounted, items: Array[EquipmentItemInstance]) -> Dictionary:
+	var result: Array[Dictionary] = []
 	# Afixos de modificador (decisão 583) entram junto, no mesmo cache por peças equipadas.
 	var affix_mods := {}
 	for item in items:
@@ -64,16 +71,22 @@ static func active(sim: RefCounted, peer_id: int) -> Array[Dictionary]:
 		entry["item_id"] = String(item.definition.id)
 		entry["unique_gem"] = String(data.get("unique_gem", ""))
 		result.append(entry)
-	cache[peer_id] = {"key": key, "passives": result, "affix_mods": affix_mods}
-	return result
+	return {"passives": result, "affix_mods": affix_mods}
 
 
 ## Modificador fixo das passivas e bônus temporários ativos: `_mult` multiplica, o resto soma.
-static func modifier(sim: RefCounted, peer_id: int, key: String) -> float:
+static func modifier(sim: RefCounted, peer_id: int, key: String, equipment_override: EquipmentLoadout = null) -> float:
 	var multiply := key.ends_with("_mult")
 	var value := 1.0 if multiply else 0.0
-	var passives := active(sim, peer_id)
-	var affix_mods := ((sim.get("_passive_cache") as Dictionary).get(peer_id, {}) as Dictionary).get("affix_mods", {}) as Dictionary
+	var passives: Array[Dictionary] = []
+	var affix_mods := {}
+	if equipment_override != null:
+		var data := _loadout_data(sim, equipment_override._all_items())
+		passives = data["passives"]
+		affix_mods = data["affix_mods"]
+	else:
+		passives = active(sim, peer_id)
+		affix_mods = ((sim.get("_passive_cache") as Dictionary).get(peer_id, {}) as Dictionary).get("affix_mods", {}) as Dictionary
 	if affix_mods.has(key):
 		value = value * float(affix_mods[key]) if multiply else value + float(affix_mods[key])
 	for passive in passives:

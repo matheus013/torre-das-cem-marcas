@@ -1,5 +1,10 @@
 # Roadmap: integracao da lore ao jogo
 
+Status de prioridade em 2026-10-11: backlog por decisao do responsavel.
+N0-N3 entregues permanecem no jogo; nao continuar trabalhadores/coleta ou
+N4-N7 enquanto cenarios/UI e gameplay Survivors + RPG forem o foco ativo.
+Correcoes de regressao nesses sistemas continuam permitidas.
+
 Atualizado em 2026-10-11. Objetivo: transformar a lore aprovada em objetivos,
 descobertas, escolhas e consequencias jogaveis, sem interromper o ciclo de
 hordas, preparacao, expedicao e retorno. Este documento planeja implementacao;

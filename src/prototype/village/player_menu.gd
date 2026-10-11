@@ -44,6 +44,8 @@ var _show_details := false
 var _frame: PanelContainer
 var _tabs: GridContainer
 var _compact := false
+var _comparison: RichTextLabel
+var _comparison_id := ""
 
 
 func _ready() -> void:
@@ -144,6 +146,14 @@ func _build_shell() -> void:
 	_content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_content.add_theme_constant_override("separation", 10)
 	scroll.add_child(_content)
+	_comparison = RichTextLabel.new()
+	_comparison.name = "EquipmentComparison"
+	_comparison.bbcode_enabled = true
+	_comparison.custom_minimum_size.y = 140
+	_comparison.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_comparison.add_theme_font_size_override("normal_font_size", 13)
+	_comparison.hide()
+	root_column.add_child(_comparison)
 
 
 func _layout_shell() -> void:
@@ -176,6 +186,8 @@ func _select_tab(tab: String) -> void:
 func _rebuild() -> void:
 	if _content == null:
 		return
+	_comparison.hide()
+	_comparison.text = ""
 	for child in _content.get_children():
 		_content.remove_child(child)
 		child.queue_free()
@@ -266,6 +278,14 @@ func _build_inventory() -> void:
 		var instance_id := StringName(String(entry.get("instance_id", "")))
 		cell.pressed.connect(func() -> void: equip_requested.emit(instance_id))
 		cell.secondary_pressed.connect(_confirm_sell.bind(entry))
+		cell.mouse_entered.connect(_show_equipment_comparison.bind(entry))
+		cell.focus_entered.connect(_show_equipment_comparison.bind(entry))
+	if not available.is_empty():
+		var selected: Dictionary = available[0]
+		for entry: Dictionary in available:
+			if String(entry["instance_id"]) == _comparison_id:
+				selected = entry
+		_show_equipment_comparison(selected)
 	var filters := VBoxContainer.new()
 	filters.add_theme_constant_override("separation", 12)
 	right.add_child(filters)
@@ -277,6 +297,37 @@ func _build_inventory() -> void:
 	_loot_rows(_model.get("carried_loot", {}) as Dictionary, "Nenhum saque carregado")
 	_content.add_child(_header_label("ARMAZEM DA VILA", "%d tipos" % (_model.get("banked_loot", {}) as Dictionary).size()))
 	_loot_rows(_model.get("banked_loot", {}) as Dictionary, "Armazem vazio")
+
+
+func _show_equipment_comparison(entry: Dictionary) -> void:
+	if not is_instance_valid(_comparison):
+		return
+	_comparison_id = String(entry.get("instance_id", ""))
+	var data := entry.get("comparison", {}) as Dictionary
+	var lines := PackedStringArray(["[b]%s[/b]" % String(entry.get("name", ""))])
+	if data.is_empty():
+		_comparison.text = ""
+		return
+	lines.append("Substitui: %s" % String(data.get("replaces_name", "Encaixe vazio")))
+	if not data.get("can_equip", false):
+		lines.append("[color=#e5a2a0]%s[/color]" % String(data.get("reason", "Encaixe incompativel.")))
+	else:
+		for row: Dictionary in data.get("rows", []):
+			var delta := float(row["delta"])
+			var unit := String(row["unit"])
+			var better := delta < 0 if row.get("lower_is_better", false) else delta > 0
+			lines.append("%s: %.2f%s > %.2f%s [color=#%s](%+.2f%s)[/color]" % [row["label"], row["before"], unit, row["after"], unit, "8fcab2" if better else "e5a2a0", delta, " p.p." if unit == "%" else unit])
+		if (data.get("rows", []) as Array).is_empty():
+			lines.append("Sem alteracao nos atributos derivados comparados.")
+		for passive: String in data.get("gained_passives", []):
+			lines.append("+ Passiva: " + passive)
+		for passive: String in data.get("lost_passives", []):
+			lines.append("- Passiva: " + passive)
+		for support: String in data.get("inactive_supports", []):
+			lines.append("! Suporte ficara inativo: " + support)
+	_comparison.text = "\n".join(lines)
+	_comparison.show()
+	_comparison.scroll_to_line(0)
 
 
 ## Boneco: retrato ampliado no centro, sete encaixes em volta e anéis e relíquias embaixo.

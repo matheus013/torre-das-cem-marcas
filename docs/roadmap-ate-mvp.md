@@ -2,6 +2,10 @@
 
 ## Estado
 
+Prioridade revista em 2026-10-11: fechamento do MVP completo em backlog.
+Cenarios/UI e gameplay Survivors + RPG sao as frentes ativas; manter a
+infraestrutura e os sistemas ja implementados, sem expandir o arco de lore.
+
 **Plano aprovado. Marco 1 em andamento: Aresta e a Torre já rodam online com host e três clientes (ADR 0018); falta medir latência real, reconexão e densidade de horda.**
 
 Este documento organiza o caminho entre o game design aprovado e um MVP jogável. Engine e arquitetura inicial já foram escolhidas após a declaração formal de encerramento do game design.

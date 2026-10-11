@@ -94,6 +94,59 @@ static func _tower(result: Dictionary, floor: Dictionary, random: RandomNumberGe
 		var center: Vector2 = floor["arena_center"]
 		for offset: Vector2 in [Vector2(-110, -70), Vector2(30, -70), Vector2(-110, 50), Vector2(30, 50)]:
 			_patch(result, String(profile[0]), Rect2(center + offset, Vector2(80, 80)), Color(0.8, 0.86, 0.8, 0.4), random)
+	if biome == "bosque":
+		_woodland(result, floor, random)
+
+
+static func _woodland(result: Dictionary, floor: Dictionary, random: RandomNumberGenerator) -> void:
+	var variant := posmod(int(floor["floor"]) - 8, 3)
+	result["composition"] = ["clareira_de_vento", "bordas_de_raizes", "ruinas_no_bosque"][variant]
+	result["clearings"] = [] as Array[Dictionary]
+	var route: Array = floor.get("route", [])
+	var centers: Array[Vector2] = []
+	if floor.has("arena_center"):
+		centers.append(floor["arena_center"])
+	else:
+		centers.append(route[1])
+		centers.append(route[2])
+	for index in range(centers.size()):
+		var center := centers[index]
+		var extent := Vector2(390, 260) if variant == 0 else Vector2(285, 350) if variant == 1 else Vector2(340, 290)
+		if floor.has("arena_center"):
+			extent = Vector2.ONE * (float(floor["arena_radius"]) - 140)
+		elif index == 1:
+			extent = Vector2(extent.y + 50, extent.x - 50)
+		(result["clearings"] as Array[Dictionary]).append({"center": center, "extent": extent})
+		# Soft irregular margins form a clearing, not a damage ring or a hidden wall.
+		for band in range(3):
+			var points := PackedVector2Array()
+			var radius := extent + Vector2.ONE * (85 - band * 35)
+			for vertex in range(18):
+				var direction := Vector2.RIGHT.rotated(TAU * vertex / 18.0)
+				points.append(center + direction * radius * random.randf_range(0.91, 1.06))
+			_polygon(result, "tiles/grass" if band == 0 else "tiles/floor_bosque", points, Color(0.59, 0.79, 0.65, 0.7) if band == 0 else Color(1.12, 1.15, 1.01, 0.55))
+		for cluster in range(24):
+			var direction := Vector2.RIGHT.rotated(TAU * cluster / 24.0)
+			var base := center + direction * (extent + Vector2.ONE * 55)
+			var on_route := false
+			for segment in range(route.size() - 1):
+				if Geometry2D.get_closest_point_to_segment(base, route[segment], route[segment + 1]).distance_to(base) < 160:
+					on_route = true
+			if on_route:
+				continue
+			_patch(result, "tiles/grass", Rect2(base - Vector2(55, 28), Vector2(110, 56)), Color(0.64, 0.87, 0.65, 0.55), random)
+			for sprig in range(4):
+				result["details"].append({"sprite": "deco/bush_b_%d" % (1 + (cluster + sprig) % 4) if sprig < 3 else "deco/flower_6", "base": base + Vector2(random.randf_range(-35, 35), random.randf_range(-16, 16))})
+		if variant == 2:
+			for side: float in [-1.0, 1.0]:
+				_patch(result, "tiles/floor_tower", Rect2(center + Vector2(-110, side * 205 - 30), Vector2(220, 60)), Color(0.9, 1.0, 0.92, 0.55), random)
+				for fragment in range(5):
+					result["details"].append({"sprite": "deco/rock_5", "base": center + Vector2(fragment * 45 - 90, side * 230)})
+	for segment in range(route.size() - 1):
+		var start: Vector2 = route[segment]
+		var end: Vector2 = route[segment + 1]
+		var normal := (end - start).normalized().orthogonal() * 65
+		_polygon(result, "tiles/floor_bosque", PackedVector2Array([start - normal, end - normal, end + normal, start + normal]), Color(1.15, 1.16, 1.04, 0.45))
 
 static func _gallery_room(result: Dictionary, room: Dictionary, random: RandomNumberGenerator) -> void:
 	var rect: Rect2 = room["rect"]
