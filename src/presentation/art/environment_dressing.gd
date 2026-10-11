@@ -96,6 +96,52 @@ static func _tower(result: Dictionary, floor: Dictionary, random: RandomNumberGe
 			_patch(result, String(profile[0]), Rect2(center + offset, Vector2(80, 80)), Color(0.8, 0.86, 0.8, 0.4), random)
 	if biome == "bosque":
 		_woodland(result, floor, random)
+	elif biome == "manto":
+		_mycelium(result, floor, random)
+
+
+static func _mycelium(result: Dictionary, floor: Dictionary, random: RandomNumberGenerator) -> void:
+	var variant := posmod(int(floor["floor"]) - 17, 3)
+	result["composition"] = ["leitos_miceliais", "troncos_colonizados", "margens_de_ambar"][variant]
+	result["mycelial_beds"] = [] as Array[Dictionary]
+	var bounds := Rect2(Vector2(50, 50), (floor["size"] as Vector2) - Vector2(100, 100))
+	# Colonies grow from existing silhouettes; large decorative sprites never fake new walls.
+	for prop: Dictionary in floor["props"]:
+		var base: Vector2 = prop["base"]
+		var sprite := String(prop["sprite"])
+		var extent := Vector2(145, 85) if sprite.contains("tronco") else Vector2(110, 75)
+		if variant == 0:
+			extent *= 1.3
+		var center := base + Vector2(0, 18)
+		if not bounds.encloses(Rect2(center - extent * 1.1, extent * 2.2)):
+			continue
+		result["mycelial_beds"].append({"center": center, "extent": extent})
+		for band in range(2):
+			var points := PackedVector2Array()
+			for vertex in range(16):
+				var direction := Vector2.RIGHT.rotated(TAU * vertex / 16.0)
+				points.append(center + direction * extent * (1.0 - band * 0.22) * random.randf_range(0.88, 1.06))
+			_polygon(result, "tiles/floor_bosque", points, Color(0.64, 0.79, 0.73, 0.52) if band == 0 else Color(1.08, 1.11, 0.91, 0.44))
+		if variant == 2 and sprite.contains("ambar"):
+			_patch(result, "tiles/floor_arquivo", Rect2(center - Vector2(85, 35), Vector2(170, 70)), Color(0.9, 0.84, 0.58, 0.35), random)
+		for sprig in range(4):
+			var offset := Vector2.RIGHT.rotated(random.randf() * TAU) * extent * random.randf_range(0.65, 0.95)
+			result["details"].append({"sprite": "deco/bush_b_3" if sprig % 2 == 0 else "deco/rock_5", "base": center + offset})
+	var route: Array = floor.get("route", [])
+	for segment in range(route.size() - 1):
+		var start: Vector2 = route[segment]
+		var end: Vector2 = route[segment + 1]
+		var normal := (end - start).normalized().orthogonal()
+		# Broad, broken wear is readable under combat, without an attack-like outline.
+		var count := maxi(1, int(start.distance_to(end) / 180))
+		for index in range(count + 1):
+			var center := start.lerp(end, float(index) / count)
+			_patch(result, "tiles/floor_bosque", Rect2(center - Vector2(95, 62), Vector2(190, 124)), Color(0.82, 0.95, 0.88, 0.38), random)
+			if variant == 1:
+				for side: float in [-1.0, 1.0]:
+					var base := center + normal * side * 170
+					if bounds.has_point(base):
+						_patch(result, "tiles/floor_manto", Rect2(base - Vector2(44, 18), Vector2(88, 36)), Color(1.22, 1.24, 1.05, 0.3), random)
 
 
 static func _woodland(result: Dictionary, floor: Dictionary, random: RandomNumberGenerator) -> void:

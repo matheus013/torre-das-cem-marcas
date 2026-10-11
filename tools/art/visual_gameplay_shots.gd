@@ -30,12 +30,12 @@ func _run() -> void:
 	assert(sim.attach_support(1, 4, "projeteis_gemeos"))
 	for dimensions: Vector2i in [Vector2i(1280, 720), Vector2i(1920, 1080), Vector2i(640, 720)]:
 		root.size = dimensions
-		for number in [8, 9, 10]:
+		for number in ([17, 18, 19, 20] if "--manto" in OS.get_cmdline_user_args() else [8, 9, 10]):
 			sim.start_floor(number)
 			sim.player(1)["zone"] = &"tower"
-			sim.player(1)["position"] = sim.floor_layout["route"][1]
+			sim.player(1)["position"] = sim.floor_layout["arena_center"] if sim.floor_layout.has("arena_center") else sim.floor_layout["route"][1]
 			_refresh(sim)
-			await _capture("bosque-%d-%dx%d" % [number, dimensions.x, dimensions.y])
+			await _capture("%s-%d-%dx%d" % ["manto" if "--manto" in OS.get_cmdline_user_args() else "bosque", number, dimensions.x, dimensions.y])
 		sim.player(1)["zone"] = &"village"
 		_refresh(sim)
 		for id: StringName in [armor_id, weapon_id]:
@@ -47,7 +47,7 @@ func _run() -> void:
 			cell.grab_focus()
 			await _capture("comparison-%s-%dx%d" % ["armor" if id == armor_id else "weapon", dimensions.x, dimensions.y])
 			preview._player_menu.close()
-	print("VISUAL_GAMEPLAY_SHOTS_OK: fifteen captures, three woodland variants and equipment comparison at three widths")
+	print("VISUAL_GAMEPLAY_SHOTS_OK: biome variants and equipment comparison at three widths")
 	quit(0)
 
 func _refresh(sim: WorldSimulation) -> void:

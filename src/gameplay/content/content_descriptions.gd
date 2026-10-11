@@ -93,6 +93,8 @@ static func item_rich(definition: Dictionary, tier_id: String, slot: String, fab
 	for stat: String in stats:
 		var unit := "%" if stat in ["movement_speed", "attack_speed", "critical_chance", "cooldown_recovery", "area"] else ""
 		out.append("[color=#f2e6c9]+%s%s %s[/color]" % [_number(float(stats[stat]) * stat_factor), unit, STAT_NAMES.get(stat, stat)])
+		if stat not in FUNCTIONAL_STATS:
+			out.append("[color=#d8b879]%s: sem efeito no beta[/color]" % STAT_NAMES.get(stat, stat))
 	if not affixes.is_empty():
 		out.append("")
 		for affix: Dictionary in affixes:
@@ -102,6 +104,8 @@ static func item_rich(definition: Dictionary, tier_id: String, slot: String, fab
 		out.append("")
 		out.append("[color=#f08a3c][b]%s[/b][/color]" % String(passive.get("name", "")).to_upper())
 		out.append("[color=#f0b07a]%s[/color]" % String(passive.get("description", "")))
+	if not (definition.get("mechanics", []) as Array).is_empty():
+		out.append("[color=#d8b879]Efeitos especiais deste item: integracao pendente no beta.[/color]")
 	var flavor := String(definition.get("description", ITEM_TEXT.get(id.replace("couraça", "couraca"), "")))
 	if not flavor.is_empty():
 		out.append("")
