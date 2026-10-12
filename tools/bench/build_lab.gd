@@ -384,8 +384,7 @@ func measurement(build: Dictionary, kind: String, dummy_health: float = DUMMY_HE
 	sim.respawn.call("clear")
 	sim.enemies.clear()
 	sim.telegraphs.clear()
-	var origin := sim.player(1)["position"] as Vector2
-	var center := origin + Vector2(220.0, 0.0)
+	var center: Vector2 = sim.floor_layout.get("arena_center", sim._zone_size(&"tower") * 0.5)
 	var definition := (sim.content("enemies") as Array).filter(func(item: Dictionary) -> bool: return String(item.get("encounter_class", "")) == "common")[0] as Dictionary
 	var count := 1 if kind == "boss" else PACK
 	for index in range(count):
@@ -412,6 +411,10 @@ func measurement(build: Dictionary, kind: String, dummy_health: float = DUMMY_HE
 	var weapon_range := float(sim.weapon_attack_model(1).get("range", 140.0))
 	var reach := minf(weapon_range * 0.8, float(resolved.get("range", 999.0)) * 0.6) if not resolved.is_empty() else weapon_range * 0.8
 	var standoff := clampf(reach, 60.0, 160.0)
+	if mechanic == "dash":
+		standoff = minf(standoff, float(resolved.get("distance", 100.0)) * 0.6)
+	elif mechanic == "cone":
+		standoff = minf(standoff, float(resolved.get("radius", 80.0)) * 0.6)
 	var stand := center - Vector2(standoff, 0.0)
 	var resolved_mechanic := String(resolved.get("mechanic", mechanic))
 	var orbit_distance := float(resolved.get("radius", 100.0)) if resolved_mechanic == "orbit" else clampf(float(resolved.get("radius", 80.0)) * 0.5, 25.0, 90.0)
@@ -434,7 +437,12 @@ func measurement(build: Dictionary, kind: String, dummy_health: float = DUMMY_HE
 				state["position"] = stand
 		var channeling := (sim.persistent_effects as Array).any(func(effect: Dictionary) -> bool: return effect["mechanic"] == "volley")
 		if not mechanic.is_empty() and not channeling:
-			if sim.use_skill(1, 0, center):
+			var nearest := sim.nearest_enemy_to(state["position"], 1000.0)
+			var aim: Vector2 = sim.enemies[nearest]["position"] if nearest >= 0 else center
+			# Multi-meteor rings leave the exact cursor empty: place their first impact on prey.
+			if mechanic == "meteor" and int(resolved.get("meteor_count", 1)) > 1:
+				aim -= Vector2(float(resolved.get("spread", 80.0)), 0.0)
+			if sim.use_skill(1, 0, aim):
 				casts += 1
 		if isolated and not String(build["gem"]).is_empty():
 			var progress := (sim._gem_state(1)["gems"] as Dictionary)[String(build["gem"])] as Dictionary

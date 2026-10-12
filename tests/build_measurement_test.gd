@@ -47,6 +47,14 @@ func _run() -> void:
 	var measured := lab.measurement(isolated, "boss", Lab.DUMMY_HEALTH, 2.0, true)
 	if float(measured["sources"].get("gem:bola_de_fogo", 0.0)) <= 0.0 or measured["sources"].has("auto_attack") or measured["sources"].has("item_passive"):
 		return _fail("Isolated probe must measure gem damage without autoattack or items")
+	for subject in ["brasa_persistente", "mina_de_lastro", "chuva_ferral", "corte_vetorial", "agulha_lastro", "poca_de_veneno"]:
+		var trial := lab._base_build(subject)
+		trial["gear"] = {}
+		trial["mastery"] = 1
+		for kind in ["boss", "pack"]:
+			var result := lab.measurement(trial, kind, Lab.DUMMY_HEALTH, 3.0, true)
+			if float(result["sources"].get("gem:" + subject, 0.0)) <= 0.0:
+				return _fail("Arena and pilot must allow hits: %s %s" % [subject, kind])
 	print("BUILD_MEASUREMENT_OK: Paragon, rarity budgets, damage attribution and isolated arena")
 	quit(0)
 

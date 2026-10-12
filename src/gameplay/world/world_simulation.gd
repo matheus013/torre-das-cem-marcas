@@ -4507,6 +4507,7 @@ func _limit_skill_deployments(peer_id: int, gem_id: String, limit: int = 8) -> v
 
 func _hit_context(effect: Dictionary) -> Dictionary:
 	return {
+		"damage_origin": String(effect.get("damage_origin", "")),
 		"damage_type": "arcane" if "magic" in (effect.get("tags", []) as Array) else "physical",
 		"crit_add": float(effect.get("critical_chance", 0.0)),
 		"life_steal": float(effect.get("life_steal", 0.0)),
@@ -5100,7 +5101,7 @@ func _apply_passive_requests(peer_id: int, requests: Array) -> void:
 					if other != peer_id and (player(other)["position"] as Vector2).distance_to(state["position"] as Vector2) <= float(request.get("radius", 180.0)):
 						_add_barrier(other, float(request["amount"]), 4.0, false)
 			"summon":
-				_spawn_summons(peer_id, {"summon_definition_id": "molde_vigilante", "summon_count": 1, "duration": float(request.get("duration", 8.0))}, request.get("position", state["position"]) as Vector2)
+				_spawn_summons(peer_id, {"summon_definition_id": "molde_vigilante", "summon_count": 1, "duration": float(request.get("duration", 8.0)), "damage_origin": "character_passive"}, request.get("position", state["position"]) as Vector2)
 			"conduct":
 				for origin: Vector2 in request["origins"]:
 					var target_index := nearest_enemy_to(origin, float(request.get("range", 200.0)))
