@@ -1940,7 +1940,7 @@ func _step_player(peer_id: int, delta: float) -> void:
 			match String(weapon["pattern"]):
 				"line":
 					var end := origin + direction * float(weapon["range"])
-					_vfx(state["zone"], "chain", [[origin, end] as Array[Vector2]])
+					# Golpe em linha: só os acertos e faíscas, sem reta desenhada.
 					_damage_segment(peer_id, origin, end, float(weapon["width"]), damage, int(weapon["targets"]), imprint)
 				"cone":
 					_vfx(state["zone"], "cone", [origin, direction, float(weapon["range"]), float(weapon["angle"])])
@@ -3394,7 +3394,8 @@ func _update_telegraphs(delta: float) -> void:
 						enemy["position"] = destination
 		if String(telegraph["shape"]) == "rect":
 			var end := origin + Vector2.RIGHT.rotated(float(telegraph["angle"])) * float(telegraph["length"])
-			_vfx(&"tower", "chain", [[origin, end]])
+			# O aviso em linha já mostrou a área; ao acertar, só o impacto (sem reta).
+			_vfx(&"tower", "spark", [end])
 		else:
 			_vfx(&"tower", "ring", [origin, float(telegraph["radius"])])
 

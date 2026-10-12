@@ -2006,7 +2006,6 @@ func _draw_ground_effect(effect: Dictionary) -> void:
 			draw_set_transform(position.round() + Vector2(0.0, 10.0), _anim_time * 1.5, Vector2(1.1, 0.55))
 			draw_texture_rect_region(rune["texture"] as Texture2D, Rect2(Vector2(-32.0, -32.0), Vector2(64.0, 64.0)), rune["region"] as Rect2, Color(rune["tint"] as Color, 0.85))
 			draw_set_transform(Vector2.ZERO)
-		draw_arc(position, radius, 0.0, TAU, 48, Color(SkillThemesScript.tint(element, Color("e8e070")), 0.18), 1.0)
 		return
 	if String(effect.get("mechanic", "")) == "mine":
 		var armed := bool(effect.get("armed", false))
@@ -2018,7 +2017,6 @@ func _draw_ground_effect(effect: Dictionary) -> void:
 			draw_set_transform(position.round(), 0.0, Vector2.ONE * 0.8)
 			draw_texture_rect_region(pulse["texture"] as Texture2D, Rect2(Vector2(-32.0, -32.0), Vector2(64.0, 64.0)), pulse["region"] as Rect2, Color(pulse["tint"] as Color, 1.0 if armed else 0.45))
 			draw_set_transform(Vector2.ZERO)
-		draw_arc(position, radius, 0, TAU, 32, Color(SkillThemesScript.tint(gem_id, Color("e8b84a")), 0.6 if armed else 0.25), 1.5)
 		return
 	var sanctuary := String(effect.get("mechanic", "")) == "sanctuary"
 	var remaining := clampf(float(effect.get("duration", 1.0)), 0.0, 1.0)
@@ -2046,7 +2044,6 @@ func _draw_ground_effect(effect: Dictionary) -> void:
 		draw_set_transform(Vector2.ZERO)
 	else:
 		draw_circle(position, radius, Color(0.5, 0.84, 0.88, 0.14 * remaining))
-	draw_arc(position, radius, 0.0, TAU, 40, Color(tint, 0.8 * remaining), 2.0)
 
 
 func _draw_enemy(enemy: Dictionary) -> void:
@@ -2114,9 +2111,6 @@ func _draw_enemy(enemy: Dictionary) -> void:
 	if not behavior.is_empty():
 		var mark := BEHAVIOR_COLORS.get(behavior, Color.WHITE) as Color
 		draw_colored_polygon(PackedVector2Array([top + Vector2(0.0, -12.0), top + Vector2(4.0, -8.0), top + Vector2(0.0, -4.0), top + Vector2(-4.0, -8.0)]), mark)
-		if behavior in ["escudeiro", "profanador"]:
-			var reach := 220.0
-			draw_arc(feet, reach, 0.0, TAU, 48, Color(mark, 0.35), 2.0)
 	var health := float(enemy["health"])
 	var maximum := float(enemy.get("max_health", 60.0))
 	if health < maximum:
@@ -2140,7 +2134,7 @@ func _draw_summon(effect: Dictionary) -> void:
 	if not _draw_sprite("enemies/molde_vigilante", feet, false, Color(0.85, 1.0, 1.0)):
 		var body := float(effect.get("collision_radius", 12.0))
 		draw_rect(Rect2(position - Vector2.ONE * body, Vector2.ONE * body * 2.0), Color("bdbdbd"))
-	draw_arc(feet, 14.0, 0.0, TAU, 20, Color(0.5, 0.84, 0.88, 0.6), 1.5)
+
 
 
 # ---------------------------------------------------------------- cenário e luz

@@ -64,6 +64,10 @@ func _init() -> void:
 	if _sprites(layer) != ["vfx/anim/zap", "vfx/anim/zap"]:
 		_fail("Each chain link must end in a zap")
 		return
+	# Pedido de 2026-10-12: sem retas geométricas nos efeitos da personagem; a corrente usa o raio animado.
+	if (layer.get("_effects") as Array).any(func(effect: Dictionary) -> bool: return String(effect.get("kind", "")) == "chain"):
+		_fail("Chains must use the animated link, not a drawn polyline")
+		return
 	layer.call("_process", 10.0)
 	if int(layer.call("active_count")) != 0:
 		_fail("Finished animations must be released")

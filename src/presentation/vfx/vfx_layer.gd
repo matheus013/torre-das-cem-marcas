@@ -219,6 +219,10 @@ func chain(raw_points: Array) -> void:
 	if anim_frames(link) > 0:
 		for index in range(points.size() - 1):
 			_add_stretch(link, points[index], points[index + 1], 0.35, Color.WHITE)
+	elif anim_frames("lightning_link") > 0:
+		# Correntes de outros elementos: o raio animado, tingido na cor do elemento, em vez de uma reta.
+		for index in range(points.size() - 1):
+			_add_stretch("lightning_link", points[index], points[index + 1], 0.35, _tint())
 	else:
 		_add({"kind": "chain", "points": jagged, "duration": 0.3, "tint": _tint()})
 	for point in points.slice(1):
@@ -396,19 +400,10 @@ func _draw() -> void:
 				_draw_burst(effect, progress)
 			"ring":
 				_draw_ring(effect, progress)
-			"cone":
-				var center: Vector2 = effect["position"]
-				var heading := (effect["direction"] as Vector2).angle()
-				var half := float(effect["angle"]) * 0.5
-				var radius := float(effect["radius"])
-				draw_arc(center, radius, heading - half, heading + half, 24, Color(glow, 1.0 - progress), 3.0)
-				for edge in [-half, half]:
-					draw_line(center, center + Vector2.RIGHT.rotated(heading + edge) * radius, Color(core, 1.0 - progress), 2.0)
-			"target_ring":
-				var center: Vector2 = effect["position"]
-				var radius := float(effect["radius"])
-				draw_arc(center, radius, 0, TAU, 32, Color(glow, 0.45), 2.0)
-				draw_arc(center, radius * (1.0 - progress), 0, TAU, 32, core, 2.0)
+			# Cone e alvo de meteoro da personagem: só as animações (corte e cometa). Contornos
+			# geométricos ficam para os avisos de golpes fortes dos inimigos (pedido de 2026-10-12).
+			"cone", "target_ring":
+				pass
 			"chain":
 				_draw_chain(effect, progress)
 			"ghost":
@@ -428,7 +423,7 @@ func _draw_travel(effect: Dictionary, progress: float) -> void:
 	var to := effect["to"] as Vector2
 	var position := from.lerp(to, progress)
 	var direction := (to - from).normalized()
-	draw_line(position - direction * 26.0, position, Color(GLOW, 0.45), 3.0)
+	# Sem rastro reto: só o sprite do projétil; a linha fica de reserva quando falta arte.
 	if not _draw_centered(String(effect["sprite"]), position, direction.angle(), 1.0, Color.WHITE):
 		draw_line(position - direction * 10.0, position + direction * 6.0, CORE, 3.0)
 
@@ -455,6 +450,7 @@ func _draw_ring(effect: Dictionary, progress: float) -> void:
 	var texture := SpriteLibraryScript.texture(String(effect["sprite"]))
 	if texture != null:
 		_draw_centered(String(effect["sprite"]), position, 0.0, radius * 2.0 / texture.get_size().x, Color(1.0, 1.0, 1.0, alpha))
+		return
 	draw_arc(position, radius, 0.0, TAU, 48, Color(glow, alpha), 3.0)
 	draw_arc(position, radius * 0.85, 0.0, TAU, 48, Color(core, alpha * 0.4), 2.0)
 
