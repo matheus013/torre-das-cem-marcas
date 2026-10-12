@@ -95,6 +95,13 @@ Colecao, inventario (origem, favoritos, filtros, ordenacao), tabela de itens e s
 Por ultimo de proposito: calibrar antes das fases 1 a 5 seria refeito.
 
 - [ ] G8.11: sondas por dificuldade e calibragem ate as metas (1: 95% com build simples; 2: 85% com 1 unica; 3: 70% com Paragon 0 a 50; 4: 50% com Paragon 100 e 1 divino; 5: 30% com Paragon 150+ e build otimizada); playtests (G6.4).
+
+Plano adicional em 2026-10-12: [paridade de DPS](balanceamento/plano-paridade-dps.md).
+Pedido confirmado: aproximar o DPS medio das magias de dano; cura, protecao e
+mobilidade preservam sua funcao. Primeiro concluir a [sonda interrompida](balanceamento/retomada-2026-10-12.md),
+corrigir as limitacoes do laboratorio e separar dano da gema/autoataque/itens.
+Depois calibrar a escala global e as gemas; G8.11 continua aberto.
+
 - [ ] G3.2: validar builds de perfuracao, controle, invocacao e resgate com gemas/suportes atuais; cada personagem tem ao menos duas opcoes viaveis.
 - [ ] G8.14: itens de suporte para a colonia de esporos (decisao 591) que a tornem viavel na dificuldade 5 (ex.: teto do acumulo, heranca da Cepa, mutacao por salto, fracao em chefes).
 
