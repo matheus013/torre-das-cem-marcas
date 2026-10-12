@@ -1,5 +1,10 @@
 # Balanceamento de personagens, gemas e itens
 
+> Historico: as tabelas abaixo descrevem a rodada de 2026-10-06, anterior
+> a mudancas de dificuldades, Paragon, divinos e sobrevivencia por tempo.
+> Nao representam o balanceamento atual. A retomada da medicao de builds em
+> 2026-10-12 esta em [retomada da sonda](balanceamento/retomada-2026-10-12.md).
+
 Revisão de 2026-10-06. Objetivo: as quatro personagens viáveis solo e em grupo, gemas sem
 outliers extremos e itens cujo valor sobe com a raridade. Valores provisórios para playtest.
 

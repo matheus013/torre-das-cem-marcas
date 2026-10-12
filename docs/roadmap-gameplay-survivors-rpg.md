@@ -102,6 +102,12 @@ mobilidade preservam sua funcao. Primeiro concluir a [sonda interrompida](balanc
 corrigir as limitacoes do laboratorio e separar dano da gema/autoataque/itens.
 Depois calibrar a escala global e as gemas; G8.11 continua aberto.
 
+Entrega parcial em 2026-10-12: [sonda consolidada de 50 assuntos](balanceamento/avaliacao-de-builds.md),
+1.500 pontos estimados; nove estudos novos, dez recuperados de logs e 31 JSONs
+anteriores. Ferramenta de retomada com checkpoints atomicos e validacao no CI.
+Suite: 111 checks aprovados. Faltam corrigir as limitacoes da sonda, reexecutar
+recuperacoes para calibracao fina, ajustar numeros e validar em partidas reais.
+
 - [ ] G3.2: validar builds de perfuracao, controle, invocacao e resgate com gemas/suportes atuais; cada personagem tem ao menos duas opcoes viaveis.
 - [ ] G8.14: itens de suporte para a colonia de esporos (decisao 591) que a tornem viavel na dificuldade 5 (ex.: teto do acumulo, heranca da Cepa, mutacao por salto, fracao em chefes).
 

@@ -5,8 +5,8 @@ Escopo confirmado pelo responsavel: cura, protecao e mobilidade mantem seu
 papel; nao precisam virar habilidades ofensivas.
 
 Este documento define a ordem de trabalho. Nenhum multiplicador de combate
-foi alterado nesta etapa. A rodada interrompida continua como referencia
-historica, sem mudar o metodo enquanto ainda esta executando.
+foi alterado nesta etapa. A rodada interrompida foi concluida sem mudar
+o metodo e permanece como referencia historica, nao como calibracao final.
 
 ## Meta de Design
 
@@ -26,13 +26,17 @@ historica, sem mudar o metodo enquanto ainda esta executando.
 
 ### 1. Fechar a referencia atual
 
-- [ ] Consolidar os 50 assuntos: 46 gemas ativas e quatro autoataques.
-- [ ] Preservar origem, precisao e configuracao de cada resultado.
+- [x] Consolidar os 50 assuntos: 46 gemas ativas e quatro autoataques.
+- [x] Preservar origem, precisao e configuracao disponivel de cada resultado;
+  marcar explicitamente equipamentos intermediarios ausentes nos logs.
 - [ ] Separar utilitarias da comparacao ofensiva por comportamento real,
   revisando tags; nao classificar apenas pelo nome ou pela tag `damage`.
 
 Evidencia e limitacoes: [retomada dos testes](retomada-2026-10-12.md).
 Os vereditos atuais sao estimativas de arena, nao taxas de vitoria reais.
+Resultado consolidado: [avaliacao das builds](avaliacao-de-builds.md).
+Nenhuma build passa os seis pontos das dificuldades 4/5; a dificuldade 3
+tem uma aprovada. Corrigir laboratorio e escala antes de fixar fatores por gema.
 
 ### 2. Tornar a medicao confiavel
 
