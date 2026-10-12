@@ -21,10 +21,10 @@ A dificuldade é do mundo: o host escolhe no mapa da Torre, com todos fora dela,
 
 | Selo | Dificuldade | Dano | Vida | Dano recebido |
 | --- | --- | --- | --- | --- |
-| Selo Veterano | 2 | x4 | x1,3 | -5% |
-| Selo Mestre | 3 | x45 | x1,6 | -10% |
-| Selo Mitico | 4 | x250 | x2,5 | -15% |
-| Selo da Cicatriz | 5 | x400 | x4 | -20% |
+| Selo Veterano | 2 | x14 | x1,3 | -5% |
+| Selo Mestre | 3 | x230 | x1,6 | -10% |
+| Selo Mitico | 4 | x300 | x2,5 | -15% |
+| Selo da Cicatriz | 5 | x2.600 | x4 | -20% |
 
 **Bandos superiores** vêm uma patente acima, com todos os membros com afixos e uma aura no chão em volta de cada um.
 

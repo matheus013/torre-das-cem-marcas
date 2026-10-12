@@ -20,10 +20,10 @@ PREFIX = "selo_"
 
 # (id, nome, dificuldade, dano, Vida, dano recebido, descricao)
 SEALS = [
-    ("veterano", "Selo Veterano", 2, 4.0, 1.3, 0.95, "Primeira marca de quem venceu a Torre inteira."),
-    ("mestre", "Selo Mestre", 3, 45.0, 1.6, 0.9, "Marca gravada a fogo pelos guardioes da dificuldade Mestra."),
-    ("mitico", "Selo Mitico", 4, 250.0, 2.5, 0.85, "Pedra viva que pulsa no ritmo dos guardioes ascendidos."),
-    ("da_cicatriz", "Selo da Cicatriz", 5, 400.0, 4.0, 0.8, "O ultimo selo: a propria Cicatriz, presa a quem a enfrentou."),
+    ("veterano", "Selo Veterano", 2, 14.0, 1.3, 0.95, "Primeira marca de quem venceu a Torre inteira."),
+    ("mestre", "Selo Mestre", 3, 230.0, 1.6, 0.9, "Marca gravada a fogo pelos guardioes da dificuldade Mestra."),
+    ("mitico", "Selo Mitico", 4, 300.0, 2.5, 0.85, "Pedra viva que pulsa no ritmo dos guardioes ascendidos."),
+    ("da_cicatriz", "Selo da Cicatriz", 5, 2600.0, 4.0, 0.8, "O ultimo selo: a propria Cicatriz, presa a quem a enfrentou."),
 ]
 
 

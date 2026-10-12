@@ -67,24 +67,25 @@ func _run() -> void:
 	if not is_equal_approx(_hit(_world(1), {"crit_add": -1.0}), _hit(_world(5), {"crit_add": -1.0})):
 		return _fail("Difficulty itself must not change player damage")
 
-	# Selo Mestre: todo o dano x45 e Vida x1,6; lapidação +10% de dano por nível.
+	# Selo Mestre: multiplica todo o dano e a Vida pelos valores do catálogo; lapidação +10% de dano por nível.
+	var master := (sim.item_data("selo_mestre")["seal"]) as Dictionary
 	var plain := _hit(_world(3), {"crit_add": -1.0})
 	var sealed_world := _world(3)
 	var health := sealed_world.max_health(1)
 	_equip_seal(sealed_world, "selo_mestre")
-	if not is_equal_approx(sealed_world.max_health(1) / health, 1.6):
-		return _fail("The Master Seal must multiply max health by 1.6")
-	if not is_equal_approx(_hit(sealed_world, {"crit_add": -1.0}) / plain, 45.0):
-		return _fail("The Master Seal must multiply all damage by 45")
+	if not is_equal_approx(sealed_world.max_health(1) / health, float(master["health"])):
+		return _fail("The Master Seal must multiply max health")
+	if not is_equal_approx(_hit(sealed_world, {"crit_add": -1.0}) / plain, float(master["damage"])):
+		return _fail("The Master Seal must multiply all damage")
 	var upgraded := _world(3)
 	_equip_seal(upgraded, "selo_mestre", 2)
-	if not is_equal_approx(_hit(upgraded, {"crit_add": -1.0}) / plain, 45.0 * 1.2):
+	if not is_equal_approx(_hit(upgraded, {"crit_add": -1.0}) / plain, float(master["damage"]) * 1.2):
 		return _fail("Each seal upgrade must add 10% damage")
 	# Fração da Vida (veneno com `percent_damage`): só a parte fixa ganha o multiplicador.
 	var mixed_plain := _hit(_world(3), {"dot": true, "percent_damage": 80.0, "poison": "esporo"})
 	var mixed_world := _world(3)
 	_equip_seal(mixed_world, "selo_mestre")
-	if not is_equal_approx(_hit(mixed_world, {"dot": true, "percent_damage": 80.0, "poison": "esporo"}), mixed_plain * (0.2 * 45.0 + 0.8)):
+	if not is_equal_approx(_hit(mixed_world, {"dot": true, "percent_damage": 80.0, "poison": "esporo"}), mixed_plain * (0.2 * float(master["damage"]) + 0.8)):
 		return _fail("Percent-of-health damage must stay out of the general multiplier")
 
 	# Selos caem só na dificuldade deles; o primeiro chefe garante; não entram no saque bônus.
