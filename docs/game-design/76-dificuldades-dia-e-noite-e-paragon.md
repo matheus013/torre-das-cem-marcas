@@ -2,7 +2,7 @@
 
 ## Estado
 
-**Em implementação (épico E1).** Decisões respondidas (597 e 598); resistências, dificuldades, receitas, dia e noite, marés, afixos e mutadores (seções 1 a 5) estão no jogo desde 2026-10-11 (decisões 601 a 606); itens divinos e Paragon seguem nas fases 5 a 7.
+**Em implementação (épico E1).** Decisões respondidas (597 e 598); resistências, dificuldades, receitas, dia e noite, marés, afixos, mutadores, Paragon, itens divinos, chefes por dificuldade e Pactos estão no jogo desde 2026-10-11 (decisões 601 a 609); telas de coleção e calibragem seguem nas fases 6 e 7.
 
 Plano proposto em 2026-10-07 a pedido do responsável, para aprovar antes de
 implementar. Substitui, quando aprovado, o backlog G6 e G7 do

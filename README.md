@@ -27,6 +27,7 @@ Preparação para distribuição: [roadmap Steam em acesso antecipado](docs/road
   - [A Torre](#a-torre)
   - [Dificuldades](#dificuldades)
   - [Dia e noite](#dia-e-noite)
+  - [Paragon, itens divinos e chefes por dificuldade](#paragon-itens-divinos-e-chefes-por-dificuldade)
   - [Afixos de elite, mutadores e marés](#afixos-de-elite-mutadores-e-marés)
   - [Resistências e fraquezas](#resistências-e-fraquezas)
   - [Chefes](#chefes)
@@ -186,6 +187,12 @@ O mundo tem um relógio próprio: um dia dura **2 horas de jogo** (manhã 30 min
 - **Orvalho Negro** e **Pólen Lunar** só caem à noite.
 - A cada 3 noites sobe a **Lua da Cicatriz**, com os bônus dobrados.
 - **De manhã** aparecem **Coletores de Âmbar**: fogem, não atacam e soltam **Âmbar Solar** se você os pegar.
+
+### Paragon, itens divinos e chefes por dificuldade
+
+- **Paragon:** depois do nível 100, a EXP das dificuldades 3 a 5 vira níveis Paragon (até 200), que são da sua conta e valem para todas as personagens. Cada personagem tem um tabuleiro com quatro trilhas (Ofensiva, Defensiva, Utilidade e Elemental) e nós notáveis a cada 10 pontos, na aba **Personagem**. Refazer custa prata na vila.
+- **Itens divinos** (branco-dourado), da dificuldade 4 em diante: 12 peças que quebram regras do jogo, sempre Magistrais, com 8 afixos no máximo. Caem de chefes, da Lua da Cicatriz e de campeões, e a Forja faz um por **ascensão** (3 armas únicas da mesma gema + 5 Pólen Lunar). Cada jogador sorteia o próprio.
+- **Chefes** ficam mais perigosos a cada dificuldade: habilidade do bioma (2), fase de fúria abaixo de 30% (3), forma ascendida com curandeiros (4) e um escudo que precisa cair a tempo (5). Na 5, cada andar tem um **Guardião da Cicatriz**, e o host pode aceitar **Pactos** (maldições com +25% de saque e EXP cada) no mapa da Torre.
 
 ### Afixos de elite, mutadores e marés
 

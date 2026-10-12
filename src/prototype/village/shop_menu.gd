@@ -168,12 +168,16 @@ func refresh(model: Dictionary) -> void:
 	var title := Label.new()
 	title.text = "ASCENSAO  ·  3 armas unicas da mesma gema + 5 Polen Lunar = 1 item divino" + ("" if bool(_model.get("ascension_open", false)) else "  (abre com a dificuldade 4)")
 	title.add_theme_color_override("font_color", ItemTier.color("divine"))
+	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	title.custom_minimum_size.x = 200.0
 	_ascension.add_child(title)
 	for option: Dictionary in _model.get("ascension", []) as Array:
 		var row := HBoxContainer.new()
 		var label := Label.new()
 		label.text = "%s  %d/%d  ·  %s %d/%d" % [String(option["name"]), int(option["have"]), int(option["need"]), String(option["material"]), int(option["material_have"]), int(option["material_need"])]
 		label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		label.custom_minimum_size.x = 120.0
 		label.add_theme_color_override("font_color", TEXT if bool(option["ready"]) else MUTED)
 		row.add_child(label)
 		var button := Button.new()

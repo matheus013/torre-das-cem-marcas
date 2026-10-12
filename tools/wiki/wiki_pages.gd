@@ -12,6 +12,7 @@ const BestiaryScript := preload("res://src/gameplay/content/bestiary.gd")
 const MenuScript := preload("res://src/prototype/village/player_menu.gd")
 const WorldClockScript := preload("res://src/gameplay/world/world_clock.gd")
 const FloorRulesScript := preload("res://src/gameplay/world/floor_rules.gd")
+const ParagonScript := preload("res://src/gameplay/progression/paragon.gd")
 const WEAPON_PROFILES := "res://data/combat/weapon_profiles.json"
 
 const PAGES := [
@@ -551,6 +552,21 @@ func _difficulties() -> String:
 		lines.append("| " + " | ".join(cells) + " |")
 	lines.append("")
 	lines.append("**Bandos superiores** vêm uma patente acima, com todos os membros com afixos e uma aura no chão em volta de cada um.")
+	lines.append_array(PackedStringArray(["", "## Chefes por dificuldade", "",
+		"- **2:** cada chefe ganha a habilidade do perigo do bioma.",
+		"- **3:** fase nova abaixo de %s da Vida, com golpes mais rápidos e reforços." % _pct(Simulation.BOSS_SURGE_THRESHOLD),
+		"- **4:** forma ascendida a %s: a arena ganha zonas permanentes, cada habilidade vem combinada com a seguinte e dois curandeiros recuperam %s da Vida do chefe por segundo cada." % [_pct(Simulation.BOSS_ASCEND_THRESHOLD), _pct(Simulation.BOSS_HEALER_RATE)],
+		"- **5:** teste de dano a 60%% e 30%%: um escudo de %s da Vida precisa cair em %s s; se cair, o chefe fica vulnerável; se não, a fase recomeça." % [_pct(Simulation.BOSS_SHIELD_SHARE), _num(Simulation.BOSS_SHIELD_SECONDS)],
+		"", "## Dificuldade 5: Guardiões e Pactos", "",
+		"Cada andar comum tem um **Guardião da Cicatriz**: elite com três afixos e Vida x%s, que solta material raro do bioma e pode soltar um [item divino](Itens-Divinos)." % _num(Simulation.SCAR_GUARDIAN_HEALTH), "",
+		"**Pactos** (o host escolhe no mapa da Torre, fora dela). Cada um dá %s de saque e EXP:" % _signed_pct(Simulation.PACT_REWARD), ""]))
+	for pact: String in Simulation.PACTS:
+		lines.append("- **%s:** %s" % [Simulation.PACTS[pact]["name"], Simulation.PACTS[pact]["description"]])
+	lines.append_array(PackedStringArray(["", "## Paragon", "",
+		"Depois do nível 100, a EXP das dificuldades 3 a 5 (x1, x1,5 e x2) vira níveis Paragon, até %d. É da conta: vale para todas as personagens, cada uma com o próprio tabuleiro de quatro trilhas e um nó notável a cada %d pontos numa trilha." % [ParagonScript.MAX_LEVEL, ParagonScript.NOTABLE_STEP], "",
+		"| Trilha | Por ponto | Nós notáveis |", "| --- | --- | --- |"]))
+	for track in ParagonScript.TRACKS:
+		lines.append("| %s | %s | %s |" % [ParagonScript.TRACK_NAMES[track], ParagonScript.PER_POINT_TEXT[track], _cell("; ".join(PackedStringArray((ParagonScript.NOTABLES[track] as Array).map(func(notable: Dictionary) -> String: return "%s (%s)" % [notable["name"], notable["description"]]))))])
 	return _page(lines)
 
 

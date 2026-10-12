@@ -9,6 +9,7 @@ signal stat_requested(stat: StringName)
 signal stats_reset_requested
 signal paragon_allocate_requested(track: String)
 signal paragon_respec_requested
+signal pact_requested(pact_id: String, enabled: bool)
 signal milestone_requested(choice_id: StringName)
 signal equip_requested(instance_id: StringName)
 signal unequip_requested(slot: int, index: int)
@@ -805,12 +806,34 @@ func _build_difficulty_picker(safe: bool) -> void:
 		grid.add_child(button)
 
 
+## Pactos (dificuldade 5, decisão 609): o host aceita maldições por +25% de saque e EXP cada.
+func _build_pacts(safe: bool) -> void:
+	var model := _model.get("pacts", {}) as Dictionary
+	if not bool(model.get("available", false)):
+		return
+	_section("PACTOS DA CICATRIZ", "cada pacto: +%d%% de saque e EXP  ·  so fora da Torre" % roundi(float(model.get("reward", 0.25)) * 100.0))
+	var grid := GridContainer.new()
+	grid.name = "Pacts"
+	grid.columns = 1 if _compact else 2
+	_content.add_child(grid)
+	for option: Dictionary in model.get("options", []) as Array:
+		var button := Button.new()
+		button.toggle_mode = true
+		button.button_pressed = bool(option["active"])
+		button.text = "%s: %s" % [String(option["name"]).to_upper(), String(option["description"])]
+		button.disabled = not safe
+		var pact_id := String(option["id"])
+		button.toggled.connect(func(on: bool) -> void: pact_requested.emit(pact_id, on))
+		grid.add_child(button)
+
+
 func _build_tower() -> void:
 	var deepest := int(_model.get("deepest_floor", 1))
 	var start := int(_model.get("tower_start_floor", 1))
 	var safe := bool(_model.get("in_safe_area", true))
 	_build_difficulty_picker(safe)
 	_section("MAPA DA TORRE", "andar mais fundo: %d   ·   proxima entrada: andar %d" % [deepest, start])
+	_build_pacts(safe)
 	var floor_mutators := _model.get("floor_mutators", []) as Array
 	if not floor_mutators.is_empty():
 		_add_text("Mutadores do andar atual: " + "; ".join(PackedStringArray(floor_mutators.map(func(entry: Dictionary) -> String: return "%s%s: %s" % [String(entry["name"]), " (cruel)" if bool(entry.get("cruel", false)) else "", String(entry["description"])]))), GOLD)

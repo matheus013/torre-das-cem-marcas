@@ -55,6 +55,7 @@ static func active(sim: RefCounted, peer_id: int) -> Array[Dictionary]:
 		key += String(item.instance_id) + ";"
 	# Tabuleiro de Paragon (decisão 607): entra no mesmo cache, com a alocação na chave.
 	key += "|" + String(sim.call("paragon_signature", peer_id)) if sim.has_method("paragon_signature") else ""
+	key += "|" + ",".join(PackedStringArray(sim.call("active_pacts") as Array)) if sim.has_method("active_pacts") else ""
 	var cache := sim.get("_passive_cache") as Dictionary
 	var cached := cache.get(peer_id, {}) as Dictionary
 	if String(cached.get("key", "-")) == key:
@@ -62,6 +63,8 @@ static func active(sim: RefCounted, peer_id: int) -> Array[Dictionary]:
 	var data := _loadout_data(sim, items)
 	if sim.has_method("paragon_passives"):
 		(data["passives"] as Array).append_array(sim.call("paragon_passives", peer_id) as Array)
+	if sim.has_method("pact_passives"):
+		(data["passives"] as Array).append_array(sim.call("pact_passives") as Array)
 	cache[peer_id] = {"key": key, "passives": data["passives"], "affix_mods": data["affix_mods"]}
 	return data["passives"]
 

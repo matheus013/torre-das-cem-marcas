@@ -213,6 +213,24 @@ const DIVINE_CHAMPION_CHANCE := 0.05
 const ASCENSION_UNIQUES := 3
 const ASCENSION_MATERIAL := "polen_lunar"
 const ASCENSION_MATERIAL_COUNT := 5
+## Chefes por dificuldade (G8.10; decisão 609): habilidade do bioma (2), fase de fúria abaixo de 30%
+## (3), forma ascendida a 50% com arena alterada, golpes combinados e curandeiros (4), e teste de dano
+## com escudo cronometrado a 60% e 30% (5). Na 5 também há Guardiões da Cicatriz e Pactos.
+const BOSS_SURGE_THRESHOLD := 0.3
+const BOSS_ASCEND_THRESHOLD := 0.5
+const BOSS_SHIELD_THRESHOLDS: Array[float] = [0.6, 0.3]
+const BOSS_SHIELD_SHARE := 0.12
+const BOSS_SHIELD_SECONDS := 12.0
+const BOSS_HEALER_RATE := 0.01
+const SCAR_GUARDIAN_HEALTH := 5.0
+const SCAR_GUARDIAN_DIVINE := 0.1
+const PACT_REWARD := 0.25
+const PACTS := {
+	"pacto_de_sangue": {"name": "Pacto de Sangue", "description": "Gemas custam Vida em vez de Folego.", "mods": {"health_cost_all": 1.0}},
+	"pacto_do_vidro": {"name": "Pacto do Vidro", "description": "Vida maxima -30%.", "mods": {"max_health_mult": 0.7}},
+	"pacto_da_pressa": {"name": "Pacto da Pressa", "description": "Inimigos +30% de velocidade."},
+	"pacto_da_sombra": {"name": "Pacto da Sombra", "description": "Raio de luz -40%.", "mods": {"light_radius_mult": 0.6}},
+}
 ## Dia e noite (épico E1, fase 3; G8.1 e G8.2; decisão 605). À noite só o que está na luz de alguma
 ## personagem aparece inteiro e entra no ataque automático; a luz é um atributo (afixo, gemas
 ## sagradas) e as variantes noturnas a disputam. Valores provisórios.
@@ -270,6 +288,8 @@ var _light_radii: Dictionary = {}
 ## Identificador estável de inimigos (pares vinculados, carregador da Procissão).
 var _enemy_uid := 1
 var _storm_timer := FloorRulesScript.STORM_INTERVAL
+## Pactos aceitos pelo host (só valem na dificuldade 5).
+var pacts: Array[String] = []
 var narrative := NarrativeProgress.new()
 var banked_stone := 0
 var banked_loot: Dictionary = {}
@@ -1230,6 +1250,141 @@ func allocate_stat(peer_id: int, stat: StringName) -> void:
 
 
 ## Reset de atributos: todos os pontos distribuídos voltam a ficar livres (evoluções ficam).
+# ---------------------------------------------------------------- chefes por dificuldade (decisão 609)
+
+func _apply_boss_difficulty(boss: Dictionary, boss_kit: Dictionary) -> void:
+	# Habilidades anunciadas escalam como o golpe do chefe (dificuldade e noite); antes ficavam no
+	# valor base mesmo na dificuldade 5 (regressão de 2026-10-11).
+	var scale := float(difficulty_rules()["damage"]) * float(time_bonuses()["enemy"])
+	for ability: Dictionary in boss["kit"] as Array:
+		if ability.has("damage"):
+			ability["damage"] = float(ability["damage"]) * scale
+	if difficulty >= 2:
+		var hazard := (TowerContentScript.biome(String(boss_kit.get("biome", ""))).get("hazard", {}) as Dictionary).duplicate(true)
+		if not hazard.is_empty():
+			if String(hazard.get("type", "")) == "mixed":
+				hazard = {"type": "meteor", "count": 4, "radius": 80.0, "spread": 300.0, "delay": 1.2}
+			hazard["damage"] = float(boss["damage"]) * 1.1
+			hazard["cooldown"] = 9.0
+			hazard["biome_ability"] = true
+			(boss["kit"] as Array).append(hazard)
+	if difficulty >= 3 and not (boss["phases"] as Array).has(BOSS_SURGE_THRESHOLD):
+		(boss["phases"] as Array).append(BOSS_SURGE_THRESHOLD)
+		(boss["phases"] as Array).sort_custom(func(left: Variant, right: Variant) -> bool: return float(left) > float(right))
+	boss["shield_steps"] = 0
+
+
+func _step_boss_difficulty(boss: Dictionary, ratio: float, delta: float) -> void:
+	var position := boss["position"] as Vector2
+	var name := String(boss.get("display_name", "Chefe"))
+	if difficulty >= 3 and ratio <= BOSS_SURGE_THRESHOLD and not bool(boss.get("surge", false)):
+		boss["surge"] = true
+		_status(0, "%s entra na ultima fase: golpes mais rapidos e reforcos." % name)
+		for index in range(2):
+			_spawn_boss_add(boss, Vector2.RIGHT.rotated(TAU * index / 2.0) * 120.0, false)
+	if difficulty >= 4 and ratio <= BOSS_ASCEND_THRESHOLD and not bool(boss.get("ascended", false)):
+		boss["ascended"] = true
+		_status(0, "%s ascende: a arena muda e as habilidades vem combinadas." % name)
+		var center := floor_layout.get("arena_center", position) as Vector2
+		var hazard := TowerContentScript.biome(String(floor_def().get("biome", ""))).get("hazard", {}) as Dictionary
+		for index in range(3):
+			hazard_zones.append({"position": center + Vector2.RIGHT.rotated(TAU * index / 3.0) * 220.0, "radius": 90.0,
+				"damage": float(boss["damage"]) * 0.3 + float(hazard.get("damage", 10.0)), "slow": 0.2, "remaining": 9999.0, "tick": 0.0})
+		for index in range(2):
+			_spawn_boss_add(boss, Vector2.RIGHT.rotated(TAU * index / 2.0 + 0.8) * 160.0, true)
+	# Curandeiros da forma ascendida.
+	var healers := enemies.filter(func(enemy: Dictionary) -> bool: return bool(enemy.get("boss_healer", false)))
+	if not healers.is_empty():
+		boss["health"] = minf(float(boss["max_health"]), float(boss["health"]) + float(boss["max_health"]) * BOSS_HEALER_RATE * healers.size() * delta)
+	# Teste de dano (5): escudo a 60% e 30%; se não cair a tempo, a fase reinicia.
+	if difficulty >= 5:
+		var step := int(boss.get("shield_steps", 0))
+		if step < BOSS_SHIELD_THRESHOLDS.size() and ratio <= BOSS_SHIELD_THRESHOLDS[step] and float(boss.get("shield_hp", 0.0)) <= 0.0:
+			boss["shield_steps"] = step + 1
+			boss["shield_hp"] = float(boss["max_health"]) * BOSS_SHIELD_SHARE
+			boss["shield_max"] = boss["shield_hp"]
+			boss["shield_timer"] = BOSS_SHIELD_SECONDS
+			boss["shield_restore"] = minf(1.0, BOSS_SHIELD_THRESHOLDS[step] + 0.15)
+			_status(0, "%s ergue um escudo: quebre em %d s ou a fase recomeca!" % [name, int(BOSS_SHIELD_SECONDS)])
+		if float(boss.get("shield_hp", 0.0)) > 0.0:
+			boss["shield_timer"] = float(boss["shield_timer"]) - delta
+			if float(boss["shield_timer"]) <= 0.0:
+				boss["shield_hp"] = 0.0
+				boss["health"] = float(boss["max_health"]) * float(boss.get("shield_restore", 1.0))
+				boss["shield_steps"] = maxi(0, int(boss["shield_steps"]) - 1)
+				_status(0, "O escudo resistiu: %s recupera a Vida e a fase recomeca." % name)
+
+
+func _spawn_boss_add(boss: Dictionary, offset: Vector2, healer: bool) -> void:
+	if enemies.size() >= 40:
+		return
+	var spot := (boss["position"] as Vector2) + offset
+	if not floor_layout.is_empty() and not FloorLayoutScript.can_stand(floor_layout, spot, 14.0):
+		spot = boss["position"] as Vector2
+	var add := _spawn_floor_enemy(_tide_definition(false), spot, 7500 + _time_random.randi_range(0, 999), _time_random)
+	add["chasing"] = true
+	add["summoned"] = true
+	if healer:
+		add["boss_healer"] = true
+		add["display_name"] = "Curandeiro de %s" % String(boss.get("display_name", "Chefe"))
+		add["max_health"] = float(add["max_health"]) * 2.0
+		add["health"] = add["max_health"]
+	enemies.append(add)
+
+
+func _spawn_scar_guardian() -> void:
+	var points := floor_layout.get("spawn_points", []) as Array
+	if points.is_empty():
+		return
+	var definition := superior_definition(_tide_definition(true), 2)
+	definition["behavior"] = FloorRulesScript.BEHAVIORS.keys()[_time_random.randi_range(0, FloorRulesScript.BEHAVIORS.size() - 1)]
+	var guardian := _spawn_floor_enemy(definition, points[_time_random.randi_range(0, points.size() - 1)] as Vector2, 8800, _time_random)
+	guardian["max_health"] = float(guardian["max_health"]) * SCAR_GUARDIAN_HEALTH
+	guardian["health"] = guardian["max_health"]
+	guardian["display_name"] = "Guardiao da Cicatriz"
+	guardian["scar_guardian"] = true
+	guardian["champion"] = true
+	guardian["superior"] = true
+	enemies.append(guardian)
+
+
+## Pactos (dificuldade 5): maldições aceitas pelo host, cada uma com +25% de saque e EXP.
+func active_pacts() -> Array[String]:
+	return pacts if difficulty >= 5 else ([] as Array[String])
+
+
+func pact_reward() -> float:
+	return 1.0 + PACT_REWARD * active_pacts().size()
+
+
+func set_pact(peer_id: int, pact_id: String, enabled: bool) -> bool:
+	if not PACTS.has(pact_id) or difficulty < 5 or not _players_in_arena().is_empty() or player(peer_id).is_empty():
+		return false
+	if enabled and pact_id not in pacts:
+		pacts.append(pact_id)
+	elif not enabled:
+		pacts.erase(pact_id)
+	_passive_cache.clear()
+	_status(0, "%s %s." % [String(PACTS[pact_id]["name"]), "aceito" if enabled else "desfeito"])
+	return true
+
+
+func pact_passives() -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	for pact_id in active_pacts():
+		var mods := (PACTS[pact_id] as Dictionary).get("mods", {}) as Dictionary
+		if not mods.is_empty():
+			result.append({"name": String(PACTS[pact_id]["name"]), "description": String(PACTS[pact_id]["description"]), "mods": mods, "item_id": pact_id})
+	return result
+
+
+func pact_model() -> Dictionary:
+	var options: Array = []
+	for pact_id: String in PACTS:
+		options.append({"id": pact_id, "name": String(PACTS[pact_id]["name"]), "description": String(PACTS[pact_id]["description"]), "active": pact_id in pacts})
+	return {"available": difficulty >= 5, "options": options, "reward": PACT_REWARD}
+
+
 # ---------------------------------------------------------------- itens divinos (decisão 608)
 
 func divine_ids() -> Array[String]:
@@ -2250,6 +2405,9 @@ func _spawn_floor_population() -> void:
 				var spawned := _spawn_floor_enemy(definition, spot, pack * 7 + member)
 				spawned["superior"] = superior
 				enemies.append(spawned)
+	# Dificuldade 5: um Guardião da Cicatriz por andar (3 afixos e material raro garantido).
+	if difficulty >= 5:
+		_spawn_scar_guardian()
 	# Monstros de horário vêm depois, com sorteio próprio: de dia a população é a mesma de antes.
 	if is_night():
 		var variants := 0
@@ -2301,6 +2459,8 @@ func _spawn_floor_enemy(definition: Dictionary, position: Vector2, roll_index: i
 	# Noite: Vida e dano +10% (+20% na Lua da Cicatriz) para quem nasce no escuro.
 	if has_mutator("pressa"):
 		enemy["speed"] = float(enemy["speed"]) * FloorRulesScript.HASTE_SPEED
+	if "pacto_da_pressa" in active_pacts():
+		enemy["speed"] = float(enemy["speed"]) * 1.3
 	if has_mutator("blindagem"):
 		var resistances := (enemy.get("resistances", {}) as Dictionary).duplicate()
 		resistances["physical"] = clampf(float(resistances.get("physical", 0.0)) + FloorRulesScript.PLATING_RESIST, ResistancesScript.MINIMUM, ResistancesScript.MAXIMUM)
@@ -2337,6 +2497,7 @@ func _spawn_floor_boss() -> void:
 	boss["phase"] = 0
 	boss["cast_lock"] = 2.0
 	boss["kit_timers"] = {}
+	_apply_boss_difficulty(boss, boss_kit)
 	enemies.append(boss)
 	_status(0, "%s desperta. A arena selou a saida." % String(boss_kit.get("name", "O guardiao")))
 
@@ -3013,6 +3174,7 @@ func _step_boss(boss: Dictionary, delta: float) -> void:
 		boss["cast_lock"] = 1.2
 		_vfx(&"tower", "ring", [position, 160.0])
 		_status(0, "%s muda de forma: fase %d." % [String(boss.get("display_name", "Chefe")), phase + 1])
+	_step_boss_difficulty(boss, ratio, delta)
 	var enraged := float(boss["fight_time"]) >= float(boss.get("enrage", 200.0))
 	if enraged and not bool(boss.get("enraged", false)):
 		boss["enraged"] = true
@@ -3036,10 +3198,13 @@ func _step_boss(boss: Dictionary, delta: float) -> void:
 			var ability := kit[index] as Dictionary
 			if int(ability.get("phase", 1)) - 1 > phase or float(timers.get(str(index), 0.0)) > 0.0:
 				continue
-			var cooldown := float(ability.get("cooldown", 6.0)) * pow(0.85, float(phase)) * (0.6 if enraged else 1.0)
+			var cooldown := float(ability.get("cooldown", 6.0)) * pow(0.85, float(phase)) * (0.6 if enraged else 1.0) * (0.75 if bool(boss.get("surge", false)) else 1.0)
 			timers[str(index)] = cooldown
 			boss["next_ability"] = index + 1
 			boss["cast_lock"] = maxf(0.9, _cast_ability(boss, ability, 1.5 if enraged else 1.0))
+			# Forma ascendida: cada habilidade vem combinada com a seguinte do kit.
+			if bool(boss.get("ascended", false)) and kit.size() > 1:
+				_cast_ability(boss, kit[(index + 1) % kit.size()] as Dictionary, 1.5 if enraged else 1.0)
 			break
 		boss["kit_timers"] = timers
 	if float(boss["cast_lock"]) > 0.0 or float(boss.get("speed", 0.0)) <= 0.0:
@@ -3838,6 +4003,19 @@ func _damage_enemy(peer_id: int, index: int, damage: float, hit: Dictionary) -> 
 	var resisted := ResistancesScript.enemy_resistance(enemy, damage_kind, _mod(peer_id, "penetration_add") if players.has(peer_id) else 0.0)
 	damage *= 1.0 - resisted
 	damage = _behavior_damage(peer_id, enemy, damage, damage_kind, dot)
+	# Teste de dano (dificuldade 5): o escudo do chefe absorve primeiro.
+	if float(enemy.get("shield_hp", 0.0)) > 0.0:
+		var absorbed := minf(float(enemy["shield_hp"]), damage)
+		enemy["shield_hp"] = float(enemy["shield_hp"]) - absorbed
+		damage -= absorbed
+		if float(enemy["shield_hp"]) <= 0.0:
+			enemy["shield_timer"] = 0.0
+			enemy["vulnerable_amount"] = 0.25
+			enemy["vulnerable_timer"] = 4.0
+			_status(0, "O escudo de %s caiu!" % String(enemy.get("display_name", "Chefe")))
+		if damage <= 0.0:
+			_vfx(zone, "label", [enemy_position, "ESCUDO", Color("f6e7a8"), "shield"])
+			return
 	if damage <= 0.0:
 		_vfx(zone, "label", [enemy_position, "IMUNE", Color("c9d4d6"), "block"])
 		return
@@ -4928,7 +5106,7 @@ func _grant_loot(peer_id: int, enemy: Dictionary) -> void:
 	var loot_table := _find(_collection("loot_tables"), String(enemy.get("loot_table_id", "")))
 	var loot_level := LootDifficultyScript.score(enemy, float(party_scaling()["budget"])) + float(difficulty_rules()["loot_score"])
 	var drops: Array = _loot_resolver.call("resolve", loot_table, encounter_seed, loot_kill_sequence,
-		LootDifficultyScript.chance_multiplier(loot_level) * float(difficulty_rules()["loot"]) * float(time_bonuses()["loot"]) * FloorRulesScript.mutator_loot(floor_run.get("mutators", []) as Array), LootDifficultyScript.quantity_multiplier(loot_level))
+		LootDifficultyScript.chance_multiplier(loot_level) * float(difficulty_rules()["loot"]) * float(time_bonuses()["loot"]) * FloorRulesScript.mutator_loot(floor_run.get("mutators", []) as Array) * pact_reward(), LootDifficultyScript.quantity_multiplier(loot_level))
 	var quality_random := RandomNumberGenerator.new()
 	quality_random.seed = hash([encounter_seed, loot_kill_sequence, "quality"])
 	if drops.is_empty() and loot_table.is_empty():
@@ -4944,6 +5122,11 @@ func _grant_loot(peer_id: int, enemy: Dictionary) -> void:
 		if not unique.is_empty():
 			drops.append({"item_id": unique, "quantity": 1})
 	drops.append_array(_night_drops(enemy))
+	# Guardião da Cicatriz: material raro do bioma garantido e chance de divino.
+	if bool(enemy.get("scar_guardian", false)):
+		var materials := TowerContentScript.biome(String(floor_def().get("biome", ""))).get("materials", []) as Array
+		drops.append({"item_id": String(materials[1]) if materials.size() > 1 else "argila_de_enxerto", "quantity": 2})
+		_roll_divines(SCAR_GUARDIAN_DIVINE, "guardiao")
 	# Campeão de maré (dificuldade 5): uma peça garantida a mais e chance de divino.
 	if bool(enemy.get("tide_champion", false)):
 		_roll_divines(DIVINE_CHAMPION_CHANCE, "campeao")
@@ -5080,7 +5263,7 @@ func _grant_experience(peer_id: int, enemy: Dictionary) -> void:
 	var key := String(player(peer_id).get("character_id", ""))
 	if key.is_empty():
 		return
-	var reward := int(round(float(EXPERIENCE_REWARDS.get(String(enemy.get("encounter_class", "common")), 12)) * float(difficulty_rules()["exp"]) * float(time_bonuses()["exp"])))
+	var reward := int(round(float(EXPERIENCE_REWARDS.get(String(enemy.get("encounter_class", "common")), 12)) * float(difficulty_rules()["exp"]) * float(time_bonuses()["exp"]) * pact_reward()))
 	character_experience[key] = int(character_experience.get(key, 0)) + reward
 	_process_level_ups(peer_id)
 	_grant_paragon_experience(peer_id, reward)
@@ -5524,10 +5707,15 @@ func _floor_view() -> Dictionary:
 	var definition := floor_def()
 	var boss_ratio := -1.0
 	var boss_name := ""
+	var boss_shield := 0.0
+	var boss_shield_timer := 0.0
 	for enemy in enemies:
 		if bool(enemy.get("floor_boss", false)):
 			boss_ratio = float(enemy["health"]) / maxf(1.0, float(enemy["max_health"]))
 			boss_name = String(enemy.get("display_name", ""))
+			if float(enemy.get("shield_hp", 0.0)) > 0.0:
+				boss_shield = float(enemy["shield_hp"]) / maxf(1.0, float(enemy.get("shield_max", 1.0)))
+				boss_shield_timer = float(enemy.get("shield_timer", 0.0))
 	var mode := record_mode()
 	return {
 		"number": current_floor, "name": String(definition.get("name", "")), "biome": String(definition.get("biome", "")),
@@ -5536,6 +5724,7 @@ func _floor_view() -> Dictionary:
 		"stairs_open": bool(floor_run.get("stairs_open", false)), "mode": mode, "best": best_time(current_floor, mode),
 		"survival_left": survival_left() if is_explore_floor() else 0.0,
 		"respawn_interval": respawn_interval(), "boss_ratio": boss_ratio, "boss_name": boss_name,
+		"boss_shield": boss_shield, "boss_shield_timer": boss_shield_timer, "pacts": active_pacts(),
 		"difficulty": difficulty, "difficulty_name": String(difficulty_rules()["name"]),
 		"recorded": bool(floor_run.get("recorded", false)),
 		"mutators": _mutator_views(), "dark": is_dark(), "eclipse": tide_active("eclipse"),
@@ -6054,6 +6243,7 @@ func menu_model(peer_id: int) -> Dictionary:
 		"floor_mutators": _mutator_views() if current_floor > 0 else [],
 		"difficulty": difficulty_model(),
 		"paragon": paragon_model(peer_id),
+		"pacts": pact_model(),
 		"floors": _tower_map_model(),
 		"chosen_milestones": chosen,
 		"experience": int(character_experience.get(String(state.get("character_id", "")), 0)),
@@ -6471,6 +6661,7 @@ func save_data(host_peer: int) -> Dictionary:
 		"floor_run": floor_run.duplicate(true),
 		"village_life": village_life.call("snapshot"),
 		"world_clock": clock.call("save"),
+		"pacts": pacts.duplicate(),
 		"tower_start_floor": tower_start_floor,
 		"deepest_floor": deepest_floor,
 		"difficulty": difficulty,
@@ -6542,6 +6733,10 @@ func load_data(data: Dictionary, host_peer: int) -> bool:
 	var saved_life: Variant = data.get("village_life", {})
 	if saved_life is Dictionary:
 		village_life.call("restore", saved_life)
+	pacts.clear()
+	for pact_id: Variant in data.get("pacts", []) as Array if data.get("pacts", []) is Array else []:
+		if PACTS.has(String(pact_id)) and String(pact_id) not in pacts:
+			pacts.append(String(pact_id))
 	# Saves sem relógio começam no período em que a vila estava.
 	var saved_clock: Variant = data.get("world_clock", {})
 	if saved_clock is Dictionary and not (saved_clock as Dictionary).is_empty():

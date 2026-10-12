@@ -537,6 +537,9 @@ func _apply_intent(peer_id: int, kind: String, args: Array) -> void:
 		"ascend":
 			if args.size() == 1 and args[0] is String:
 				_sim.call("ascend", peer_id, String(args[0]))
+		"pact":
+			if args.size() == 2 and args[0] is String and args[1] is bool and peer_id == _local_peer:
+				_sim.call("set_pact", peer_id, String(args[0]), bool(args[1]))
 		"loot_filter":
 			if args.size() == 1 and args[0] is String:
 				_sim.call("set_loot_filter", peer_id, String(args[0]))
@@ -2466,6 +2469,7 @@ func _build_interface() -> void:
 	_player_menu.stats_reset_requested.connect(func() -> void: _send_intent("reset_stats", []))
 	_player_menu.paragon_allocate_requested.connect(func(track: String) -> void: _send_intent("paragon_allocate", [track]))
 	_player_menu.paragon_respec_requested.connect(func() -> void: _send_intent("paragon_respec", []))
+	_player_menu.pact_requested.connect(func(pact_id: String, enabled: bool) -> void: _send_intent("pact", [pact_id, enabled]))
 	_player_menu.loot_filter_requested.connect(func(tier: String) -> void: _send_intent("loot_filter", [tier]))
 	_player_menu.auto_sell_requested.connect(func(tier: String) -> void: _send_intent("auto_sell", [tier]))
 	_player_menu.gem_slot_requested.connect(func(slot: int, gem_id: String) -> void: _send_intent("gem_slot", [slot, gem_id]))
@@ -2646,6 +2650,9 @@ func _update_floor_panel(zone: StringName, floor_view: Dictionary) -> void:
 	if _boss_bar.visible:
 		(_boss_bar.get_node("Fill") as ColorRect).size.x = float(_boss_bar.get_meta("fill_width", 596.0)) * clampf(float(floor_view["boss_ratio"]), 0.0, 1.0)
 		(_boss_bar.get_node("Name") as Label).text = String(floor_view.get("boss_name", "")).to_upper()
+		# Teste de dano (dificuldade 5): escudo com tempo para cair.
+		if float(floor_view.get("boss_shield", 0.0)) > 0.0:
+			(_boss_bar.get_node("Name") as Label).text += "  ·  ESCUDO %d%%  ·  %d s" % [roundi(float(floor_view["boss_shield"]) * 100.0), int(ceil(float(floor_view.get("boss_shield_timer", 0.0))))]
 
 
 func _format_countdown(seconds: float) -> String:
