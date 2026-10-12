@@ -3,7 +3,7 @@ extends RefCounted
 const ITEM := {
 	"definition_id": TYPE_STRING, "instance_id": TYPE_STRING, "location": TYPE_STRING,
 	"tier": TYPE_FLOAT, "quality": TYPE_STRING, "integrity": TYPE_FLOAT, "index": TYPE_FLOAT,
-	"affixes": [{"id": TYPE_STRING, "value": TYPE_FLOAT}], "item_level": TYPE_FLOAT,
+	"affixes": [{"id": TYPE_STRING, "value": TYPE_FLOAT}], "item_level": TYPE_FLOAT, "upgrade": TYPE_FLOAT,
 }
 const SHAPE := {
 	"version": TYPE_FLOAT, "zone": TYPE_STRING, "character_id": TYPE_STRING,

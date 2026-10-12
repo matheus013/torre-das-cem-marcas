@@ -8,6 +8,7 @@ signal buy_requested(index: int)
 signal reroll_requested
 signal forge_requested(recipe_id: String, slot: String)
 signal ascend_requested(gem_id: String)
+signal seal_upgrade_requested
 
 const PlayerMenuScript := preload("res://src/prototype/village/player_menu.gd")
 const GOLD := Color("e8b84a")
@@ -171,6 +172,24 @@ func refresh(model: Dictionary) -> void:
 	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	title.custom_minimum_size.x = 200.0
 	_ascension.add_child(title)
+	# Lapidação do Selo da Cicatriz equipado (decisão 610).
+	var seal := _model.get("seal", {}) as Dictionary
+	if not seal.is_empty():
+		var seal_row := HBoxContainer.new()
+		seal_row.name = "SealUpgrade"
+		var seal_label := Label.new()
+		seal_label.text = "LAPIDAR %s  +%d/%d  ·  %s" % [String(seal["name"]).to_upper(), int(seal["upgrade"]), int(seal["max"]), String(seal["cost_text"]) if not String(seal["cost_text"]).is_empty() else "lapidacao completa"]
+		seal_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		seal_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		seal_label.custom_minimum_size.x = 120.0
+		seal_label.add_theme_color_override("font_color", ItemTier.color("legendary"))
+		seal_row.add_child(seal_label)
+		var seal_button := Button.new()
+		seal_button.text = "LAPIDAR"
+		seal_button.disabled = not bool(seal["ready"])
+		seal_button.pressed.connect(func() -> void: seal_upgrade_requested.emit())
+		seal_row.add_child(seal_button)
+		_ascension.add_child(seal_row)
 	for option: Dictionary in _model.get("ascension", []) as Array:
 		var row := HBoxContainer.new()
 		var label := Label.new()

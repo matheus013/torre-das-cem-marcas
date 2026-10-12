@@ -537,6 +537,8 @@ func _apply_intent(peer_id: int, kind: String, args: Array) -> void:
 		"ascend":
 			if args.size() == 1 and args[0] is String:
 				_sim.call("ascend", peer_id, String(args[0]))
+		"seal_upgrade":
+			_sim.call("upgrade_seal", peer_id)
 		"pact":
 			if args.size() == 2 and args[0] is String and args[1] is bool and peer_id == _local_peer:
 				_sim.call("set_pact", peer_id, String(args[0]), bool(args[1]))
@@ -2382,6 +2384,7 @@ func _build_interface() -> void:
 	_shop_menu.connect("reroll_requested", func() -> void: _send_intent("shop_reroll", []))
 	_shop_menu.connect("forge_requested", func(recipe_id: String, slot: String) -> void: _send_intent("forge", [recipe_id, slot]))
 	_shop_menu.connect("ascend_requested", func(gem_id: String) -> void: _send_intent("ascend", [gem_id]))
+	_shop_menu.connect("seal_upgrade_requested", func() -> void: _send_intent("seal_upgrade", []))
 	_service_menu.connect("talk_requested", func(npc_id: String) -> void:
 		if ((_view.get("narrative", {}) as Dictionary).get("conversations", {}) as Dictionary).has(npc_id):
 			_narrative_menu.call("open", _conversation_model(npc_id), true)

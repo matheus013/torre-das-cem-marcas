@@ -185,6 +185,32 @@ Peças lendárias têm atributos fixos e uma passiva que muda uma regra do jogo.
 
 > Cranio selado com cera escura; quem o carrega deixa de sarar.
 
+## Selo da Cicatriz
+
+### Selo Veterano
+
+- **Passiva — Selo Veterano:** Todo o seu dano x4 e Vida maxima x1,3; dano recebido -5%. Cai so na dificuldade 2.
+
+> Primeira marca de quem venceu a Torre inteira.
+
+### Selo Mestre
+
+- **Passiva — Selo Mestre:** Todo o seu dano x45 e Vida maxima x1,6; dano recebido -10%. Cai so na dificuldade 3.
+
+> Marca gravada a fogo pelos guardioes da dificuldade Mestra.
+
+### Selo Mitico
+
+- **Passiva — Selo Mitico:** Todo o seu dano x250 e Vida maxima x2,5; dano recebido -15%. Cai so na dificuldade 4.
+
+> Pedra viva que pulsa no ritmo dos guardioes ascendidos.
+
+### Selo da Cicatriz
+
+- **Passiva — Selo da Cicatriz:** Todo o seu dano x400 e Vida maxima x4; dano recebido -20%. Cai so na dificuldade 5.
+
+> O ultimo selo: a propria Cicatriz, presa a quem a enfrentou.
+
 
 ---
 

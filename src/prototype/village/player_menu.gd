@@ -237,6 +237,7 @@ const DOLL_SIZE := Vector2(380.0, 376.0)
 const DOLL_SLOTS := {
 	"AMULETO": Vector2(164, 0), "ARMA": Vector2(20, 64), "OFFHAND": Vector2(308, 64),
 	"ARMADURA": Vector2(20, 126), "CALCA": Vector2(308, 126), "LUVAS": Vector2(20, 188), "BOTAS": Vector2(308, 188),
+	"SELO": Vector2(308, 0),
 }
 const BACKPACK_COLUMNS := 7
 const BACKPACK_MIN_CELLS := 42

@@ -169,12 +169,13 @@ O mundo tem **cinco dificuldades**: Expedição, Veterana, Mestra, Mítica e Cic
 |---|---|---|---|---|---|
 | Vida dos inimigos | ×1 | ×30 | ×1.000 | ×30.000 | ×100.000 |
 | Dano dos inimigos | ×1 | ×2 | ×4 | ×8 | ×16 |
+| Selo que cai | — | Veterano | Mestre | Mítico | da Cicatriz |
 | Resistências dos inimigos | +0% | +10% | +20% | +30% | +40% |
 | Suas resistências | 0 | 0 | −20% | −40% | −60% |
 | Saque e EXP | ×1 | ×1,25 / ×1,5 | ×1,5 / ×2 | ×2 / ×3 | ×2,5 / ×4 |
 | Armas únicas | não | sim | sim | sim | sim |
 
-Na **4** e na **5** a patente mais fraca some, elites e chefes **se adaptam** ao tipo de dano que mais os fere, e aparecem **bandos superiores**: matilhas uma patente acima, todas com afixos e com um **anel brilhante no chão**. Valores provisórios para playtest.
+Para vencer essa escala, cada dificuldade tem o seu **Selo da Cicatriz**: um encaixe próprio de equipamento que só cai dos chefes daquela dificuldade (o primeiro chefe garante um) e multiplica todo o seu dano (×4, ×45, ×250 e ×400) e a sua Vida; a Forja lapida o selo até +5 com Pólen Lunar. O **Paragon** também multiplica: a cada 10 pontos numa trilha, um marco (ofensiva: todo o dano ×1,25). Na **4** e na **5** a patente mais fraca some, elites e chefes **se adaptam** ao tipo de dano que mais os fere, e aparecem **bandos superiores**: matilhas uma patente acima, todas com afixos e com um **anel brilhante no chão**. Valores provisórios para playtest.
 
 ![Seletor de dificuldade e mapa da Torre](docs/images/dificuldades.png)
 

@@ -22,7 +22,7 @@ func _init() -> void:
 		"major_encounters": 2,
 		"special_boss_rooms": 1,
 		"enemy_modifiers": 12,
-		"items": 113,  # 32 itens base + 12 divinos + 23 lendarios genericos + 46 armas unicas (uma por gema ativa)
+		"items": 117,  # 32 itens base + 4 selos + 12 divinos + 23 lendarios genericos + 46 armas unicas (uma por gema ativa)
 	}
 	for collection_name: String in expected_counts:
 		var definitions: Array = catalog.call("collection", collection_name)

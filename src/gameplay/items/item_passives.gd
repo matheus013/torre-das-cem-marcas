@@ -34,9 +34,13 @@ const MOD_KEYS: Array[String] = [
 	# Regras dos divinos (decisão 608).
 	"no_cooldown", "cast_health_ratio", "element_cycle", "poison_eternal", "summon_limit_mult", "auto_hits_all",
 	"damage_cap_ratio", "barrier_permanent", "lit_damage_bonus",
+	# Multiplicador de todo o dano da personagem (Selos e marcos do Paragon, decisão 610).
+	"all_damage_mult",
 ]
 const ItemAffixesScript := preload("res://src/gameplay/items/item_affixes.gd")
 const BURN_TICK := 0.5
+const SEAL_DAMAGE_STEP := 0.1
+const SEAL_HEALTH_STEP := 0.05
 ## Chefes sentem metade do congelamento: controle total trivializaria as lutas.
 const BOSS_CONTROL := 0.5
 
@@ -83,6 +87,12 @@ static func _loadout_data(sim: RefCounted, items: Array[EquipmentItemInstance]) 
 			lines.push_front(data["passive"])
 		for passive: Dictionary in lines:
 			var entry := passive.duplicate(true)
+			# Selo lapidado: +10% de dano e +5% de Vida por nível.
+			if data.has("seal") and item.upgrade > 0:
+				var mods := (entry.get("mods", {}) as Dictionary).duplicate()
+				mods["all_damage_mult"] = float(mods.get("all_damage_mult", 1.0)) * (1.0 + SEAL_DAMAGE_STEP * item.upgrade)
+				mods["max_health_mult"] = float(mods.get("max_health_mult", 1.0)) * (1.0 + SEAL_HEALTH_STEP * item.upgrade)
+				entry["mods"] = mods
 			entry["item_id"] = String(item.definition.id)
 			entry["unique_gem"] = String(data.get("unique_gem", ""))
 			result.append(entry)
@@ -367,6 +377,10 @@ static func _act(sim: RefCounted, peer_id: int, passive: Dictionary, action: Dic
 			sim.call("_vfx", zone, "strike", [center, radius])
 			sim.set("_vfx_theme", previous)
 			var hit := {"passive": true, "damage_type": "arcane"}
+			# Fração da Vida da vítima (Presa da Serpente): marcada para ficar fora do multiplicador geral.
+			var victim := context.get("enemy", {}) as Dictionary
+			if action.has("victim_health_ratio") and not victim.is_empty():
+				hit["percent_damage"] = minf(damage, float(victim.get("max_health", 0.0)) * float(action["victim_health_ratio"]))
 			for key: String in ["slow", "slow_duration", "vulnerable", "vulnerable_duration"]:
 				if action.has(key):
 					hit[key] = float(action[key])

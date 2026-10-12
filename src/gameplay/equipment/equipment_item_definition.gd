@@ -11,6 +11,8 @@ enum Slot {
 	PANTS,
 	RING,
 	RELIC,
+	## Selo da Cicatriz (decisão 610): encaixe auxiliar de poder por dificuldade.
+	SEAL,
 }
 
 var id: StringName

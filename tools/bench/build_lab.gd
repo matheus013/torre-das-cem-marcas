@@ -75,6 +75,9 @@ func study(subject: String) -> Dictionary:
 	var five := _with_paragon(build, 175)
 	_optimize_gear(five, true)
 	stages[5] = five
+	# Selo da Cicatriz da dificuldade em cada etapa (decisão 610), sem lapidação: margem conservadora.
+	for level in [2, 3, 4, 5]:
+		(stages[level]["gear"] as Dictionary)["seal"] = _seal_id(level)
 	var report := {"subject": subject, "character": build["character"], "element": _element(build), "stages": {}, "evaluation": {}}
 	for level in [2, 3, 4, 5]:
 		var power := _power(stages[level])
@@ -111,6 +114,13 @@ func _base_build(subject: String) -> Dictionary:
 		gear["weapon"] = String(SimulationScript.STARTER_WEAPONS[StringName(character)])
 	return {"subject": subject, "character": character, "gem": String(gem.get("id", "")), "plan": plan, "level": 100, "mastery": 21,
 		"evolutions": {}, "supports": [], "gear": gear, "paragon_level": 0, "paragon": {}}
+
+
+func _seal_id(level: int) -> String:
+	for item: Dictionary in _catalog["items"]:
+		if item.has("seal") and int(item.get("difficulty", 0)) == level:
+			return String(item["id"])
+	return ""
 
 
 func _has_item(item_id: String) -> bool:
@@ -494,14 +504,12 @@ func _evaluate(build: Dictionary, power: Dictionary, difficulty: int, floor_numb
 	sim.start_floor(floor_number)
 	var element := _element(build)
 	var health := sim.max_health(1)
-	# Ressonância da dificuldade: o poder medido na arena (dificuldade 1) cresce com ela.
-	var resonance := float(SimulationScript.DIFFICULTIES[difficulty - 1].get("power", 1.0))
 	if floor_number in BOSS_FLOORS:
 		var boss := sim.enemies.filter(func(enemy: Dictionary) -> bool: return bool(enemy.get("floor_boss", false)))[0] as Dictionary
 		var resist := clampf(float((boss.get("resistances", {}) as Dictionary).get(element, 0.0)), -0.5, 0.75)
 		# Escudos da dificuldade 5 somam Vida a derrubar.
 		var shields := 1.0 + (SimulationScript.BOSS_SHIELD_SHARE * SimulationScript.BOSS_SHIELD_THRESHOLDS.size() if difficulty >= 5 else 0.0)
-		var ttk := float(boss["max_health"]) * shields / maxf(1.0, effective(power, "boss", float(boss["max_health"])) * resonance * (1.0 - resist))
+		var ttk := float(boss["max_health"]) * shields / maxf(1.0, effective(power, "boss", float(boss["max_health"])) * (1.0 - resist))
 		var biggest := float(boss["damage"])
 		for ability: Dictionary in boss.get("kit", []) as Array:
 			biggest = maxf(biggest, float(ability.get("damage", 0.0)))
@@ -513,7 +521,7 @@ func _evaluate(build: Dictionary, power: Dictionary, difficulty: int, floor_numb
 	var commons := sim.enemies.filter(func(enemy: Dictionary) -> bool: return String(enemy.get("encounter_class", "")) == "common" and String(enemy.get("time_of_day", "")).is_empty() and not bool(enemy.get("superior", false)))
 	var sample := commons[0] as Dictionary if not commons.is_empty() else sim.enemies[0] as Dictionary
 	var resist := clampf(float((sample.get("resistances", {}) as Dictionary).get(element, 0.0)), -0.5, 0.75)
-	var clear := float(sample["max_health"]) * PACK / maxf(1.0, effective(power, "pack", float(sample["max_health"])) * resonance * (1.0 - resist))
+	var clear := float(sample["max_health"]) * PACK / maxf(1.0, effective(power, "pack", float(sample["max_health"])) * (1.0 - resist))
 	var per_hit := _hit_loss(sim, float(sample["damage"]), String(sample.get("damage_type", "physical")))
 	# Até 3 comuns batem ao mesmo tempo: o resto da matilha espera vaga em volta da personagem.
 	var incoming := per_hit * mini(PACK, CONTACT) / maxf(0.2, float(sample.get("attack_interval", 0.8)))

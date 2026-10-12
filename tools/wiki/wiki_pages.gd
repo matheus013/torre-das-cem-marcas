@@ -34,7 +34,7 @@ const MECHANIC_LABELS := {
 const BRANCH_LABELS := {"essence": "Essência", "adaptation": "Adaptação", "convergence": "Convergência"}
 const SLOT_LABELS := {
 	"weapon": "Arma", "offhand": "Mão secundária", "amulet": "Amuleto", "armor": "Armadura", "gloves": "Luvas",
-	"boots": "Botas", "pants": "Calça", "ring": "Anel", "relic": "Relíquia", "none": "—",
+	"boots": "Botas", "pants": "Calça", "ring": "Anel", "relic": "Relíquia", "seal": "Selo da Cicatriz", "none": "—",
 }
 const TIER_LABELS := {"common": "Comum", "uncommon": "Incomum", "rare": "Raro", "epic": "Épico", "legendary": "Lendário"}
 const KIND_LABELS := {
@@ -535,6 +535,7 @@ func _difficulties() -> String:
 	var rows := [
 		["Vida dos inimigos", func(entry: Dictionary) -> String: return "x" + _num(float(entry["health"]))],
 		["Dano dos inimigos", func(entry: Dictionary) -> String: return "x" + _num(float(entry["damage"]))],
+		["Selo que cai", func(entry: Dictionary) -> String: return _seal_name(Simulation.DIFFICULTIES.find(entry) + 1)],
 		["Resistência extra dos inimigos", func(entry: Dictionary) -> String: return _signed_pct(float(entry["resist"]))],
 		["Penalidade nas resistências da personagem", func(entry: Dictionary) -> String: return "-" + _pct(float(entry["penalty"])) if float(entry["penalty"]) > 0.0 else "—"],
 		["Afixos de elite", func(entry: Dictionary) -> String: return _range(entry["elite_affixes"] as Array)],
@@ -551,6 +552,14 @@ func _difficulties() -> String:
 			cells.append((row[1] as Callable).call(entry))
 		lines.append("| " + " | ".join(cells) + " |")
 	lines.append("")
+	lines.append("**Selos da Cicatriz:** um encaixe próprio de equipamento. Cada selo só cai dos chefes da dificuldade dele (o primeiro chefe garante um para quem ainda não tem) e multiplica todo o dano e a Vida da personagem; a Forja lapida até +5. Junto com os marcos multiplicativos do [Paragon](Dificuldades#paragon), é o que vence a escala das dificuldades sem baixar os inimigos.")
+	lines.append("")
+	lines.append("| Selo | Dificuldade | Dano | Vida | Dano recebido |")
+	lines.append("| --- | --- | --- | --- | --- |")
+	for item: Dictionary in _items_where(func(entry: Dictionary) -> bool: return entry.has("seal")):
+		var seal := item["seal"] as Dictionary
+		lines.append("| %s | %d | x%s | x%s | %s |" % [item["name"], int(item["difficulty"]), _num(float(seal["damage"])), _num(float(seal["health"])), _signed_pct(float(seal["taken"]) - 1.0)])
+	lines.append("")
 	lines.append("**Bandos superiores** vêm uma patente acima, com todos os membros com afixos e uma aura no chão em volta de cada um.")
 	lines.append_array(PackedStringArray(["", "## Chefes por dificuldade", "",
 		"- **2:** cada chefe ganha a habilidade do perigo do bioma.",
@@ -564,9 +573,9 @@ func _difficulties() -> String:
 		lines.append("- **%s:** %s" % [Simulation.PACTS[pact]["name"], Simulation.PACTS[pact]["description"]])
 	lines.append_array(PackedStringArray(["", "## Paragon", "",
 		"Depois do nível 100, a EXP das dificuldades 3 a 5 (x1, x1,5 e x2) vira níveis Paragon, até %d. É da conta: vale para todas as personagens, cada uma com o próprio tabuleiro de quatro trilhas e um nó notável a cada %d pontos numa trilha." % [ParagonScript.MAX_LEVEL, ParagonScript.NOTABLE_STEP], "",
-		"| Trilha | Por ponto | Nós notáveis |", "| --- | --- | --- |"]))
+		"| Trilha | Por ponto | Marco | Nós notáveis |", "| --- | --- | --- | --- |"]))
 	for track in ParagonScript.TRACKS:
-		lines.append("| %s | %s | %s |" % [ParagonScript.TRACK_NAMES[track], ParagonScript.PER_POINT_TEXT[track], _cell("; ".join(PackedStringArray((ParagonScript.NOTABLES[track] as Array).map(func(notable: Dictionary) -> String: return "%s (%s)" % [notable["name"], notable["description"]]))))])
+		lines.append("| %s | %s | %s | %s |" % [ParagonScript.TRACK_NAMES[track], ParagonScript.PER_POINT_TEXT[track], ParagonScript.MILESTONE_TEXT[track], _cell("; ".join(PackedStringArray((ParagonScript.NOTABLES[track] as Array).map(func(notable: Dictionary) -> String: return "%s (%s)" % [notable["name"], notable["description"]]))))])
 	return _page(lines)
 
 
@@ -839,6 +848,13 @@ func _sources_text(names: Array) -> String:
 	if names.size() > 12:
 		return "quase todos os monstros e chefes (%d fontes)" % names.size()
 	return ", ".join(PackedStringArray(names)) if not names.is_empty() else "—"
+
+
+func _seal_name(level: int) -> String:
+	for item: Dictionary in _items_where(func(entry: Dictionary) -> bool: return entry.has("seal")):
+		if int(item["difficulty"]) == level:
+			return String(item["name"])
+	return "—"
 
 
 func _tags(tags: Array) -> String:

@@ -166,16 +166,14 @@ const ENEMY_SPEED_MULT := 1.5
 ## resistências deles; penalty tira das resistências da personagem; elite_affixes [mín, máx] (até 2:
 ## prefixo e sufixo); loot multiplica chances e soma ao nível de saque (`loot_score`); uniques libera
 ## armas únicas; adaptive liga a Adaptação em elites e chefes; no_nascent sobe Nascentes para Maduro;
-## superior é a chance de bando superior, com `superior_affixes` mínimos. power é a Ressonância
-## (decisão 610): o dano da personagem cresce com a dificuldade, para os números grandes (bilhões de
-## Vida na 5) andarem junto com o poder de verdade; a dificuldade efetiva é health / power.
-## Valores provisórios.
+## superior é a chance de bando superior, com `superior_affixes` mínimos. O poder para vencê-las vem
+## de Selos da Cicatriz e do Paragon (decisão 610), nunca de baixar os números. Valores provisórios.
 const DIFFICULTIES: Array[Dictionary] = [
-	{"name": "Expedicao", "power": 1.0, "health": 1.0, "damage": 1.0, "resist": 0.0, "penalty": 0.0, "elite_affixes": [], "loot": 1.0, "loot_score": 0.0, "exp": 1.0, "uniques": false, "adaptive": false, "no_nascent": false, "superior": 0.0, "superior_affixes": 0},
-	{"name": "Veterana", "power": 1.0, "health": 30.0, "damage": 2.0, "resist": 0.1, "penalty": 0.0, "elite_affixes": [1, 2], "loot": 1.25, "loot_score": 1.5, "exp": 1.5, "uniques": true, "adaptive": false, "no_nascent": false, "superior": 0.0, "superior_affixes": 0},
-	{"name": "Mestra", "power": 1.0, "health": 1000.0, "damage": 4.0, "resist": 0.2, "penalty": 0.2, "elite_affixes": [2, 2], "loot": 1.5, "loot_score": 3.0, "exp": 2.0, "uniques": true, "adaptive": false, "no_nascent": false, "superior": 0.0, "superior_affixes": 0},
-	{"name": "Mitica", "power": 1.0, "health": 30000.0, "damage": 8.0, "resist": 0.3, "penalty": 0.4, "elite_affixes": [2, 2], "loot": 2.0, "loot_score": 4.5, "exp": 3.0, "uniques": true, "adaptive": true, "no_nascent": true, "superior": 0.15, "superior_affixes": 1},
-	{"name": "Cicatriz", "power": 1.0, "health": 100000.0, "damage": 16.0, "resist": 0.4, "penalty": 0.6, "elite_affixes": [2, 2], "loot": 2.5, "loot_score": 6.0, "exp": 4.0, "uniques": true, "adaptive": true, "no_nascent": true, "superior": 0.25, "superior_affixes": 2},
+	{"name": "Expedicao", "health": 1.0, "damage": 1.0, "resist": 0.0, "penalty": 0.0, "elite_affixes": [], "loot": 1.0, "loot_score": 0.0, "exp": 1.0, "uniques": false, "adaptive": false, "no_nascent": false, "superior": 0.0, "superior_affixes": 0},
+	{"name": "Veterana", "health": 30.0, "damage": 2.0, "resist": 0.1, "penalty": 0.0, "elite_affixes": [1, 2], "loot": 1.25, "loot_score": 1.5, "exp": 1.5, "uniques": true, "adaptive": false, "no_nascent": false, "superior": 0.0, "superior_affixes": 0},
+	{"name": "Mestra", "health": 1000.0, "damage": 4.0, "resist": 0.2, "penalty": 0.2, "elite_affixes": [2, 2], "loot": 1.5, "loot_score": 3.0, "exp": 2.0, "uniques": true, "adaptive": false, "no_nascent": false, "superior": 0.0, "superior_affixes": 0},
+	{"name": "Mitica", "health": 30000.0, "damage": 8.0, "resist": 0.3, "penalty": 0.4, "elite_affixes": [2, 2], "loot": 2.0, "loot_score": 4.5, "exp": 3.0, "uniques": true, "adaptive": true, "no_nascent": true, "superior": 0.15, "superior_affixes": 1},
+	{"name": "Cicatriz", "health": 100000.0, "damage": 16.0, "resist": 0.4, "penalty": 0.6, "elite_affixes": [2, 2], "loot": 2.5, "loot_score": 6.0, "exp": 4.0, "uniques": true, "adaptive": true, "no_nascent": true, "superior": 0.25, "superior_affixes": 2},
 ]
 const RANK_ORDER: Array[String] = ["nascente", "maduro", "evoluido", "alfa", "apice"]
 ## Chefe derrotado só volta depois da recarga (decisão 526); enquanto isso o andar é passagem.
@@ -219,6 +217,12 @@ const DIVINE_CHAMPION_CHANCE := 0.05
 const ASCENSION_UNIQUES := 3
 const ASCENSION_MATERIAL := "polen_lunar"
 const ASCENSION_MATERIAL_COUNT := 5
+## Selos da Cicatriz (decisão 610): caem dos chefes de andar só na dificuldade deles; quem ainda não
+## tem o selo daquela dificuldade recebe um garantido no primeiro chefe. A Forja lapida até +5.
+const SEAL_DROP_CHANCE := 0.25
+const SEAL_MAX_UPGRADE := 5
+const SEAL_UPGRADE_MATERIAL := "polen_lunar"
+const SEAL_UPGRADE_SILVER := 400
 ## Chefes por dificuldade (G8.10; decisão 609): habilidade do bioma (2), fase de fúria abaixo de 30%
 ## (3), forma ascendida a 50% com arena alterada, golpes combinados e curandeiros (4), e teste de dano
 ## com escudo cronometrado a 60% e 30% (5). Na 5 também há Guardiões da Cicatriz e Pactos.
@@ -1036,10 +1040,11 @@ func difficulty_model() -> Dictionary:
 	for index in range(DIFFICULTIES.size()):
 		var rules := DIFFICULTIES[index]
 		levels.append({"level": index + 1, "name": String(rules["name"]), "unlocked": index + 1 <= unlocked_difficulty,
-			"summary": "Vida x%s, dano x%s, Ressonancia x%s no seu dano, resistencias +%d%%, suas resistencias -%d%%, saque x%.2f, EXP x%.1f%s%s" % [
-				NumberFormat.short(float(rules["health"])), NumberFormat.short(float(rules["damage"])), NumberFormat.short(float(rules.get("power", 1.0))), roundi(float(rules["resist"]) * 100.0),
+			"summary": "Vida x%s, dano x%s, resistencias +%d%%, suas resistencias -%d%%, saque x%.2f, EXP x%.1f%s%s%s" % [
+				NumberFormat.short(float(rules["health"])), NumberFormat.short(float(rules["damage"])), roundi(float(rules["resist"]) * 100.0),
 				roundi(float(rules["penalty"]) * 100.0), float(rules["loot"]), float(rules["exp"]),
-				", armas unicas" if bool(rules["uniques"]) else "", ", adaptacao, sem Nascentes e bandos superiores" if bool(rules["no_nascent"]) else ""]})
+				", armas unicas" if bool(rules["uniques"]) else "", ", adaptacao, sem Nascentes e bandos superiores" if bool(rules["no_nascent"]) else "",
+				", cai o %s" % item_display_name(seal_for_difficulty(index + 1)) if not seal_for_difficulty(index + 1).is_empty() else ""]})
 	return {"current": difficulty, "unlocked": unlocked_difficulty, "levels": levels}
 
 
@@ -1395,6 +1400,84 @@ func pact_model() -> Dictionary:
 	return {"available": difficulty >= 5, "options": options, "reward": PACT_REWARD}
 
 
+# ---------------------------------------------------------------- Selos da Cicatriz (decisão 610)
+
+func seal_for_difficulty(level: int) -> String:
+	for item in _collection("items"):
+		if item.has("seal") and int(item.get("difficulty", 0)) == level:
+			return String(item["id"])
+	return ""
+
+
+func _owns_item(peer_id: int, item_id: String) -> bool:
+	var gear := _gear(peer_id)
+	if gear.is_empty():
+		return false
+	for item: EquipmentItemInstance in (gear["inventory"] as ItemInventory).items.values():
+		if String(item.definition.id) == item_id:
+			return true
+	var seal := (gear["equipment"] as EquipmentLoadout).get_equipped(EquipmentItemDefinition.Slot.SEAL, 0)
+	return seal != null and String(seal.definition.id) == item_id
+
+
+## Chefe vencido: cada jogador na arena sorteia o selo da dificuldade (garantido se ainda não tem).
+func _grant_seals() -> void:
+	var seal_id := seal_for_difficulty(difficulty)
+	if seal_id.is_empty():
+		return
+	for peer_id in _players_in_arena():
+		var random := RandomNumberGenerator.new()
+		random.seed = hash([encounter_seed, loot_kill_sequence, current_floor, peer_id, "seal"])
+		if _owns_item(peer_id, seal_id) and random.randf() >= SEAL_DROP_CHANCE:
+			continue
+		_add_equipment_instance(player(peer_id)["character_id"] as StringName, seal_id, "masterwork", maxi(1, current_floor))
+		var state := player(peer_id)
+		_vfx(state["zone"], "label", [state["position"], item_display_name(seal_id).to_upper(), ItemTier.color("legendary"), "coins"])
+		_status(0, "%s recebeu o %s." % [String(state.get("character_name", "")), item_display_name(seal_id)])
+
+
+func equipped_seal(peer_id: int) -> EquipmentItemInstance:
+	var gear := _gear(peer_id)
+	return (gear["equipment"] as EquipmentLoadout).get_equipped(EquipmentItemDefinition.Slot.SEAL, 0) if not gear.is_empty() else null
+
+
+func seal_upgrade_cost(peer_id: int) -> Dictionary:
+	var seal := equipped_seal(peer_id)
+	if seal == null or seal.upgrade >= SEAL_MAX_UPGRADE:
+		return {}
+	var step := seal.upgrade + 1
+	return {"material": SEAL_UPGRADE_MATERIAL, "amount": 2 * step, "silver": SEAL_UPGRADE_SILVER * step}
+
+
+## Lapidação na Forja: Pólen Lunar do armazém e prata; +10% de dano e +5% de Vida por nível.
+func upgrade_seal(peer_id: int) -> bool:
+	var seal := equipped_seal(peer_id)
+	var cost := seal_upgrade_cost(peer_id)
+	if seal == null or cost.is_empty() or not _near_shop(peer_id):
+		return false
+	if int(banked_loot.get(String(cost["material"]), 0)) < int(cost["amount"]) or int(_gear(peer_id).get("silver", 0)) < int(cost["silver"]):
+		_status(peer_id, "Lapidar o selo pede %d %s no armazem e %d de prata." % [int(cost["amount"]), item_display_name(String(cost["material"])), int(cost["silver"])])
+		return false
+	banked_loot[String(cost["material"])] = int(banked_loot[String(cost["material"])]) - int(cost["amount"])
+	if int(banked_loot[String(cost["material"])]) <= 0:
+		banked_loot.erase(String(cost["material"]))
+	_gear(peer_id)["silver"] = int(_gear(peer_id)["silver"]) - int(cost["silver"])
+	seal.upgrade += 1
+	_passive_cache.erase(peer_id)
+	_status(peer_id, "Dalia lapidou o %s: +%d." % [item_display_name(String(seal.definition.id)), seal.upgrade])
+	return true
+
+
+func _seal_model(peer_id: int) -> Dictionary:
+	var seal := equipped_seal(peer_id)
+	if seal == null:
+		return {}
+	var cost := seal_upgrade_cost(peer_id)
+	return {"name": item_display_name(String(seal.definition.id)), "upgrade": seal.upgrade, "max": SEAL_MAX_UPGRADE,
+		"cost_text": "" if cost.is_empty() else "%s %d/%d  +  %d P" % [item_display_name(String(cost["material"])), int(banked_loot.get(String(cost["material"]), 0)), int(cost["amount"]), int(cost["silver"])],
+		"ready": not cost.is_empty() and int(banked_loot.get(String(cost["material"]), 0)) >= int(cost["amount"]) and int(_gear(peer_id).get("silver", 0)) >= int(cost["silver"])}
+
+
 # ---------------------------------------------------------------- itens divinos (decisão 608)
 
 func divine_ids() -> Array[String]:
@@ -1586,7 +1669,7 @@ func paragon_model(peer_id: int) -> Dictionary:
 		var list := ParagonScript.NOTABLES[track] as Array
 		for index in range(list.size()):
 			notables.append({"name": String(list[index]["name"]), "description": String(list[index]["description"]), "points": (index + 1) * ParagonScript.NOTABLE_STEP, "unlocked": points >= (index + 1) * ParagonScript.NOTABLE_STEP})
-		tracks.append({"id": track, "name": String(ParagonScript.TRACK_NAMES[track]), "points": points, "per_point": String(ParagonScript.PER_POINT_TEXT[track]), "notables": notables})
+		tracks.append({"id": track, "name": String(ParagonScript.TRACK_NAMES[track]), "points": points, "per_point": "%s; %s" % [ParagonScript.PER_POINT_TEXT[track], ParagonScript.MILESTONE_TEXT[track]], "notables": notables})
 	var level := int(data["level"])
 	return {
 		"level": level, "experience": int(data["experience"]), "required": ParagonScript.required(level) if level < ParagonScript.MAX_LEVEL else 0,
@@ -2552,6 +2635,7 @@ func _register_floor_kill(enemy: Dictionary) -> void:
 	if bool(enemy.get("floor_boss", false)):
 		_grant_boss_gems(current_floor)
 		_roll_divines(DIVINE_BOSS_CHANCE[clampi(difficulty, 1, 5) - 1], "chefe")
+		_grant_seals()
 		_finish_floor_run()
 		floor_run["stairs_open"] = true
 		_announce_stairs()
@@ -3964,7 +4048,9 @@ func _damage_enemy(peer_id: int, index: int, damage: float, hit: Dictionary) -> 
 		return
 	var zone := arena_zone()
 	var enemy := enemies[index]
-	var percent_ratio := clampf(float(hit.get("percent_damage", 0.0)) / maxf(damage, 0.000001), 0.0, 1.0) if damage_meter_enabled else 0.0
+	# Parte do golpe que é fração da Vida do alvo (esporos, explosão da Presa): fora do multiplicador geral.
+	var percent_part := clampf(float(hit.get("percent_damage", 0.0)) / maxf(damage, 0.000001), 0.0, 1.0)
+	var percent_ratio := percent_part if damage_meter_enabled else 0.0
 	var enemy_position := enemy["position"] as Vector2
 	var dot := bool(hit.get("dot", false))
 	# Dano contínuo (veneno, queimadura) não é bloqueável nem esquivável: ignora escudos e não
@@ -4013,8 +4099,11 @@ func _damage_enemy(peer_id: int, index: int, damage: float, hit: Dictionary) -> 
 		damage *= 1.0 + _mod(peer_id, "lit_damage_bonus")
 	var resisted := ResistancesScript.enemy_resistance(enemy, damage_kind, _mod(peer_id, "penetration_add") if players.has(peer_id) else 0.0)
 	damage *= 1.0 - resisted
-	# Ressonância da dificuldade (decisão 610): todo dano causado pelas personagens.
-	damage *= float(difficulty_rules().get("power", 1.0))
+	# Multiplicador de todo o dano da personagem (Selos da Cicatriz e marcos do Paragon, decisão 610):
+	# vale para gemas, autoataque, invocações, venenos e efeitos de itens; a fração da Vida do alvo já
+	# acompanha a Vida inimiga e não é multiplicada de novo.
+	if players.has(peer_id):
+		damage *= (1.0 - percent_part) * _mod(peer_id, "all_damage_mult") + percent_part
 	damage = _behavior_damage(peer_id, enemy, damage, damage_kind, dot)
 	# Teste de dano (dificuldade 5): o escudo do chefe absorve primeiro.
 	if float(enemy.get("shield_hp", 0.0)) > 0.0:
@@ -5458,6 +5547,9 @@ func _add_equipment_instance(character_id: StringName, item_id: String, quality:
 
 ## Afixos fixos do item (ex.: proliferação da Presa da Serpente) seguidos dos sorteados pela raridade.
 func _roll_item_affixes(definition: Dictionary, item: EquipmentItemInstance) -> Array[Dictionary]:
+	# Selos da Cicatriz não têm afixos: o poder deles é o próprio selo e a lapidação.
+	if definition.has("seal"):
+		return []
 	# Divino (decisão 600): afixo fixo do encaixe e 7 aleatórios, todos no máximo.
 	if String(definition.get("tier", "")) == "divine":
 		return ItemAffixesScript.roll_divine(String(definition.get("slot", "")), _affix_random, item.item_level)
@@ -6951,6 +7043,7 @@ func _restore_gear(data: Dictionary, saved_character: StringName) -> void:
 			item.quality = StringName(String(entry.get("quality", "common")))
 			item.integrity = clampf(float(entry.get("integrity", 1.0)), 0.0, 1.0)
 			item.item_level = clampi(int(entry.get("item_level", 1)), 1, ItemAffixesScript.MAX_ITEM_LEVEL)
+			item.upgrade = clampi(int(entry.get("upgrade", 0)), 0, SEAL_MAX_UPGRADE)
 			# Peças de saves anteriores aos afixos (decisão 583) sorteiam os seus ao carregar.
 			item.affixes = ItemAffixesScript.sanitize(entry["affixes"]) if entry.has("affixes") else _roll_item_affixes(definition, item)
 			if not (gear["inventory"] as ItemInventory).add(item):
@@ -7056,7 +7149,8 @@ func shop_model(peer_id: int) -> Dictionary:
 		})
 	return {"items": items, "silver": silver, "reroll_price": SHOP_REROLL_PRICE, "npc": SHOP_NPC,
 		"recipes": _forge_model(), "slots": FORGE_SLOTS, "sharing_rule": SHARING_RULE,
-		"ascension": ascension_options(peer_id), "ascension_open": unlocked_difficulty >= DIVINE_MIN_DIFFICULTY}
+		"ascension": ascension_options(peer_id), "ascension_open": unlocked_difficulty >= DIVINE_MIN_DIFFICULTY,
+		"seal": _seal_model(peer_id)}
 
 
 ## Compra a peça da vaga `index`: vira uma peça nova, igual à da vitrine, na mochila de quem comprou.
@@ -7293,6 +7387,7 @@ func _item_snapshot(item: EquipmentItemInstance, location: String, slot: int, in
 		"instance_id": String(item.instance_id), "definition_id": String(item.definition.id),
 		"tier": int(item.tier), "quality": String(item.quality), "integrity": item.integrity,
 		"location": location, "slot": slot, "index": index, "affixes": item.affixes.duplicate(true), "item_level": item.item_level,
+		"upgrade": item.upgrade,
 	}
 
 

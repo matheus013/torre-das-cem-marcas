@@ -12,6 +12,8 @@ var provenance: Array[Dictionary] = []
 var affixes: Array[Dictionary] = []
 ## Nível do item: andar onde a peça foi obtida (1 na vila). Escala atributos-base e afixos.
 var item_level := 1
+## Lapidação do Selo da Cicatriz (0 a 5, decisão 610); 0 nas demais peças.
+var upgrade := 0
 
 
 func _init(

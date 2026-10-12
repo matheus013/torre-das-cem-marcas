@@ -149,6 +149,7 @@ static func equipment_slot_specs() -> Array[Array]:
 		result.append(["ANEL %d" % (index + 1), EquipmentItemDefinition.Slot.RING, index])
 	for index in range(EquipmentLoadout.RELIC_SLOT_COUNT):
 		result.append(["RELIQUIA %d" % (index + 1), EquipmentItemDefinition.Slot.RELIC, index])
+	result.append(["SELO", EquipmentItemDefinition.Slot.SEAL, 0])
 	return result
 
 
@@ -158,5 +159,5 @@ static func slot_label(slot: EquipmentItemDefinition.Slot) -> String:
 		EquipmentItemDefinition.Slot.AMULET: "AMULETO", EquipmentItemDefinition.Slot.ARMOR: "ARMADURA",
 		EquipmentItemDefinition.Slot.GLOVES: "LUVAS", EquipmentItemDefinition.Slot.BOOTS: "BOTAS",
 		EquipmentItemDefinition.Slot.PANTS: "CALCA", EquipmentItemDefinition.Slot.RING: "ANEL",
-		EquipmentItemDefinition.Slot.RELIC: "RELIQUIA",
+		EquipmentItemDefinition.Slot.RELIC: "RELIQUIA", EquipmentItemDefinition.Slot.SEAL: "SELO",
 	}.get(slot, "EQUIPAMENTO")

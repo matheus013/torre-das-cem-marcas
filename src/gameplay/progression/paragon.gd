@@ -21,6 +21,20 @@ const PER_POINT := {
 	"utilidade": {"max_breath_add": 1.0, "cooldown_mult": -0.004, "move_speed_mult": 0.005, "light_radius_mult": 0.01},
 	"elemental": {"power_magic_mult": 0.015, "penetration_add": 0.004},
 }
+## Marcos multiplicativos (decisão 610): a cada 10 pontos numa trilha, estes fatores multiplicam de novo.
+## É o que faz o Paragon acompanhar a escala das dificuldades 3 a 5 sem baixar os inimigos.
+const MILESTONE := {
+	"ofensiva": {"all_damage_mult": 1.25},
+	"defensiva": {"max_health_mult": 1.15, "damage_taken_mult": 0.95},
+	"utilidade": {"cooldown_mult": 0.97, "move_speed_mult": 1.02},
+	"elemental": {"power_magic_mult": 1.25},
+}
+const MILESTONE_TEXT := {
+	"ofensiva": "a cada 10 pontos, todo o dano x1,25",
+	"defensiva": "a cada 10 pontos, Vida x1,15 e dano recebido x0,95",
+	"utilidade": "a cada 10 pontos, recarga x0,97 e velocidade x1,02",
+	"elemental": "a cada 10 pontos, dano magico x1,25",
+}
 const PER_POINT_TEXT := {
 	"ofensiva": "+1,5% de dano e +0,4% de dano critico por ponto",
 	"defensiva": "+1,5% de Vida maxima e +0,25% de resistencia a tudo por ponto",
@@ -143,6 +157,9 @@ static func passives(board: Dictionary) -> Array[Dictionary]:
 		var per_point := PER_POINT[track] as Dictionary
 		for key: String in per_point:
 			mods[key] = 1.0 + float(per_point[key]) * points if key.ends_with("_mult") else float(per_point[key]) * points
+		var steps := points / NOTABLE_STEP
+		for key: String in MILESTONE[track] as Dictionary:
+			mods[key] = float(mods.get(key, 1.0)) * pow(float(MILESTONE[track][key]), steps)
 		result.append({"name": "Paragon %s" % TRACK_NAMES[track], "mods": mods, "item_id": "paragon_" + track})
 		for notable: Dictionary in unlocked_notables(track, points):
 			var entry := notable.duplicate(true)

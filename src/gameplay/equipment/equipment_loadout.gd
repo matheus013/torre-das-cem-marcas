@@ -15,6 +15,7 @@ var armor: EquipmentItemInstance
 var gloves: EquipmentItemInstance
 var boots: EquipmentItemInstance
 var pants: EquipmentItemInstance
+var seal: EquipmentItemInstance
 var rings: Array[EquipmentItemInstance] = []
 var relics: Array[EquipmentItemInstance] = []
 
@@ -56,6 +57,9 @@ func equip(item: EquipmentItemInstance, index: int = 0) -> bool:
 		EquipmentItemDefinition.Slot.PANTS:
 			if pants != null: return false
 			pants = item
+		EquipmentItemDefinition.Slot.SEAL:
+			if seal != null: return false
+			seal = item
 		EquipmentItemDefinition.Slot.RING:
 			if index < 0 or index >= RING_SLOT_COUNT or rings[index] != null:
 				return false
@@ -93,6 +97,9 @@ func unequip(slot: EquipmentItemDefinition.Slot, index: int = 0) -> EquipmentIte
 		EquipmentItemDefinition.Slot.PANTS:
 			previous = pants
 			pants = null
+		EquipmentItemDefinition.Slot.SEAL:
+			previous = seal
+			seal = null
 		EquipmentItemDefinition.Slot.RING:
 			if index >= 0 and index < RING_SLOT_COUNT:
 				previous = rings[index]
@@ -113,6 +120,7 @@ func get_equipped(slot: EquipmentItemDefinition.Slot, index: int = 0) -> Equipme
 		EquipmentItemDefinition.Slot.GLOVES: return gloves
 		EquipmentItemDefinition.Slot.BOOTS: return boots
 		EquipmentItemDefinition.Slot.PANTS: return pants
+		EquipmentItemDefinition.Slot.SEAL: return seal
 		EquipmentItemDefinition.Slot.RING:
 			return rings[index] if index >= 0 and index < RING_SLOT_COUNT else null
 		EquipmentItemDefinition.Slot.RELIC:
@@ -122,7 +130,7 @@ func get_equipped(slot: EquipmentItemDefinition.Slot, index: int = 0) -> Equipme
 
 func equipped_count() -> int:
 	var count := 0
-	for item in [weapon, offhand, amulet, armor, gloves, boots, pants]:
+	for item in [weapon, offhand, amulet, armor, gloves, boots, pants, seal]:
 		if item != null:
 			count += 1
 	for ring in rings:
@@ -177,7 +185,7 @@ func _relic_conflicts(candidate: EquipmentItemInstance) -> bool:
 
 func _all_items() -> Array[EquipmentItemInstance]:
 	var result: Array[EquipmentItemInstance] = []
-	for item in [weapon, offhand, amulet, armor, gloves, boots, pants]:
+	for item in [weapon, offhand, amulet, armor, gloves, boots, pants, seal]:
 		if item != null:
 			result.append(item)
 	for ring in rings:

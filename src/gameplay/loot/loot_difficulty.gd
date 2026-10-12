@@ -93,7 +93,8 @@ static func pick_bonus_item(items: Array[Dictionary], difficulty: float, allow_r
 				continue
 			var slot := String(item.get("slot", "none"))
 			# Armas únicas têm sorteio próprio, direcionado às gemas de quem abateu.
-			if slot == "none" or (slot == "relic" and not allow_relics) or item.has("unique_gem"):
+			# Selos da Cicatriz têm fonte própria (chefes da dificuldade deles).
+			if slot in ["none", "seal"] or (slot == "relic" and not allow_relics) or item.has("unique_gem"):
 				continue
 			pool.append(String(item.get("id", "")))
 		if not pool.is_empty():

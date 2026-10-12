@@ -11,6 +11,7 @@ const SLOT_BY_NAME: Dictionary = {
 	"pants": EquipmentItemDefinition.Slot.PANTS,
 	"ring": EquipmentItemDefinition.Slot.RING,
 	"relic": EquipmentItemDefinition.Slot.RELIC,
+	"seal": EquipmentItemDefinition.Slot.SEAL,
 }
 const TIER_BY_NAME: Dictionary = {
 	"common": ItemTier.Value.COMMON,

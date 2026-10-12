@@ -1,3 +1,35 @@
 {
-  "power": {}
+  "power": {
+    "agulha_lastro": 1.248,
+    "anel_de_geada": 1.27,
+    "arco_voltaico": 1.285,
+    "bola_de_fogo": 0.5,
+    "bolha_corrosiva": 1.933,
+    "brasa_persistente": 0.367,
+    "ceifa_ampla": 1.934,
+    "chuva_ferral": 1.304,
+    "cometa_de_vidro": 0.562,
+    "corte_vetorial": 1.421,
+    "dreno_em_rede": 1.718,
+    "elo_residual": 0.571,
+    "enxame_luminar": 0.52,
+    "esfera_de_gelo": 0.547,
+    "estilhacos_lunares": 1.228,
+    "fio_desintegrador": 1.631,
+    "guardiao_de_lastro": 2.605,
+    "laminas_orbitais": 1.781,
+    "mina_de_lastro": 0.513,
+    "poca_de_veneno": 0.868,
+    "prisao_gravitica": 0.38,
+    "pulso_cicatriz": 0.832,
+    "raio_prismatico": 0.384,
+    "raizes_presas": 0.801,
+    "ruptura_sismica": 2.575,
+    "saraivada_de_flechas": 0.34,
+    "satelites_de_geada": 5.21,
+    "semeadura_vital": 0.555,
+    "sentinela_ferral": 0.805,
+    "sopro_criogenico": 1.834,
+    "trovao_descendente": 1.66
+  }
 }

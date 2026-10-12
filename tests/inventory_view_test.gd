@@ -25,8 +25,8 @@ func _run() -> void:
 	menu.open("inventory")
 	await process_frame
 	var doll := menu.find_child("Doll", true, false) as Control
-	if doll == null or doll.find_children("Slot_*", "", false, false).size() != 13:
-		return _fail("Doll must show the 13 equipment slots")
+	if doll == null or doll.find_children("Slot_*", "", false, false).size() != 14:
+		return _fail("Doll must show the 14 equipment slots (with the Seal)")
 	var backpack := menu.find_child("Backpack", true, false) as GridContainer
 	var items := backpack.find_children("Item_*", "", false, false)
 	if backpack.get_child_count() < Menu.BACKPACK_MIN_CELLS or items.size() != (model["inventory_equipment"] as Array).size():
@@ -56,7 +56,7 @@ func _run() -> void:
 	weapon_slot.emit_signal("pressed")
 	if unequipped.size() != 1:
 		return _fail("Clicking an equipped slot unequips it")
-	print("INVENTORY_VIEW_OK: 13-slot doll, icon backpack, colored tooltips with affixes and level, equip, confirmed sell and unequip")
+	print("INVENTORY_VIEW_OK: 14-slot doll, icon backpack, colored tooltips with affixes and level, equip, confirmed sell and unequip")
 	quit(0)
 
 
