@@ -69,7 +69,31 @@ func _run() -> void:
 	var here := restored.ground_items.filter(func(item: Dictionary) -> bool: return int(item["floor"]) == 10)
 	if restored.ground_items.size() > Simulation.MAX_GROUND_ITEMS_TOTAL or here.size() != Simulation.MAX_GROUND_ITEMS_PER_FLOOR or not here.any(func(item: Dictionary) -> bool: return String(item["item_id"]) == "anel_de_area"):
 		return _fail("Old saves must be trimmed on load, keeping the current floor and rare pieces: %d total, %d here" % [restored.ground_items.size(), here.size()])
-	print("GROUND_LOOT_CAP_OK: material stacks, per-floor and total caps by rarity and age, old saves trimmed on load")
+	# Raio de coleta: o que está a 120 px é recolhido sozinho.
+	var reach := _world()
+	var spot := reach.player(1)["position"] as Vector2
+	reach.drop_item(&"tower", spot + Vector2(120.0, 0.0), "pedra_regenerativa", 3)
+	reach._collect_ground_items(1)
+	if not reach.ground_items.is_empty():
+		return _fail("Items inside the collection radius must be picked up")
+	# Barrado pelo filtro: vira prata na hora; no co-op fica se um aliado ainda aceita.
+	var sell := _world()
+	sell._gear(1)["loot_filter"] = "epic"
+	var silver := int(sell._gear(1)["silver"])
+	sell.drop_item(&"tower", (sell.player(1)["position"] as Vector2) + Vector2(60.0, 0.0), "protecao_de_trabalho", 1, "regular")
+	sell._collect_ground_items(1)
+	if not sell.ground_items.is_empty() or int(sell._gear(1)["silver"]) <= silver:
+		return _fail("Filtered equipment in reach must turn into silver instead of piling up")
+	var duo := _world()
+	duo.add_player(2, &"eloa")
+	duo.enter_tower(2)
+	duo._gear(1)["loot_filter"] = "epic"
+	duo.player(2)["position"] = Vector2(3000.0, 2000.0)
+	duo.drop_item(&"tower", (duo.player(1)["position"] as Vector2) + Vector2(60.0, 0.0), "protecao_de_trabalho", 1, "regular")
+	duo._collect_ground_items(1)
+	if duo.ground_items.size() != 1:
+		return _fail("Filtered items must stay for an ally whose filter accepts them")
+	print("GROUND_LOOT_CAP_OK: collection radius, filtered loot sold,  material stacks, per-floor and total caps by rarity and age, old saves trimmed on load")
 	quit(0)
 
 

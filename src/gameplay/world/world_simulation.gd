@@ -200,7 +200,9 @@ const AURA_LIMIT := 0.3
 const POWER_PER_LEVEL := 0.03
 const GEM_SCALING_WEIGHTS: Array[float] = [0.6, 0.4, 0.25]
 ## Saque físico (decisão 550): fica no chão até alguém passar por cima.
-const PICKUP_RADIUS := 34.0
+## Raio de coleta (2026-10-12): tudo no raio é recolhido sozinho; antes eram 34 px e o saque se
+## acumulava no chão. Bônus de `pickup_radius_add` somam.
+const PICKUP_RADIUS := 140.0
 const MAX_GROUND_ITEM_VIEWS := 120
 ## Itens no chão (regressão de 2026-10-12: um save com 6 mil itens derrubava o FPS): limite por andar
 ## e total. Passando, some o de menor raridade e mais antigo, primeiro dos andares que ficaram para
@@ -5345,10 +5347,21 @@ func _collect_ground_items(peer_id: int) -> void:
 		if item["zone"] != state["zone"] or int(item.get("floor", 0)) != current_floor or (item["position"] as Vector2).distance_to(state["position"] as Vector2) > reach:
 			continue
 		if _filtered_out(peer_id, String(item["item_id"]), String(item.get("tier", "common"))):
+			# Barrado pelo filtro de todos no andar: vira prata na hora em vez de ficar no chão.
+			if _players_in_arena().all(func(other: int) -> bool: return not is_connected_player(other) or _filtered_out(other, String(item["item_id"]), String(item.get("tier", "common")))):
+				ground_items.remove_at(index)
+				var price := _ground_sell_price(item) * int(item["quantity"])
+				_gear(peer_id)["silver"] = int(_gear(peer_id).get("silver", 0)) + price
+				_vfx(state["zone"], "label", [item["position"], "+%d P" % price, Color("c9c2b4"), "coins"])
 			continue
 		ground_items.remove_at(index)
 		_receive_item(peer_id, String(item["item_id"]), int(item["quantity"]), String(item.get("quality", "")))
 		_vfx(state["zone"], "label", [item["position"], "+%d %s" % [int(item["quantity"]), String(item["name"])] if int(item["quantity"]) > 1 else "+" + String(item["name"]), Color("e8b84a"), "coins"])
+
+
+## Preço de venda de um item ainda no chão: raridade vezes fabricação, como na loja.
+func _ground_sell_price(item: Dictionary) -> int:
+	return maxi(1, int(round(float(SELL_PRICES.get(String(item.get("tier", "common")), 8)) * LootDifficultyScript.fabrication_factor(String(item.get("quality", "regular"))))))
 
 
 func _receive_item(peer_id: int, item_id: String, quantity: int, quality: String = "") -> void:

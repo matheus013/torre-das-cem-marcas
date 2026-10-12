@@ -300,7 +300,7 @@ func _build_inventory() -> void:
 	filters.add_theme_constant_override("separation", 12)
 	right.add_child(filters)
 	_add_choice(filters, "Filtro de saque", LOOT_FILTER_OPTIONS, String(_model.get("loot_filter", "common")), func(tier: String) -> void: loot_filter_requested.emit(tier),
-		"Equipamentos abaixo desta raridade ficam no chao, apagados. Materiais sempre sao recolhidos.")
+		"Equipamentos abaixo desta raridade viram prata ao entrar no raio de coleta (se nenhum aliado os quiser). Materiais sempre sao recolhidos.")
 	_add_choice(filters, "Autovenda", AUTO_SELL_OPTIONS, String(_model.get("auto_sell", "")), func(tier: String) -> void: auto_sell_requested.emit(tier),
 		"Ao voltar a vila, vende as pecas do inventario abaixo desta raridade. Pecas equipadas e armas unicas nunca sao vendidas.")
 	_content.add_child(_header_label("CARGA DA EXPEDICAO", "%d tipos" % (_model.get("carried_loot", {}) as Dictionary).size()))

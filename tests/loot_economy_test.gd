@@ -25,7 +25,8 @@ func _run() -> void:
 	if sim.sell_item(1, equipped) != 0:
 		return _fail("Equipped items must not be sold")
 
-	# Filtro: equipamento abaixo do limite fica no chão; material é recolhido.
+	# Filtro: equipamento abaixo do limite vira prata ao entrar no raio de coleta (2026-10-12: antes
+	# ficava no chão para sempre e acumulava); material é recolhido.
 	if not sim.set_loot_filter(1, "rare") or sim.set_loot_filter(1, "legendary"):
 		return _fail("Loot filter accepts common..epic only")
 	sim.enter_tower(1)
@@ -33,10 +34,11 @@ func _run() -> void:
 	(sim.get("ground_items") as Array).clear()
 	sim.drop_item(&"tower", spot, "botas_de_rota_antiga", 1, "regular")
 	sim.drop_item(&"tower", spot + Vector2(4.0, 0.0), "musgo_de_orientacao", 2)
+	var silver_before := int(sim._gear(1)["silver"])
 	sim._collect_ground_items(1)
 	var left := sim.get("ground_items") as Array
-	if left.size() != 1 or String((left[0] as Dictionary)["item_id"]) != "botas_de_rota_antiga":
-		return _fail("Filtered equipment must stay on the ground while materials are collected")
+	if not left.is_empty() or int(sim._gear(1)["silver"]) <= silver_before or int((sim.player(1)["carried_loot"] as Dictionary).get("musgo_de_orientacao", 0)) != 2:
+		return _fail("Filtered equipment must turn into silver while materials are collected")
 
 	# Autovenda ao voltar: abaixo de raro vende incomum; raro e arma única ficam.
 	if not sim.set_auto_sell(1, "rare") or sim.set_auto_sell(1, "legendary"):
