@@ -184,7 +184,7 @@ func _run() -> void:
 	if int(eloa.base_stats.get(&"strength", 0)) != 1:
 		return _fail("Character panel could not allocate a stat point")
 	var menu := sim.call("menu_model", PEER) as Dictionary
-	if (menu.get("equipment_slots", []) as Array).size() != 13 or (menu.get("skills", []) as Array).size() != 4 or (menu.get("floors", []) as Array).size() != 4:
+	if (menu.get("equipment_slots", []) as Array).size() != 14 or (menu.get("skills", []) as Array).size() != 4 or (menu.get("floors", []) as Array).size() != 4:
 		return _fail("Player menu does not expose equipment, skills and the tower map")
 	sim.call("descend", PEER)
 	if int(sim.get("current_floor")) != 5 or int(sim.get("deepest_floor")) != 5:

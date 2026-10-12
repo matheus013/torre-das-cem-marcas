@@ -19,7 +19,8 @@ func _run() -> void:
 	var highest := {}
 	for item: Dictionary in beta["items"]:
 		var slot := String(item.get("slot", "none"))
-		if slot in ["none", "weapon"]:
+		# Selos da Cicatriz valem pelo multiplicador (decisão 610), não por atributos.
+		if slot in ["none", "weapon", "seal"]:
 			continue
 		var stats := item.get("stats", {}) as Dictionary
 		var value := 0.0
