@@ -12,6 +12,7 @@ const WINDOW := 14.0
 const PACK := 6
 const CONTACT := 3
 const DUMMY_HEALTH := 1.0e12
+const LOW_HEALTH := 1.0e9
 const ARENA_FLOOR := 16
 const BOSS_FLOORS: Array[int] = [16, 51, 100]
 const PACK_FLOORS: Array[int] = [30, 75, 99]
@@ -78,7 +79,7 @@ func study(subject: String) -> Dictionary:
 	for level in [2, 3, 4, 5]:
 		var power := _power(stages[level])
 		(report["stages"] as Dictionary)[str(level)] = {"build": _describe(stages[level]), "power": power}
-		print("POWER %s d%d boss=%.0f pack=%.0f health=%.0f" % [subject, level, float(power["boss"]), float(power["pack"]), float(power["health"])])
+		print("POWER %s d%d boss=%.0f pack=%.0f boss_share=%.5f pack_share=%.5f health=%.0f" % [subject, level, float(power["boss"]), float(power["pack"]), float(power["boss_share"]), float(power["pack_share"]), float(power["health"])])
 	print("BUILD %s %s" % [subject, JSON.stringify(_describe(stages[5]))])
 	for level in range(1, 6):
 		var verdicts: Array = []
@@ -97,13 +98,17 @@ func _base_build(subject: String) -> Dictionary:
 	for entry: Dictionary in _catalog["active_gems"]:
 		if String(entry["id"]) == subject:
 			gem = entry
-	var character := String(AUTO_SUBJECTS.get(subject, CHARACTER_BY_STAT.get(String((gem.get("scaling", ["strength"]) as Array)[0]), "cira")))
-	var plan: Array = AUTO_PLAN[character] if gem.is_empty() else (gem.get("scaling", []) as Array).duplicate()
+	# Gemas de potência fixa (Esporos) não escalam com atributos: Eloa, com o plano dela.
+	var scaling := gem.get("scaling", []) as Array
+	var character := String(AUTO_SUBJECTS.get(subject, CHARACTER_BY_STAT.get(String(scaling[0]), "cira") if not scaling.is_empty() else "eloa"))
+	var plan: Array = AUTO_PLAN[character] if gem.is_empty() or scaling.is_empty() else scaling.duplicate()
 	if plan.size() == 1:
 		plan.append("vitality")
 	var gear := {}
 	if not gem.is_empty() and _has_item("unica_" + subject):
 		gear["weapon"] = "unica_" + subject
+	elif gem.is_empty():
+		gear["weapon"] = String(SimulationScript.STARTER_WEAPONS[StringName(character)])
 	return {"subject": subject, "character": character, "gem": String(gem.get("id", "")), "plan": plan, "level": 100, "mastery": 21,
 		"evolutions": {}, "supports": [], "gear": gear, "paragon_level": 0, "paragon": {}}
 
@@ -210,6 +215,10 @@ func _optimize_gear(build: Dictionary, divines: bool) -> void:
 		if slot == "weapon":
 			if not String(build["gem"]).is_empty() and _has_item("unica_" + String(build["gem"])):
 				candidates.append("unica_" + String(build["gem"]))
+			else:
+				# Autoataque: arma inicial ou uma arma única (assume a forma da inicial, com mais potência).
+				candidates.append(String(SimulationScript.STARTER_WEAPONS[StringName(String(build["character"]))]))
+				candidates.append("unica_" + String(SimulationScript.STARTER_GEMS[StringName(String(build["character"]))]))
 		for item: Dictionary in _items_by_slot.get(slot, []) as Array:
 			if String(item["tier"]) == "divine" and not divines:
 				continue
@@ -354,7 +363,7 @@ func _supports_attached(build: Dictionary) -> int:
 
 
 ## Dano por segundo em arena de alvos fixos. `kind`: "boss" (um alvo) ou "pack" (seis juntos).
-func _measure(build: Dictionary, kind: String) -> float:
+func _measure(build: Dictionary, kind: String, dummy_health: float = DUMMY_HEALTH) -> float:
 	var sim := _world(build)
 	sim.clock.call("set_period", "tarde")
 	sim.enter_tower(1)
@@ -369,7 +378,7 @@ func _measure(build: Dictionary, kind: String) -> float:
 		var spot := center if count == 1 else center + Vector2.RIGHT.rotated(TAU * index / float(count)) * 55.0
 		var dummy := sim.create_enemy(definition, spot, index)
 		for key in ["max_health", "health"]:
-			dummy[key] = DUMMY_HEALTH
+			dummy[key] = dummy_health
 		dummy["speed"] = 0.0
 		dummy["damage"] = 0.0
 		dummy["resistances"] = {}
@@ -377,6 +386,9 @@ func _measure(build: Dictionary, kind: String) -> float:
 		dummy["modifier_mechanics"] = []
 		dummy["allow_affixes"] = false
 		dummy.erase("behavior_id")
+		# O alvo único faz papel de chefe (efeitos por fração da Vida são menores em chefes).
+		if count == 1:
+			dummy["encounter_class"] = "boss"
 		sim.enemies.append(dummy)
 	var mechanic := String(_gem(String(build["gem"])).get("mechanic", "")) if not String(build["gem"]).is_empty() else ""
 	# Distância de combate como um jogador escolheria: perto para o que gira em volta da personagem
@@ -384,15 +396,23 @@ func _measure(build: Dictionary, kind: String) -> float:
 	var resolved := sim.resolve_slot(1, 0) if not mechanic.is_empty() else {}
 	var close := mechanic in ["nova", "orbit", "barrier", "sanctuary"] or bool(resolved.get("field_follows_player", false)) or String(resolved.get("mechanic", "")) in ["nova", "orbit"]
 	var weapon_range := float(sim.weapon_attack_model(1).get("range", 140.0))
-	var standoff := 40.0 if close else clampf(minf(weapon_range * 0.8, 160.0), 60.0, 160.0)
+	var reach := minf(weapon_range * 0.8, float(resolved.get("range", 999.0)) * 0.6) if not resolved.is_empty() else weapon_range * 0.8
+	var standoff := clampf(reach, 60.0, 160.0)
 	var stand := center - Vector2(standoff, 0.0)
-	sim.player(1)["position"] = stand
+	var resolved_mechanic := String(resolved.get("mechanic", mechanic))
+	var orbit_distance := float(resolved.get("radius", 100.0)) if resolved_mechanic == "orbit" else clampf(float(resolved.get("radius", 80.0)) * 0.5, 25.0, 90.0)
+	sim.player(1)["position"] = center - Vector2(orbit_distance, 0.0) if close else stand
 	var time := 0.0
 	while time < WINDOW:
 		var state := sim.player(1)
 		# Vida real: gemas que custam Vida gastam de verdade (os alvos não ferem; a regeneração é a do jogo).
 		state["invulnerable"] = 1.0
-		if int(time / DELTA) % 10 == 0:
+		if close:
+			# Curto alcance: circula o alvo na distância que a mecânica pede (órbita no raio dela,
+			# nova e campo que segue dentro de metade do raio), oscilando um pouco.
+			var radius := orbit_distance + 12.0 * sin(time * 1.3)
+			sim.set_move_target(1, center + Vector2.RIGHT.rotated(time * 1.2 + PI) * radius)
+		elif int(time / DELTA) % 10 == 0:
 			sim.set_move_target(1, stand)
 			if mechanic == "dash":
 				state["position"] = stand
@@ -404,14 +424,29 @@ func _measure(build: Dictionary, kind: String) -> float:
 		time += DELTA
 	var dealt := 0.0
 	for enemy: Dictionary in sim.enemies:
-		if float(enemy.get("max_health", 0.0)) >= DUMMY_HEALTH * 0.5:
-			dealt += DUMMY_HEALTH - float(enemy["health"])
+		if float(enemy.get("max_health", 0.0)) >= dummy_health * 0.5:
+			dealt += dummy_health - float(enemy["health"])
 	return dealt / WINDOW
 
 
+## Dano fixo por segundo e fração da Vida máxima do alvo por segundo (esporos e afins), medidos com
+## duas Vidas de alvo: dano = fixo + fração x Vida. Na matilha a fração é por alvo.
 func _power(build: Dictionary) -> Dictionary:
 	var sim := _world(build)
-	return {"boss": _measure(build, "boss"), "pack": _measure(build, "pack"), "health": sim.max_health(1)}
+	var result := {"health": sim.max_health(1)}
+	for kind in ["boss", "pack"]:
+		var low := _measure(build, kind, LOW_HEALTH)
+		var high := _measure(build, kind, DUMMY_HEALTH)
+		var targets := 1.0 if kind == "boss" else float(PACK)
+		var share := maxf(0.0, (high - low) / ((DUMMY_HEALTH - LOW_HEALTH) * targets))
+		result[kind] = maxf(0.0, low - share * LOW_HEALTH * targets)
+		result[kind + "_share"] = share
+	return result
+
+
+## Dano por segundo efetivo contra alvos de Vida `health` (no chefe, um; na matilha, a soma dos seis).
+static func effective(power: Dictionary, kind: String, health: float) -> float:
+	return float(power[kind]) + float(power.get(kind + "_share", 0.0)) * health * (1.0 if kind == "boss" else float(PACK))
 
 
 # ---------------------------------------------------------------- avaliação
@@ -423,12 +458,14 @@ func _evaluate(build: Dictionary, power: Dictionary, difficulty: int, floor_numb
 	sim.start_floor(floor_number)
 	var element := _element(build)
 	var health := sim.max_health(1)
+	# Ressonância da dificuldade: o poder medido na arena (dificuldade 1) cresce com ela.
+	var resonance := float(SimulationScript.DIFFICULTIES[difficulty - 1].get("power", 1.0))
 	if floor_number in BOSS_FLOORS:
 		var boss := sim.enemies.filter(func(enemy: Dictionary) -> bool: return bool(enemy.get("floor_boss", false)))[0] as Dictionary
 		var resist := clampf(float((boss.get("resistances", {}) as Dictionary).get(element, 0.0)), -0.5, 0.75)
 		# Escudos da dificuldade 5 somam Vida a derrubar.
 		var shields := 1.0 + (SimulationScript.BOSS_SHIELD_SHARE * SimulationScript.BOSS_SHIELD_THRESHOLDS.size() if difficulty >= 5 else 0.0)
-		var ttk := float(boss["max_health"]) * shields / maxf(1.0, float(power["boss"]) * (1.0 - resist))
+		var ttk := float(boss["max_health"]) * shields / maxf(1.0, effective(power, "boss", float(boss["max_health"])) * resonance * (1.0 - resist))
 		var biggest := float(boss["damage"])
 		for ability: Dictionary in boss.get("kit", []) as Array:
 			biggest = maxf(biggest, float(ability.get("damage", 0.0)))
@@ -440,7 +477,7 @@ func _evaluate(build: Dictionary, power: Dictionary, difficulty: int, floor_numb
 	var commons := sim.enemies.filter(func(enemy: Dictionary) -> bool: return String(enemy.get("encounter_class", "")) == "common" and String(enemy.get("time_of_day", "")).is_empty() and not bool(enemy.get("superior", false)))
 	var sample := commons[0] as Dictionary if not commons.is_empty() else sim.enemies[0] as Dictionary
 	var resist := clampf(float((sample.get("resistances", {}) as Dictionary).get(element, 0.0)), -0.5, 0.75)
-	var clear := float(sample["max_health"]) * PACK / maxf(1.0, float(power["pack"]) * (1.0 - resist))
+	var clear := float(sample["max_health"]) * PACK / maxf(1.0, effective(power, "pack", float(sample["max_health"])) * resonance * (1.0 - resist))
 	var per_hit := _hit_loss(sim, float(sample["damage"]), String(sample.get("damage_type", "physical")))
 	# Até 3 comuns batem ao mesmo tempo: o resto da matilha espera vaga em volta da personagem.
 	var incoming := per_hit * mini(PACK, CONTACT) / maxf(0.2, float(sample.get("attack_interval", 0.8)))

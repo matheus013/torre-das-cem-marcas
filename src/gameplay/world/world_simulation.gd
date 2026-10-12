@@ -90,6 +90,9 @@ const SAVE_VERSION := 15
 const NarrativeProgress := preload("res://src/gameplay/world/narrative_progress.gd")
 const CONTENT_PATH := "res://data/generated/dev_content.json"
 const BETA_PATH := "res://data/beta/beta_content.json"
+## Fatores de balanceamento por gema (decisão 610), medidos pela sonda de builds.
+const GEM_BALANCE_PATH := "res://data/combat/gem_balance.json"
+const GEM_DAMAGE_FIELDS: Array[String] = ["power", "trail_damage", "expire_damage", "expire_nova_damage", "contact_damage"]
 const CHARACTER_IDS: Array[StringName] = [&"eloa", &"sena", &"cira", &"rui"]
 const STARTER_WEAPONS := {
 	&"eloa": "filamentos_de_forja", &"sena": "lanca_de_duas_rotas",
@@ -163,13 +166,16 @@ const ENEMY_SPEED_MULT := 1.5
 ## resistências deles; penalty tira das resistências da personagem; elite_affixes [mín, máx] (até 2:
 ## prefixo e sufixo); loot multiplica chances e soma ao nível de saque (`loot_score`); uniques libera
 ## armas únicas; adaptive liga a Adaptação em elites e chefes; no_nascent sobe Nascentes para Maduro;
-## superior é a chance de bando superior, com `superior_affixes` mínimos. Valores provisórios.
+## superior é a chance de bando superior, com `superior_affixes` mínimos. power é a Ressonância
+## (decisão 610): o dano da personagem cresce com a dificuldade, para os números grandes (bilhões de
+## Vida na 5) andarem junto com o poder de verdade; a dificuldade efetiva é health / power.
+## Valores provisórios.
 const DIFFICULTIES: Array[Dictionary] = [
-	{"name": "Expedicao", "health": 1.0, "damage": 1.0, "resist": 0.0, "penalty": 0.0, "elite_affixes": [], "loot": 1.0, "loot_score": 0.0, "exp": 1.0, "uniques": false, "adaptive": false, "no_nascent": false, "superior": 0.0, "superior_affixes": 0},
-	{"name": "Veterana", "health": 30.0, "damage": 2.0, "resist": 0.1, "penalty": 0.0, "elite_affixes": [1, 2], "loot": 1.25, "loot_score": 1.5, "exp": 1.5, "uniques": true, "adaptive": false, "no_nascent": false, "superior": 0.0, "superior_affixes": 0},
-	{"name": "Mestra", "health": 1000.0, "damage": 4.0, "resist": 0.2, "penalty": 0.2, "elite_affixes": [2, 2], "loot": 1.5, "loot_score": 3.0, "exp": 2.0, "uniques": true, "adaptive": false, "no_nascent": false, "superior": 0.0, "superior_affixes": 0},
-	{"name": "Mitica", "health": 30000.0, "damage": 8.0, "resist": 0.3, "penalty": 0.4, "elite_affixes": [2, 2], "loot": 2.0, "loot_score": 4.5, "exp": 3.0, "uniques": true, "adaptive": true, "no_nascent": true, "superior": 0.15, "superior_affixes": 1},
-	{"name": "Cicatriz", "health": 100000.0, "damage": 16.0, "resist": 0.4, "penalty": 0.6, "elite_affixes": [2, 2], "loot": 2.5, "loot_score": 6.0, "exp": 4.0, "uniques": true, "adaptive": true, "no_nascent": true, "superior": 0.25, "superior_affixes": 2},
+	{"name": "Expedicao", "power": 1.0, "health": 1.0, "damage": 1.0, "resist": 0.0, "penalty": 0.0, "elite_affixes": [], "loot": 1.0, "loot_score": 0.0, "exp": 1.0, "uniques": false, "adaptive": false, "no_nascent": false, "superior": 0.0, "superior_affixes": 0},
+	{"name": "Veterana", "power": 1.0, "health": 30.0, "damage": 2.0, "resist": 0.1, "penalty": 0.0, "elite_affixes": [1, 2], "loot": 1.25, "loot_score": 1.5, "exp": 1.5, "uniques": true, "adaptive": false, "no_nascent": false, "superior": 0.0, "superior_affixes": 0},
+	{"name": "Mestra", "power": 1.0, "health": 1000.0, "damage": 4.0, "resist": 0.2, "penalty": 0.2, "elite_affixes": [2, 2], "loot": 1.5, "loot_score": 3.0, "exp": 2.0, "uniques": true, "adaptive": false, "no_nascent": false, "superior": 0.0, "superior_affixes": 0},
+	{"name": "Mitica", "power": 1.0, "health": 30000.0, "damage": 8.0, "resist": 0.3, "penalty": 0.4, "elite_affixes": [2, 2], "loot": 2.0, "loot_score": 4.5, "exp": 3.0, "uniques": true, "adaptive": true, "no_nascent": true, "superior": 0.15, "superior_affixes": 1},
+	{"name": "Cicatriz", "power": 1.0, "health": 100000.0, "damage": 16.0, "resist": 0.4, "penalty": 0.6, "elite_affixes": [2, 2], "loot": 2.5, "loot_score": 6.0, "exp": 4.0, "uniques": true, "adaptive": true, "no_nascent": true, "superior": 0.25, "superior_affixes": 2},
 ]
 const RANK_ORDER: Array[String] = ["nascente", "maduro", "evoluido", "alfa", "apice"]
 ## Chefe derrotado só volta depois da recarga (decisão 526); enquanto isso o andar é passagem.
@@ -1026,8 +1032,8 @@ func difficulty_model() -> Dictionary:
 	for index in range(DIFFICULTIES.size()):
 		var rules := DIFFICULTIES[index]
 		levels.append({"level": index + 1, "name": String(rules["name"]), "unlocked": index + 1 <= unlocked_difficulty,
-			"summary": "Vida x%s, dano x%s, resistencias +%d%%, suas resistencias -%d%%, saque x%.2f, EXP x%.1f%s%s" % [
-				NumberFormat.short(float(rules["health"])), NumberFormat.short(float(rules["damage"])), roundi(float(rules["resist"]) * 100.0),
+			"summary": "Vida x%s, dano x%s, Ressonancia x%s no seu dano, resistencias +%d%%, suas resistencias -%d%%, saque x%.2f, EXP x%.1f%s%s" % [
+				NumberFormat.short(float(rules["health"])), NumberFormat.short(float(rules["damage"])), NumberFormat.short(float(rules.get("power", 1.0))), roundi(float(rules["resist"]) * 100.0),
 				roundi(float(rules["penalty"]) * 100.0), float(rules["loot"]), float(rules["exp"]),
 				", armas unicas" if bool(rules["uniques"]) else "", ", adaptacao, sem Nascentes e bandos superiores" if bool(rules["no_nascent"]) else ""]})
 	return {"current": difficulty, "unlocked": unlocked_difficulty, "levels": levels}
@@ -4002,6 +4008,8 @@ func _damage_enemy(peer_id: int, index: int, damage: float, hit: Dictionary) -> 
 		damage *= 1.0 + _mod(peer_id, "lit_damage_bonus")
 	var resisted := ResistancesScript.enemy_resistance(enemy, damage_kind, _mod(peer_id, "penetration_add") if players.has(peer_id) else 0.0)
 	damage *= 1.0 - resisted
+	# Ressonância da dificuldade (decisão 610): todo dano causado pelas personagens.
+	damage *= float(difficulty_rules().get("power", 1.0))
 	damage = _behavior_damage(peer_id, enemy, damage, damage_kind, dot)
 	# Teste de dano (dificuldade 5): o escudo do chefe absorve primeiro.
 	if float(enemy.get("shield_hp", 0.0)) > 0.0:
@@ -7378,6 +7386,18 @@ func _collection(key: String) -> Array[Dictionary]:
 				result.append(value as Dictionary)
 	if key in ["enemies", "monster_races", "items", "loot_tables"]:
 		result.append_array(TowerContentScript.collection(key))
+	# Balanceamento por gema (decisão 610): fator sobre os números de dano, aplicado uma vez na carga.
+	if key == "active_gems":
+		var balance := _read_json(GEM_BALANCE_PATH).get("power", {}) as Dictionary
+		for index in range(result.size()):
+			var factor := float(balance.get(String(result[index].get("id", "")), 1.0))
+			if is_equal_approx(factor, 1.0):
+				continue
+			var gem := result[index].duplicate(true)
+			for field in GEM_DAMAGE_FIELDS:
+				if gem.has(field):
+					gem[field] = float(gem[field]) * factor
+			result[index] = gem
 	_collections[cache_key] = result
 	return result
 
