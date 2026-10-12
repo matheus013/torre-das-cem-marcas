@@ -27,14 +27,33 @@ func _run() -> void:
 		elif arg == "--fast":
 			lab.set("fast", true)
 	var results: Array = []
+	for subject in only:
+		if subject not in lab.call("subjects"):
+			push_error("Unknown build subject: " + subject)
+			quit(1)
+			return
 	for subject: String in lab.call("subjects"):
 		if not only.is_empty() and subject not in only:
 			continue
 		var started := Time.get_ticks_msec()
 		results.append(lab.call("study", subject))
+		# Persist completed work before starting another expensive optimization.
+		if not _save(out, results):
+			quit(1)
+			return
 		print("DONE %s in %.0fs" % [subject, (Time.get_ticks_msec() - started) / 1000.0])
-	var file := FileAccess.open(out, FileAccess.WRITE)
-	if file != null:
-		file.store_string(JSON.stringify(results, "  "))
-		print("BUILD_PROBE_OK %d subjects -> %s" % [results.size(), ProjectSettings.globalize_path(out)])
+	print("BUILD_PROBE_OK %d subjects -> %s" % [results.size(), ProjectSettings.globalize_path(out)])
 	quit(0)
+
+
+func _save(path: String, results: Array) -> bool:
+	var file := FileAccess.open(path + ".tmp", FileAccess.WRITE)
+	if file == null:
+		push_error("Cannot save build checkpoint: " + path)
+		return false
+	file.store_string(JSON.stringify(results, "  "))
+	file.close()
+	if DirAccess.rename_absolute(ProjectSettings.globalize_path(path + ".tmp"), ProjectSettings.globalize_path(path)) != OK:
+		push_error("Cannot publish build checkpoint: " + path)
+		return false
+	return true

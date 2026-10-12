@@ -45,5 +45,14 @@ else
 	tail -20 "$LOG"
 fi
 
+if PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests -p 'test_build_probe_tools.py' >"$LOG" 2>&1; then
+	passed=$((passed + 1))
+	printf 'ok    %s\n' "build_probe_tools"
+else
+	failed=$((failed + 1))
+	printf 'FAIL  %s\n' "build_probe_tools"
+	tail -20 "$LOG"
+fi
+
 printf '\n%d ok, %d falharam\n' "$passed" "$failed"
 [ "$failed" -eq 0 ]
