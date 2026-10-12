@@ -144,6 +144,9 @@ func _run() -> void:
 	var button := sell_menu.find_child("SellAll", true, false) as Button
 	if button == null or not button.disabled:
 		return _fail("Sell all button must exist and be disabled with nothing to sell")
+	# Regressão de 2026-10-12: o botão encolhia a uma coluna de uma letra e o texto sumia.
+	if button.get_combined_minimum_size().x < 120.0 or button.get_combined_minimum_size().y > 48.0:
+		return _fail("Sell all button must stay readable: %s" % button.get_combined_minimum_size())
 	sell_menu.queue_free()
 	await process_frame
 	print("BESTIARY_OK: 5 knowledge levels by kills, boss abilities, party learning, save; sell all keeps equipped/legendary/unique")

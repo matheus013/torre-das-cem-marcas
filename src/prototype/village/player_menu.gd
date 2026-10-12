@@ -262,6 +262,10 @@ func _build_inventory() -> void:
 	sell_all.disabled = int(preview.get("count", 0)) == 0
 	sell_all.tooltip_text = "Vende %d pecas da mochila por %d P. Pecas equipadas, lendarias e armas unicas ficam." % [int(preview.get("count", 0)), int(preview.get("price", 0))]
 	sell_all.pressed.connect(_confirm_sell_all)
+	# Largura própria: o cabeçalho tem dois textos que se expandem e o menu liga quebra de linha nos
+	# botões; sem isso o botão encolhia a uma coluna de uma letra e sumia (regressão de 2026-10-12).
+	sell_all.custom_minimum_size = Vector2(140.0, 32.0)
+	sell_all.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	backpack_header.add_child(sell_all)
 	right.add_child(backpack_header)
 	var grid := GridContainer.new()
