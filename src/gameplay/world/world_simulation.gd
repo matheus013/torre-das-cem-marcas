@@ -202,6 +202,12 @@ const GEM_SCALING_WEIGHTS: Array[float] = [0.6, 0.4, 0.25]
 ## Saque físico (decisão 550): fica no chão até alguém passar por cima.
 const PICKUP_RADIUS := 34.0
 const MAX_GROUND_ITEM_VIEWS := 120
+## Itens no chão (regressão de 2026-10-12: um save com 6 mil itens derrubava o FPS): limite por andar
+## e total. Passando, some o de menor raridade e mais antigo, primeiro dos andares que ficaram para
+## trás. Materiais iguais se juntam numa pilha próxima.
+const MAX_GROUND_ITEMS_PER_FLOOR := 250
+const MAX_GROUND_ITEMS_TOTAL := 600
+const MATERIAL_MERGE_RADIUS := 120.0
 const AutoSupports := preload("res://src/gameplay/equipment/auto_attack_supports.gd")
 const BestiaryScript := preload("res://src/gameplay/content/bestiary.gd")
 const ResistancesScript := preload("res://src/gameplay/combat/resistances.gd")
@@ -5282,7 +5288,7 @@ func drop_item(zone: StringName, position: Vector2, item_id: String, quantity: i
 	var equipment := _is_equipment(item_id)
 	if not equipment:
 		for item in ground_items:
-			if item["zone"] == zone and int(item.get("floor", 0)) == current_floor and String(item["item_id"]) == item_id and (item["position"] as Vector2).distance_to(position) <= STACK_RADIUS:
+			if item["zone"] == zone and int(item.get("floor", 0)) == current_floor and String(item["item_id"]) == item_id and (item["position"] as Vector2).distance_to(position) <= MATERIAL_MERGE_RADIUS:
 				item["quantity"] = int(item["quantity"]) + quantity
 				return
 	var definition := _find(_collection("items"), item_id)
@@ -5297,6 +5303,33 @@ func drop_item(zone: StringName, position: Vector2, item_id: String, quantity: i
 		"name": display, "equipment": equipment, "quality": quality,
 	})
 	_ground_sequence += 1
+	_trim_ground_items()
+
+
+## Mantém os limites de itens no chão: some o de menor raridade e mais antigo, primeiro de outros andares.
+func _trim_ground_items() -> void:
+	if ground_items.size() <= MAX_GROUND_ITEMS_PER_FLOOR:
+		return
+	var here := ground_items.filter(func(item: Dictionary) -> bool: return int(item.get("floor", 0)) == current_floor).size()
+	while ground_items.size() > MAX_GROUND_ITEMS_TOTAL or here > MAX_GROUND_ITEMS_PER_FLOOR:
+		var only_here := ground_items.size() <= MAX_GROUND_ITEMS_TOTAL
+		var victim := -1
+		var victim_rank := INF
+		for index in range(ground_items.size()):
+			var item := ground_items[index]
+			var elsewhere := int(item.get("floor", 0)) != current_floor
+			if only_here and elsewhere:
+				continue
+			# Outros andares primeiro; depois menor raridade; depois o mais antigo (menor id).
+			var rank := (0.0 if elsewhere else 1.0e9) + float(TIER_ORDER.find(String(item.get("tier", "common")))) * 1.0e7 + float(item.get("id", 0))
+			if rank < victim_rank:
+				victim_rank = rank
+				victim = index
+		if victim < 0:
+			break
+		if int(ground_items[victim].get("floor", 0)) == current_floor:
+			here -= 1
+		ground_items.remove_at(victim)
 
 
 func _is_equipment(item_id: String) -> bool:
@@ -7415,7 +7448,7 @@ func _restore_ground_items(source: Variant) -> void:
 	if not source is Array:
 		return
 	var active := current_floor
-	for value: Variant in source:
+	for value: Variant in _ground_items_to_keep(source as Array, active):
 		if not value is Dictionary:
 			continue
 		var entry := value as Dictionary
@@ -7430,6 +7463,33 @@ func _restore_ground_items(source: Variant) -> void:
 			zone = &"tower"
 		drop_item(zone, _array_vector(entry.get("position", []), Vector2(400.0, 360.0)), item_id, maxi(1, int(entry.get("quantity", 1))), quality if quality in LootDifficultyScript.FABRICATION_FACTORS else "")
 	current_floor = active
+
+
+## Saves antigos podem ter milhares de itens no chão: fica o que cabe nos limites, com o andar atual
+## primeiro, depois maior raridade e os mais recentes.
+func _ground_items_to_keep(source: Array, active: int) -> Array:
+	var entries: Array = []
+	for index in range(source.size()):
+		if source[index] is Dictionary:
+			var definition := _find(_collection("items"), String((source[index] as Dictionary).get("item_id", "")))
+			entries.append({"entry": source[index], "index": index, "floor": int((source[index] as Dictionary).get("floor", 1)),
+				"tier": TIER_ORDER.find(String(definition.get("tier", "common")))})
+	entries.sort_custom(func(left: Dictionary, right: Dictionary) -> bool:
+		if (int(left["floor"]) == active) != (int(right["floor"]) == active):
+			return int(left["floor"]) == active
+		if int(left["tier"]) != int(right["tier"]):
+			return int(left["tier"]) > int(right["tier"])
+		return int(left["index"]) > int(right["index"]))
+	var kept: Array = []
+	var per_floor := {}
+	for entry: Dictionary in entries:
+		if kept.size() >= MAX_GROUND_ITEMS_TOTAL:
+			break
+		if int(per_floor.get(int(entry["floor"]), 0)) >= MAX_GROUND_ITEMS_PER_FLOOR:
+			continue
+		per_floor[int(entry["floor"])] = int(per_floor.get(int(entry["floor"]), 0)) + 1
+		kept.append(entry["entry"])
+	return kept
 
 
 func _deserialize_enemies(source: Variant) -> Array[Dictionary]:
