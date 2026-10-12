@@ -268,14 +268,15 @@ func _best_single_divine(build: Dictionary) -> void:
 
 func _optimize_paragon(build: Dictionary) -> void:
 	var best_score := -1.0
+	var chosen: Dictionary = PARAGON_PRESETS[0].duplicate()
 	for preset in PARAGON_PRESETS:
-		build["paragon_shares"] = preset
-		var trial := _with_paragon(build, 175)
+		var candidate := build.duplicate(true)
+		candidate["paragon_shares"] = preset
+		var trial := _with_paragon(candidate, 175)
 		var score := _score(trial)
 		if score > best_score:
 			best_score = score
-			build["paragon_shares"] = preset.duplicate()
-	var chosen := build["paragon_shares"] as Dictionary
+			chosen = preset.duplicate()
 	build["paragon_shares"] = chosen
 
 
@@ -283,7 +284,7 @@ func _optimize_paragon(build: Dictionary) -> void:
 
 func _world(build: Dictionary, difficulty: int = 1) -> WorldSimulation:
 	var sim := SimulationScript.new()
-	sim.setup(9101)
+	sim.setup(int(build.get("seed", 9101)))
 	sim.add_player(1, StringName(String(build["character"])))
 	var character := sim.character_build(1)
 	while character.level < int(build["level"]):
@@ -334,7 +335,8 @@ func _good_affixes(build: Dictionary, tier: String, item_level: int) -> Array[Di
 	var element := _element(build)
 	var damage_id: String = "dano_fisico" if element == "physical" else "dano_" + {"fire": "fogo", "ice": "gelo", "lightning": "raio", "acid": "acido", "nature": "natureza", "dark": "trevas", "holy": "sagrado", "earth": "terra", "arcane": "arcano"}.get(element, "magico")
 	var result: Array[Dictionary] = []
-	for id in [damage_id, "critico", "recarga", "resistencia_todas"]:
+	var count := int(AffixesScript.count_range(tier)[1])
+	for id in [damage_id, "critico", "recarga", "resistencia_todas"].slice(0, count):
 		var spec := AffixesScript.POOL[id] as Dictionary
 		result.append({"id": id, "value": AffixesScript._round(spec, float(spec["max"]) * float(AffixesScript.SCALE.get(tier, 1.0)) * AffixesScript.affix_level_factor(spec, item_level))})
 	return result
@@ -364,10 +366,22 @@ func _supports_attached(build: Dictionary) -> int:
 
 ## Dano por segundo em arena de alvos fixos. `kind`: "boss" (um alvo) ou "pack" (seis juntos).
 func _measure(build: Dictionary, kind: String, dummy_health: float = DUMMY_HEALTH) -> float:
+	return float(measurement(build, kind, dummy_health)["total_dps"])
+
+
+func measurement(build: Dictionary, kind: String, dummy_health: float = DUMMY_HEALTH, seconds: float = WINDOW, isolated: bool = false) -> Dictionary:
 	var sim := _world(build)
+	sim.damage_meter_enabled = true
+	if isolated:
+		sim.set_auto_attack(1, false)
+		# No item-specific power or procs in the equal-investment comparison.
+		sim._gear(1)["equipment"] = EquipmentLoadout.new()
+		sim._passive_cache.clear()
 	sim.clock.call("set_period", "tarde")
 	sim.enter_tower(1)
 	sim.start_floor(ARENA_FLOOR)
+	sim.floor_run["population"] = 0
+	sim.respawn.call("clear")
 	sim.enemies.clear()
 	sim.telegraphs.clear()
 	var origin := sim.player(1)["position"] as Vector2
@@ -403,7 +417,9 @@ func _measure(build: Dictionary, kind: String, dummy_health: float = DUMMY_HEALT
 	var orbit_distance := float(resolved.get("radius", 100.0)) if resolved_mechanic == "orbit" else clampf(float(resolved.get("radius", 80.0)) * 0.5, 25.0, 90.0)
 	sim.player(1)["position"] = center - Vector2(orbit_distance, 0.0) if close else stand
 	var time := 0.0
-	while time < WINDOW:
+	var casts := 0
+	var starved := 0.0
+	while time < seconds:
 		var state := sim.player(1)
 		# Vida real: gemas que custam Vida gastam de verdade (os alvos não ferem; a regeneração é a do jogo).
 		state["invulnerable"] = 1.0
@@ -418,15 +434,27 @@ func _measure(build: Dictionary, kind: String, dummy_health: float = DUMMY_HEALT
 				state["position"] = stand
 		var channeling := (sim.persistent_effects as Array).any(func(effect: Dictionary) -> bool: return effect["mechanic"] == "volley")
 		if not mechanic.is_empty() and not channeling:
-			sim.use_skill(1, 0, center)
+			if sim.use_skill(1, 0, center):
+				casts += 1
+		if isolated and not String(build["gem"]).is_empty():
+			var progress := (sim._gem_state(1)["gems"] as Dictionary)[String(build["gem"])] as Dictionary
+			progress["level"] = int(build["mastery"])
+			progress["experience"] = 0
+			progress["choices"] = (build["evolutions"] as Dictionary).duplicate()
+		if float(state["breath"]) < float(resolved.get("breath_cost", 0.0)):
+			starved += DELTA
 		sim.step(DELTA)
 		sim.drain_events()
 		time += DELTA
+	var sources := {}
+	var shares := {}
 	var dealt := 0.0
-	for enemy: Dictionary in sim.enemies:
-		if float(enemy.get("max_health", 0.0)) >= dummy_health * 0.5:
-			dealt += dummy_health - float(enemy["health"])
-	return dealt / WINDOW
+	for source: String in sim.damage_meter:
+		var amount := float(sim.damage_meter[source])
+		dealt += amount
+		sources[source] = amount / time
+		shares[source] = float(sim.damage_meter_percent.get(source, 0.0)) / (dummy_health * count * time)
+	return {"total_dps": dealt / time, "sources": sources, "shares": shares, "seconds": time, "casts": casts, "starved_seconds": starved}
 
 
 ## Dano fixo por segundo e fração da Vida máxima do alvo por segundo (esporos e afins), medidos com

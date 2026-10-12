@@ -1,0 +1,5821 @@
+{
+  "balance": "{\n  \"power\": {}\n}\n",
+  "isolated": true,
+  "level": 100,
+  "mastery": 1,
+  "rows": [
+    {
+      "character": "cira",
+      "samples": [
+        {
+          "boss": {
+            "casts": 20,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:agulha_lastro": 0.0
+            },
+            "sources": {
+              "gem:agulha_lastro": 151.466283259424
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 151.466283259424
+          },
+          "pack": {
+            "casts": 20,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "seed": 9101
+        },
+        {
+          "boss": {
+            "casts": 20,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:agulha_lastro": 0.0
+            },
+            "sources": {
+              "gem:agulha_lastro": 146.527165327051
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 146.527165327051
+          },
+          "pack": {
+            "casts": 20,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "seed": 17020
+        },
+        {
+          "boss": {
+            "casts": 20,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:agulha_lastro": 0.0
+            },
+            "sources": {
+              "gem:agulha_lastro": 141.588047394679
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 141.588047394679
+          },
+          "pack": {
+            "casts": 20,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "seed": 24939
+        },
+        {
+          "boss": {
+            "casts": 20,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:agulha_lastro": 0.0
+            },
+            "sources": {
+              "gem:agulha_lastro": 136.648929462306
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 136.648929462306
+          },
+          "pack": {
+            "casts": 20,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "seed": 32858
+        },
+        {
+          "boss": {
+            "casts": 20,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:agulha_lastro": 0.0
+            },
+            "sources": {
+              "gem:agulha_lastro": 141.588047394679
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 141.588047394679
+          },
+          "pack": {
+            "casts": 20,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "seed": 40777
+        }
+      ],
+      "subject": "agulha_lastro"
+    },
+    {
+      "character": "eloa",
+      "samples": [
+        {
+          "boss": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:pulso_cicatriz": 0.0
+            },
+            "sources": {
+              "gem:pulso_cicatriz": 104.793475609756
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 104.793475609756
+          },
+          "pack": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:pulso_cicatriz": 0.0
+            },
+            "sources": {
+              "gem:pulso_cicatriz": 560.786707317075
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 560.786707317075
+          },
+          "seed": 9101
+        },
+        {
+          "boss": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:pulso_cicatriz": 0.0
+            },
+            "sources": {
+              "gem:pulso_cicatriz": 87.7999390243905
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 87.7999390243905
+          },
+          "pack": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:pulso_cicatriz": 0.0
+            },
+            "sources": {
+              "gem:pulso_cicatriz": 518.30286585366
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 518.30286585366
+          },
+          "seed": 17020
+        },
+        {
+          "boss": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:pulso_cicatriz": 0.0
+            },
+            "sources": {
+              "gem:pulso_cicatriz": 79.3031707317075
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 79.3031707317075
+          },
+          "pack": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:pulso_cicatriz": 0.0
+            },
+            "sources": {
+              "gem:pulso_cicatriz": 509.806097560977
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 509.806097560977
+          },
+          "seed": 24939
+        },
+        {
+          "boss": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:pulso_cicatriz": 0.0
+            },
+            "sources": {
+              "gem:pulso_cicatriz": 87.7999390243905
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 87.7999390243905
+          },
+          "pack": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:pulso_cicatriz": 0.0
+            },
+            "sources": {
+              "gem:pulso_cicatriz": 501.309329268294
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 501.309329268294
+          },
+          "seed": 32858
+        },
+        {
+          "boss": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:pulso_cicatriz": 0.0
+            },
+            "sources": {
+              "gem:pulso_cicatriz": 87.7999390243905
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 87.7999390243905
+          },
+          "pack": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:pulso_cicatriz": 0.0
+            },
+            "sources": {
+              "gem:pulso_cicatriz": 509.806097560977
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 509.806097560977
+          },
+          "seed": 40777
+        }
+      ],
+      "subject": "pulso_cicatriz"
+    },
+    {
+      "character": "eloa",
+      "samples": [
+        {
+          "boss": {
+            "casts": 5,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:prisao_gravitica": 0.0
+            },
+            "sources": {
+              "character_passive": 26.9812075942351,
+              "gem:prisao_gravitica": 185.211723392462
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 212.192930986697
+          },
+          "pack": {
+            "casts": 5,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:prisao_gravitica": 0.0
+            },
+            "sources": {
+              "character_passive": 66.136960227273,
+              "gem:prisao_gravitica": 352.20590022173
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 418.342860449003
+          },
+          "seed": 9101
+        },
+        {
+          "boss": {
+            "casts": 5,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:prisao_gravitica": 0.0
+            },
+            "sources": {
+              "character_passive": 27.2497196507761,
+              "gem:prisao_gravitica": 173.066692350333
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 200.316412001109
+          },
+          "pack": {
+            "casts": 5,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:prisao_gravitica": 0.0
+            },
+            "sources": {
+              "character_passive": 66.136960227273,
+              "gem:prisao_gravitica": 333.988353658537
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 400.12531388581
+          },
+          "seed": 17020
+        },
+        {
+          "boss": {
+            "casts": 5,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:prisao_gravitica": 0.0
+            },
+            "sources": {
+              "character_passive": 25.6973768015522,
+              "gem:prisao_gravitica": 166.994176829269
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 192.691553630821
+          },
+          "pack": {
+            "casts": 5,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:prisao_gravitica": 0.0
+            },
+            "sources": {
+              "character_passive": 65.3221371951222,
+              "gem:prisao_gravitica": 352.20590022173
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 417.528037416853
+          },
+          "seed": 24939
+        },
+        {
+          "boss": {
+            "casts": 5,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:prisao_gravitica": 0.0
+            },
+            "sources": {
+              "character_passive": 24.6047548503327,
+              "gem:prisao_gravitica": 170.030434589801
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 194.635189440134
+          },
+          "pack": {
+            "casts": 5,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:prisao_gravitica": 0.0
+            },
+            "sources": {
+              "character_passive": 64.4207240853661,
+              "gem:prisao_gravitica": 349.169642461198
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 413.590366546564
+          },
+          "seed": 32858
+        },
+        {
+          "boss": {
+            "casts": 5,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:prisao_gravitica": 0.0
+            },
+            "sources": {
+              "character_passive": 25.0371601995566,
+              "gem:prisao_gravitica": 173.066692350333
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 198.10385254989
+          },
+          "pack": {
+            "casts": 5,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:prisao_gravitica": 0.0
+            },
+            "sources": {
+              "character_passive": 66.4420746951222,
+              "gem:prisao_gravitica": 358.278415742795
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 424.720490437917
+          },
+          "seed": 40777
+        }
+      ],
+      "subject": "prisao_gravitica"
+    },
+    {
+      "character": "eloa",
+      "samples": [
+        {
+          "boss": {
+            "casts": 8,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:elo_residual": 0.0
+            },
+            "sources": {
+              "character_passive": 88.9600024390247,
+              "gem:elo_residual": 84.2304380820401
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 173.190440521065
+          },
+          "pack": {
+            "casts": 8,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:elo_residual": 0.0
+            },
+            "sources": {
+              "character_passive": 139.694052667683,
+              "gem:elo_residual": 336.921752328161
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 476.615804995844
+          },
+          "seed": 9101
+        },
+        {
+          "boss": {
+            "casts": 8,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:elo_residual": 0.0
+            },
+            "sources": {
+              "character_passive": 87.9634717849227,
+              "gem:elo_residual": 84.2304380820401
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 172.193909866963
+          },
+          "pack": {
+            "casts": 8,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:elo_residual": 0.0
+            },
+            "sources": {
+              "character_passive": 133.73620268847,
+              "gem:elo_residual": 352.216793514413
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 485.952996202884
+          },
+          "seed": 17020
+        },
+        {
+          "boss": {
+            "casts": 8,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:elo_residual": 0.0
+            },
+            "sources": {
+              "character_passive": 83.1204566033816,
+              "gem:elo_residual": 84.2304380820401
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 167.350894685422
+          },
+          "pack": {
+            "casts": 8,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:elo_residual": 0.0
+            },
+            "sources": {
+              "character_passive": 131.855950796841,
+              "gem:elo_residual": 321.626711141908
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 453.482661938748
+          },
+          "seed": 24939
+        },
+        {
+          "boss": {
+            "casts": 8,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:elo_residual": 0.0
+            },
+            "sources": {
+              "character_passive": 87.4517921216743,
+              "gem:elo_residual": 68.9353968957873
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 156.387189017462
+          },
+          "pack": {
+            "casts": 8,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:elo_residual": 0.0
+            },
+            "sources": {
+              "character_passive": 139.27384847561,
+              "gem:elo_residual": 336.921752328161
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 476.195600803771
+          },
+          "seed": 32858
+        },
+        {
+          "boss": {
+            "casts": 8,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:elo_residual": 0.0
+            },
+            "sources": {
+              "character_passive": 85.8411168791577,
+              "gem:elo_residual": 91.8779586751665
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 177.719075554324
+          },
+          "pack": {
+            "casts": 8,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:elo_residual": 0.0
+            },
+            "sources": {
+              "character_passive": 139.790377903271,
+              "gem:elo_residual": 336.921752328161
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 476.712130231432
+          },
+          "seed": 40777
+        }
+      ],
+      "subject": "elo_residual"
+    },
+    {
+      "character": "rui",
+      "samples": [
+        {
+          "boss": {
+            "casts": 5,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:molde_vigilante": 0.0
+            },
+            "sources": {
+              "gem:molde_vigilante": 192.749551829269
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 192.749551829269
+          },
+          "pack": {
+            "casts": 5,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:molde_vigilante": 0.0
+            },
+            "sources": {
+              "gem:molde_vigilante": 192.749551829269
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 192.749551829269
+          },
+          "seed": 9101
+        },
+        {
+          "boss": {
+            "casts": 5,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:molde_vigilante": 0.0
+            },
+            "sources": {
+              "gem:molde_vigilante": 182.139484756098
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 182.139484756098
+          },
+          "pack": {
+            "casts": 5,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:molde_vigilante": 0.0
+            },
+            "sources": {
+              "gem:molde_vigilante": 182.139484756098
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 182.139484756098
+          },
+          "seed": 17020
+        },
+        {
+          "boss": {
+            "casts": 5,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:molde_vigilante": 0.0
+            },
+            "sources": {
+              "gem:molde_vigilante": 179.486967987805
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 179.486967987805
+          },
+          "pack": {
+            "casts": 5,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:molde_vigilante": 0.0
+            },
+            "sources": {
+              "gem:molde_vigilante": 179.486967987805
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 179.486967987805
+          },
+          "seed": 24939
+        },
+        {
+          "boss": {
+            "casts": 5,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:molde_vigilante": 0.0
+            },
+            "sources": {
+              "gem:molde_vigilante": 174.18193445122
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 174.18193445122
+          },
+          "pack": {
+            "casts": 5,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:molde_vigilante": 0.0
+            },
+            "sources": {
+              "gem:molde_vigilante": 174.18193445122
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 174.18193445122
+          },
+          "seed": 32858
+        },
+        {
+          "boss": {
+            "casts": 5,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:molde_vigilante": 0.0
+            },
+            "sources": {
+              "gem:molde_vigilante": 179.486967987805
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 179.486967987805
+          },
+          "pack": {
+            "casts": 5,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:molde_vigilante": 0.0
+            },
+            "sources": {
+              "gem:molde_vigilante": 179.486967987805
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 179.486967987805
+          },
+          "seed": 40777
+        }
+      ],
+      "subject": "molde_vigilante"
+    },
+    {
+      "character": "cira",
+      "samples": [
+        {
+          "boss": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:semeadura_vital": 0.0
+            },
+            "sources": {
+              "gem:semeadura_vital": 138.747538802661
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 138.747538802661
+          },
+          "pack": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:semeadura_vital": 0.0
+            },
+            "sources": {
+              "gem:semeadura_vital": 794.378514412418
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 794.378514412418
+          },
+          "seed": 9101
+        },
+        {
+          "boss": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:semeadura_vital": 0.0
+            },
+            "sources": {
+              "gem:semeadura_vital": 135.816252771619
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 135.816252771619
+          },
+          "pack": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:semeadura_vital": 0.0
+            },
+            "sources": {
+              "gem:semeadura_vital": 785.584656319292
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 785.584656319292
+          },
+          "seed": 17020
+        },
+        {
+          "boss": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:semeadura_vital": 0.0
+            },
+            "sources": {
+              "gem:semeadura_vital": 129.953680709535
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 129.953680709535
+          },
+          "pack": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:semeadura_vital": 0.0
+            },
+            "sources": {
+              "gem:semeadura_vital": 791.447228381376
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 791.447228381376
+          },
+          "seed": 24939
+        },
+        {
+          "boss": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:semeadura_vital": 0.0
+            },
+            "sources": {
+              "gem:semeadura_vital": 124.091108647451
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 124.091108647451
+          },
+          "pack": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:semeadura_vital": 0.0
+            },
+            "sources": {
+              "gem:semeadura_vital": 788.515942350334
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 788.515942350334
+          },
+          "seed": 32858
+        },
+        {
+          "boss": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:semeadura_vital": 0.0
+            },
+            "sources": {
+              "gem:semeadura_vital": 127.022394678493
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 127.022394678493
+          },
+          "pack": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:semeadura_vital": 0.0
+            },
+            "sources": {
+              "gem:semeadura_vital": 800.241086474502
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 800.241086474502
+          },
+          "seed": 40777
+        }
+      ],
+      "subject": "semeadura_vital"
+    },
+    {
+      "character": "cira",
+      "samples": [
+        {
+          "boss": {
+            "casts": 8,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:estilhacos_lunares": 0.0
+            },
+            "sources": {
+              "gem:estilhacos_lunares": 156.640597283814
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 156.640597283814
+          },
+          "pack": {
+            "casts": 8,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "seed": 9101
+        },
+        {
+          "boss": {
+            "casts": 8,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:estilhacos_lunares": 0.0
+            },
+            "sources": {
+              "gem:estilhacos_lunares": 152.407067627495
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 152.407067627495
+          },
+          "pack": {
+            "casts": 8,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "seed": 17020
+        },
+        {
+          "boss": {
+            "casts": 8,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:estilhacos_lunares": 0.0
+            },
+            "sources": {
+              "gem:estilhacos_lunares": 143.940008314856
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 143.940008314856
+          },
+          "pack": {
+            "casts": 8,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "seed": 24939
+        },
+        {
+          "boss": {
+            "casts": 8,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:estilhacos_lunares": 0.0
+            },
+            "sources": {
+              "gem:estilhacos_lunares": 139.706478658537
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 139.706478658537
+          },
+          "pack": {
+            "casts": 8,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "seed": 32858
+        },
+        {
+          "boss": {
+            "casts": 8,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:estilhacos_lunares": 0.0
+            },
+            "sources": {
+              "gem:estilhacos_lunares": 143.940008314856
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 143.940008314856
+          },
+          "pack": {
+            "casts": 8,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "seed": 40777
+        }
+      ],
+      "subject": "estilhacos_lunares"
+    },
+    {
+      "character": "cira",
+      "samples": [
+        {
+          "boss": {
+            "casts": 11,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:lanca_ferral": 0.0
+            },
+            "sources": {
+              "gem:lanca_ferral": 175.221088553216
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 175.221088553216
+          },
+          "pack": {
+            "casts": 11,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:lanca_ferral": 0.0
+            },
+            "sources": {
+              "gem:lanca_ferral": 87.8065410199559
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 87.8065410199559
+          },
+          "seed": 9101
+        },
+        {
+          "boss": {
+            "casts": 11,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:lanca_ferral": 0.0
+            },
+            "sources": {
+              "gem:lanca_ferral": 172.869127633038
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 172.869127633038
+          },
+          "pack": {
+            "casts": 11,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:lanca_ferral": 0.0
+            },
+            "sources": {
+              "gem:lanca_ferral": 73.6947754988916
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 73.6947754988916
+          },
+          "seed": 17020
+        },
+        {
+          "boss": {
+            "casts": 11,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:lanca_ferral": 0.0
+            },
+            "sources": {
+              "gem:lanca_ferral": 165.813244872506
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 165.813244872506
+          },
+          "pack": {
+            "casts": 11,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:lanca_ferral": 0.0
+            },
+            "sources": {
+              "gem:lanca_ferral": 73.6947754988916
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 73.6947754988916
+          },
+          "seed": 24939
+        },
+        {
+          "boss": {
+            "casts": 11,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:lanca_ferral": 0.0
+            },
+            "sources": {
+              "gem:lanca_ferral": 159.933342572062
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 159.933342572062
+          },
+          "pack": {
+            "casts": 11,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:lanca_ferral": 0.0
+            },
+            "sources": {
+              "gem:lanca_ferral": 73.6947754988916
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 73.6947754988916
+          },
+          "seed": 32858
+        },
+        {
+          "boss": {
+            "casts": 11,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:lanca_ferral": 0.0
+            },
+            "sources": {
+              "gem:lanca_ferral": 164.637264412417
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 164.637264412417
+          },
+          "pack": {
+            "casts": 11,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:lanca_ferral": 0.0
+            },
+            "sources": {
+              "gem:lanca_ferral": 78.3986973392463
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 78.3986973392463
+          },
+          "seed": 40777
+        }
+      ],
+      "subject": "lanca_ferral"
+    },
+    {
+      "character": "cira",
+      "samples": [
+        {
+          "boss": {
+            "casts": 6,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:orbe_de_ruptura": 0.0
+            },
+            "sources": {
+              "gem:orbe_de_ruptura": 112.894124168515
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 112.894124168515
+          },
+          "pack": {
+            "casts": 6,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:orbe_de_ruptura": 0.0
+            },
+            "sources": {
+              "gem:orbe_de_ruptura": 632.207095343683
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 632.207095343683
+          },
+          "seed": 9101
+        },
+        {
+          "boss": {
+            "casts": 6,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:orbe_de_ruptura": 0.0
+            },
+            "sources": {
+              "gem:orbe_de_ruptura": 101.604711751663
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 101.604711751663
+          },
+          "pack": {
+            "casts": 6,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:orbe_de_ruptura": 0.0
+            },
+            "sources": {
+              "gem:orbe_de_ruptura": 598.338858093128
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 598.338858093128
+          },
+          "seed": 17020
+        },
+        {
+          "boss": {
+            "casts": 6,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:orbe_de_ruptura": 0.0
+            },
+            "sources": {
+              "gem:orbe_de_ruptura": 90.3152993348118
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 90.3152993348118
+          },
+          "pack": {
+            "casts": 6,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:orbe_de_ruptura": 0.0
+            },
+            "sources": {
+              "gem:orbe_de_ruptura": 575.760033259425
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 575.760033259425
+          },
+          "seed": 24939
+        },
+        {
+          "boss": {
+            "casts": 6,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:orbe_de_ruptura": 0.0
+            },
+            "sources": {
+              "gem:orbe_de_ruptura": 101.604711751663
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 101.604711751663
+          },
+          "pack": {
+            "casts": 6,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:orbe_de_ruptura": 0.0
+            },
+            "sources": {
+              "gem:orbe_de_ruptura": 564.470620842574
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 564.470620842574
+          },
+          "seed": 32858
+        },
+        {
+          "boss": {
+            "casts": 6,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:orbe_de_ruptura": 0.0
+            },
+            "sources": {
+              "gem:orbe_de_ruptura": 90.3152993348118
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 90.3152993348118
+          },
+          "pack": {
+            "casts": 6,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:orbe_de_ruptura": 0.0
+            },
+            "sources": {
+              "gem:orbe_de_ruptura": 575.760033259425
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 575.760033259425
+          },
+          "seed": 40777
+        }
+      ],
+      "subject": "orbe_de_ruptura"
+    },
+    {
+      "character": "cira",
+      "samples": [
+        {
+          "boss": {
+            "casts": 8,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "pack": {
+            "casts": 8,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "seed": 9101
+        },
+        {
+          "boss": {
+            "casts": 8,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "pack": {
+            "casts": 8,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "seed": 17020
+        },
+        {
+          "boss": {
+            "casts": 8,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "pack": {
+            "casts": 8,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "seed": 24939
+        },
+        {
+          "boss": {
+            "casts": 8,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "pack": {
+            "casts": 8,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "seed": 32858
+        },
+        {
+          "boss": {
+            "casts": 8,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "pack": {
+            "casts": 8,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "seed": 40777
+        }
+      ],
+      "subject": "corte_vetorial"
+    },
+    {
+      "character": "eloa",
+      "samples": [
+        {
+          "boss": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:anel_de_geada": 0.0
+            },
+            "sources": {
+              "gem:anel_de_geada": 68.653161585366
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 68.653161585366
+          },
+          "pack": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:anel_de_geada": 0.0
+            },
+            "sources": {
+              "gem:anel_de_geada": 367.387189024391
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 367.387189024391
+          },
+          "seed": 9101
+        },
+        {
+          "boss": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:anel_de_geada": 0.0
+            },
+            "sources": {
+              "gem:anel_de_geada": 57.5202164634148
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 57.5202164634148
+          },
+          "pack": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:anel_de_geada": 0.0
+            },
+            "sources": {
+              "gem:anel_de_geada": 339.554826219513
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 339.554826219513
+          },
+          "seed": 17020
+        },
+        {
+          "boss": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:anel_de_geada": 0.0
+            },
+            "sources": {
+              "gem:anel_de_geada": 51.9537439024392
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 51.9537439024392
+          },
+          "pack": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:anel_de_geada": 0.0
+            },
+            "sources": {
+              "gem:anel_de_geada": 333.988353658538
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 333.988353658538
+          },
+          "seed": 24939
+        },
+        {
+          "boss": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:anel_de_geada": 0.0
+            },
+            "sources": {
+              "gem:anel_de_geada": 57.5202164634148
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 57.5202164634148
+          },
+          "pack": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:anel_de_geada": 0.0
+            },
+            "sources": {
+              "gem:anel_de_geada": 328.421881097562
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 328.421881097562
+          },
+          "seed": 32858
+        },
+        {
+          "boss": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:anel_de_geada": 0.0
+            },
+            "sources": {
+              "gem:anel_de_geada": 57.5202164634148
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 57.5202164634148
+          },
+          "pack": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:anel_de_geada": 0.0
+            },
+            "sources": {
+              "gem:anel_de_geada": 333.988353658538
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 333.988353658538
+          },
+          "seed": 40777
+        }
+      ],
+      "subject": "anel_de_geada"
+    },
+    {
+      "character": "eloa",
+      "samples": [
+        {
+          "boss": {
+            "casts": 6,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:ruptura_sismica": 0.0
+            },
+            "sources": {
+              "gem:ruptura_sismica": 32.4710899390245
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 32.4710899390245
+          },
+          "pack": {
+            "casts": 6,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:ruptura_sismica": 0.0
+            },
+            "sources": {
+              "gem:ruptura_sismica": 120.606905487805
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 120.606905487805
+          },
+          "seed": 9101
+        },
+        {
+          "boss": {
+            "casts": 6,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:ruptura_sismica": 0.0
+            },
+            "sources": {
+              "gem:ruptura_sismica": 18.5549085365854
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 18.5549085365854
+          },
+          "pack": {
+            "casts": 6,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:ruptura_sismica": 0.0
+            },
+            "sources": {
+              "gem:ruptura_sismica": 106.690724085366
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 106.690724085366
+          },
+          "seed": 17020
+        },
+        {
+          "boss": {
+            "casts": 6,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:ruptura_sismica": 0.0
+            },
+            "sources": {
+              "gem:ruptura_sismica": 18.5549085365854
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 18.5549085365854
+          },
+          "pack": {
+            "casts": 6,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:ruptura_sismica": 0.0
+            },
+            "sources": {
+              "gem:ruptura_sismica": 92.7745426829271
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 92.7745426829271
+          },
+          "seed": 24939
+        },
+        {
+          "boss": {
+            "casts": 6,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:ruptura_sismica": 0.0
+            },
+            "sources": {
+              "gem:ruptura_sismica": 18.5549085365854
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 18.5549085365854
+          },
+          "pack": {
+            "casts": 6,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:ruptura_sismica": 0.0
+            },
+            "sources": {
+              "gem:ruptura_sismica": 106.690724085366
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 106.690724085366
+          },
+          "seed": 32858
+        },
+        {
+          "boss": {
+            "casts": 6,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:ruptura_sismica": 0.0
+            },
+            "sources": {
+              "gem:ruptura_sismica": 18.5549085365854
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 18.5549085365854
+          },
+          "pack": {
+            "casts": 6,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:ruptura_sismica": 0.0
+            },
+            "sources": {
+              "gem:ruptura_sismica": 92.7745426829271
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 92.7745426829271
+          },
+          "seed": 40777
+        }
+      ],
+      "subject": "ruptura_sismica"
+    },
+    {
+      "character": "eloa",
+      "samples": [
+        {
+          "boss": {
+            "casts": 5,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "pack": {
+            "casts": 5,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "seed": 9101
+        },
+        {
+          "boss": {
+            "casts": 5,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "pack": {
+            "casts": 5,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "seed": 17020
+        },
+        {
+          "boss": {
+            "casts": 5,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "pack": {
+            "casts": 5,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "seed": 24939
+        },
+        {
+          "boss": {
+            "casts": 5,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "pack": {
+            "casts": 5,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "seed": 32858
+        },
+        {
+          "boss": {
+            "casts": 5,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "pack": {
+            "casts": 5,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "seed": 40777
+        }
+      ],
+      "subject": "brasa_persistente"
+    },
+    {
+      "character": "eloa",
+      "samples": [
+        {
+          "boss": {
+            "casts": 4,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "pack": {
+            "casts": 4,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:pantano_acido": 0.0
+            },
+            "sources": {
+              "character_passive": 12.9410143902439,
+              "gem:pantano_acido": 124.972369423504
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 137.913383813748
+          },
+          "seed": 9101
+        },
+        {
+          "boss": {
+            "casts": 4,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "pack": {
+            "casts": 4,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:pantano_acido": 0.0
+            },
+            "sources": {
+              "character_passive": 13.3387287804879,
+              "gem:pantano_acido": 118.353327505544
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 131.692056286031
+          },
+          "seed": 17020
+        },
+        {
+          "boss": {
+            "casts": 4,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "pack": {
+            "casts": 4,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:pantano_acido": 0.0
+            },
+            "sources": {
+              "character_passive": 12.9410143902439,
+              "gem:pantano_acido": 115.13489427938
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 128.075908669623
+          },
+          "seed": 24939
+        },
+        {
+          "boss": {
+            "casts": 4,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "pack": {
+            "casts": 4,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:pantano_acido": 0.0
+            },
+            "sources": {
+              "character_passive": 11.5031239024391,
+              "gem:pantano_acido": 115.13489427938
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 126.638018181819
+          },
+          "seed": 32858
+        },
+        {
+          "boss": {
+            "casts": 4,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "pack": {
+            "casts": 4,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:pantano_acido": 0.0
+            },
+            "sources": {
+              "character_passive": 13.155168292683,
+              "gem:pantano_acido": 116.835198625278
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 129.990366917961
+          },
+          "seed": 40777
+        }
+      ],
+      "subject": "pantano_acido"
+    },
+    {
+      "character": "eloa",
+      "samples": [
+        {
+          "boss": {
+            "casts": 8,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:arco_voltaico": 0.0
+            },
+            "sources": {
+              "gem:arco_voltaico": 65.701244318182
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 65.701244318182
+          },
+          "pack": {
+            "casts": 8,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:arco_voltaico": 0.0
+            },
+            "sources": {
+              "gem:arco_voltaico": 355.748200942351
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 355.748200942351
+          },
+          "seed": 9101
+        },
+        {
+          "boss": {
+            "casts": 8,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:arco_voltaico": 0.0
+            },
+            "sources": {
+              "gem:arco_voltaico": 56.0864280764968
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 56.0864280764968
+          },
+          "pack": {
+            "casts": 8,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:arco_voltaico": 0.0
+            },
+            "sources": {
+              "gem:arco_voltaico": 336.518568458981
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 336.518568458981
+          },
+          "seed": 17020
+        },
+        {
+          "boss": {
+            "casts": 8,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:arco_voltaico": 0.0
+            },
+            "sources": {
+              "gem:arco_voltaico": 51.2790199556542
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 51.2790199556542
+          },
+          "pack": {
+            "casts": 8,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:arco_voltaico": 0.0
+            },
+            "sources": {
+              "gem:arco_voltaico": 331.711160338138
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 331.711160338138
+          },
+          "seed": 24939
+        },
+        {
+          "boss": {
+            "casts": 8,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:arco_voltaico": 0.0
+            },
+            "sources": {
+              "gem:arco_voltaico": 56.0864280764968
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 56.0864280764968
+          },
+          "pack": {
+            "casts": 8,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:arco_voltaico": 0.0
+            },
+            "sources": {
+              "gem:arco_voltaico": 322.096344096453
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 322.096344096453
+          },
+          "seed": 32858
+        },
+        {
+          "boss": {
+            "casts": 8,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:arco_voltaico": 0.0
+            },
+            "sources": {
+              "gem:arco_voltaico": 56.0864280764968
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 56.0864280764968
+          },
+          "pack": {
+            "casts": 8,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:arco_voltaico": 0.0
+            },
+            "sources": {
+              "gem:arco_voltaico": 331.711160338138
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 331.711160338138
+          },
+          "seed": 40777
+        }
+      ],
+      "subject": "arco_voltaico"
+    },
+    {
+      "character": "eloa",
+      "samples": [
+        {
+          "boss": {
+            "casts": 6,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:dreno_em_rede": 0.0
+            },
+            "sources": {
+              "gem:dreno_em_rede": 73.3762292128605
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 73.3762292128605
+          },
+          "pack": {
+            "casts": 6,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:dreno_em_rede": 0.0
+            },
+            "sources": {
+              "gem:dreno_em_rede": 205.453441796009
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 205.453441796009
+          },
+          "seed": 9101
+        },
+        {
+          "boss": {
+            "casts": 6,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:dreno_em_rede": 0.0
+            },
+            "sources": {
+              "gem:dreno_em_rede": 66.0386062915745
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 66.0386062915745
+          },
+          "pack": {
+            "casts": 6,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:dreno_em_rede": 0.0
+            },
+            "sources": {
+              "gem:dreno_em_rede": 198.115818874723
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 198.115818874723
+          },
+          "seed": 17020
+        },
+        {
+          "boss": {
+            "casts": 6,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:dreno_em_rede": 0.0
+            },
+            "sources": {
+              "gem:dreno_em_rede": 58.7009833702884
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 58.7009833702884
+          },
+          "pack": {
+            "casts": 6,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:dreno_em_rede": 0.0
+            },
+            "sources": {
+              "gem:dreno_em_rede": 190.778195953437
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 190.778195953437
+          },
+          "seed": 24939
+        },
+        {
+          "boss": {
+            "casts": 6,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:dreno_em_rede": 0.0
+            },
+            "sources": {
+              "gem:dreno_em_rede": 66.0386062915745
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 66.0386062915745
+          },
+          "pack": {
+            "casts": 6,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:dreno_em_rede": 0.0
+            },
+            "sources": {
+              "gem:dreno_em_rede": 183.440573032151
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 183.440573032151
+          },
+          "seed": 32858
+        },
+        {
+          "boss": {
+            "casts": 6,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:dreno_em_rede": 0.0
+            },
+            "sources": {
+              "gem:dreno_em_rede": 58.7009833702884
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 58.7009833702884
+          },
+          "pack": {
+            "casts": 6,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:dreno_em_rede": 0.0
+            },
+            "sources": {
+              "gem:dreno_em_rede": 190.778195953437
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 190.778195953437
+          },
+          "seed": 40777
+        }
+      ],
+      "subject": "dreno_em_rede"
+    },
+    {
+      "character": "eloa",
+      "samples": [
+        {
+          "boss": {
+            "casts": 4,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:sentinela_ferral": 0.0
+            },
+            "sources": {
+              "character_passive": 19.7305680432373,
+              "gem:sentinela_ferral": 217.598472838138
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 237.329040881376
+          },
+          "pack": {
+            "casts": 4,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:sentinela_ferral": 0.0
+            },
+            "sources": {
+              "character_passive": 35.3575252217296,
+              "gem:sentinela_ferral": 207.477613636364
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 242.835138858094
+          },
+          "seed": 9101
+        },
+        {
+          "boss": {
+            "casts": 4,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:sentinela_ferral": 0.0
+            },
+            "sources": {
+              "character_passive": 21.4741197339247,
+              "gem:sentinela_ferral": 187.235895232817
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 208.710014966741
+          },
+          "pack": {
+            "casts": 4,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:sentinela_ferral": 0.0
+            },
+            "sources": {
+              "character_passive": 34.1509976441243,
+              "gem:sentinela_ferral": 197.35675443459
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 231.507752078715
+          },
+          "seed": 17020
+        },
+        {
+          "boss": {
+            "casts": 4,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:sentinela_ferral": 0.0
+            },
+            "sources": {
+              "character_passive": 19.7305680432373,
+              "gem:sentinela_ferral": 192.296324833704
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 212.026892876941
+          },
+          "pack": {
+            "casts": 4,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:sentinela_ferral": 0.0
+            },
+            "sources": {
+              "character_passive": 32.8264660476719,
+              "gem:sentinela_ferral": 192.296324833703
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 225.122790881375
+          },
+          "seed": 24939
+        },
+        {
+          "boss": {
+            "casts": 4,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:sentinela_ferral": 0.0
+            },
+            "sources": {
+              "character_passive": 17.9004262749446,
+              "gem:sentinela_ferral": 197.35675443459
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 215.257180709535
+          },
+          "pack": {
+            "casts": 4,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:sentinela_ferral": 0.0
+            },
+            "sources": {
+              "character_passive": 32.394060698448,
+              "gem:sentinela_ferral": 192.296324833704
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 224.690385532152
+          },
+          "seed": 32858
+        },
+        {
+          "boss": {
+            "casts": 4,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:sentinela_ferral": 0.0
+            },
+            "sources": {
+              "character_passive": 18.9930482261641,
+              "gem:sentinela_ferral": 197.35675443459
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 216.349802660755
+          },
+          "pack": {
+            "casts": 4,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:sentinela_ferral": 0.0
+            },
+            "sources": {
+              "character_passive": 32.8671668514413,
+              "gem:sentinela_ferral": 197.35675443459
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 230.223921286032
+          },
+          "seed": 40777
+        }
+      ],
+      "subject": "sentinela_ferral"
+    },
+    {
+      "character": "eloa",
+      "samples": [
+        {
+          "boss": {
+            "casts": 4,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:enxame_luminar": 0.0
+            },
+            "sources": {
+              "character_passive": 42.2932113359203,
+              "gem:enxame_luminar": 248.669510587583
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 290.962721923504
+          },
+          "pack": {
+            "casts": 4,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:enxame_luminar": 0.0
+            },
+            "sources": {
+              "character_passive": 55.0066916574281,
+              "gem:enxame_luminar": 249.73220080377
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 304.738892461198
+          },
+          "seed": 9101
+        },
+        {
+          "boss": {
+            "casts": 4,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:enxame_luminar": 0.0
+            },
+            "sources": {
+              "character_passive": 41.5556915188471,
+              "gem:enxame_luminar": 248.669510587583
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 290.225202106431
+          },
+          "pack": {
+            "casts": 4,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:enxame_luminar": 0.0
+            },
+            "sources": {
+              "character_passive": 57.0187554046565,
+              "gem:enxame_luminar": 246.544130155211
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 303.562885559867
+          },
+          "seed": 17020
+        },
+        {
+          "boss": {
+            "casts": 4,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:enxame_luminar": 0.0
+            },
+            "sources": {
+              "character_passive": 42.0154124168516,
+              "gem:enxame_luminar": 252.920271452328
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 294.93568386918
+          },
+          "pack": {
+            "casts": 4,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:enxame_luminar": 0.0
+            },
+            "sources": {
+              "character_passive": 56.3678256651887,
+              "gem:enxame_luminar": 251.857581236142
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 308.225406901331
+          },
+          "seed": 24939
+        },
+        {
+          "boss": {
+            "casts": 4,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:enxame_luminar": 0.0
+            },
+            "sources": {
+              "character_passive": 41.2778925997784,
+              "gem:enxame_luminar": 249.73220080377
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 291.010093403548
+          },
+          "pack": {
+            "casts": 4,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:enxame_luminar": 0.0
+            },
+            "sources": {
+              "character_passive": 54.7654951496676,
+              "gem:enxame_luminar": 248.669510587583
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 303.435005737251
+          },
+          "seed": 32858
+        },
+        {
+          "boss": {
+            "casts": 4,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:enxame_luminar": 0.0
+            },
+            "sources": {
+              "character_passive": 41.5556915188471,
+              "gem:enxame_luminar": 252.920271452328
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 294.475962971176
+          },
+          "pack": {
+            "casts": 4,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:enxame_luminar": 0.0
+            },
+            "sources": {
+              "character_passive": 53.9913729212862,
+              "gem:enxame_luminar": 252.920271452329
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 306.911644373615
+          },
+          "seed": 40777
+        }
+      ],
+      "subject": "enxame_luminar"
+    },
+    {
+      "character": "eloa",
+      "samples": [
+        {
+          "boss": {
+            "casts": 3,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:guardiao_de_lastro": 0.0
+            },
+            "sources": {
+              "gem:guardiao_de_lastro": 9.44613525498894
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 9.44613525498894
+          },
+          "pack": {
+            "casts": 3,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:guardiao_de_lastro": 0.0
+            },
+            "sources": {
+              "gem:guardiao_de_lastro": 40.4834368070955
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 40.4834368070955
+          },
+          "seed": 9101
+        },
+        {
+          "boss": {
+            "casts": 3,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:guardiao_de_lastro": 0.0
+            },
+            "sources": {
+              "gem:guardiao_de_lastro": 5.39779157427939
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 5.39779157427939
+          },
+          "pack": {
+            "casts": 3,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:guardiao_de_lastro": 0.0
+            },
+            "sources": {
+              "gem:guardiao_de_lastro": 36.4350931263859
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 36.4350931263859
+          },
+          "seed": 17020
+        },
+        {
+          "boss": {
+            "casts": 3,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:guardiao_de_lastro": 0.0
+            },
+            "sources": {
+              "gem:guardiao_de_lastro": 5.39779157427939
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 5.39779157427939
+          },
+          "pack": {
+            "casts": 3,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:guardiao_de_lastro": 0.0
+            },
+            "sources": {
+              "gem:guardiao_de_lastro": 32.3867494456764
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 32.3867494456764
+          },
+          "seed": 24939
+        },
+        {
+          "boss": {
+            "casts": 3,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:guardiao_de_lastro": 0.0
+            },
+            "sources": {
+              "gem:guardiao_de_lastro": 5.39779157427939
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 5.39779157427939
+          },
+          "pack": {
+            "casts": 3,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:guardiao_de_lastro": 0.0
+            },
+            "sources": {
+              "gem:guardiao_de_lastro": 36.4350931263859
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 36.4350931263859
+          },
+          "seed": 32858
+        },
+        {
+          "boss": {
+            "casts": 3,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:guardiao_de_lastro": 0.0
+            },
+            "sources": {
+              "gem:guardiao_de_lastro": 5.39779157427939
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 5.39779157427939
+          },
+          "pack": {
+            "casts": 3,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:guardiao_de_lastro": 0.0
+            },
+            "sources": {
+              "gem:guardiao_de_lastro": 32.3867494456764
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 32.3867494456764
+          },
+          "seed": 40777
+        }
+      ],
+      "subject": "guardiao_de_lastro"
+    },
+    {
+      "character": "cira",
+      "samples": [
+        {
+          "boss": {
+            "casts": 11,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:ceifa_ampla": 0.0
+            },
+            "sources": {
+              "gem:ceifa_ampla": 21.951635254989
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 21.951635254989
+          },
+          "pack": {
+            "casts": 11,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:ceifa_ampla": 0.0
+            },
+            "sources": {
+              "gem:ceifa_ampla": 94.0784368070956
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 94.0784368070956
+          },
+          "seed": 9101
+        },
+        {
+          "boss": {
+            "casts": 11,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:ceifa_ampla": 0.0
+            },
+            "sources": {
+              "gem:ceifa_ampla": 12.5437915742794
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 12.5437915742794
+          },
+          "pack": {
+            "casts": 11,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:ceifa_ampla": 0.0
+            },
+            "sources": {
+              "gem:ceifa_ampla": 84.6705931263861
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 84.6705931263861
+          },
+          "seed": 17020
+        },
+        {
+          "boss": {
+            "casts": 11,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:ceifa_ampla": 0.0
+            },
+            "sources": {
+              "gem:ceifa_ampla": 12.5437915742794
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 12.5437915742794
+          },
+          "pack": {
+            "casts": 11,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:ceifa_ampla": 0.0
+            },
+            "sources": {
+              "gem:ceifa_ampla": 75.2627494456765
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 75.2627494456765
+          },
+          "seed": 24939
+        },
+        {
+          "boss": {
+            "casts": 11,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:ceifa_ampla": 0.0
+            },
+            "sources": {
+              "gem:ceifa_ampla": 12.5437915742794
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 12.5437915742794
+          },
+          "pack": {
+            "casts": 11,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:ceifa_ampla": 0.0
+            },
+            "sources": {
+              "gem:ceifa_ampla": 84.670593126386
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 84.670593126386
+          },
+          "seed": 32858
+        },
+        {
+          "boss": {
+            "casts": 11,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:ceifa_ampla": 0.0
+            },
+            "sources": {
+              "gem:ceifa_ampla": 12.5437915742794
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 12.5437915742794
+          },
+          "pack": {
+            "casts": 11,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:ceifa_ampla": 0.0
+            },
+            "sources": {
+              "gem:ceifa_ampla": 75.2627494456765
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 75.2627494456765
+          },
+          "seed": 40777
+        }
+      ],
+      "subject": "ceifa_ampla"
+    },
+    {
+      "character": "cira",
+      "samples": [
+        {
+          "boss": {
+            "casts": 6,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:sopro_criogenico": 0.0
+            },
+            "sources": {
+              "gem:sopro_criogenico": 58.7990230044348
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 58.7990230044348
+          },
+          "pack": {
+            "casts": 6,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:sopro_criogenico": 0.0
+            },
+            "sources": {
+              "gem:sopro_criogenico": 217.556385116409
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 217.556385116409
+          },
+          "seed": 9101
+        },
+        {
+          "boss": {
+            "casts": 6,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:sopro_criogenico": 0.0
+            },
+            "sources": {
+              "gem:sopro_criogenico": 52.9191207039913
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 52.9191207039913
+          },
+          "pack": {
+            "casts": 6,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:sopro_criogenico": 0.0
+            },
+            "sources": {
+              "gem:sopro_criogenico": 211.676482815965
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 211.676482815965
+          },
+          "seed": 17020
+        },
+        {
+          "boss": {
+            "casts": 6,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:sopro_criogenico": 0.0
+            },
+            "sources": {
+              "gem:sopro_criogenico": 47.0392184035478
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 47.0392184035478
+          },
+          "pack": {
+            "casts": 6,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:sopro_criogenico": 0.0
+            },
+            "sources": {
+              "gem:sopro_criogenico": 199.916678215078
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 199.916678215078
+          },
+          "seed": 24939
+        },
+        {
+          "boss": {
+            "casts": 6,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:sopro_criogenico": 0.0
+            },
+            "sources": {
+              "gem:sopro_criogenico": 52.9191207039913
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 52.9191207039913
+          },
+          "pack": {
+            "casts": 6,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:sopro_criogenico": 0.0
+            },
+            "sources": {
+              "gem:sopro_criogenico": 194.036775914635
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 194.036775914635
+          },
+          "seed": 32858
+        },
+        {
+          "boss": {
+            "casts": 6,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:sopro_criogenico": 0.0
+            },
+            "sources": {
+              "gem:sopro_criogenico": 47.0392184035478
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 47.0392184035478
+          },
+          "pack": {
+            "casts": 6,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:sopro_criogenico": 0.0
+            },
+            "sources": {
+              "gem:sopro_criogenico": 199.916678215078
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 199.916678215078
+          },
+          "seed": 40777
+        }
+      ],
+      "subject": "sopro_criogenico"
+    },
+    {
+      "character": "eloa",
+      "samples": [
+        {
+          "boss": {
+            "casts": 10,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:raio_prismatico": 0.0
+            },
+            "sources": {
+              "character_passive": 108.461396757207,
+              "gem:raio_prismatico": 147.427182372506
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 255.888579129712
+          },
+          "pack": {
+            "casts": 10,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:raio_prismatico": 0.0
+            },
+            "sources": {
+              "character_passive": 148.508098253881,
+              "gem:raio_prismatico": 304.469180986697
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 452.977279240578
+          },
+          "seed": 9101
+        },
+        {
+          "boss": {
+            "casts": 10,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:raio_prismatico": 0.0
+            },
+            "sources": {
+              "character_passive": 103.298758037694,
+              "gem:raio_prismatico": 147.427182372506
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 250.7259404102
+          },
+          "pack": {
+            "casts": 10,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:raio_prismatico": 0.0
+            },
+            "sources": {
+              "character_passive": 148.02570523836,
+              "gem:raio_prismatico": 285.239548503327
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 433.265253741686
+          },
+          "seed": 17020
+        },
+        {
+          "boss": {
+            "casts": 10,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:raio_prismatico": 0.0
+            },
+            "sources": {
+              "character_passive": 105.702526330377,
+              "gem:raio_prismatico": 137.812366130821
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 243.514892461198
+          },
+          "pack": {
+            "casts": 10,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:raio_prismatico": 0.0
+            },
+            "sources": {
+              "character_passive": 149.31882289357,
+              "gem:raio_prismatico": 285.239548503327
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 434.558371396897
+          },
+          "seed": 24939
+        },
+        {
+          "boss": {
+            "casts": 10,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:raio_prismatico": 0.0
+            },
+            "sources": {
+              "character_passive": 104.227486696231,
+              "gem:raio_prismatico": 128.197549889136
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 232.425036585367
+          },
+          "pack": {
+            "casts": 10,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:raio_prismatico": 0.0
+            },
+            "sources": {
+              "character_passive": 149.673925027717,
+              "gem:raio_prismatico": 256.395099778271
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 406.069024805988
+          },
+          "seed": 32858
+        },
+        {
+          "boss": {
+            "casts": 10,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:raio_prismatico": 0.0
+            },
+            "sources": {
+              "character_passive": 108.192884700666,
+              "gem:raio_prismatico": 147.427182372506
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 255.620067073172
+          },
+          "pack": {
+            "casts": 10,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:raio_prismatico": 0.0
+            },
+            "sources": {
+              "character_passive": 149.245618070954,
+              "gem:raio_prismatico": 304.469180986697
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 453.714799057651
+          },
+          "seed": 40777
+        }
+      ],
+      "subject": "raio_prismatico"
+    },
+    {
+      "character": "eloa",
+      "samples": [
+        {
+          "boss": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:fio_desintegrador": 0.0
+            },
+            "sources": {
+              "gem:fio_desintegrador": 99.8591441241688
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 99.8591441241688
+          },
+          "pack": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:fio_desintegrador": 0.0
+            },
+            "sources": {
+              "gem:fio_desintegrador": 183.524913525499
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 183.524913525499
+          },
+          "seed": 9101
+        },
+        {
+          "boss": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:fio_desintegrador": 0.0
+            },
+            "sources": {
+              "gem:fio_desintegrador": 83.6657694013306
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 83.6657694013306
+          },
+          "pack": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:fio_desintegrador": 0.0
+            },
+            "sources": {
+              "gem:fio_desintegrador": 175.42822616408
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 175.42822616408
+          },
+          "seed": 17020
+        },
+        {
+          "boss": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:fio_desintegrador": 0.0
+            },
+            "sources": {
+              "gem:fio_desintegrador": 75.5690820399115
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 75.5690820399115
+          },
+          "pack": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:fio_desintegrador": 0.0
+            },
+            "sources": {
+              "gem:fio_desintegrador": 159.234851441242
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 159.234851441242
+          },
+          "seed": 24939
+        },
+        {
+          "boss": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:fio_desintegrador": 0.0
+            },
+            "sources": {
+              "gem:fio_desintegrador": 83.6657694013306
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 83.6657694013306
+          },
+          "pack": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:fio_desintegrador": 0.0
+            },
+            "sources": {
+              "gem:fio_desintegrador": 159.234851441242
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 159.234851441242
+          },
+          "seed": 32858
+        },
+        {
+          "boss": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:fio_desintegrador": 0.0
+            },
+            "sources": {
+              "gem:fio_desintegrador": 83.6657694013306
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 83.6657694013306
+          },
+          "pack": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:fio_desintegrador": 0.0
+            },
+            "sources": {
+              "gem:fio_desintegrador": 167.331538802661
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 167.331538802661
+          },
+          "seed": 40777
+        }
+      ],
+      "subject": "fio_desintegrador"
+    },
+    {
+      "character": "cira",
+      "samples": [
+        {
+          "boss": {
+            "casts": 4,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:laminas_orbitais": 0.0
+            },
+            "sources": {
+              "gem:laminas_orbitais": 110.385365853659
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 110.385365853659
+          },
+          "pack": {
+            "casts": 4,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:laminas_orbitais": 0.0
+            },
+            "sources": {
+              "gem:laminas_orbitais": 124.183536585366
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 124.183536585366
+          },
+          "seed": 9101
+        },
+        {
+          "boss": {
+            "casts": 4,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:laminas_orbitais": 0.0
+            },
+            "sources": {
+              "gem:laminas_orbitais": 100.036737804878
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 100.036737804878
+          },
+          "pack": {
+            "casts": 4,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:laminas_orbitais": 0.0
+            },
+            "sources": {
+              "gem:laminas_orbitais": 119.009222560976
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 119.009222560976
+          },
+          "seed": 17020
+        },
+        {
+          "boss": {
+            "casts": 4,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:laminas_orbitais": 0.0
+            },
+            "sources": {
+              "gem:laminas_orbitais": 94.862423780488
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 94.862423780488
+          },
+          "pack": {
+            "casts": 4,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:laminas_orbitais": 0.0
+            },
+            "sources": {
+              "gem:laminas_orbitais": 108.660594512195
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 108.660594512195
+          },
+          "seed": 24939
+        },
+        {
+          "boss": {
+            "casts": 4,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:laminas_orbitais": 0.0
+            },
+            "sources": {
+              "gem:laminas_orbitais": 94.862423780488
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 94.862423780488
+          },
+          "pack": {
+            "casts": 4,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:laminas_orbitais": 0.0
+            },
+            "sources": {
+              "gem:laminas_orbitais": 108.660594512195
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 108.660594512195
+          },
+          "seed": 32858
+        },
+        {
+          "boss": {
+            "casts": 4,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:laminas_orbitais": 0.0
+            },
+            "sources": {
+              "gem:laminas_orbitais": 100.036737804878
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 100.036737804878
+          },
+          "pack": {
+            "casts": 4,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:laminas_orbitais": 0.0
+            },
+            "sources": {
+              "gem:laminas_orbitais": 113.834908536586
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 113.834908536586
+          },
+          "seed": 40777
+        }
+      ],
+      "subject": "laminas_orbitais"
+    },
+    {
+      "character": "cira",
+      "samples": [
+        {
+          "boss": {
+            "casts": 3,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:satelites_de_geada": 0.0
+            },
+            "sources": {
+              "gem:satelites_de_geada": 37.6313747228382
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 37.6313747228382
+          },
+          "pack": {
+            "casts": 3,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:satelites_de_geada": 0.0
+            },
+            "sources": {
+              "gem:satelites_de_geada": 32.6138580931265
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 32.6138580931265
+          },
+          "seed": 9101
+        },
+        {
+          "boss": {
+            "casts": 3,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:satelites_de_geada": 0.0
+            },
+            "sources": {
+              "gem:satelites_de_geada": 33.8682372505544
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 33.8682372505544
+          },
+          "pack": {
+            "casts": 3,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:satelites_de_geada": 0.0
+            },
+            "sources": {
+              "gem:satelites_de_geada": 28.8507206208427
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 28.8507206208427
+          },
+          "seed": 17020
+        },
+        {
+          "boss": {
+            "casts": 3,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:satelites_de_geada": 0.0
+            },
+            "sources": {
+              "gem:satelites_de_geada": 30.1050997782706
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 30.1050997782706
+          },
+          "pack": {
+            "casts": 3,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:satelites_de_geada": 0.0
+            },
+            "sources": {
+              "gem:satelites_de_geada": 25.0875831485588
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 25.0875831485588
+          },
+          "seed": 24939
+        },
+        {
+          "boss": {
+            "casts": 3,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:satelites_de_geada": 0.0
+            },
+            "sources": {
+              "gem:satelites_de_geada": 33.8682372505544
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 33.8682372505544
+          },
+          "pack": {
+            "casts": 3,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:satelites_de_geada": 0.0
+            },
+            "sources": {
+              "gem:satelites_de_geada": 28.8507206208427
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 28.8507206208427
+          },
+          "seed": 32858
+        },
+        {
+          "boss": {
+            "casts": 3,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:satelites_de_geada": 0.0
+            },
+            "sources": {
+              "gem:satelites_de_geada": 30.1050997782706
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 30.1050997782706
+          },
+          "pack": {
+            "casts": 3,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:satelites_de_geada": 0.0
+            },
+            "sources": {
+              "gem:satelites_de_geada": 25.0875831485588
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 25.0875831485588
+          },
+          "seed": 40777
+        }
+      ],
+      "subject": "satelites_de_geada"
+    },
+    {
+      "character": "eloa",
+      "samples": [
+        {
+          "boss": {
+            "casts": 8,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "pack": {
+            "casts": 8,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "seed": 9101
+        },
+        {
+          "boss": {
+            "casts": 8,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "pack": {
+            "casts": 8,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "seed": 17020
+        },
+        {
+          "boss": {
+            "casts": 8,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "pack": {
+            "casts": 8,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "seed": 24939
+        },
+        {
+          "boss": {
+            "casts": 8,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "pack": {
+            "casts": 8,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "seed": 32858
+        },
+        {
+          "boss": {
+            "casts": 8,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "pack": {
+            "casts": 8,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "seed": 40777
+        }
+      ],
+      "subject": "mina_de_lastro"
+    },
+    {
+      "character": "eloa",
+      "samples": [
+        {
+          "boss": {
+            "casts": 6,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "pack": {
+            "casts": 6,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:semente_explosiva": 0.0
+            },
+            "sources": {
+              "gem:semente_explosiva": 109.22093888581
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 109.22093888581
+          },
+          "seed": 9101
+        },
+        {
+          "boss": {
+            "casts": 6,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "pack": {
+            "casts": 6,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:semente_explosiva": 0.0
+            },
+            "sources": {
+              "gem:semente_explosiva": 91.5094352827054
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 91.5094352827054
+          },
+          "seed": 17020
+        },
+        {
+          "boss": {
+            "casts": 6,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "pack": {
+            "casts": 6,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:semente_explosiva": 0.0
+            },
+            "sources": {
+              "gem:semente_explosiva": 82.6536834811532
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 82.6536834811532
+          },
+          "seed": 24939
+        },
+        {
+          "boss": {
+            "casts": 6,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "pack": {
+            "casts": 6,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:semente_explosiva": 0.0
+            },
+            "sources": {
+              "gem:semente_explosiva": 91.5094352827054
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 91.5094352827054
+          },
+          "seed": 32858
+        },
+        {
+          "boss": {
+            "casts": 6,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "pack": {
+            "casts": 6,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:semente_explosiva": 0.0
+            },
+            "sources": {
+              "gem:semente_explosiva": 91.5094352827054
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 91.5094352827054
+          },
+          "seed": 40777
+        }
+      ],
+      "subject": "semente_explosiva"
+    },
+    {
+      "character": "eloa",
+      "samples": [
+        {
+          "boss": {
+            "casts": 5,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "pack": {
+            "casts": 5,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "seed": 9101
+        },
+        {
+          "boss": {
+            "casts": 5,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "pack": {
+            "casts": 5,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "seed": 17020
+        },
+        {
+          "boss": {
+            "casts": 5,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "pack": {
+            "casts": 5,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "seed": 24939
+        },
+        {
+          "boss": {
+            "casts": 5,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "pack": {
+            "casts": 5,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "seed": 32858
+        },
+        {
+          "boss": {
+            "casts": 5,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "pack": {
+            "casts": 5,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "seed": 40777
+        }
+      ],
+      "subject": "chuva_ferral"
+    },
+    {
+      "character": "eloa",
+      "samples": [
+        {
+          "boss": {
+            "casts": 4,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "pack": {
+            "casts": 4,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:cometa_de_vidro": 0.0
+            },
+            "sources": {
+              "gem:cometa_de_vidro": 311.216420454546
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 311.216420454546
+          },
+          "seed": 9101
+        },
+        {
+          "boss": {
+            "casts": 4,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "pack": {
+            "casts": 4,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:cometa_de_vidro": 0.0
+            },
+            "sources": {
+              "gem:cometa_de_vidro": 265.672554046564
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 265.672554046564
+          },
+          "seed": 17020
+        },
+        {
+          "boss": {
+            "casts": 4,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "pack": {
+            "casts": 4,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:cometa_de_vidro": 0.0
+            },
+            "sources": {
+              "gem:cometa_de_vidro": 242.900620842573
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 242.900620842573
+          },
+          "seed": 24939
+        },
+        {
+          "boss": {
+            "casts": 4,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "pack": {
+            "casts": 4,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:cometa_de_vidro": 0.0
+            },
+            "sources": {
+              "gem:cometa_de_vidro": 265.672554046564
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 265.672554046564
+          },
+          "seed": 32858
+        },
+        {
+          "boss": {
+            "casts": 4,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "pack": {
+            "casts": 4,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:cometa_de_vidro": 0.0
+            },
+            "sources": {
+              "gem:cometa_de_vidro": 265.672554046564
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 265.672554046564
+          },
+          "seed": 40777
+        }
+      ],
+      "subject": "cometa_de_vidro"
+    },
+    {
+      "character": "cira",
+      "samples": [
+        {
+          "boss": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:disco_de_retorno": 0.0
+            },
+            "sources": {
+              "gem:disco_de_retorno": 171.222754988914
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 171.222754988914
+          },
+          "pack": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:disco_de_retorno": 0.0
+            },
+            "sources": {
+              "gem:disco_de_retorno": 105.806881929047
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 105.806881929047
+          },
+          "seed": 9101
+        },
+        {
+          "boss": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:disco_de_retorno": 0.0
+            },
+            "sources": {
+              "gem:disco_de_retorno": 164.637264412417
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 164.637264412417
+          },
+          "pack": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:disco_de_retorno": 0.0
+            },
+            "sources": {
+              "gem:disco_de_retorno": 97.9042932372508
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 97.9042932372508
+          },
+          "seed": 17020
+        },
+        {
+          "boss": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:disco_de_retorno": 0.0
+            },
+            "sources": {
+              "gem:disco_de_retorno": 159.36887195122
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 159.36887195122
+          },
+          "pack": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:disco_de_retorno": 0.0
+            },
+            "sources": {
+              "gem:disco_de_retorno": 91.3188026607541
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 91.3188026607541
+          },
+          "seed": 24939
+        },
+        {
+          "boss": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:disco_de_retorno": 0.0
+            },
+            "sources": {
+              "gem:disco_de_retorno": 154.100479490023
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 154.100479490023
+          },
+          "pack": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:disco_de_retorno": 0.0
+            },
+            "sources": {
+              "gem:disco_de_retorno": 91.3188026607541
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 91.3188026607541
+          },
+          "seed": 32858
+        },
+        {
+          "boss": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:disco_de_retorno": 0.0
+            },
+            "sources": {
+              "gem:disco_de_retorno": 156.734675720621
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 156.734675720621
+          },
+          "pack": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:disco_de_retorno": 0.0
+            },
+            "sources": {
+              "gem:disco_de_retorno": 96.5871951219515
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 96.5871951219515
+          },
+          "seed": 40777
+        }
+      ],
+      "subject": "disco_de_retorno"
+    },
+    {
+      "character": "eloa",
+      "samples": [
+        {
+          "boss": {
+            "casts": 9,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:bola_de_fogo": 0.0
+            },
+            "sources": {
+              "character_passive": 94.9099706208429,
+              "gem:bola_de_fogo": 111.835494179601
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 206.745464800444
+          },
+          "pack": {
+            "casts": 9,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:bola_de_fogo": 0.0
+            },
+            "sources": {
+              "character_passive": 144.843352965632,
+              "gem:bola_de_fogo": 679.615695399115
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 824.459048364747
+          },
+          "seed": 9101
+        },
+        {
+          "boss": {
+            "casts": 9,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:bola_de_fogo": 0.0
+            },
+            "sources": {
+              "character_passive": 90.4848517184039,
+              "gem:bola_de_fogo": 120.438224501109
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 210.923076219513
+          },
+          "pack": {
+            "casts": 9,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:bola_de_fogo": 0.0
+            },
+            "sources": {
+              "character_passive": 143.823935837029,
+              "gem:bola_de_fogo": 696.82115604213
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 840.64509187916
+          },
+          "seed": 17020
+        },
+        {
+          "boss": {
+            "casts": 9,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:bola_de_fogo": 0.0
+            },
+            "sources": {
+              "character_passive": 91.5274860033263,
+              "gem:bola_de_fogo": 111.835494179601
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 203.362980182927
+          },
+          "pack": {
+            "casts": 9,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:bola_de_fogo": 0.0
+            },
+            "sources": {
+              "character_passive": 148.503636502218,
+              "gem:bola_de_fogo": 653.807504434591
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 802.311140936809
+          },
+          "seed": 24939
+        },
+        {
+          "boss": {
+            "casts": 9,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:bola_de_fogo": 0.0
+            },
+            "sources": {
+              "character_passive": 90.8672694013307,
+              "gem:bola_de_fogo": 103.232763858093
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 194.100033259424
+          },
+          "pack": {
+            "casts": 9,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:bola_de_fogo": 0.0
+            },
+            "sources": {
+              "character_passive": 144.893340631929,
+              "gem:bola_de_fogo": 662.410234756099
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 807.303575388029
+          },
+          "seed": 32858
+        },
+        {
+          "boss": {
+            "casts": 9,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:bola_de_fogo": 0.0
+            },
+            "sources": {
+              "character_passive": 94.8326674057653,
+              "gem:bola_de_fogo": 120.438224501109
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 215.270891906874
+          },
+          "pack": {
+            "casts": 9,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:bola_de_fogo": 0.0
+            },
+            "sources": {
+              "character_passive": 148.836066518847,
+              "gem:bola_de_fogo": 662.410234756099
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 811.246301274947
+          },
+          "seed": 40777
+        }
+      ],
+      "subject": "bola_de_fogo"
+    },
+    {
+      "character": "eloa",
+      "samples": [
+        {
+          "boss": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:bolha_corrosiva": 0.0
+            },
+            "sources": {
+              "gem:bolha_corrosiva": 69.8623170731709
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 69.8623170731709
+          },
+          "pack": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:bolha_corrosiva": 0.0
+            },
+            "sources": {
+              "gem:bolha_corrosiva": 373.85780487805
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 373.85780487805
+          },
+          "seed": 9101
+        },
+        {
+          "boss": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:bolha_corrosiva": 0.0
+            },
+            "sources": {
+              "gem:bolha_corrosiva": 58.533292682927
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 58.533292682927
+          },
+          "pack": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:bolha_corrosiva": 0.0
+            },
+            "sources": {
+              "gem:bolha_corrosiva": 345.53524390244
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 345.53524390244
+          },
+          "seed": 17020
+        },
+        {
+          "boss": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:bolha_corrosiva": 0.0
+            },
+            "sources": {
+              "gem:bolha_corrosiva": 52.868780487805
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 52.868780487805
+          },
+          "pack": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:bolha_corrosiva": 0.0
+            },
+            "sources": {
+              "gem:bolha_corrosiva": 339.870731707318
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 339.870731707318
+          },
+          "seed": 24939
+        },
+        {
+          "boss": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:bolha_corrosiva": 0.0
+            },
+            "sources": {
+              "gem:bolha_corrosiva": 58.533292682927
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 58.533292682927
+          },
+          "pack": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:bolha_corrosiva": 0.0
+            },
+            "sources": {
+              "gem:bolha_corrosiva": 334.206219512196
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 334.206219512196
+          },
+          "seed": 32858
+        },
+        {
+          "boss": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:bolha_corrosiva": 0.0
+            },
+            "sources": {
+              "gem:bolha_corrosiva": 58.533292682927
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 58.533292682927
+          },
+          "pack": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:bolha_corrosiva": 0.0
+            },
+            "sources": {
+              "gem:bolha_corrosiva": 339.870731707318
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 339.870731707318
+          },
+          "seed": 40777
+        }
+      ],
+      "subject": "bolha_corrosiva"
+    },
+    {
+      "character": "eloa",
+      "samples": [
+        {
+          "boss": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:cometa_sombrio": 0.0
+            },
+            "sources": {
+              "gem:cometa_sombrio": 167.749151333149
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 167.749151333149
+          },
+          "pack": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:cometa_sombrio": 0.0
+            },
+            "sources": {
+              "gem:cometa_sombrio": 79.4182171064304
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 79.4182171064304
+          },
+          "seed": 9101
+        },
+        {
+          "boss": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:cometa_sombrio": 0.0
+            },
+            "sources": {
+              "gem:cometa_sombrio": 173.220069911309
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 173.220069911309
+          },
+          "pack": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:cometa_sombrio": 0.0
+            },
+            "sources": {
+              "gem:cometa_sombrio": 72.1236590022175
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 72.1236590022175
+          },
+          "seed": 17020
+        },
+        {
+          "boss": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:cometa_sombrio": 0.0
+            },
+            "sources": {
+              "gem:cometa_sombrio": 136.747279390244
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 136.747279390244
+          },
+          "pack": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:cometa_sombrio": 0.0
+            },
+            "sources": {
+              "gem:cometa_sombrio": 57.5345427937917
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 57.5345427937917
+          },
+          "seed": 24939
+        },
+        {
+          "boss": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:cometa_sombrio": 0.0
+            },
+            "sources": {
+              "gem:cometa_sombrio": 169.572790859202
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 169.572790859202
+          },
+          "pack": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:cometa_sombrio": 0.0
+            },
+            "sources": {
+              "gem:cometa_sombrio": 64.8291008980046
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 64.8291008980046
+          },
+          "seed": 32858
+        },
+        {
+          "boss": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:cometa_sombrio": 0.0
+            },
+            "sources": {
+              "gem:cometa_sombrio": 144.041837494457
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 144.041837494457
+          },
+          "pack": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:cometa_sombrio": 0.0
+            },
+            "sources": {
+              "gem:cometa_sombrio": 64.8291008980046
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 64.8291008980046
+          },
+          "seed": 40777
+        }
+      ],
+      "subject": "cometa_sombrio"
+    },
+    {
+      "character": "cira",
+      "samples": [
+        {
+          "boss": {
+            "casts": 5,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "pack": {
+            "casts": 5,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:raizes_presas": 0.0
+            },
+            "sources": {
+              "gem:raizes_presas": 188.774820399114
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 188.774820399114
+          },
+          "seed": 9101
+        },
+        {
+          "boss": {
+            "casts": 5,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "pack": {
+            "casts": 5,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:raizes_presas": 0.0
+            },
+            "sources": {
+              "gem:raizes_presas": 178.925699334812
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 178.925699334812
+          },
+          "seed": 17020
+        },
+        {
+          "boss": {
+            "casts": 5,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "pack": {
+            "casts": 5,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:raizes_presas": 0.0
+            },
+            "sources": {
+              "gem:raizes_presas": 176.463419068737
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 176.463419068737
+          },
+          "seed": 24939
+        },
+        {
+          "boss": {
+            "casts": 5,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "pack": {
+            "casts": 5,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:raizes_presas": 0.0
+            },
+            "sources": {
+              "gem:raizes_presas": 171.538858536586
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 171.538858536586
+          },
+          "seed": 32858
+        },
+        {
+          "boss": {
+            "casts": 5,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "pack": {
+            "casts": 5,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:raizes_presas": 0.0
+            },
+            "sources": {
+              "gem:raizes_presas": 178.925699334812
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 178.925699334812
+          },
+          "seed": 40777
+        }
+      ],
+      "subject": "raizes_presas"
+    },
+    {
+      "character": "rui",
+      "samples": [
+        {
+          "boss": {
+            "casts": 5,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "pack": {
+            "casts": 5,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "seed": 9101
+        },
+        {
+          "boss": {
+            "casts": 5,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "pack": {
+            "casts": 5,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "seed": 17020
+        },
+        {
+          "boss": {
+            "casts": 5,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "pack": {
+            "casts": 5,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "seed": 24939
+        },
+        {
+          "boss": {
+            "casts": 5,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "pack": {
+            "casts": 5,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "seed": 32858
+        },
+        {
+          "boss": {
+            "casts": 5,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "pack": {
+            "casts": 5,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "seed": 40777
+        }
+      ],
+      "subject": "pilar_sagrado"
+    },
+    {
+      "character": "eloa",
+      "samples": [
+        {
+          "boss": {
+            "casts": 10,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:esfera_de_gelo": 0.0
+            },
+            "sources": {
+              "character_passive": 108.461396757207,
+              "gem:esfera_de_gelo": 93.1119046563195
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 201.573301413526
+          },
+          "pack": {
+            "casts": 10,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:esfera_de_gelo": 0.0
+            },
+            "sources": {
+              "character_passive": 162.984612389136,
+              "gem:esfera_de_gelo": 540.453881374724
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 703.43849376386
+          },
+          "seed": 9101
+        },
+        {
+          "boss": {
+            "casts": 10,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:esfera_de_gelo": 0.0
+            },
+            "sources": {
+              "character_passive": 103.298758037694,
+              "gem:esfera_de_gelo": 93.1119046563196
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 196.410662694014
+          },
+          "pack": {
+            "casts": 10,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:esfera_de_gelo": 0.0
+            },
+            "sources": {
+              "character_passive": 161.418884284923,
+              "gem:esfera_de_gelo": 540.453881374724
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 701.872765659647
+          },
+          "seed": 17020
+        },
+        {
+          "boss": {
+            "casts": 10,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:esfera_de_gelo": 0.0
+            },
+            "sources": {
+              "character_passive": 105.702526330377,
+              "gem:esfera_de_gelo": 87.0393891352552
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 192.741915465633
+          },
+          "pack": {
+            "casts": 10,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:esfera_de_gelo": 0.0
+            },
+            "sources": {
+              "character_passive": 167.268510116408,
+              "gem:esfera_de_gelo": 510.091303769402
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 677.359813885811
+          },
+          "seed": 24939
+        },
+        {
+          "boss": {
+            "casts": 10,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:esfera_de_gelo": 0.0
+            },
+            "sources": {
+              "character_passive": 104.227486696231,
+              "gem:esfera_de_gelo": 80.9668736141909
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 185.194360310422
+          },
+          "pack": {
+            "casts": 10,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:esfera_de_gelo": 0.0
+            },
+            "sources": {
+              "character_passive": 162.957296840355,
+              "gem:esfera_de_gelo": 522.236334811531
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 685.193631651886
+          },
+          "seed": 32858
+        },
+        {
+          "boss": {
+            "casts": 10,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:esfera_de_gelo": 0.0
+            },
+            "sources": {
+              "character_passive": 108.192884700666,
+              "gem:esfera_de_gelo": 93.1119046563195
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 201.304789356985
+          },
+          "pack": {
+            "casts": 10,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:esfera_de_gelo": 0.0
+            },
+            "sources": {
+              "character_passive": 167.091231568737,
+              "gem:esfera_de_gelo": 522.236334811531
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 689.327566380268
+          },
+          "seed": 40777
+        }
+      ],
+      "subject": "esfera_de_gelo"
+    },
+    {
+      "character": "sena",
+      "samples": [
+        {
+          "boss": {
+            "casts": 11,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:saraivada_de_flechas": 0.0
+            },
+            "sources": {
+              "gem:saraivada_de_flechas": 258.282815130732
+            },
+            "starved_seconds": 8.66666666666666,
+            "total_dps": 258.282815130732
+          },
+          "pack": {
+            "casts": 11,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:saraivada_de_flechas": 0.0
+            },
+            "sources": {
+              "gem:saraivada_de_flechas": 1150.94759491317
+            },
+            "starved_seconds": 8.66666666666666,
+            "total_dps": 1150.94759491317
+          },
+          "seed": 9101
+        },
+        {
+          "boss": {
+            "casts": 11,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:saraivada_de_flechas": 0.0
+            },
+            "sources": {
+              "gem:saraivada_de_flechas": 253.171642116586
+            },
+            "starved_seconds": 8.66666666666666,
+            "total_dps": 253.171642116586
+          },
+          "pack": {
+            "casts": 11,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:saraivada_de_flechas": 0.0
+            },
+            "sources": {
+              "gem:saraivada_de_flechas": 1152.53144829659
+            },
+            "starved_seconds": 8.66666666666666,
+            "total_dps": 1152.53144829659
+          },
+          "seed": 17020
+        },
+        {
+          "boss": {
+            "casts": 11,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:saraivada_de_flechas": 0.0
+            },
+            "sources": {
+              "gem:saraivada_de_flechas": 254.37182153122
+            },
+            "starved_seconds": 8.66666666666666,
+            "total_dps": 254.37182153122
+          },
+          "pack": {
+            "casts": 11,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:saraivada_de_flechas": 0.0
+            },
+            "sources": {
+              "gem:saraivada_de_flechas": 1143.26932248878
+            },
+            "starved_seconds": 8.66666666666666,
+            "total_dps": 1143.26932248878
+          },
+          "seed": 24939
+        },
+        {
+          "boss": {
+            "casts": 11,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:saraivada_de_flechas": 0.0
+            },
+            "sources": {
+              "gem:saraivada_de_flechas": 254.031956028293
+            },
+            "starved_seconds": 8.66666666666666,
+            "total_dps": 254.031956028293
+          },
+          "pack": {
+            "casts": 11,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:saraivada_de_flechas": 0.0
+            },
+            "sources": {
+              "gem:saraivada_de_flechas": 1141.10353546683
+            },
+            "starved_seconds": 8.66666666666666,
+            "total_dps": 1141.10353546683
+          },
+          "seed": 32858
+        },
+        {
+          "boss": {
+            "casts": 11,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:saraivada_de_flechas": 0.0
+            },
+            "sources": {
+              "gem:saraivada_de_flechas": 254.805975889757
+            },
+            "starved_seconds": 8.66666666666666,
+            "total_dps": 254.805975889757
+          },
+          "pack": {
+            "casts": 11,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "gem:saraivada_de_flechas": 0.0
+            },
+            "sources": {
+              "gem:saraivada_de_flechas": 1166.25996702439
+            },
+            "starved_seconds": 8.66666666666666,
+            "total_dps": 1166.25996702439
+          },
+          "seed": 40777
+        }
+      ],
+      "subject": "saraivada_de_flechas"
+    },
+    {
+      "character": "eloa",
+      "samples": [
+        {
+          "boss": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:esporos": 0.00971009866208731
+            },
+            "sources": {
+              "character_passive": 51.9943295454547,
+              "gem:esporos": 9710098759.18829
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 9710098811.18262
+          },
+          "pack": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:esporos": 0.0332247782389208
+            },
+            "sources": {
+              "character_passive": 87.8364350055435,
+              "gem:esporos": 199348669632.873
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 199348669720.71
+          },
+          "seed": 9101
+        },
+        {
+          "boss": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:esporos": 0.00971009866208731
+            },
+            "sources": {
+              "character_passive": 51.0929164356986,
+              "gem:esporos": 9710098759.18829
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 9710098810.28121
+          },
+          "pack": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:esporos": 0.0332247782393297
+            },
+            "sources": {
+              "character_passive": 84.0215450388029,
+              "gem:esporos": 199348669635.327
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 199348669719.349
+          },
+          "seed": 17020
+        },
+        {
+          "boss": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:esporos": 0.00971009866208731
+            },
+            "sources": {
+              "character_passive": 49.3400778824835,
+              "gem:esporos": 9710098759.18829
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 9710098808.52837
+          },
+          "pack": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:esporos": 0.0332247782397387
+            },
+            "sources": {
+              "character_passive": 83.589139689579,
+              "gem:esporos": 199348669637.781
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 199348669721.37
+          },
+          "seed": 24939
+        },
+        {
+          "boss": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:esporos": 0.00971009866208731
+            },
+            "sources": {
+              "character_passive": 47.9016406596454,
+              "gem:esporos": 9710098759.18829
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 9710098807.08993
+          },
+          "pack": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:esporos": 0.0332247782399974
+            },
+            "sources": {
+              "character_passive": 83.1294187915746,
+              "gem:esporos": 199348669639.333
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 199348669722.463
+          },
+          "seed": 32858
+        },
+        {
+          "boss": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:esporos": 0.00971009866208731
+            },
+            "sources": {
+              "character_passive": 50.6605110864747,
+              "gem:esporos": 9710098759.18829
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 9710098809.8488
+          },
+          "pack": {
+            "casts": 7,
+            "seconds": 30.0666666666666,
+            "shares": {
+              "character_passive": 0.0,
+              "gem:esporos": 0.0332247782395376
+            },
+            "sources": {
+              "character_passive": 84.1354506651887,
+              "gem:esporos": 199348669636.574
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 199348669720.71
+          },
+          "seed": 40777
+        }
+      ],
+      "subject": "esporos"
+    },
+    {
+      "character": "eloa",
+      "samples": [
+        {
+          "boss": {
+            "casts": 3,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "pack": {
+            "casts": 3,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "seed": 9101
+        },
+        {
+          "boss": {
+            "casts": 3,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "pack": {
+            "casts": 3,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "seed": 17020
+        },
+        {
+          "boss": {
+            "casts": 3,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "pack": {
+            "casts": 3,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "seed": 24939
+        },
+        {
+          "boss": {
+            "casts": 3,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "pack": {
+            "casts": 3,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "seed": 32858
+        },
+        {
+          "boss": {
+            "casts": 3,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "pack": {
+            "casts": 3,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "seed": 40777
+        }
+      ],
+      "subject": "poca_de_veneno"
+    },
+    {
+      "character": "eloa",
+      "samples": [
+        {
+          "boss": {
+            "casts": 6,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "pack": {
+            "casts": 6,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "seed": 9101
+        },
+        {
+          "boss": {
+            "casts": 6,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "pack": {
+            "casts": 6,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "seed": 17020
+        },
+        {
+          "boss": {
+            "casts": 6,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "pack": {
+            "casts": 6,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "seed": 24939
+        },
+        {
+          "boss": {
+            "casts": 6,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "pack": {
+            "casts": 6,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "seed": 32858
+        },
+        {
+          "boss": {
+            "casts": 6,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "pack": {
+            "casts": 6,
+            "seconds": 30.0666666666666,
+            "shares": {
+
+            },
+            "sources": {
+
+            },
+            "starved_seconds": 0.0,
+            "total_dps": 0.0
+          },
+          "seed": 40777
+        }
+      ],
+      "subject": "trovao_descendente"
+    }
+  ],
+  "schema": 1,
+  "seconds": 30.0,
+  "seeds": 5
+}

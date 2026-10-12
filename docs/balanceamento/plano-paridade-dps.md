@@ -40,9 +40,9 @@ tem uma aprovada. Corrigir laboratorio e escala antes de fixar fatores por gema.
 
 ### 2. Tornar a medicao confiavel
 
-- [ ] Corrigir a selecao de Paragon que atualmente conserva o ultimo preset,
+- [x] Corrigir a selecao de Paragon que atualmente conserva o ultimo preset,
   em vez de conservar a melhor distribuicao encontrada.
-- [ ] Respeitar quantidade e faixa real de afixos por raridade. Separar
+- [x] Respeitar quantidade e faixa real de afixos por raridade. Separar
   equipamento comum de um teto teorico com todas as rolagens favoraveis.
 - [ ] Reexecutar os dez estudos recuperados de logs: faltam equipamentos
   intermediarios e os valores de potencia foram arredondados.
@@ -121,3 +121,31 @@ que mascara seu proprio dano. Suportes e itens sem outliers injustificados.
 
 G8.11 permanece aberto: estas metas de paridade nao substituem as metas de
 progressao/dificuldade nem os playtests previstos no roadmap de Gameplay.
+
+## Primeira Etapa Aplicada
+
+2026-10-12: selecao de Paragon corrigida e afixos favoraveis limitados ao
+orcamento de cada raridade. Continua sendo um teto de rolagens favoraveis,
+nao uma distribuicao de saque real. O teste `build_measurement_test.gd`
+cobre selecao, quantidade, dano efetivo e separacao entre gema e proc de item.
+
+Contador opcional na simulacao registra dano efetivo por origem, sem salvar
+telemetria em snapshots/saves. Ticks percentuais ficam separados de dano fixo.
+Arena isolada desliga autoataque, remove equipamentos e impede reforcos;
+maestria e evolucoes permanecem fixas durante a medicao.
+
+Referencia inicial: [dados da sonda isolada](paridade-dps-base-2026-10-12.json),
+40 magias de dano, nivel 100, maestria 1, cinco sementes e 30 segundos por
+chefe/horda. Sao 400 arenas, sem otimizacao de equipamentos ou suportes.
+Tabela de fatores permaneceu vazia. Nao foram aplicados buffs ou nerfs.
+Suite completa apos esta etapa: 112 checks aprovados, zero falhas, incluindo
+rede e auditoria estrita de gameplay.
+
+Achado bloqueante para calibracao: algumas magias registram zero dano no
+cenario padronizado (inclusive campos, minas e dash). Verificar piloto,
+posicionamento, terreno e alcance antes de inferir fraqueza numerica.
+Esporos depende da Vida maxima do alvo; nao comparar seu DPS bruto no
+boneco de 1e12 com dano fixo. Seus componentes percentuais estao registrados.
+
+Proxima etapa: validar essas mecanicas e a atribuicao encadeada, construir
+referencias em Vidas reais por patamar, entao aplicar e medir os fatores.

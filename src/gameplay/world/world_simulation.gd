@@ -336,6 +336,10 @@ var _passive_events: Array[Dictionary] = []
 var _damage_depth := 0
 var _mechanic_random := RandomNumberGenerator.new()
 var _kill_burst_depth := 0
+## Optional laboratory telemetry; never serialized or included in snapshots.
+var damage_meter_enabled := false
+var damage_meter: Dictionary = {}
+var damage_meter_percent: Dictionary = {}
 var ground_items: Array[Dictionary] = []
 var _ground_sequence := 1
 
@@ -3960,6 +3964,7 @@ func _damage_enemy(peer_id: int, index: int, damage: float, hit: Dictionary) -> 
 		return
 	var zone := arena_zone()
 	var enemy := enemies[index]
+	var percent_ratio := clampf(float(hit.get("percent_damage", 0.0)) / maxf(damage, 0.000001), 0.0, 1.0) if damage_meter_enabled else 0.0
 	var enemy_position := enemy["position"] as Vector2
 	var dot := bool(hit.get("dot", false))
 	# Dano contínuo (veneno, queimadura) não é bloqueável nem esquivável: ignora escudos e não
@@ -4039,6 +4044,13 @@ func _damage_enemy(peer_id: int, index: int, damage: float, hit: Dictionary) -> 
 	else:
 		_vfx(zone, "number", [enemy_position, damage, critical])
 		_vfx(zone, "spark", [enemy_position])
+	if damage_meter_enabled:
+		var source := String(hit.get("damage_origin", ""))
+		if source.is_empty():
+			source = "item_passive" if bool(hit.get("passive", false)) else ("gem:" + String(hit["gem_id"]) if not String(hit.get("gem_id", "")).is_empty() else "auto_attack")
+		var actual := minf(maxf(0.0, float(enemy["health"])), damage)
+		damage_meter[source] = float(damage_meter.get(source, 0.0)) + actual
+		damage_meter_percent[source] = float(damage_meter_percent.get(source, 0.0)) + actual * percent_ratio
 	enemy["health"] = float(enemy["health"]) - damage
 	enemy["hurt_timer"] = 2.0
 	# Vínculo (maré): o par divide a mesma Vida.
@@ -4859,7 +4871,8 @@ func _step_poisons(delta: float) -> void:
 				entry["timer"] = float(entry["timer"]) + float(entry["interval"])
 				var index := enemies.find(enemy)
 				if index >= 0 and players.has(int(entry["peer"])):
-					damage_enemy(int(entry["peer"]), index, poison_tick_damage(enemy, entry), {"gem": true, "gem_id": entry["gem_id"], "dot": true, "damage_type": "arcane", "poison": poison_type})
+					var percent_damage := float(entry.get("share", 0.0)) * float(enemy.get("max_health", 0.0)) * float(entry.get("stack", 1.0))
+					damage_enemy(int(entry["peer"]), index, poison_tick_damage(enemy, entry), {"gem": true, "gem_id": entry["gem_id"], "dot": true, "damage_type": "arcane", "poison": poison_type, "percent_damage": percent_damage})
 				entry["stack"] = minf(float(entry.get("cap", 1.0)), float(entry.get("stack", 1.0)) * (1.0 + float(entry["growth"])))
 				if poison_type == "esporo":
 					_record_spore_strain(int(entry["peer"]), float(entry["stack"]))
@@ -5077,7 +5090,7 @@ func _apply_passive_requests(peer_id: int, requests: Array) -> void:
 			"nova":
 				var center := request.get("position", state["position"]) as Vector2
 				_vfx(state["zone"], "ring", [center, float(request["radius"])])
-				damage_enemies(peer_id, center, float(request["radius"]), float(request["amount"]))
+				damage_enemies(peer_id, center, float(request["radius"]), float(request["amount"]), {"damage_origin": "character_passive"})
 			"barrier":
 				_add_barrier(peer_id, float(request["amount"]), 6.0)
 			"breath":
@@ -5095,7 +5108,7 @@ func _apply_passive_requests(peer_id: int, requests: Array) -> void:
 						continue
 					var link: Array[Vector2] = [origin, enemies[target_index]["position"] as Vector2]
 					_vfx(state["zone"], "chain", [link])
-					damage_enemy(peer_id, target_index, float(request["amount"]))
+					damage_enemy(peer_id, target_index, float(request["amount"]), {"damage_origin": "character_passive"})
 
 
 # ---------------------------------------------------------------- saque, EXP e atributos
