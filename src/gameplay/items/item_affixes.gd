@@ -16,8 +16,12 @@ const DIVINE_FIXED := {
 	"pants": "defesa", "weapon": "autoataque", "offhand": "area", "relic": "folego",
 }
 const MAX_ITEM_LEVEL := 100
-## Cada nível do item soma 2% aos atributos-base e aos afixos: andar 100 vale ~3x o andar 1.
+## Cada nível do item soma 2% aos atributos-base e aos afixos de valor fixo (atributos, Vida,
+## Fôlego, Defesa): andar 100 vale ~3x o andar 1. Afixos de porcentagem não escalam com o nível
+## (balanceamento de 2026-10-11, decisão 610): com dez peças eles chegavam a multiplicar o dano por 100.
 const LEVEL_STEP := 0.02
+## Piso de um multiplicador somado entre peças (ex.: dano recebido não passa de -90%).
+const MULT_FLOOR := 0.1
 
 ## id: tipo, chave, faixa do comum e rótulo. Valores de `mod` em fração (0.06 = 6%).
 const POOL := {
@@ -91,7 +95,7 @@ static func roll(tier: String, random: RandomNumberGenerator, item_level: int = 
 		ids[index] = ids[pick]
 		ids[pick] = swap
 		var spec := POOL[ids[index]] as Dictionary
-		var value := random.randf_range(float(spec["min"]), float(spec["max"])) * float(SCALE.get(tier, 1.0)) * level_factor(item_level)
+		var value := random.randf_range(float(spec["min"]), float(spec["max"])) * float(SCALE.get(tier, 1.0)) * affix_level_factor(spec, item_level)
 		result.append({"id": String(ids[index]), "value": _round(spec, value)})
 	return result
 
@@ -114,7 +118,20 @@ static func roll_divine(slot: String, random: RandomNumberGenerator, item_level:
 
 static func _max_affix(id: String, item_level: int) -> Dictionary:
 	var spec := POOL[id] as Dictionary
-	return {"id": id, "value": _round(spec, float(spec["max"]) * float(SCALE["divine"]) * level_factor(item_level))}
+	return {"id": id, "value": _round(spec, float(spec["max"]) * float(SCALE["divine"]) * affix_level_factor(spec, item_level))}
+
+
+## Só afixos de valor fixo crescem com o nível do item; porcentagens ficam na faixa da raridade.
+static func affix_level_factor(spec: Dictionary, item_level: int) -> float:
+	if String(spec.get("kind", "")) == "mod" or bool(spec.get("percent", false)):
+		return 1.0
+	return level_factor(item_level)
+
+
+## Teto de um afixo de porcentagem (faixa máxima do divino); saves antigos com valores escalados pelo
+## nível são trazidos para dentro dele.
+static func value_limit(spec: Dictionary) -> float:
+	return maxf(absf(float(spec["min"])), absf(float(spec["max"]))) * float(SCALE["divine"])
 
 
 ## Afixos fixos de um item (`fixed_affixes` nos dados): sempre presentes, valor sorteado na faixa
@@ -147,6 +164,8 @@ static func sanitize(raw: Variant) -> Array[Dictionary]:
 			continue
 		var id := String((entry as Dictionary).get("id", ""))
 		var value := float((entry as Dictionary).get("value", 0.0))
+		if POOL.has(id) and is_finite(value) and (String(POOL[id]["kind"]) == "mod" or bool(POOL[id].get("percent", false))):
+			value = clampf(value, -value_limit(POOL[id] as Dictionary), value_limit(POOL[id] as Dictionary))
 		if POOL.has(id) and is_finite(value):
 			result.append({"id": id, "value": value})
 	return result
@@ -163,19 +182,29 @@ static func stats(affixes: Array) -> Dictionary:
 	return result
 
 
-## Modificadores dos afixos: `_mult` vira fator (1 + valor) e multiplica; o resto soma.
+## Modificadores dos afixos: tudo soma (`_mult` vira 1 + soma, com piso); entre peças também soma,
+## em `combine` (decisão 610: antes multiplicava e dez peças com o mesmo afixo explodiam o dano).
 static func mods(affixes: Array) -> Dictionary:
-	var result := {}
+	var sums := {}
 	for affix: Dictionary in affixes:
 		var spec := POOL.get(String(affix["id"]), {}) as Dictionary
 		if String(spec.get("kind", "")) != "mod":
 			continue
 		var key := String(spec["key"])
-		if key.ends_with("_mult"):
-			result[key] = float(result.get(key, 1.0)) * (1.0 + float(affix["value"]))
-		else:
-			result[key] = float(result.get(key, 0.0)) + float(affix["value"])
+		sums[key] = float(sums.get(key, 0.0)) + float(affix["value"])
+	var result := {}
+	for key: String in sums:
+		result[key] = maxf(MULT_FLOOR, 1.0 + float(sums[key])) if key.ends_with("_mult") else float(sums[key])
 	return result
+
+
+## Junta os modificadores de afixos de várias peças somando (o `_mult` de cada peça é 1 + soma).
+static func combine(total: Dictionary, piece: Dictionary) -> void:
+	for key: String in piece:
+		if key.ends_with("_mult"):
+			total[key] = maxf(MULT_FLOOR, float(total.get(key, 1.0)) + float(piece[key]) - 1.0)
+		else:
+			total[key] = float(total.get(key, 0.0)) + float(piece[key])
 
 
 static func describe(affix: Dictionary) -> String:

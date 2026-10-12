@@ -58,7 +58,7 @@ func _run() -> void:
 	var ids := {}
 	for affix: Dictionary in boots.affixes:
 		var spec := Affixes.POOL[String(affix["id"])] as Dictionary
-		var expected := Affixes._round(spec, float(spec["max"]) * float(Affixes.SCALE["divine"]) * Affixes.level_factor(50))
+		var expected := Affixes._round(spec, float(spec["max"]) * float(Affixes.SCALE["divine"]) * Affixes.affix_level_factor(spec, 50))
 		if not is_equal_approx(float(affix["value"]), expected) or ids.has(affix["id"]):
 			return _fail("Every divine affix must be distinct and at its maximum: %s" % [affix])
 		ids[affix["id"]] = true

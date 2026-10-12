@@ -74,9 +74,7 @@ static func _loadout_data(sim: RefCounted, items: Array[EquipmentItemInstance]) 
 	# Afixos de modificador (decisão 583) entram junto, no mesmo cache por peças equipadas.
 	var affix_mods := {}
 	for item in items:
-		var mods := ItemAffixesScript.mods(item.affixes)
-		for mod_key: String in mods:
-			affix_mods[mod_key] = float(affix_mods.get(mod_key, 1.0)) * float(mods[mod_key]) if mod_key.ends_with("_mult") else float(affix_mods.get(mod_key, 0.0)) + float(mods[mod_key])
+		ItemAffixesScript.combine(affix_mods, ItemAffixesScript.mods(item.affixes))
 	for item in items:
 		var data := sim.call("item_data", String(item.definition.id)) as Dictionary
 		# Divinos (decisão 608) trazem 1 ou 2 linhas em `passives`; lendários e únicas, uma em `passive`.

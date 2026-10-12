@@ -44,8 +44,27 @@ func _run() -> void:
 	var deep := _first_value("common", 100)
 	if not is_equal_approx(snappedf(rare / low, 0.01), 1.5) and absf(rare / low - 1.5) > 0.2:
 		return _fail("Rare affixes must be ~1.5x common, got %.2f" % (rare / low))
-	if deep / low < 2.5:
-		return _fail("Level 100 affixes must be ~3x level 1, got %.2f" % (deep / low))
+	# Só afixos de valor fixo crescem com o nível; porcentagens ficam na faixa da raridade (decisão 610).
+	var flat := Affixes.POOL["vida"] as Dictionary
+	var percent := Affixes.POOL["dano_fogo"] as Dictionary
+	if absf(Affixes.affix_level_factor(flat, 100) - 2.98) > 0.01 or not is_equal_approx(Affixes.affix_level_factor(percent, 100), 1.0):
+		return _fail("Flat affixes scale ~3x at level 100; percent affixes do not")
+	if deep / low > 3.1:
+		return _fail("No affix may scale beyond the level factor, got %.2f" % (deep / low))
+	# Regressão de 2026-10-11: o mesmo afixo em dez peças multiplicava o dano (~x107); agora soma.
+	var total := {}
+	for piece in range(10):
+		Affixes.combine(total, Affixes.mods([{"id": "dano_fisico", "value": 0.2}]))
+	if not is_equal_approx(float(total["power_physical_mult"]), 3.0):
+		return _fail("Percent affixes must add across pieces: %s" % total["power_physical_mult"])
+	var shield := {}
+	for piece in range(10):
+		Affixes.combine(shield, Affixes.mods([{"id": "resistencia", "value": -0.11}]))
+	if float(shield["damage_taken_mult"]) < Affixes.MULT_FLOOR - 0.0001:
+		return _fail("Summed reductions must keep a floor")
+	var inflated := Affixes.sanitize([{"id": "dano_fisico", "value": 0.6}])
+	if float(inflated[0]["value"]) > Affixes.value_limit(Affixes.POOL["dano_fisico"]) + 0.0001:
+		return _fail("Inflated percent affixes from old saves must be clamped")
 
 	# Peça criada na Torre leva o nível do andar; atributos e afixos entram nos atributos derivados.
 	var sim := Simulation.new()
