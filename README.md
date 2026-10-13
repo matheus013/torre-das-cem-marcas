@@ -389,6 +389,7 @@ sh tools/wiki/publish_wiki.sh                    # regenera e publica em github.
 - [Roadmap até o MVP](docs/roadmap-ate-mvp.md)
 - [Revisão: hordas, expedições e RPG](docs/revisao-projeto-survivors-rpg.md)
 - [Backlog de gameplay e itemização](docs/roadmap-gameplay-survivors-rpg.md) (épico E1: pós-jogo e builds)
+- [Roadmap da vila](docs/roadmap-vila.md) (nível da vila, obras, qualidade e itens de expedição)
 - [Dificuldades, dia e noite e Paragon](docs/game-design/76-dificuldades-dia-e-noite-e-paragon.md)
 - [Revisão revolucionária de itens](docs/game-design/77-revisao-revolucionaria-de-itens.md)
 - [Registro de decisões](docs/game-design/09-registro-de-decisoes.md)

@@ -238,6 +238,8 @@ nas dificuldades 3 a 5.
 Hoje o periodo do dia so avanca a cada retorno de expedicao e muda luz e rotina da vila
 (decisao 561). Ainda nao implementado:
 
+G7.5 a G7.7 estao detalhados em fases V1 a V8 no [roadmap da vila](roadmap-vila.md).
+
 - G7.1 -> G8.1 (detalhado no plano do documento 76; nao conta duas vezes).
 - G7.2 -> G8.1 (detalhado no plano do documento 76; nao conta duas vezes).
 - G7.3 -> G8.2 (detalhado no plano do documento 76; nao conta duas vezes).
